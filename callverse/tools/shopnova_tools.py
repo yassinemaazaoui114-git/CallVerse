@@ -9,21 +9,13 @@ the tool's name, what it does and which arguments it takes.
 """
 
 import json
-import sqlite3
+from pathlib import Path
 from contextlib import closing
 from datetime import date
 
 from callverse.config import sim_today
-from callverse.data.seed import DB_PATH, seed
-
-
-def _connect() -> sqlite3.Connection:
-    """Open the database (create it first if seed.py was never run)."""
-    if not DB_PATH.exists():
-        seed()
-    con = sqlite3.connect(DB_PATH)
-    con.row_factory = sqlite3.Row  # rows behave like dicts: row["name"]
-    return con
+from callverse.data.db import connect as _connect  # opens the DB in use (real one, or a test copy)
+from callverse.data.seed import COUNTED_REFUND_STATUSES
 
 
 def _fetch_order(order_id: int) -> dict | None:
@@ -68,6 +60,9 @@ def get_tracking(order_id: int) -> dict:
     - delivered order: delivered_date - promised_date
     - not delivered:   sim_today - promised_date
     (never negative: an order that is on time is 0 days late)
+
+    days_since_delivery = sim_today - delivered_date for a delivered order, None otherwise
+    (used by the 14-day return rule R-RET-01).
     """
     order = _fetch_order(order_id)
     if order is None:
@@ -88,10 +83,40 @@ def get_tracking(order_id: int) -> dict:
         "promised_date": order["promised_date"],
         "delivered_date": order["delivered_date"],
         "days_late": days_late,
+        "days_since_delivery": (today - date.fromisoformat(order["delivered_date"])).days if delivered else None,
         "carrier": order["carrier"],
         "tracking_number": order["tracking_number"],
         "checked_on": today.isoformat(),
     }
+
+
+
+
+def get_refunds(order_id: int) -> dict:
+    """Return the refunds of an order and how much was already given back.
+
+    {"order_id": 4512, "refunds": [rows...], "refunded_total": 0.0}
+    refunded_total = sum of refunds with status approved or completed. Rule R-REF-05 uses it,
+    so an order cannot be refunded twice.
+    """
+    if _fetch_order(order_id) is None:
+        return {"error": f"order {order_id} not found"}
+    with closing(_connect()) as con:
+        rows = [dict(r) for r in con.execute(
+            "SELECT * FROM refunds WHERE order_id = ? ORDER BY id", (int(order_id),)).fetchall()]
+    total = sum(r["amount"] for r in rows if r["status"] in COUNTED_REFUND_STATUSES)
+    return {"order_id": int(order_id), "refunds": rows, "refunded_total": round(total, 2)}
+
+
+COMPANY_PROFILE_PATH = Path(__file__).resolve().parent.parent / "data" / "company_profile.json"
+
+
+def get_company_profile() -> dict:
+    """Return the ShopNova company profile: what it sells, cities, carriers, delivery promise, support."""
+    try:
+        return json.loads(COMPANY_PROFILE_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:  # missing or broken file: tell the caller, never raise
+        return {"error": f"company profile not available: {type(e).__name__}"}
 
 
 # JSON schemas for tool calling (OpenAI "tools" format).
@@ -127,7 +152,7 @@ SCHEMAS = {
         "type": "function",
         "function": {
             "name": "get_tracking",
-            "description": "Get the delivery status of an order and how many days late it is (computed by the system).",
+            "description": "Get the delivery status of an order, how many days late it is, and days since delivery (null if not delivered). All computed by the system.",
             "parameters": {
                 "type": "object",
                 "properties": {"order_id": {"type": "integer", "description": "Order number, e.g. 4512"}},
@@ -135,11 +160,34 @@ SCHEMAS = {
             },
         },
     },
+    "get_refunds": {
+        "type": "function",
+        "function": {
+            "name": "get_refunds",
+            "description": "List the refunds of a ShopNova order (amount, status, rule) and refunded_total, the amount already refunded or approved (TND). Empty list = no refund yet.",
+            "parameters": {
+                "type": "object",
+                "properties": {"order_id": {"type": "integer", "description": "Order number, e.g. 4512"}},
+                "required": ["order_id"],
+            },
+        },
+    },
+    "get_company_profile": {
+        "type": "function",
+        "function": {
+            "name": "get_company_profile",
+            "description": "Get the ShopNova company profile: what it sells, cities served, carriers, delivery promise (days), currency, payment methods, support channels and languages.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
 }
 
 # Name -> Python function, used by the registry to actually run a tool.
+# Being listed here does NOT give an agent access: the allow-lists in registry.py decide that.
 FUNCTIONS = {
     "get_user": get_user,
     "get_order": get_order,
     "get_tracking": get_tracking,
+    "get_refunds": get_refunds,
+    "get_company_profile": get_company_profile,
 }

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "R-DEL-01",
+    "title": "Delivery promise",
+    "text": "Every ShopNova order has a promised delivery date, shown to the client at checkout. The order should arrive on or before that date. An order delivered after the promised date, or not delivered when the promised date has passed, is late; the number of days late is computed by the system.",
+    "condition": null,
+    "ai_generated": true
+  },
+  {
+    "id": "R-DEL-02",
+    "title": "Late delivery of 1 to 5 days",
+    "text": "If an order is 1 to 5 days late and not yet delivered, apologise to the client, give the current delivery status from the tracking data, and offer a notification when the order is shipped, out for delivery or delivered. No refund or compensation is given for a delay of 5 days or less.",
+    "condition": "1 <= days_late <= 5 and not delivered",
+    "ai_generated": true
+  },
+  {
+    "id": "R-REF-03",
+    "title": "Full refund for a delay of more than 5 days",
+    "text": "If an order is more than 5 days late and still not delivered, the client may ask for a full refund of the amount paid. The refund is given only if the client asks for it; the order is then cancelled.",
+    "condition": "days_late > 5 and not delivered",
+    "ai_generated": true
+  },
+  {
+    "id": "R-REF-05",
+    "title": "Refund limit",
+    "text": "A refund can never be higher than the amount the client actually paid for the order, minus any refund already given or approved for that order. An order that was already fully refunded cannot be refunded again. For a cash-on-delivery order that is not yet paid, the amount paid is 0 TND, so no refund is possible.",
+    "condition": "amount <= paid - refunded_total",
+    "ai_generated": true
+  },
+  {
+    "id": "R-RET-01",
+    "title": "Returns within 14 days",
+    "text": "A delivered item can be returned within 14 days of the delivery date if it is unused and in its original packaging. The refund is paid after ShopNova receives the returned item.",
+    "condition": "delivered and days_since_delivery <= 14",
+    "ai_generated": true
+  },
+  {
+    "id": "R-DMG-01",
+    "title": "Damaged item",
+    "text": "If a client says an item arrived damaged, ask for a photo of the damage. Only after the photo proof is received can a replacement or a refund be offered.",
+    "condition": "proof_received",
+    "ai_generated": true
+  },
+  {
+    "id": "R-ESC-01",
+    "title": "Large refunds need finance approval",
+    "text": "Any refund above 300 TND must be approved by the ShopNova finance team (Layer 3) before it is paid. Do not promise the client a refund above 300 TND; say that it needs approval.",
+    "condition": "amount > 300",
+    "ai_generated": true
+  },
+  {
+    "id": "R-NOT-01",
+    "title": "Delivery notifications",
+    "text": "A client can subscribe to a notification for an order. Notifications exist only for these events: shipped, out for delivery, delivered. Promise a notification only after the subscription is recorded.",
+    "condition": "event in ['shipped', 'out_for_delivery', 'delivered']",
+    "ai_generated": true
+  }
+]

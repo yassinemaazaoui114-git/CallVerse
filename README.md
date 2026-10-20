@@ -65,6 +65,21 @@ traces/             run logs (not in git)
 **Coming next:** Policy KB + search (RAG), Agent B, Coordinator, queue router, delivery notifications
 (Brief #2) · Intake (Brief #3) · SLM reply writer and Client Simulator (Brief #4).
 
+## Data
+
+The ShopNova database (`callverse/data/shopnova.db`, rebuilt by `python -m callverse.data.seed`) is **fictional**.
+Every row has two labels so AI-generated data is always visible:
+
+- `ai_generated = 1` — written by an AI, not real. This is true for **all** seed data (users, products, orders,
+  refunds) and for the company profile (`callverse/data/company_profile.json`) and the policy texts.
+- `scripted = 1` — a hand-written demo case that must never change: orders **4505–4515** (4512 = main demo,
+  4515 = Layer 3 case) and the 4506 refund.
+- Generated data (`scripted = 0`): 20 users and 120 orders (ids 5001–5120), made by `generate_data()` in
+  `seed.py` with a fixed random seed, so every rebuild is identical.
+- Rows created while the system runs (refunds, subscriptions, events) get `0 / 0`.
+
+`python -m scripts.data_summary` prints the counts per table, per status, and how many rows are generated or scripted.
+
 ## For the platform builder
 
 What the agents expect from the ShopNova mock platform (tables, tools, policies):
