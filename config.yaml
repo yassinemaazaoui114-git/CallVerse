@@ -20,3 +20,32 @@ models:
   simulator: # M1, different family (used in task 4)
     # Supervisor decision: the Gemini Flash model this account can access. To verify at task 4.
     - {provider: google,     model: "gemini-3.8-flash"}
+
+# Voice + text web channel (callverse/web). It is a CHANNEL ADAPTER: it turns audio into text and the
+# approved reply into audio. It never decides anything itself; business logic stays in the agents.
+voice:
+  # auto = "real" when the agents' API key (GROQ_API_KEY) is set, otherwise "mock".
+  # real = Agent A answers (the only agent built so far). mock = fixed demo replies, no agent, no data.
+  mode: auto
+  languages: [en, fr]
+  stt:
+    # Speech-to-text providers, tried in order. groq = Whisper on Groq's API (needs GROQ_API_KEY);
+    # faster_whisper = the open-source Whisper model running inside our own server container (CPU).
+    providers: [groq, faster_whisper]
+    groq: {provider: groq, model: "whisper-large-v3-turbo"}
+    # "base": in our round-trip test (Piper voice -> Whisper) it was as accurate as "small" and 3x faster.
+    faster_whisper: {model: "base", compute_type: "int8", cpu_threads: 2}
+  tts:
+    # Piper voices (open source, run on the server CPU). Chosen by a round-trip test and by their data licence:
+    # cori = LibriVox (public domain) recordings, upmc = CC BY-SA 4.0.
+    voices: {en: "en_GB-cori-medium", fr: "fr_FR-upmc-medium"}
+  limits:
+    max_audio_bytes: 5000000      # 5 MB
+    max_audio_seconds: 30
+    max_text_chars: 1000
+    turns_per_session_per_10min: 30
+    turns_per_ip_per_hour: 120
+    turns_global_per_hour: 600    # whole site, protects the shared API quota
+    sessions_per_ip_per_hour: 30
+    session_ttl_minutes: 60
+    max_history_turns: 10         # user+assistant pairs kept as conversation context

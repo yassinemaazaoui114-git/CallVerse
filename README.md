@@ -49,6 +49,7 @@ callverse/          the code
   data/               placeholder ShopNova database (seed.py)
   tools/              tool functions + per-agent allow-lists (registry.py)
   agents/             base agent loop + Agent A
+  web/                customer website: text + voice chat (speech-to-text, text-to-speech), see below
   kb/ coordinator/ queues/ notifier/ intake/ slm/ simulator/   empty, filled by later tasks
 scripts/            runnable entry points (run_demo.py)
 tests/              pytest tests (no API key needed)
@@ -64,6 +65,20 @@ traces/             run logs (not in git)
 
 **Coming next:** Policy KB + search (RAG), Agent B, Coordinator, queue router, delivery notifications
 (Brief #2) · Intake (Brief #3) · SLM reply writer and Client Simulator (Brief #4).
+
+## Voice + text website (branch `feature/multimodal-voice`)
+
+Customers can type **or speak** to CallVerse and get a written and spoken answer. Voice is a channel
+adapter: speech-to-text (Groq Whisper, backup: faster-whisper in the server) → the same pipeline as text
+→ the reply is spoken by a Piper voice. REAL mode = Agent A (after an identity check by email);
+MOCK mode (no API key) = clearly labelled demo replies.
+
+```bash
+pip install -r requirements-voice.txt
+python -m scripts.download_voice_models   # once, ~210 MB into ./models
+python -m scripts.run_web                 # http://127.0.0.1:8080/
+```
+Docker / Hugging Face Spaces deployment, API, security and limits: [docs/voice_channel.md](docs/voice_channel.md).
 
 ## For the platform builder
 

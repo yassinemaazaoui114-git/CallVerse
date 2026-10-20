@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>CallVerse · ShopNova Care</title>
+  <meta name="description" content="CallVerse customer channel: write or speak to ShopNova customer care.">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%234f46e5'/%3E%3Cpath d='M9 9v3M12 7.5v6M15 9v3' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8l-5 4v-4H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" /><path d="M9 9v3M12 7.5v6M15 9v3" /></svg>
+        </div>
+        <div>
+          <h1>CallVerse</h1>
+          <p class="subtitle">ShopNova customer care</p>
+        </div>
+      </div>
+      <div class="controls">
+        <span id="mode-badge" class="badge" title="Checking the server…">…</span>
+        <label class="lang">
+          <span class="sr-only">Language</span>
+          <select id="lang" aria-label="Language">
+            <option value="auto">Auto</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+          </select>
+        </label>
+        <button id="new-chat" class="icon-btn" type="button" aria-label="New conversation" title="New conversation">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="chat" class="chat" role="log" aria-live="polite" aria-label="Conversation">
+      <section class="welcome" id="welcome">
+        <h2>How can we help today?</h2>
+        <p>Type a message or press the microphone and speak. You will get a written answer and can listen to it.</p>
+        <div class="chips">
+          <button type="button" class="chip" data-text="Hello, where is my order 4512?">Where is my order 4512?</button>
+          <button type="button" class="chip" data-text="Bonjour, où est ma commande 4512 ?">Où est ma commande 4512 ?</button>
+          <button type="button" class="chip" data-text="sara@example.com">sara@example.com</button>
+        </div>
+        <p class="hint">Demo data: ShopNova orders are fictional and AI-generated. Try order 4512 with the email sara@example.com.</p>
+      </section>
+    </main>
+
+    <footer class="composer-wrap">
+      <form id="composer" class="composer" autocomplete="off">
+        <label for="input" class="sr-only">Message</label>
+        <textarea id="input" rows="1" maxlength="1000" placeholder="Write a message…" enterkeyhint="send"></textarea>
+        <button id="mic" class="round-btn mic" type="button" aria-label="Record a voice message" title="Record a voice message">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
+        </button>
+        <button id="send" class="round-btn send" type="submit" aria-label="Send message" title="Send">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l16-8-6 16-3-7z" /></svg>
+        </button>
+      </form>
+
+      <div id="recorder" class="recorder" hidden>
+        <span class="rec-dot" aria-hidden="true"></span>
+        <span class="rec-label">Recording</span>
+        <span id="rec-time" class="rec-time" aria-live="off">0:00</span>
+        <div id="level" class="level" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <button id="rec-cancel" class="pill ghost" type="button">Cancel</button>
+        <button id="rec-stop" class="pill primary" type="button">Stop &amp; send</button>
+      </div>
+      <p class="privacy">Voice messages are transcribed on the server and not stored. <span id="limits"></span></p>
+    </footer>
+  </div>
+
+  <template id="tpl-message">
+    <article class="msg">
+      <div class="avatar" aria-hidden="true"></div>
+      <div class="bubble">
+        <div class="meta"></div>
+        <div class="text"></div>
+      </div>
+    </article>
+  </template>
+</body>
+</html>
