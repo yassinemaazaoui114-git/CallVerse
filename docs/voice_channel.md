@@ -97,13 +97,50 @@ There are **no** admin, database-write, Coordinator or `/docs` routes in this ap
 
 ## 5. Run it
 
-**On your computer:**
-```bash
-pip install -r requirements-voice.txt
-python -m scripts.download_voice_models   # once, about 210 MB, into ./models (git-ignored)
-python -m scripts.run_web                 # http://127.0.0.1:8080/
+### On Windows (tested by Semah, 2026-10-20: REAL mode, Groq Whisper, Piper, browser microphone)
+Use Python 3.12 and a folder outside OneDrive/Google Drive (e.g. `C:\dev`). In PowerShell:
+```powershell
+git clone https://github.com/yassinemaazaoui114-git/CallVerse.git
+cd CallVerse
+git checkout integration/platform-voice
+py -3.12 -m venv .venv
+.venv\Scripts\Activate.ps1          # if blocked: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+pip install -r requirements-voice.txt           # ~1-2 GB (CPU-only torch)
+python -m scripts.download_voice_models         # once: Piper voices + Whisper "base" (./models) + Intake models
+copy .env.example .env
+notepad .env                                    # REAL mode: GROQ_API_KEY=<your key>  (leave empty for MOCK)
+python -m scripts.run_web                       # http://127.0.0.1:8080/
 ```
-Without `GROQ_API_KEY` in `.env` the app runs in MOCK mode, and speech-to-text uses the in-server model.
+On macOS/Linux: `python3.12 -m venv .venv`, `source .venv/bin/activate`, `cp .env.example .env`.
+
+### Speech-to-text: Groq first, faster-whisper as the backup
+- **Groq Whisper** (`voice.stt` in `config.yaml`: `whisper-large-v3-turbo`) runs when `GROQ_API_KEY` is in `.env`.
+  The same key switches the agents to REAL mode. The key stays on the server and never reaches the browser.
+- **faster-whisper `base`** (`web_channel.stt.faster_whisper`) runs inside the server, with no key. It is used
+  when Groq is unavailable (no key, rate limit, server or network error).
+  `scripts/download_voice_models.py` downloads it to `models/whisper/` (git-ignored). Without that step, it is
+  downloaded the first time it is needed (~145 MB).
+- Check which ones are active: open `http://127.0.0.1:8080/api/health`.
+  - REAL with a key: `"mode": "real"`, `"stt_providers": ["groq", "faster_whisper"]`.
+  - Without a key: `"mode": "mock"`, `["faster_whisper"]`.
+- Never commit `.env`, `models/`, `traces/` or `*.db`. All are in `.gitignore`.
+
+### Check in the browser (what the Windows test covered)
+1. The badge shows **Live** (REAL) or **Demo (MOCK)**.
+2. Type `Hello, where is my order 4512?`: CallVerse first asks for the order's email (identity check).
+   Answer `sara@example.com`: Agent A answers from the ShopNova order tools.
+3. Open "How CallVerse handled this": Intake, Router and Agent show **REAL**. Intake shows reasons, priority,
+   emotion and sentiment.
+4. Press the microphone, speak, press **Stop & send**: the transcript appears (Groq), then the spoken reply (Piper),
+   with replay.
+5. An out-of-scope question (e.g. "Do you deliver on weekends?") gets an appropriate answer, without order data.
+
+### Troubleshooting
+- **First message slow:** the Intake models load in the background for ~10-30 s after start.
+- **Hugging Face "symlinks" warning on Windows:** harmless. Windows Developer Mode silences it.
+- **Port busy:** `$env:PORT=8090; python -m scripts.run_web`.
+- **Microphone refused:** allow it in the browser. It only works on `127.0.0.1` / `localhost` or https.
+- **Badge stays "Demo (MOCK)" with a key:** check the `.env` line `GROQ_API_KEY=...` (no quotes or spaces) and restart the server.
 
 **With Docker** (the same image runs in the cloud):
 ```bash

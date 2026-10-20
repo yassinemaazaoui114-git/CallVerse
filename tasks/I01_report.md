@@ -90,3 +90,12 @@ Then T04 (router), Agent B + Coordinator, and T05 (SLM) plug in through `compone
   Browser end-to-end 2/2 (3 runs). `demo_platform` and `demo_platform_http` RESULT lines identical to `platform`.
 - **Not published:** the final scope (merging `feature/voice`, the extra libraries, the Docker files) needs
   Yassine's OK (task file, "Scope change").
+
+## Local test on Windows (reported by Semah, 2026-10-20; not re-run by the Builder)
+Branch `integration/platform-voice` at 19d17fd, `http://127.0.0.1:8080/`, REAL mode with Semah's own `GROQ_API_KEY`:
+- Groq Whisper transcribed microphone recordings; the faster-whisper `base` backup was downloaded.
+- Intake gave intent, priority, emotion and sentiment; the Router sent order-status questions to Agent A.
+- Agent A ran in REAL mode with the ShopNova order tools; the identity check prevented disclosure without the email.
+- Piper produced playable audio; the stage panel showed REAL statuses; out-of-scope questions got an appropriate reply.
+These are Semah's observations (no logs or traces were shared with the Builder).
+Setup steps for Groq and faster-whisper on Windows: `docs/voice_channel.md` §5.

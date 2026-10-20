@@ -116,7 +116,8 @@ pip install -r requirements-voice.txt
 python -m scripts.download_voice_models   # once, ~210 MB into ./models
 python -m scripts.run_web                 # http://127.0.0.1:8080/
 ```
-Docker / Hugging Face Spaces deployment, API, security and limits: [docs/voice_channel.md](docs/voice_channel.md).
+Windows setup (tested in REAL mode), Groq + faster-whisper speech-to-text, Docker / Hugging Face Spaces, API, security
+and limits: [docs/voice_channel.md](docs/voice_channel.md) §5.
 
 ## For the platform builder
 
