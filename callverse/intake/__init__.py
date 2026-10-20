@@ -1,1 +1,1 @@
-"""Semantic intake (task 3). Empty for now."""
+"""Semantic intake (task T03): turns a client message into a labelled ticket. Entry point: intake.process()."""

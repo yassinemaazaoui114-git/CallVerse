@@ -2,3 +2,11 @@ openai>=1.40
 python-dotenv>=1.0
 pyyaml>=6.0
 pytest>=8.0
+
+# Intake (T03): local models on CPU. The extra index gives the small CPU-only build of torch
+# (the default Linux build includes GPU libraries we do not need).
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.4
+transformers>=4.44
+sentence-transformers>=3.0
+numpy>=1.26
