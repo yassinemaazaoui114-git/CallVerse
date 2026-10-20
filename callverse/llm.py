@@ -21,6 +21,10 @@ from callverse.config import PROJECT_ROOT, load_config
 load_dotenv(PROJECT_ROOT / ".env")
 
 
+# Per-model options that config.yaml may add to a model entry; they are passed to the API as they are.
+SAMPLING_SETTINGS = ("temperature", "seed", "top_p", "max_tokens")
+
+
 class AllModelsFailed(RuntimeError):
     """Raised when every model of a role was skipped or failed."""
 
@@ -61,6 +65,11 @@ def chat(role_key: str, messages: list[dict], tools: list[dict] | None = None):
         request = {"model": model, "messages": messages}
         if tools:
             request["tools"] = tools
+        # Optional sampling settings written next to the model in config.yaml (e.g. the SLM uses
+        # temperature 0 + seed so the same decision gives the same reply). Not set -> not sent.
+        for setting in SAMPLING_SETTINGS:
+            if setting in entry:
+                request[setting] = entry[setting]
 
         start = time.perf_counter()
         try:

@@ -7,6 +7,8 @@ check_reply(reply, decision) -> {"passed": bool, "problems": [str, ...]}
 
 import re
 
+from callverse.config import load_config
+
 MAX_WORDS = 120
 
 # A number in text: 59.90, 59,90, 2026, 6, 03 ... (dates "2026-10-03" give 2026, 10 and 03).
@@ -17,21 +19,12 @@ CURRENCY_RE = re.compile(r"[$€£]|\b(?:USD|EUR|dollars?|euros?)\b", re.IGNOREC
 # Carrier / company names: a name in the reply that is not in the decision is an invented fact.
 CARRIERS = ("aramex", "rapid-poste", "rapid poste", "fedex", "dhl", "ups", "la poste", "tnt", "chronopost", "amazon")
 
-# Forbidden promises: (pattern, keyword). A phrase is allowed only if its keyword appears in the
-# decision's own text (facts or next_step): then the Coordinator approved that idea.
-FORBIDDEN = [
-    (r"keep you (?:updated|informed|posted)", "keep you"),
-    (r"\b(?:we are|we're|we will be|we'll be|actively)\s+monitoring\b|\bmonitor(?:ing)? (?:it|your|the)\b", "monitor"),
-    (r"\bguarantee", "guarantee"),
-    (r"\bwithin (?:\d+|a|an|one|two|three|four|five|six|seven|the next|a few|few)\s*"
-     r"(?:\w+\s)?(?:hours?|days?|business days|working days|minutes?|weeks?)\b", "within"),
-    (r"\b(?:we will|we'll|i will|i'll) (?:contact|call|chase|reach out to) the carrier", "carrier"),
-    (r"\b(?:we will|we'll|i will|i'll) (?:notify|alert|inform) you\b|\byou will (?:be notified|receive a notification)",
-     "notif"),
-    (r"\b(?:as soon as possible|asap|right away|immediately|shortly|soon|right back|in no time)\b", "soon"),
-    (r"\bkeep an eye\b|\b(?:any|further|future|more) updates?\b|\bbe in touch\b", "update"),
-    (r"\b(?:compensation|voucher|discount|coupon|gift card)\b", "compensation"),
-]
+# Forbidden promises: (pattern, keyword) pairs, kept in config.yaml (slm.forbidden). A phrase is allowed
+# only if its keyword appears in the decision's own text (facts, next_step, must_say): then the
+# Coordinator approved that idea.
+def forbidden_list() -> list[tuple[str, str]]:
+    return [(pattern, keyword) for pattern, keyword in load_config()["slm"]["forbidden"]]
+
 
 # Refund promises: only allowed when the Coordinator approved a refund.
 REFUND_PROMISE = re.compile(
@@ -52,14 +45,20 @@ def _numbers(text: str) -> set[float]:
 
 
 def _decision_text(decision: dict) -> str:
-    """All text the Coordinator approved: facts (values) and next_step, lower case."""
+    """All text the Coordinator approved: facts (values), next_step and must_say, lower case."""
     parts = [str(v) for v in (decision.get("facts") or {}).values()]
     parts.append(str(decision.get("next_step") or ""))
+    parts += [str(x) for x in decision.get("must_say") or []]
     return " ".join(parts).lower()
 
 
+def _squash(text: str) -> str:
+    """Lower case with single spaces, for "contains this sentence" checks."""
+    return " ".join(str(text).lower().split())
+
+
 def allowed_numbers(decision: dict) -> set[float]:
-    """Numbers the reply may use: from facts, order_id and next_step (all approved by the Coordinator)."""
+    """Numbers the reply may use: from facts, order_id, next_step and must_say (approved by the Coordinator)."""
     allowed = _numbers(_decision_text(decision))
     if decision.get("order_id") is not None:
         allowed.add(float(decision["order_id"]))
@@ -83,11 +82,15 @@ def check_reply(reply: str, decision: dict) -> dict:
         shown = ", ".join(f"{n:g}" for n in extra)
         problems.append(f"numbers not in the decision: {shown} (use only the numbers given in the facts)")
 
+    for item in decision.get("must_say") or []:
+        if _squash(item) not in _squash(text):
+            problems.append(f'missing exact sentence (must_say): "{item}"')
+
     if decision.get("order_id") is not None and str(decision["order_id"]) not in text:
         problems.append(f"the order number {decision['order_id']} is not mentioned")
 
     approved_text = _decision_text(decision)
-    for pattern, keyword in FORBIDDEN:
+    for pattern, keyword in forbidden_list():
         match = re.search(pattern, low)
         if match and keyword not in approved_text:
             problems.append(f"forbidden promise: '{match.group(0)}'")

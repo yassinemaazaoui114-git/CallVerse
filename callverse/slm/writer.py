@@ -5,19 +5,25 @@ docs/decision_format.md); this small local model (qwen2.5 via Ollama, role "slm"
 decides HOW: formal or casual, short or medium, a calm opener for an upset client.
 It gets no tools and never reads the database: its only input is the decision + style + recent messages.
 
+Parts written by CODE, not by the model (T05b): the calm opener for an upset client, the order reference
+if the model forgot it, and the removal of repeated sentences. Exact sentences the Coordinator requires
+(must_say) are asked from the model and verified by the check.
+
 Flow of write_reply():
-  1. SLM writes a reply -> rule check (check.py).
+  1. SLM writes a reply -> code parts -> rule check (check.py).
   2. If it fails: one retry, with the problems listed for the model.
   3. If it fails again: a fixed template (templates.py), which always passes the check.
 Every SLM call, check and template use is traced (slm_call, slm_check, slm_template).
 """
 
 import json
+import re
 import time
 
 from callverse import llm, trace
 from callverse.slm import templates
 from callverse.slm.check import check_reply
+from callverse.slm.templates import calm_opener, is_upset
 
 MAX_ATTEMPTS = 2   # first try + one retry
 
@@ -61,22 +67,26 @@ def style_guide(style: dict | None) -> str:
             }.get(style.get("formality"), "Neutral and polite. Start with exactly: Hello,")
     size = ("Very short: 2 or 3 sentences, at most 45 words." if style.get("length") == "short"
             else "Clear: 3 to 5 sentences, at most 80 words.")
-    upset = style.get("shouting") or style.get("sentiment") == "negative" or \
-        style.get("emotion") in ("anger", "disgust", "fear", "sadness")
-    calm = (" The client is upset: after the greeting, write ONE calm, sincere sentence that acknowledges their "
-            "frustration, without promising anything." if upset else "")
-    return f"Tone: {tone} Length: {size}{calm}"
+    if is_upset(style):
+        # The calm opener is added by code (write_reply), so the model must not write its own.
+        tone = tone.split(" Start with exactly:")[0]
+        return (f"Tone: {tone} Length: {size} Do NOT write a greeting or an apology: an apology sentence is "
+                "added before your text automatically. Start directly with the order.")
+    return f"Tone: {tone} Length: {size}"
 
 
 def build_messages(decision: dict, history: list[dict] | None = None, problems: list[str] | None = None) -> list:
     """Messages for the SLM: rules, the decision's allowed content, the tone, and the last problems if retrying."""
     allowed = {"order_number": decision.get("order_id"), "facts": decision.get("facts") or {},
-               "next_step": decision.get("next_step") or ""}
+               "next_step": decision.get("next_step") or "", "must_say": decision.get("must_say") or []}
     content = [OUTCOME_GUIDE.get(decision.get("outcome"), OUTCOME_GUIDE["info"]),
                "What you may say (nothing else):\n" + json.dumps(allowed, ensure_ascii=False, indent=1),
                style_guide(decision.get("style"))]
     if decision.get("order_id") is not None:
         content.append(f'Your first sentence must contain the exact words "order {decision["order_id"]}".')
+    if decision.get("must_say"):
+        content.append("Copy each of these sentences into your reply EXACTLY, word for word, without changing them:\n"
+                       + "\n".join(f'- "{item}"' for item in decision["must_say"]))
     if decision.get("next_step"):
         content.append(f'End with the next step, almost word for word: "{decision["next_step"]}"')
     recent = [m.get("content", "") for m in (history or []) if m.get("role") == "user"][-3:]
@@ -113,6 +123,68 @@ def clean(text: str | None) -> str:
     return " ".join(part.strip() for part in "\n".join(lines).split("\n") if part.strip())
 
 
+GREETING_RE = re.compile(r"^\s*(?:(?:hi|hello|hey|dear (?:customer|client|sir|madam|valued customer))\b[,!.]?\s*)+",
+                         re.IGNORECASE)
+APOLOGY_WORDS = ("sorry", "apolog", "understand", "frustrat", "inconvenience")
+SORRY_PREFIX_RE = re.compile(r"^(?:(?:i'?m|i am|we'?re|we are)\s+)?(?:so |very |really |truly )?sorry\b[,!.]?\s*",
+                             re.IGNORECASE)
+
+
+def add_calm_opener(reply: str, decision: dict) -> str:
+    """For an upset client, start the reply with the fixed calm opener (by code, not by the model).
+
+    A greeting or an apology sentence the model wrote anyway is removed first, so the apology is not doubled;
+    a first sentence carrying the order number or a must_say item is always kept.
+    """
+    opener = calm_opener(decision.get("style"))
+    if not opener or not reply:
+        return reply
+    body = GREETING_RE.sub("", reply).strip()
+    first, _, rest = body.partition(". ")
+    keep = [str(decision.get("order_id") or "\0")] + [str(x).lower() for x in decision.get("must_say") or []]
+    if rest and any(w in first.lower() for w in APOLOGY_WORDS) and not any(k.lower() in first.lower() for k in keep):
+        body = rest.strip()
+    body = SORRY_PREFIX_RE.sub("", body).strip() or body   # "Sorry, order 4512 ..." -> "order 4512 ..."
+    return f"{opener} {body[:1].upper()}{body[1:]}"
+
+
+def drop_repeated_sentences(reply: str) -> str:
+    """Remove a sentence that repeats an earlier one word for word (it only deletes, never adds)."""
+    seen, kept = set(), []
+    for sentence in re.split(r"(?<=[.!?])\s+", reply.strip()):
+        key = " ".join(sentence.lower().split())
+        if key and key in seen and len(sentence.split()) >= 4:
+            continue
+        seen.add(key)
+        kept.append(sentence)
+    return " ".join(kept)
+
+
+def ensure_order_reference(reply: str, decision: dict) -> str:
+    """If the model forgot the order number, insert "About your order N:" by code, after the opener/greeting.
+
+    The order number is a fact from the decision, so adding it never adds anything that was not approved.
+    """
+    order = decision.get("order_id")
+    if order is None or not reply or str(order) in reply:
+        return reply
+    opener = calm_opener(decision.get("style")) or ""
+    head = opener if opener and reply.startswith(opener) else ""
+    rest = reply[len(head):].lstrip()
+    greeting = GREETING_RE.match(rest)
+    if greeting:
+        head = (head + " " + greeting.group(0).strip()).strip()
+        rest = rest[greeting.end():].lstrip()
+    rest = rest[:1].lower() + rest[1:] if rest[:2] != "I " else rest
+    return f"{head} About your order {order}: {rest}".strip()
+
+
+def finish(raw: str | None, decision: dict) -> str:
+    """Model text -> final reply: clean-up, then the parts written by code (calm opener, order reference)."""
+    reply = drop_repeated_sentences(clean(raw))
+    return ensure_order_reference(add_calm_opener(reply, decision), decision)
+
+
 def write_reply(decision: dict, history: list[dict] | None = None, chat_fn=None) -> dict:
     """Return {"reply", "check", "attempts", "used_template", "seconds"}. The reply always passes the check."""
     chat = chat_fn or llm.chat
@@ -122,7 +194,7 @@ def write_reply(decision: dict, history: list[dict] | None = None, chat_fn=None)
     for attempt in range(1, MAX_ATTEMPTS + 1):
         call_start = time.perf_counter()
         try:
-            reply = clean(chat("slm", build_messages(decision, history, problems)).content)
+            reply = finish(chat("slm", build_messages(decision, history, problems)).content, decision)
             error = None
         except Exception as e:  # Ollama down, model missing...: go on to retry / template, never crash
             reply, error = "", f"{type(e).__name__}: {e}"

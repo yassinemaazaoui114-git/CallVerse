@@ -4,6 +4,8 @@ They only use the decision's own facts, order id and next step, so they always p
 They are plain on purpose (less adapted to the client's style than the SLM): correct comes before nice.
 """
 
+from callverse.config import load_config
+
 # How each known fact is said. Unknown fact keys are left out (safe: saying less is never wrong).
 FACT_PHRASES = {
     "order_status": lambda v: f"its current status is {str(v).replace('_', ' ')}",
@@ -28,11 +30,18 @@ def _greeting(style: dict) -> str:
     return "Hi" if (style or {}).get("formality") == "casual" else "Hello"
 
 
-def _calm(style: dict) -> str:
+def is_upset(style: dict | None) -> bool:
+    """The client shouts or writes negatively (from Intake's style): the reply starts with a calm opener."""
     style = style or {}
-    upset = style.get("shouting") or style.get("sentiment") == "negative" or \
-        style.get("emotion") in ("anger", "disgust", "fear", "sadness")
-    return "We understand this is frustrating. " if upset else ""
+    return bool(style.get("shouting")) or style.get("sentiment") == "negative"
+
+
+def calm_opener(style: dict | None) -> str | None:
+    """The fixed calm first sentence for an upset client (config.yaml slm.calm_openers), else None."""
+    if not is_upset(style):
+        return None
+    openers = load_config()["slm"]["calm_openers"]
+    return openers.get((style or {}).get("formality"), openers["neutral"])
 
 
 def render(decision: dict) -> str:
@@ -43,7 +52,9 @@ def render(decision: dict) -> str:
     order = decision.get("order_id")
 
     about = f" about your order {order}" if order is not None else ""
-    parts = [f"{_greeting(style)}, {_calm(style)}{OPENING[outcome].capitalize()}{about}."]
+    opener = calm_opener(style)
+    first = f"{OPENING[outcome].capitalize()}{about}."
+    parts = [f"{opener} {first}" if opener else f"{_greeting(style)}, {first}"]
 
     details = [FACT_PHRASES[k](v) for k, v in facts.items() if k in FACT_PHRASES and v is not None]
     if outcome == "approve" and decision.get("action") == "subscribe" and facts.get("event"):
@@ -58,4 +69,8 @@ def render(decision: dict) -> str:
 
     if decision.get("next_step"):
         parts.append(str(decision["next_step"]).strip())
+    # Exact sentences the Coordinator requires (must_say), unless already said word for word.
+    for item in decision.get("must_say") or []:
+        if " ".join(str(item).lower().split()) not in " ".join(" ".join(parts).lower().split()):
+            parts.append(str(item).strip())
     return " ".join(parts)
