@@ -30,12 +30,12 @@ Classes: **MUST FIX** (required) · **APPROVED EXTENSION** (authorized by I01) �
 | 14 | Real T04 router; temporary router removed | APPROVED (I01) | de5d403; `test_routing_uses_the_t04_router` (trace actor `router`) |
 | 15 | Web channel (`callverse/web/`: page, browser microphone, identity gate, workflow with real/not-built stages) | APPROVED EXTENSION (I01 "Contents": Voice V01 web work + integration workflow) | tests: `test_web_api`, `test_web_pipeline`, `test_integration_workflow`, browser |
 | 16 | P05 platform server + admin dashboard (unreviewed, localhost) | APPROVED EXTENSION (named in I01 "Contents") | `test_server` 15/15; stays on 127.0.0.1 |
-| 17 | V01 (`feature/voice`) merged into the integration branch (c0ca4e1); web reads the Groq model from `voice.stt`; web can speak with V01's pyttsx3 (`web_channel.tts.engine`) | **NEEDS APPROVAL**: the I01 Git section covers merging `main`, not `feature/voice` | `test_web_tts_can_use_the_v01_pyttsx3_engine` |
-| 18 | Extra libraries of the web channel: `faster-whisper`, `av<16`, `piper-tts` (GPL-3.0 engine), `python-multipart` | **NEEDS APPROVAL**: V01 allows only pyttsx3/soundfile, and I01 does not name libraries | `requirements-voice.txt` |
-| 19 | Deployment files: `Dockerfile`, `.dockerignore`, `deploy/huggingface/README.md` (nothing deployed) | **NEEDS APPROVAL**: not in I01 "Contents" | files only |
+| 17 | V01 (`feature/voice`) merged into the integration branch (c0ca4e1); web reads the Groq model from `voice.stt`; web can speak with V01's pyttsx3 (`web_channel.tts.engine`) | NEEDS APPROVAL → **approved (relayed)** | `test_web_tts_can_use_the_v01_pyttsx3_engine` |
+| 18 | Extra libraries of the web channel: `faster-whisper`, `av<16`, `piper-tts` (GPL-3.0 engine), `python-multipart` | NEEDS APPROVAL → **approved (relayed)** | `requirements-voice.txt` |
+| 19 | Deployment files: `Dockerfile`, `.dockerignore`, `deploy/huggingface/README.md` (nothing deployed) | NEEDS APPROVAL → **approved (relayed)** | files only |
 | 20 | New files outside V01's allowed folders (`callverse/web/`, `callverse/integration/`, `docs/*`, README section) | APPROVED EXTENSION for web + integration (I01); docs follow | — |
 | 21 | Lane files: `NEXT.md` / `NEXT_PLATFORM.md` untouched (NEXT_PLATFORM = main's version); `NEXT_VOICE.md` WAITING FOR REVIEW (from V01) | OK | diff vs main |
 
 ## C. Unresolved exceptions
 - **V01 measurements (item 7):** pending until Semah records the 5 clips with a Groq key (steps in `tasks/V01_report.md` §3).
-- **Publication of `integration/platform-voice` (items 17–19):** needs Yassine's explicit OK on the final scope. Until then the branch stays local (commits 066d6c0 … c0ca4e1 and later), and only `feature/voice` (fully covered by V01's own approval) is on GitHub.
+- **Items 17–19:** approved by Yassine on 2026-10-20 (relayed by Semah, not verified on GitHub); `integration/platform-voice` is published as one PR to `main`, not merged.

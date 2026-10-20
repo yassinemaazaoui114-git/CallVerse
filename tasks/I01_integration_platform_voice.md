@@ -1,6 +1,6 @@
 # I01 — Integration: platform + Intake + voice channel (Semah's lane, proposed)
 
-> **Status: APPROVED for the original scope (relayed by Semah); the FINAL scope needs one more OK — see "Scope change".** Built and tested at Semah's request in the local branch
+> **Status: APPROVED, original and final scope (both relayed by Semah) — see "Approved by" and "Scope change".** Built and tested at Semah's request in the local branch
 > `integration/platform-voice` (from `main` c2984b1). To be published only as this branch + one PR to `main` (not merged).
 > `tasks/NEXT.md`, `tasks/NEXT_PLATFORM.md` and the other developers' branches are not touched.
 
@@ -55,4 +55,5 @@ Not covered by the approval above:
 (b) the web channel's extra libraries `faster-whisper`, `av<16`, `piper-tts` (GPL-3.0), `python-multipart`;
 (c) the deployment files `Dockerfile`, `.dockerignore`, `deploy/huggingface/README.md` (nothing deployed).
 
-Approved by (final scope): ______ (Yassine, date)
+Approved by (final scope): **Yassine — 2026-10-20, relayed by Semah Ayachi** (Semah: "Yassine said ok", in reply to the
+question about (a), (b) and (c) above). Not independently verified on GitHub; Yassine: please confirm in the PR review.
