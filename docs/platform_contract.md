@@ -103,3 +103,33 @@ Agent IDs: `A`, `B` (`C`, `D` later). Vector store: small numpy index (cosine) o
 swappable for Chroma/FAISS.
 Demo: S1 refund approved · S2 wrong amount sent back then corrected · S3 delivery notification after
 advancing the clock · (if time) Atlas hotel cancelled with agent C.
+
+## 8. Local server (localhost only)
+`callverse/server/app.py` (FastAPI), started by `python scripts/run_platform_server.py` on **`127.0.0.1:8000`**
+(never `0.0.0.0`; no deployment). A thin HTTP layer over the functions above: each endpoint returns exactly what
+the function returns. `GET /docs` lists every endpoint. Every request is traced (step `http_request`, actor `server`,
+with `agent` for tool calls).
+
+| Endpoint | Calls | Notes |
+|---|---|---|
+| `GET /` | — | read-only HTML dashboard (no write buttons) |
+| `GET /company` | `get_company_profile()` | |
+| `GET /policies`, `GET /policies/{rule_id}` | `load_policies()`, `get_policy()` | unknown rule → 404 |
+| `GET /orders?status=&scripted=&limit=50` | `reports.list_orders()` | list, sorted by id, limit 1–500 |
+| `GET /orders/{id}`, `/orders/{id}/tracking`, `/orders/{id}/refunds` | `get_order`, `get_tracking`, `get_refunds` | `{"error"}` → 404 |
+| `GET /users/{id}` | `get_user(user_id=id)` | `{"error"}` → 404 |
+| `GET /summary` | `reports.summary()` | same numbers as `scripts/data_summary.py` |
+| `GET /refunds`, `/subscriptions`, `/events` | `reports.list_rows()` | newest first (for the dashboard) |
+| `GET /traces/recent?n=20` | — | last lines of this server run's trace file |
+| `POST /tools/{name}` body `{"agent": "A", "args": {...}}` | `registry.run_tool(agent, name, args)` | not on the agent's allow-list → **403**; a tool's own `{"error"}` (e.g. order not found) stays 200 |
+| `POST /coordinator/refunds` body `{order_id, amount, rule_id, proposal_id}` | `create_refund` | token; refused → 400 |
+| `POST /coordinator/subscriptions` body `{order_id, event}` | `create_subscription` | token; refused → 400 |
+| `POST /coordinator/orders/{id}/status` body `{new_status}` | `set_order_status` | token; refused → 400 |
+| `POST /layer3/decide` body `{order_id, amount, reason}` | `layer3_decide` | token; error → 400 |
+| `POST /admin/reset` | `seed()` | token; re-seeds the DB for demos |
+
+**Token rule**: every `POST /coordinator/*`, `/layer3/decide` and `/admin/reset` needs the header
+`X-Coordinator-Token` equal to `PLATFORM_COORDINATOR_TOKEN` in `.env`. If the variable is missing or empty, all of
+them return **403** (writes are off by default). Missing or wrong header → 403. The token value is never printed,
+returned or logged. Write functions are still in no allow-list: `POST /tools/create_refund` → 403.
+`amount` is passed to the function unchanged, so its guard decides (`NaN` in the JSON body → 400).
