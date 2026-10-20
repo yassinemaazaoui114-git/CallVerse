@@ -50,6 +50,6 @@ def test_labels_on_seed_data():
     from contextlib import closing
     from callverse.data import db
     with closing(sqlite3.connect(db.db_path())) as con:
-        assert con.execute("SELECT COUNT(*) FROM orders WHERE ai_generated = 1 AND scripted = 1").fetchone()[0] == 10
+        assert con.execute("SELECT COUNT(*) FROM orders WHERE ai_generated = 1 AND scripted = 1").fetchone()[0] == 11
         for table in ("users", "products", "orders", "refunds"):
             assert con.execute(f"SELECT COUNT(*) FROM {table} WHERE ai_generated = 0").fetchone()[0] == 0

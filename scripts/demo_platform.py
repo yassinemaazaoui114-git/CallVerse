@@ -97,13 +97,32 @@ def s3() -> None:
 
 
 def extras() -> None:
-    title("Extra - double refund and Layer 3")
+    title("Extra - double refund, database safety net, Layer 3")
     say("Order 4506 was already refunded 189 TND. Proposal: refund 1 TND more")
     if not check("R-REF-05", facts_for(4506, amount=1)):
         print("  RESULT: 4506 second refund REFUSED by R-REF-05 (already fully refunded).")
-    for amount in (350, 600):  # stub called directly on order 4513, no DB change
-        l3 = layer3_decide(4513, amount, "demo: large refund")
-        print(f"  RESULT: layer3_decide(4513, {amount}) -> {l3['decision'].upper()} by {l3['by']}")
+    # Even if the Coordinator had a bug and tried to write it, the database layer refuses it.
+    r = create_refund(4506, 1.00, "R-REF-03", "demo-safety")
+    say(f"create_refund(4506, 1.00) -> {r.get('error', r)}")
+    if "error" in r:
+        print("  RESULT: 4506 second refund REFUSED by the database safety net (create_refund).")
+
+    say("")
+    say("Order 4515: 2 Smart Watches, 378.00 TND paid, stuck at the depot (Layer 3 story)")
+    tracking = get_tracking(4515)
+    say(f"get_tracking(4515) -> {tracking['days_late']} days late, delivered = {tracking['delivered']}")
+    facts = facts_for(4515, amount=378.00)
+    if check("R-REF-03", facts) and check("R-REF-05", facts) and check("R-ESC-01", facts):
+        l3 = layer3_decide(4515, 378.00, "late delivery refund above 300 TND")
+        say(f"layer3_decide(4515, 378.00) -> {l3['decision']} by {l3['by']}")
+        if l3["decision"] == "approved":
+            row = create_refund(4515, 378.00, "R-REF-03", "demo-layer3")
+            say(f"create_refund(4515, 378.00, 'R-REF-03', 'demo-layer3') -> refund #{row['id']}, status {row['status']}")
+            print("  RESULT: 4515 refund of 378.00 TND APPROVED BY FINANCE (Layer 3, R-ESC-01).")
+
+    # Stub test only (no DB change): an amount above the stub limit (500 TND) is refused by finance.
+    l3 = layer3_decide(4515, 600, "stub test: above 500 TND")
+    print(f"  RESULT (stub test): layer3_decide(4515, 600) -> {l3['decision'].upper()} by {l3['by']}")
 
 
 def main() -> None:

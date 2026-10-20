@@ -79,8 +79,13 @@ def check_condition(condition: str, facts: dict) -> bool:
     """
     def value(node):
         if isinstance(node, ast.BoolOp):
-            results = [value(v) for v in node.values]
-            return all(results) if isinstance(node.op, ast.And) else any(results)
+            # Stop early like Python does: "delivered and days_since_delivery <= 14" never compares
+            # None <= 14 when the order is not delivered.
+            is_and = isinstance(node.op, ast.And)
+            for v in node.values:
+                if bool(value(v)) != is_and:
+                    return not is_and
+            return is_and
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
             return not value(node.operand)
         if isinstance(node, ast.Compare):

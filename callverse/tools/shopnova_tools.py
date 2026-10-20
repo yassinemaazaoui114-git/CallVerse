@@ -14,6 +14,7 @@ from datetime import date
 
 from callverse.config import sim_today
 from callverse.data.db import connect as _connect  # opens the DB in use (real one, or a test copy)
+from callverse.data.seed import COUNTED_REFUND_STATUSES
 
 
 def _fetch_order(order_id: int) -> dict | None:
@@ -58,6 +59,9 @@ def get_tracking(order_id: int) -> dict:
     - delivered order: delivered_date - promised_date
     - not delivered:   sim_today - promised_date
     (never negative: an order that is on time is 0 days late)
+
+    days_since_delivery = sim_today - delivered_date for a delivered order, None otherwise
+    (used by the 14-day return rule R-RET-01).
     """
     order = _fetch_order(order_id)
     if order is None:
@@ -78,14 +82,13 @@ def get_tracking(order_id: int) -> dict:
         "promised_date": order["promised_date"],
         "delivered_date": order["delivered_date"],
         "days_late": days_late,
+        "days_since_delivery": (today - date.fromisoformat(order["delivered_date"])).days if delivered else None,
         "carrier": order["carrier"],
         "tracking_number": order["tracking_number"],
         "checked_on": today.isoformat(),
     }
 
 
-# Refund statuses that count as money given back (a "refused" refund does not count).
-COUNTED_REFUND_STATUSES = ("approved", "completed")
 
 
 def get_refunds(order_id: int) -> dict:
@@ -137,7 +140,7 @@ SCHEMAS = {
         "type": "function",
         "function": {
             "name": "get_tracking",
-            "description": "Get the delivery status of an order and how many days late it is (computed by the system).",
+            "description": "Get the delivery status of an order, how many days late it is, and days since delivery (null if not delivered). All computed by the system.",
             "parameters": {
                 "type": "object",
                 "properties": {"order_id": {"type": "integer", "description": "Order number, e.g. 4512"}},

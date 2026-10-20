@@ -13,7 +13,9 @@ Run it directly:  python -m callverse.data.seed
 """
 
 import json
+import random
 import sqlite3
+from datetime import date, timedelta
 from pathlib import Path
 
 from callverse.data import db
@@ -25,6 +27,16 @@ DB_PATH = db.DEFAULT_DB_PATH  # kept for older imports; the file in use is db.db
 ORDER_STATUSES = ("processing", "shipped", "stuck_at_depot", "out_for_delivery",
                   "delivered", "refunded", "cancelled")
 REFUND_STATUSES = ("approved", "completed", "refused")
+# Refund statuses that count as money given back (a "refused" refund does not count).
+COUNTED_REFUND_STATUSES = ("approved", "completed")
+# Allowed status moves (set_order_status). Besides these, any status may go to "cancelled" or "refunded".
+STATUS_MOVES = {
+    "processing": ("shipped",),
+    "shipped": ("out_for_delivery",),
+    "out_for_delivery": ("delivered",),
+    "stuck_at_depot": ("out_for_delivery",),
+}
+ALWAYS_ALLOWED = ("cancelled", "refunded")
 SUBSCRIPTION_STATUSES = ("waiting", "sent")
 # Order statuses that create an `events` row (and can be subscribed to).
 # Read from rule R-NOT-01 in the policy file, so the list is written in one place only.
@@ -138,6 +150,9 @@ ORDERS = [
     (4513, 4, [_item(4)],          189.00, 189.00, "shipped",        "2026-10-05", "2026-10-11", None,         "Aramex",      "ARX100053"),
     # Cash on delivery: nothing paid yet.
     (4514, 5, [_item(5)],           89.00,   0.00, "processing",     "2026-10-08", "2026-10-14", None,         None,          None),
+    # LAYER 3 CASE: 2 Smart Watches, 378.00 TND paid, promised 2026-10-01 (8 days late), stuck at the depot.
+    # A full refund is above 300 TND, so it needs finance approval (R-ESC-01).
+    (4515, 2, [_item(4, qty=2)],   378.00, 378.00, "stuck_at_depot", "2026-09-25", "2026-10-01", None,         "Aramex",      "ARX100055"),
 ]
 
 REFUNDS = [
@@ -145,6 +160,65 @@ REFUNDS = [
     # Part of scripted case 4506 (already refunded). rule_id/proposal_id unknown: it predates the system.
     (1, 4506, 189.00, "completed", None, None, "2026-09-20"),
 ]
+
+
+# ---------------------------------------------------------------------------
+# GENERATED DATA (ai_generated = 1, scripted = 0): 20 extra users (ids 6-25) and 120 orders
+# (ids 5001-5120) over the 60 days before the demo date, so the shop looks like a real one.
+# A fixed random seed makes the data identical on every rebuild. Generated orders only belong to
+# generated users, so the scripted clients' order histories stay exactly as written above.
+# ---------------------------------------------------------------------------
+RANDOM_SEED = 2026
+SIM_TODAY = date(2026, 10, 9)  # = sim_today in config.yaml (fixed, never the real clock)
+FIRST_NAMES = ["Ahmed", "Mariem", "Omar", "Ines", "Hamza", "Nour", "Mehdi", "Rania", "Aziz", "Salma"]
+LAST_NAMES = ["Hammami", "Bouazizi", "Chaabane", "Dridi", "Ferchichi", "Khelifi", "Mejri", "Sassi"]
+# status: weight (out of 100). Mostly delivered, like a real shop.
+STATUS_WEIGHTS = {"delivered": 60, "shipped": 10, "processing": 7, "out_for_delivery": 5,
+                  "stuck_at_depot": 5, "cancelled": 6, "refunded": 7}
+
+
+def generate_data() -> tuple[list, list, list]:
+    """Return (users, orders, refunds) of generated data, always the same (fixed seed)."""
+    rng = random.Random(RANDOM_SEED)
+    users = []
+    for uid in range(6, 26):
+        first, last = rng.choice(FIRST_NAMES), rng.choice(LAST_NAMES)
+        users.append((uid, f"{first} {last}", f"{first}.{last}.{uid}@example.com".lower(),
+                      f"+216 {50 + uid} {100 + uid * 7:03d} {200 + uid * 3:03d}"))
+
+    orders, refunds = [], []
+    for oid in range(5001, 5121):
+        status = rng.choices(list(STATUS_WEIGHTS), weights=list(STATUS_WEIGHTS.values()))[0]
+        items = [_item(rng.randint(1, len(PRODUCTS)), rng.choice([1, 1, 1, 2]))
+                 for _ in range(rng.choice([1, 1, 2, 3]))]
+        total = round(sum(i["price"] * i["qty"] for i in items), 2)
+
+        # How long ago the order was placed depends on how far it got (the clock is fixed at SIM_TODAY).
+        days_ago = {"processing": (1, 3), "shipped": (2, 7), "out_for_delivery": (3, 8),
+                    "stuck_at_depot": (6, 15)}.get(status, (8, 60))
+        order_date = SIM_TODAY - timedelta(days=rng.randint(*days_ago))
+        promised = order_date + timedelta(days=rng.randint(3, 6))
+        delivered = None
+        if status in ("delivered", "refunded"):
+            # About 80% on time (or early), 20% 1-5 days late; never in the future, never before the order.
+            delay = rng.choices([-2, -1, 0, 1, 2, 3, 5], weights=[10, 20, 50, 8, 6, 4, 2])[0]
+            delivered = promised + timedelta(days=delay)
+            delivered = min(max(delivered, order_date + timedelta(days=1)), SIM_TODAY)
+
+        # Cash on delivery (paid 0) only for orders not delivered yet; cancelled orders were never paid.
+        cash_on_delivery = status in ("processing", "shipped", "out_for_delivery") and rng.random() < 0.25
+        paid = 0.0 if cash_on_delivery or status == "cancelled" else total
+        has_carrier = status not in ("processing", "cancelled")
+        carrier = rng.choice(["Aramex", "Rapid-Poste"]) if has_carrier else None
+        tracking = (("ARX" if carrier == "Aramex" else "RP") + str(300000 + oid)) if has_carrier else None
+
+        orders.append((oid, rng.randint(6, 25), items, total, paid, status, order_date.isoformat(),
+                       promised.isoformat(), delivered.isoformat() if delivered else None, carrier, tracking))
+        if status == "refunded":  # item returned, refunded in full a few days after delivery
+            refund_day = min(delivered + timedelta(days=rng.randint(2, 6)), SIM_TODAY)
+            refunds.append((len(REFUNDS) + len(refunds) + 1, oid, paid, "completed", "R-RET-01", None,
+                            refund_day.isoformat()))
+    return users, orders, refunds
 
 
 def seed(db_path: Path | None = None) -> Path:
@@ -159,16 +233,18 @@ def seed(db_path: Path | None = None) -> Path:
     con = sqlite3.connect(db_path)
     try:
         con.executescript(SCHEMA)
-        # Every seed row is AI-generated (ai_generated = 1). The 10 orders and the refund of
-        # order 4506 are scripted demo cases (scripted = 1); users and products are not.
-        con.executemany("INSERT INTO users VALUES (?, ?, ?, ?, 1, 0)", USERS)
+        # Every seed row is AI-generated (ai_generated = 1). The 11 scripted orders and the refund of
+        # order 4506 are demo cases (scripted = 1); users, products and generated data are not.
+        gen_users, gen_orders, gen_refunds = generate_data()
+        con.executemany("INSERT INTO users VALUES (?, ?, ?, ?, 1, 0)", USERS + gen_users)
         con.executemany("INSERT INTO products VALUES (?, ?, ?, ?, 1, 0)", PRODUCTS)
-        con.executemany(
-            "INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)",
-            # items is stored as JSON text because SQLite has no list type.
-            [(o[0], o[1], json.dumps(o[2]), *o[3:]) for o in ORDERS],
-        )
+        # items is stored as JSON text because SQLite has no list type.
+        con.executemany("INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)",
+                        [(o[0], o[1], json.dumps(o[2]), *o[3:]) for o in ORDERS])
+        con.executemany("INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)",
+                        [(o[0], o[1], json.dumps(o[2]), *o[3:]) for o in gen_orders])
         con.executemany("INSERT INTO refunds VALUES (?, ?, ?, ?, ?, ?, ?, 1, 1)", REFUNDS)
+        con.executemany("INSERT INTO refunds VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0)", gen_refunds)
         con.commit()
     finally:
         con.close()

@@ -76,3 +76,13 @@ def test_check_condition_refuses_code_and_missing_facts():
 
 def test_layer3_threshold_comes_from_r_esc_01():
     assert layer3_threshold() == 300.0
+
+
+def test_r_ret_01_uses_days_since_delivery():
+    rule = get_policy("R-RET-01")["condition"]
+    t4505, t4512 = get_tracking(4505), get_tracking(4512)
+    assert check_condition(rule, {"delivered": t4505["delivered"],
+                                  "days_since_delivery": t4505["days_since_delivery"]}) is False  # 25 days
+    assert check_condition(rule, {"delivered": t4512["delivered"],
+                                  "days_since_delivery": t4512["days_since_delivery"]}) is False  # not delivered
+    assert check_condition(rule, {"delivered": True, "days_since_delivery": 10}) is True

@@ -1,0 +1,14 @@
+{
+  "name": "ShopNova",
+  "domain": "e-commerce",
+  "description": "ShopNova is an online shop based in Tunis that sells consumer electronics and accessories (earbuds, phone cases, chargers, smart watches, speakers, laptop bags). It delivers to the main cities of Tunisia with two carriers and accepts card payment or cash on delivery. Its customer relation center is fully run by AI agents.",
+  "sells": ["Wireless Earbuds", "Phone Case", "USB-C Charger", "Smart Watch", "Bluetooth Speaker", "Laptop Backpack"],
+  "cities_served": ["Tunis", "Ariana", "Ben Arous", "Sousse", "Sfax", "Monastir", "Nabeul", "Bizerte"],
+  "carriers": ["Aramex", "Rapid-Poste"],
+  "delivery_promise_days": {"min": 3, "max": 6},
+  "currency": "TND",
+  "payment_methods": ["card", "cash_on_delivery"],
+  "support_channels": ["chat", "email", "phone"],
+  "support_languages": ["French", "Arabic", "English"],
+  "ai_generated": true
+}

@@ -6,8 +6,9 @@ The Coordinator calls them after its checks; scripts/advance_status.py calls set
 to play the carrier during demo S3.
 
 Each function:
-- does only basic data checks (order exists, valid codes). Policy checks (amount <= paid,
-  days late, user confirmation...) are the Coordinator's job, not done here;
+- does basic data checks (order exists, valid codes) plus two safety nets that hold even if the
+  Coordinator has a bug: a refund never exceeds what is left to refund, and order statuses only
+  move in allowed steps. Policy checks (days late, user confirmation...) are the Coordinator's job;
 - returns the new row as a dict, or {"error": ...} if it refuses (it never raises);
 - writes one trace line: "db_write" when it wrote, "db_write_refused" when it refused.
 
@@ -19,7 +20,8 @@ from contextlib import closing
 from callverse import trace
 from callverse.config import sim_today
 from callverse.data.db import connect
-from callverse.data.seed import NOTIFICATION_EVENTS, ORDER_STATUSES
+from callverse.data.seed import (ALWAYS_ALLOWED, COUNTED_REFUND_STATUSES, NOTIFICATION_EVENTS,
+                                 ORDER_STATUSES, STATUS_MOVES)
 
 
 def _refuse(function: str, args: dict, reason: str) -> dict:
@@ -39,14 +41,28 @@ def _order_exists(con, order_id: int) -> bool:
 
 
 def create_refund(order_id: int, amount: float, rule_id: str, proposal_id: str) -> dict:
-    """Record an approved refund (status "approved") and return the new refunds row."""
+    """Record an approved refund (status "approved") and return the new refunds row.
+
+    Safety net (R-REF-05, checked here too, independently of the Coordinator): refused if
+    amount > paid - refunded_total, where refunded_total counts approved and completed refunds.
+    """
     args = {"order_id": order_id, "amount": amount, "rule_id": rule_id, "proposal_id": proposal_id}
     if not isinstance(amount, (int, float)) or amount <= 0:
         return _refuse("create_refund", args, "amount must be a positive number")
 
     with closing(connect()) as con:
-        if not _order_exists(con, int(order_id)):
+        order = con.execute("SELECT paid FROM orders WHERE id = ?", (int(order_id),)).fetchone()
+        if order is None:
             return _refuse("create_refund", args, f"order {order_id} not found")
+        marks = ", ".join("?" for _ in COUNTED_REFUND_STATUSES)
+        refunded_total = con.execute(
+            f"SELECT COALESCE(SUM(amount), 0) FROM refunds WHERE order_id = ? AND status IN ({marks})",
+            (int(order_id), *COUNTED_REFUND_STATUSES)).fetchone()[0]
+        left = round(order["paid"] - refunded_total, 2)
+        if round(float(amount), 2) > left:
+            return _refuse("create_refund", args,
+                           f"safety net R-REF-05: amount {amount} > paid {order['paid']} - refunded {refunded_total}"
+                           f" = {left} TND")
         cur = con.execute(
             "INSERT INTO refunds (order_id, amount, status, rule_id, proposal_id, created_at)"
             " VALUES (?, ?, 'approved', ?, ?, ?)",
@@ -82,6 +98,8 @@ def create_subscription(order_id: int, event: str) -> dict:
 def set_order_status(order_id: int, new_status: str) -> dict:
     """Change an order's status. If the new status is a notification event, also add an `events` row.
 
+    Allowed moves only (STATUS_MOVES in seed.py): processing -> shipped -> out_for_delivery -> delivered,
+    stuck_at_depot -> out_for_delivery, and any status -> cancelled or refunded. Anything else is refused.
     Returns {"order_id", "old_status", "new_status", "event"} where event is the new events row or None.
     When the status becomes "delivered", delivered_date is set to sim_today (if it was empty),
     so get_tracking reports the order as delivered.
@@ -97,6 +115,10 @@ def set_order_status(order_id: int, new_status: str) -> dict:
         if row is None:
             return _refuse("set_order_status", args, f"order {order_id} not found")
         old_status = row["status"]
+        allowed = new_status in STATUS_MOVES.get(old_status, ()) or new_status in ALWAYS_ALLOWED
+        if new_status == old_status or not allowed:
+            return _refuse("set_order_status", args,
+                           f"move {old_status} -> {new_status} is not allowed")
 
         con.execute("UPDATE orders SET status = ? WHERE id = ?", (new_status, int(order_id)))
         if new_status == "delivered":

@@ -70,6 +70,7 @@ def test_set_order_status_non_event_and_unknown():
 
 
 def test_delivered_sets_delivered_date():
+    set_order_status(4512, "out_for_delivery")   # stuck_at_depot -> out_for_delivery -> delivered
     set_order_status(4512, "delivered")
     tracking = get_tracking(4512)
     assert tracking["delivered"] is True and tracking["delivered_date"] == "2026-10-09"
@@ -88,3 +89,29 @@ def test_write_functions_are_not_tools():
         assert name not in registry.TOOL_FUNCTIONS
         assert name not in registry.TOOL_SCHEMAS
         assert all(name not in allowed for allowed in registry.ALLOW_LISTS.values())
+
+
+def test_refund_safety_net():
+    # 4506: paid 189, already refunded 189 -> nothing left, even 1 TND is refused by the DB layer.
+    before = _count("refunds")
+    result = create_refund(4506, 1.00, "R-REF-03", "p-safety")
+    assert "error" in result and "safety net" in result["error"]
+    assert _count("refunds") == before
+    assert _last_trace()["step"] == "db_write_refused"
+    # 4512: more than paid is refused; after a full refund, even 0.01 more is refused.
+    assert "error" in create_refund(4512, 70.00, "R-REF-03", "p")
+    assert create_refund(4512, 59.90, "R-REF-03", "p")["status"] == "approved"
+    assert "error" in create_refund(4512, 0.01, "R-REF-03", "p")
+
+
+def test_status_transitions():
+    r = set_order_status(4505, "shipped")                       # delivered -> shipped
+    assert "error" in r and "not allowed" in r["error"]
+    assert _last_trace()["step"] == "db_write_refused"
+    assert "error" in set_order_status(4512, "delivered")       # stuck_at_depot -> delivered skips a step
+    assert "error" in set_order_status(4512, "stuck_at_depot")  # same status
+    assert "error" not in set_order_status(4512, "out_for_delivery")
+    assert "error" not in set_order_status(4510, "out_for_delivery")  # shipped -> out_for_delivery
+    assert "error" not in set_order_status(4511, "shipped")           # processing -> shipped
+    assert "error" not in set_order_status(4505, "refunded")          # any -> refunded
+    assert "error" not in set_order_status(4513, "cancelled")         # any -> cancelled
