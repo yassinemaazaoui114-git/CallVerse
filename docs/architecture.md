@@ -10,7 +10,7 @@ Client Simulator ──► Intake ──► Queues ──► Agent A / Agent B �
 | Step | What it does | Why it is here | Status |
 |---|---|---|---|
 | Client Simulator | Plays a ShopNova client and writes messages | Test the system without real clients | later |
-| Intake | Understands the message (reason, emotion) | Cheap local models, so the big LLM is not used for sorting | later |
+| Intake | Understands the message (reasons, emotion, priority from the facts) | Cheap local models, so the big LLM is not used for sorting; a fixed pipeline, not an agent | **runs** (T03) |
 | Queues | Sends the request to Agent A or B | Simple rules are predictable and easy to check | Brief #2 |
 | Agent A | Status & Tracking: "where is my order?" | One narrow job per agent, with its own tools | **runs** |
 | Agent B | Payment & Refund: proposes refunds | Money decisions are kept apart from tracking | Brief #2 |

@@ -1,0 +1,75 @@
+{
+  "_note": "AI-GENERATED example messages (written by Claude, 2026-10-20). Used to BUILD the reason matcher. Never put test messages here.",
+  "order_status": [
+    "Hi, can you tell me where my order is?",
+    "What's the status of order 4510?",
+    "Has my package been shipped yet?",
+    "I'd like to track my parcel, order 4513.",
+    "When will my order arrive?",
+    "Is my order still being processed?",
+    "Can I get the tracking number for my last order?",
+    "Which carrier is delivering my order 4511?",
+    "Just checking on my purchase from last week, any update?",
+    "Where is my package right now?"
+  ],
+  "late_delivery": [
+    "My order should have arrived days ago and it's still not here.",
+    "Order 4512 was promised for October 3rd and I still haven't received it.",
+    "The delivery is late, it's been almost a week past the date you gave me.",
+    "Why is my parcel so delayed? It was supposed to come on Monday.",
+    "My package is stuck at the depot and nothing is moving.",
+    "You told me delivery by the 5th, today is the 9th and nothing.",
+    "This is taking way too long, my order is overdue.",
+    "The tracking hasn't changed in days and the delivery date passed.",
+    "I'm still waiting for an order that was due last week.",
+    "Your delivery is late again, the expected date was yesterday."
+  ],
+  "refund_request": [
+    "I want my money back for order 4512.",
+    "Please refund me, I don't want to wait anymore.",
+    "Can I get a full refund for my order?",
+    "I'd like to cancel my order and be reimbursed.",
+    "Give me a refund, the order never came.",
+    "How do I get my money back?",
+    "I was charged but I want to cancel and get refunded.",
+    "Please return the 59.90 I paid.",
+    "I demand compensation for this delay.",
+    "Can you reimburse me for the order I never received?"
+  ],
+  "return_item": [
+    "I'd like to return the earbuds I bought.",
+    "How can I send back an item I don't need anymore?",
+    "The watch doesn't fit me, can I return it?",
+    "I changed my mind about the backpack, what's the return process?",
+    "Can I exchange this phone case for another color?",
+    "What is your return policy?",
+    "I want to send the speaker back, it's not what I expected.",
+    "Do I have to pay shipping to return an item?",
+    "I returned a jacket last week, did you receive it?",
+    "How many days do I have to return a product?"
+  ],
+  "damaged_item": [
+    "The charger I received is broken.",
+    "My smart watch arrived with a cracked screen.",
+    "The box was crushed and the speaker doesn't work.",
+    "I got the wrong item and it's also damaged.",
+    "The earbuds don't turn on, they seem defective.",
+    "The product arrived scratched and dented.",
+    "One of the items in my order was broken in the package.",
+    "The backpack zipper is torn, it came like that.",
+    "My order arrived but the phone case is cracked.",
+    "The item stopped working the first day, it must be faulty."
+  ],
+  "other": [
+    "Do you have a store in Tunis?",
+    "How do I change my account password?",
+    "Do you ship to Sousse?",
+    "Are there any discounts this week?",
+    "Can I change the email on my account?",
+    "Do you sell laptops?",
+    "What are your customer service hours?",
+    "Can I pay with a different card next time?",
+    "I want to leave feedback about your website.",
+    "Do you offer gift wrapping?"
+  ]
+}

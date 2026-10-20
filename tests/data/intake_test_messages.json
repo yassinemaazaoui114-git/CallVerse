@@ -1,0 +1,31 @@
+{
+  "_note": "AI-GENERATED TEST SET (written by Claude, 2026-10-20). Held out: never use these to build, tune or choose thresholds. Only for the final evaluation.",
+  "messages": [
+    {"id": "t01", "text": "Hello, could you check where order 4513 is at the moment?", "reasons": ["order_status"], "order_id": 4513},
+    {"id": "t02", "text": "is my stuff on the way or not", "reasons": ["order_status"], "order_id": null},
+    {"id": "t03", "text": "Good morning, I placed an order on the 7th, has it left the warehouse?", "reasons": ["order_status"], "order_id": null},
+    {"id": "t04", "text": "It's been six days past the promised date for #4512, still nothing at my door.", "reasons": ["late_delivery"], "order_id": 4512},
+    {"id": "t05", "text": "My parcel hasn't moved from the sorting center since last week, the date you gave is long gone.", "reasons": ["late_delivery"], "order_id": null},
+    {"id": "t06", "text": "Seriously?? Promised Friday, now it's Thursday the week after. Where is it?", "reasons": ["late_delivery"], "order_id": null},
+    {"id": "t07", "text": "I would like to be reimbursed for order 4512, please.", "reasons": ["refund_request"], "order_id": 4512},
+    {"id": "t08", "text": "Cancel everything and send the money back to my card.", "reasons": ["refund_request"], "order_id": null},
+    {"id": "t09", "text": "Is it possible to get my payment returned since the package never showed up?", "reasons": ["refund_request"], "order_id": null},
+    {"id": "t10", "text": "The speaker sounds different from the description, I want to ship it back to you.", "reasons": ["return_item"], "order_id": null},
+    {"id": "t11", "text": "Until what date can I still bring back the backpack from order 4508?", "reasons": ["return_item"], "order_id": 4508},
+    {"id": "t12", "text": "Can I swap these earbuds for a different model?", "reasons": ["return_item"], "order_id": null},
+    {"id": "t13", "text": "The watch screen came shattered out of the box.", "reasons": ["damaged_item"], "order_id": null},
+    {"id": "t14", "text": "Order 4507 arrived but the speaker has no sound at all, it's defective.", "reasons": ["damaged_item"], "order_id": 4507},
+    {"id": "t15", "text": "Opened the package and the charger cable is cut in half.", "reasons": ["damaged_item"], "order_id": null},
+    {"id": "t16", "text": "Do you deliver to Sfax on weekends?", "reasons": ["other"], "order_id": null},
+    {"id": "t17", "text": "I forgot my login, how do I reset it?", "reasons": ["other"], "order_id": null},
+    {"id": "t18", "text": "Order 4512 is a week late. I'd like a refund, please.", "reasons": ["late_delivery", "refund_request"], "order_id": 4512},
+    {"id": "t19", "text": "Where is order 4510? Also, the phone case I got last month is cracked.", "reasons": ["order_status", "damaged_item"], "order_id": 4510},
+    {"id": "t20", "text": "My delivery is very late. And I want to return the earbuds from my previous order.", "reasons": ["late_delivery", "return_item"], "order_id": null}
+  ],
+  "priority_pairs": [
+    {"id": "p01",
+     "higher": "Order 4512 is a week late. I'd like a refund, please.",
+     "lower": "WHERE IS MY ORDER 4510??? THIS IS RIDICULOUS!!!",
+     "why": "Calm user with a real problem (6 days late, money paid) must rank above an angry user whose order is not late yet (promised 2026-10-10, today 2026-10-09)."}
+  ]
+}

@@ -61,9 +61,11 @@ traces/             run logs (not in git)
 
 **Runs today:** shared LLM layer (Groq `gpt-oss-120b`, backup `gpt-oss-20b`), placeholder database,
 3 read tools (`get_user`, `get_order`, `get_tracking`), allow-list registry, Agent A, traces, tests.
+Intake (branch `feature/intake`, T03): message → ticket with reasons, emotion, priority, style
+(`python -m scripts.run_intake "<message>"`; first run downloads the local models, ~1 GB).
 
 **Coming next:** Policy KB + search (RAG), Agent B, Coordinator, queue router, delivery notifications
-(Brief #2) · Intake (Brief #3) · SLM reply writer and Client Simulator (Brief #4).
+(Brief #2) · SLM reply writer and Client Simulator (Brief #4).
 
 ## For the platform builder
 

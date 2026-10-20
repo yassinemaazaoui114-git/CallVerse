@@ -20,3 +20,32 @@ models:
   simulator: # M1, different family (used in task 4)
     # Supervisor decision: the Gemini Flash model this account can access. To verify at task 4.
     - {provider: google,     model: "gemini-3.8-flash"}
+
+# Intake (task T03): a fixed pipeline, not an agent. Local models run on CPU.
+intake:
+  embedding_model: "BAAI/bge-small-en-v1.5"                            # M3
+  emotion_model: "j-hartmann/emotion-english-distilroberta-base"       # M4
+  sentiment_model: "cardiffnlp/twitter-roberta-base-sentiment-latest"  # M4
+  # Each sentence keeps its best reason if that score (mean of its top_k cosine similarities to the
+  # reason's examples) is >= reason_threshold. Chosen by leave-one-out on the EXAMPLES only
+  # (python -m scripts.choose_threshold), never on the test set: 47/60 exact, 4 wrong, 9 to the LLM.
+  top_k: 3
+  reason_threshold: 0.66
+
+  priority:
+    # severity (0-1) = base for the reason + bonuses, capped at 1
+    severity_base:
+      order_status: 0.2
+      late_delivery: 0.5
+      refund_request: 0.5
+      return_item: 0.3
+      damaged_item: 0.6
+      other: 0.2
+    late_bonus:   {days_late_over: 5,  add: 0.3}
+    amount_bonus: {paid_over: 300,     add: 0.2}
+    # time_pressure (0-1) = min(days_late / time_pressure_days, 1)
+    time_pressure_days: 7
+    # priority = weighted sum of the three parts
+    weights: {severity: 0.6, time_pressure: 0.25, emotion_intensity: 0.15}
+    # label: high if priority >= high, medium if >= medium, else low
+    labels: {high: 0.6, medium: 0.35}
