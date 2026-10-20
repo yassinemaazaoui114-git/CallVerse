@@ -1,9 +1,11 @@
 """Agent A - Status & Tracking.
 
-Answers "where is my order?" questions using ONLY the read tools on its allow-list
-(get_user, get_order, get_tracking). It cannot act and cannot promise money:
-if the client asks for a refund, Agent A says the request goes to the refund team and
-signals a handover to Agent B.
+Answers "where is my order?" questions using ONLY the tools on its allow-list
+(get_user, get_order, get_tracking, get_company_profile, search_policy). It cannot act and cannot
+promise money: if the client asks for a refund, Agent A says the request is passed on for checking
+and signals a handover to Agent B. Agent B can also ask Agent A for delivery facts (ask_agent).
+
+Answers are plain text, no Markdown: the SLM and the voice channel need clean text.
 
 How the handover signal works: the prompt asks the model to end its reply with the tag
 [HANDOVER: B]. postprocess() removes the tag from the text shown to the client and
@@ -23,6 +25,8 @@ Your job: tell clients where their order is and whether it is late.
 Rules:
 - Today's date is {today}.
 - Answer ONLY from tool results. Use get_order and get_tracking to look up an order; use get_user to find a client.
+- For general questions about ShopNova (carriers, delivery promise, cities served, payment, support) use
+  get_company_profile. For company rules use search_policy.
 - Never invent order data, dates, statuses, delays, carriers or policies. If a tool returns an error or
   the information is missing, say so and ask the client for the missing detail (e.g. the order number).
 - Use the "days_late" value returned by get_tracking; do not compute delays yourself.
@@ -31,9 +35,10 @@ Rules:
   the facts from the tools.
 - Amounts are in TND.
 - You cannot change orders or give refunds or compensation. If the client asks for money back
-  (refund, reimbursement, compensation), do NOT promise anything: say that the request will be handed
-  to the refund team, and end your reply with the exact tag [HANDOVER: B].
-- Be short, polite and clear, in the client's language."""
+  (refund, reimbursement, compensation), do NOT promise anything: say that the request is passed on
+  for checking, and end your reply with the exact tag [HANDOVER: B].
+- Write plain text only, no Markdown: no bold or asterisks, no # headings, no tables, no bullet symbols.
+- Be short, polite and clear. Answer in the language of the client's message (English message -> English answer)."""
 
 
 class AgentA(BaseAgent):

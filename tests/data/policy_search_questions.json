@@ -1,0 +1,15 @@
+{
+  "_note": "AI-GENERATED HELD-OUT TEST SET for policy search (written by the Brain, 2026-10-20). Never use to build or tune. Final evaluation only.",
+  "questions": [
+    {"id": "q01", "text": "My parcel is 8 days late and still not here, can I get my money back?", "expected": "R-REF-03"},
+    {"id": "q02", "text": "It's only 2 days late, do I get any compensation?", "expected": "R-DEL-02"},
+    {"id": "q03", "text": "Can I send back the backpack I received last week?", "expected": "R-RET-01"},
+    {"id": "q04", "text": "The speaker arrived broken, what do you need from me?", "expected": "R-DMG-01"},
+    {"id": "q05", "text": "I want a refund of 450 TND for my order.", "expected": "R-ESC-01"},
+    {"id": "q06", "text": "Can I be refunded more than what I paid?", "expected": "R-REF-05"},
+    {"id": "q07", "text": "Can you message me when my package is out for delivery?", "expected": "R-NOT-01"},
+    {"id": "q08", "text": "By when should my order arrive?", "expected": "R-DEL-01"},
+    {"id": "q09", "text": "I already got my money back, can I get a second refund for the same order?", "expected": "R-REF-05"},
+    {"id": "q10", "text": "How many days do I have to return an item?", "expected": "R-RET-01"}
+  ]
+}

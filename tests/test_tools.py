@@ -40,9 +40,10 @@ def test_get_refunds():
     assert "error" in get_refunds(9999)
 
 
-def test_get_refunds_is_not_on_any_allow_list_yet():
+def test_get_refunds_only_for_agent_b():
+    # T06: Agent B reads refunds (rule R-REF-05); nobody else does.
     from callverse.tools.registry import ALLOW_LISTS
-    assert all("get_refunds" not in allowed for allowed in ALLOW_LISTS.values())
+    assert [agent for agent, allowed in ALLOW_LISTS.items() if "get_refunds" in allowed] == ["B"]
 
 
 def test_labels_on_seed_data():
@@ -67,9 +68,10 @@ def test_get_company_profile():
     assert profile["name"] == "ShopNova" and profile["currency"] == "TND"
 
 
-def test_get_company_profile_is_not_on_any_allow_list():
+def test_get_company_profile_only_for_agent_a():
+    # T06: Agent A answers general questions (carriers, delivery promise, cities); nobody else needs it.
     from callverse.tools.registry import ALLOW_LISTS
-    assert all("get_company_profile" not in allowed for allowed in ALLOW_LISTS.values())
+    assert [agent for agent, allowed in ALLOW_LISTS.items() if "get_company_profile" in allowed] == ["A"]
 
 
 def test_seed_uses_sim_today_from_config():

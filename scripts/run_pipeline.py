@@ -1,4 +1,4 @@
-"""Run the pipeline: Intake -> Router -> Agent A (or handover to B).
+"""Run the pipeline: Intake -> Router -> Agent A or Agent B (B may submit a refund proposal).
 
 Usage (from the repo root):
     python -m scripts.run_pipeline "Hi, where is my order 4512?"
@@ -27,8 +27,9 @@ def show(out: dict) -> None:
     print(f"Ticket   : {t['ticket_id']}  order {t['order_id']}  reasons {[x['reason'] for x in t['reasons']]}")
     print(f"           main_reason {t['main_reason']}  priority {t['priority_label'].upper()} {t['priority_score']}")
     print(f"Route    : agent {r['agent']} ({r['layer']})")
+    print(f"Handover : {out['handover'] or 'none'}" + (f"  ({out['handover_text']})" if out['handover_text'] else ""))
     print(f"Answer   : {out['answer']}")
-    print(f"Handover : {out['handover'] or 'none'}")
+    print(f"Proposal : {out['proposal'] or 'none'}")
 
 
 def main() -> None:

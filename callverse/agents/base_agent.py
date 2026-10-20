@@ -14,7 +14,7 @@ import json
 from callverse import llm, trace
 from callverse.tools.registry import run_tool, schemas_for
 
-MAX_STEPS = 5
+MAX_STEPS = 5   # default limit; an agent with more steps in its job can set its own max_steps
 
 # Shown to the client if the agent hits the step limit without a final answer.
 STEP_LIMIT_ANSWER = ("Sorry, I could not complete your request right now. "
@@ -25,6 +25,7 @@ class BaseAgent:
     agent_id = "?"        # key in the registry allow-lists, e.g. "A"
     name = "Base agent"   # human-readable name, used in traces
     role_key = "agents"   # which models of config.yaml this agent uses (M2)
+    max_steps = MAX_STEPS # most model calls in one turn
 
     def __init__(self, chat_fn=None):
         # chat_fn lets the tests plug in a fake LLM; normally it is the shared llm.chat.
@@ -53,7 +54,7 @@ class BaseAgent:
         trace.log("agent_start", self.actor, {"agent": self.name, "input": user_message,
                                               "allowed_tools": [t["function"]["name"] for t in tools]})
 
-        for step in range(1, MAX_STEPS + 1):
+        for step in range(1, self.max_steps + 1):
             reply = self.chat(self.role_key, messages, tools=tools)
 
             # No tool requested -> this is the final answer.
@@ -82,7 +83,8 @@ class BaseAgent:
                 except json.JSONDecodeError:
                     args = None
                 if isinstance(args, dict):
-                    output = run_tool(self.agent_id, tc.function.name, args)
+                    # chat_fn is passed on only to tools that run another agent (ask_agent).
+                    output = run_tool(self.agent_id, tc.function.name, args, chat_fn=self.chat)
                 else:
                     output = {"error": "tool arguments were not valid JSON"}
                 tool_calls_made.append({"tool": tc.function.name, "args": args, "result": output})
@@ -94,6 +96,6 @@ class BaseAgent:
 
         # Safety limit reached without a final answer.
         result = {"agent": self.agent_id, "answer": STEP_LIMIT_ANSWER, "tool_calls": tool_calls_made,
-                  "steps": MAX_STEPS, "stopped_by": "max_steps"}
+                  "steps": self.max_steps, "stopped_by": "max_steps"}
         trace.log("step_limit", self.actor, {"output": result})
         return result

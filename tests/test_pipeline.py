@@ -1,4 +1,5 @@
 """T04 tests: router rules, queue order, main-reason precedence, Intake allow-list, pipeline flow.
+(T06: route B and Agent A's handover now run Agent B.)
 
 No API call: Agent A gets a fake LLM; Intake runs with use_llm=False (local models only).
 The messages are written for these tests (not from the held-out Intake test set).
@@ -52,9 +53,14 @@ def test_main_reason_precedence():
 def test_late_plus_refund_goes_to_b():
     t = intake.process("Order 4512 is a week late. I want my money back.", use_llm=False)
     assert t["main_reason"] == "refund_request"
-    out = pipeline.handle_ticket(t, chat_fn=lambda *a, **k: pytest.fail("Agent A must not run"))
+
+    def fake(role_key, messages, tools=None):
+        assert messages[0]["content"].startswith("You are Agent B"), "Agent A must not run"
+        return text_reply("Your request is sent for checking.")
+
+    out = pipeline.handle_ticket(t, chat_fn=fake)
     assert out["route"]["agent"] == "B" and out["handover"] == "B"
-    assert out["answer"] == pipeline.HANDOVER_ANSWER
+    assert out["answer"] == "Your request is sent for checking."
 
 
 def test_intake_cannot_read_user_data():
@@ -82,8 +88,13 @@ def test_pipeline_route_a_answers():
     assert "order id = 4512" in seen[0] and "main reason = order_status" in seen[0]
 
 
-def test_pipeline_agent_a_handover_is_recorded():
-    fake = lambda role_key, messages, tools=None: text_reply("I will pass this to the refund team. [HANDOVER: B]")
+def test_pipeline_agent_a_handover_goes_to_agent_b():
+    def fake(role_key, messages, tools=None):
+        if messages[0]["content"].startswith("You are Agent A"):
+            return text_reply("Your request is passed on for checking. [HANDOVER: B]")
+        return text_reply("Agent B answer.")
+
     out = pipeline.handle_ticket(make_ticket(), chat_fn=fake)
     assert out["route"]["agent"] == "A"
-    assert out["handover"] == "B" and out["answer"] == pipeline.HANDOVER_ANSWER
+    assert out["handover"] == "B" and out["answer"] == "Agent B answer."
+    assert out["handover_text"] == "Your request is passed on for a refund check."
