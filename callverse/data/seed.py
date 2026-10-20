@@ -96,7 +96,8 @@ CREATE TABLE subscriptions (
     order_id   INTEGER NOT NULL REFERENCES orders(id),
     event      TEXT NOT NULL CHECK (event IN {_in(NOTIFICATION_EVENTS)}),
     status     TEXT NOT NULL CHECK (status IN {_in(SUBSCRIPTION_STATUSES)}),
-    created_at TEXT NOT NULL,{LABELS}
+    created_at TEXT NOT NULL,
+    proposal_id TEXT,                  -- the approved "subscribe" proposal it came from{LABELS}
 );
 CREATE TABLE events (
     id       INTEGER PRIMARY KEY,

@@ -5,8 +5,9 @@ never put in the tool registry or in any agent allow-list, so no agent (and no L
 The Coordinator calls them after its checks; scripts/advance_status.py calls set_order_status
 to play the carrier during demo S3.
 
-Coordinator order for a refund: record_proposal -> checks -> record_decision("approve") -> create_refund.
-create_refund refuses unless its proposal_id is a recorded proposal whose decision is "approve".
+Coordinator order: record_proposal -> checks -> record_decision("approve") -> create_refund / create_subscription.
+Both writes refuse unless their proposal_id is a recorded, approved proposal whose action and params match
+EXACTLY what is being written (same order, same amount / same event), used only once.
 
 Each function:
 - does basic data checks (order exists, valid codes) plus two safety nets that hold even if the
@@ -64,12 +65,13 @@ def _proposal_row(row) -> dict:
     return p
 
 
-def record_proposal(proposal: dict) -> str | dict:
-    """Save an agent proposal (not decided yet) and return its new id "P-0001", "P-0002", ...
+def record_proposal(proposal: dict) -> dict:
+    """Save an agent proposal (not decided yet) and return {"id": "P-0001"} (then "P-0002", ...).
 
     proposal = {"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90},
                 "rule_id": "R-REF-03", "facts_used": {...}, "user_confirmed": true}
     Other keys (e.g. "user_quote") are ignored. Returns {"error": ...} if a required field is wrong.
+    Always a dict, never a bare string.
     """
     args = {"proposal": proposal}
     if not isinstance(proposal, dict):
@@ -96,8 +98,7 @@ def record_proposal(proposal: dict) -> str | dict:
              1 if proposal.get("user_confirmed") is True else 0, sim_today().isoformat()),
         )
         con.commit()
-    _done("record_proposal", args, {"id": proposal_id})
-    return proposal_id
+    return _done("record_proposal", args, {"id": proposal_id})
 
 
 def record_decision(proposal_id: str, decision: str, reason: str) -> dict:
@@ -122,12 +123,33 @@ def record_decision(proposal_id: str, decision: str, reason: str) -> dict:
     return _done("record_decision", args, result)
 
 
+def _approved_proposal(con, proposal_id, action: str, order_id) -> tuple[dict | None, str | None]:
+    """Find the proposal behind a write and check it. Returns (proposal, None) or (None, reason to refuse).
+
+    Checks: it exists, its decision is "approve", its action is `action`, and its params.order_id is order_id.
+    """
+    if not proposal_id:
+        return None, "safety net: a proposal_id is required"
+    row = con.execute("SELECT * FROM proposals WHERE id = ?", (str(proposal_id),)).fetchone()
+    if row is None:
+        return None, f"safety net: proposal {proposal_id} not found"
+    if row["decision"] != "approve":
+        return None, f"safety net: proposal {proposal_id} is not approved (decision: {row['decision']})"
+    if row["action"] != action:
+        return None, f"safety net: proposal {proposal_id} is a '{row['action']}' proposal, not '{action}'"
+    params = json.loads(row["params"])
+    if params.get("order_id") is None or int(params["order_id"]) != int(order_id):
+        return None, f"safety net: proposal {proposal_id} is for order {params.get('order_id')}, not {order_id}"
+    return {"id": row["id"], "params": params}, None
+
+
 def create_refund(order_id: int, amount: float, rule_id: str, proposal_id: str) -> dict:
     """Record an approved refund (status "approved") and return the new refunds row.
 
     Safety nets (checked here too, independently of the Coordinator's own checks):
-    - proposal_id must be a recorded proposal, decided "approve", for this same order, and not used
-      already by another refund;
+    - proposal_id must be a recorded proposal, decided "approve", with action "refund", for this same
+      order, for this same amount (rounded to 2 decimals), and not used already by another refund.
+      So an approval for 10.00 TND can never pay 378.00 TND (which would also skip Layer 3);
     - R-REF-05: refused if amount > paid - refunded_total (approved and completed refunds count).
     """
     args = {"order_id": order_id, "amount": amount, "rule_id": rule_id, "proposal_id": proposal_id}
@@ -135,18 +157,16 @@ def create_refund(order_id: int, amount: float, rule_id: str, proposal_id: str) 
         return _refuse("create_refund", args, "amount must be a finite number above 0")
 
     with closing(connect()) as con:
-        proposal = con.execute("SELECT * FROM proposals WHERE id = ?", (str(proposal_id),)).fetchone()
-        if proposal is None:
-            return _refuse("create_refund", args, f"safety net: proposal {proposal_id} not found")
-        if proposal["decision"] != "approve":
-            return _refuse("create_refund", args,
-                           f"safety net: proposal {proposal_id} is not approved (decision: {proposal['decision']})")
-        proposal_order = json.loads(proposal["params"]).get("order_id")
-        if proposal_order is not None and int(proposal_order) != int(order_id):
-            return _refuse("create_refund", args,
-                           f"safety net: proposal {proposal_id} is for order {proposal_order}, not {order_id}")
+        proposal, reason = _approved_proposal(con, proposal_id, "refund", order_id)
+        if reason:
+            return _refuse("create_refund", args, reason)
         if con.execute("SELECT 1 FROM refunds WHERE proposal_id = ?", (str(proposal_id),)).fetchone():
             return _refuse("create_refund", args, f"safety net: proposal {proposal_id} was already used for a refund")
+        approved_amount = proposal["params"].get("amount")
+        if not is_valid_amount(approved_amount) or round(float(approved_amount), 2) != round(float(amount), 2):
+            return _refuse("create_refund", args,
+                           f"safety net: amount {amount} does not match the approved amount {approved_amount}"
+                           f" of proposal {proposal_id}")
 
         order = con.execute("SELECT paid FROM orders WHERE id = ?", (int(order_id),)).fetchone()
         if order is None:
@@ -189,22 +209,35 @@ def mark_subscription_sent(subscription_id: int) -> dict:
     return _done("mark_subscription_sent", args, result)
 
 
-def create_subscription(order_id: int, event: str) -> dict:
+def create_subscription(order_id: int, event: str, proposal_id: str | None = None) -> dict:
     """Record that the client wants a notification for `event` (status "waiting").
 
     Refused if the event is not one of the R-NOT-01 events (shipped, out_for_delivery, delivered).
+    Safety net, like create_refund: proposal_id must be a recorded proposal, decided "approve", with action
+    "subscribe", params.order_id = order_id, params.event = event, and not used already for a subscription.
     """
-    args = {"order_id": order_id, "event": event}
+    args = {"order_id": order_id, "event": event, "proposal_id": proposal_id}
     if event not in NOTIFICATION_EVENTS:
         return _refuse("create_subscription", args,
                        f"event '{event}' is not allowed (R-NOT-01: {', '.join(NOTIFICATION_EVENTS)})")
 
     with closing(connect()) as con:
+        proposal, reason = _approved_proposal(con, proposal_id, "subscribe", order_id)
+        if reason:
+            return _refuse("create_subscription", args, reason)
+        if proposal["params"].get("event") != event:
+            return _refuse("create_subscription", args,
+                           f"safety net: event '{event}' does not match the approved event"
+                           f" '{proposal['params'].get('event')}' of proposal {proposal_id}")
+        if con.execute("SELECT 1 FROM subscriptions WHERE proposal_id = ?", (str(proposal_id),)).fetchone():
+            return _refuse("create_subscription", args,
+                           f"safety net: proposal {proposal_id} was already used for a subscription")
         if not _order_exists(con, int(order_id)):
             return _refuse("create_subscription", args, f"order {order_id} not found")
         cur = con.execute(
-            "INSERT INTO subscriptions (order_id, event, status, created_at) VALUES (?, ?, 'waiting', ?)",
-            (int(order_id), event, sim_today().isoformat()),
+            "INSERT INTO subscriptions (order_id, event, status, created_at, proposal_id)"
+            " VALUES (?, ?, 'waiting', ?, ?)",
+            (int(order_id), event, sim_today().isoformat(), str(proposal_id)),
         )
         con.commit()
         row = dict(con.execute("SELECT * FROM subscriptions WHERE id = ?", (cur.lastrowid,)).fetchone())

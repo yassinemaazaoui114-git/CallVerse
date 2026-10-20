@@ -56,7 +56,7 @@ def check(rule_id: str, facts: dict) -> bool:
 def propose(order_id: int, amount: float, rule_id: str = "R-REF-03") -> str:
     """Imitate Agent B's refund proposal: record it in the audit table and return its id."""
     pid = record_proposal({"agent": "B", "action": "refund", "params": {"order_id": order_id, "amount": amount},
-                           "rule_id": rule_id, "facts_used": facts_for(order_id), "user_confirmed": True})
+                           "rule_id": rule_id, "facts_used": facts_for(order_id), "user_confirmed": True})["id"]
     say(f"record_proposal(B, refund {order_id}, {amount:.2f}, {rule_id}) -> {pid}")
     return pid
 
@@ -99,8 +99,14 @@ def s2() -> None:
 
 def s3() -> None:
     title("S3 - client subscribes to 'delivered', the order moves, the event is recorded")
-    sub = create_subscription(4512, "delivered")
-    say(f"create_subscription(4512, 'delivered') -> subscription #{sub['id']}, status {sub['status']}")
+    # Imitate Agent A's proposal and the Coordinator's approval, then the write (must match the proposal).
+    pid = record_proposal({"agent": "A", "action": "subscribe", "params": {"order_id": 4512, "event": "delivered"},
+                           "rule_id": "R-NOT-01", "facts_used": {"status": "stuck_at_depot"},
+                           "user_confirmed": True})["id"]
+    say(f"record_proposal(A, subscribe 4512, delivered, R-NOT-01) -> {pid}")
+    decide(pid, "approve", "R-NOT-01: 'delivered' is a notification event")
+    sub = create_subscription(4512, "delivered", pid)
+    say(f"create_subscription(4512, 'delivered', '{pid}') -> subscription #{sub['id']}, status {sub['status']}")
     for status in ("out_for_delivery", "delivered"):
         r = set_order_status(4512, status)
         event = f"event #{r['event']['id']} '{r['event']['event']}'" if r["event"] else "no event"

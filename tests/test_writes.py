@@ -25,7 +25,15 @@ def _last_trace() -> dict:
 def _approved(order_id: int, amount: float) -> str:
     """Record a refund proposal and the Coordinator's "approve" decision; return the proposal id."""
     pid = record_proposal({"agent": "B", "action": "refund", "params": {"order_id": order_id, "amount": amount},
-                           "rule_id": "R-REF-03", "facts_used": {}, "user_confirmed": True})
+                           "rule_id": "R-REF-03", "facts_used": {}, "user_confirmed": True})["id"]
+    record_decision(pid, "approve", "test")
+    return pid
+
+
+def _approved_sub(order_id: int, event: str) -> str:
+    """Record a subscribe proposal and an "approve" decision; return the proposal id."""
+    pid = record_proposal({"agent": "A", "action": "subscribe", "params": {"order_id": order_id, "event": event},
+                           "rule_id": "R-NOT-01", "facts_used": {}, "user_confirmed": True})["id"]
     record_decision(pid, "approve", "test")
     return pid
 
@@ -56,10 +64,11 @@ def test_create_refund_refuses_unknown_order_and_bad_amount():
 
 
 def test_create_subscription():
-    row = create_subscription(4512, "out_for_delivery")
-    assert row["status"] == "waiting" and row["event"] == "out_for_delivery"
+    pid = _approved_sub(4512, "out_for_delivery")
+    row = create_subscription(4512, "out_for_delivery", pid)
+    assert row["status"] == "waiting" and row["event"] == "out_for_delivery" and row["proposal_id"] == pid
     before = _count("subscriptions")
-    assert "error" in create_subscription(4512, "lost")
+    assert "error" in create_subscription(4512, "lost", _approved_sub(4512, "lost"))
     assert _count("subscriptions") == before
 
 
@@ -150,3 +159,61 @@ def test_nan_from_json_tool_arguments_is_refused():
     # json.loads accepts NaN, so an LLM tool call could really send it.
     args = json.loads('{"order_id": 4512, "amount": NaN}')
     assert "error" in create_refund(args["order_id"], args["amount"], "R-REF-03", _approved(4512, 59.90))
+
+
+
+# --- P07: writes must match their approved proposal ---------------------------------
+
+def _refused_without_row(table: str, call) -> dict:
+    """Run a write that must be refused: no new row, and the last trace line is db_write_refused."""
+    before = _count(table)
+    result = call()
+    assert "error" in result, result
+    assert _count(table) == before
+    assert _last_trace()["step"] == "db_write_refused"
+    return result
+
+
+def test_refund_amount_must_match_the_approved_amount():
+    small = _approved(4515, 10.00)                     # approved for 10.00 (under the Layer 3 threshold)...
+    r = _refused_without_row("refunds", lambda: create_refund(4515, 378.00, "R-REF-03", small))
+    assert "does not match" in r["error"]              # ...can never pay 378.00
+    r = _refused_without_row("refunds", lambda: create_refund(4512, 30.00, "R-REF-03", _approved(4512, 59.90)))
+    assert "does not match" in r["error"]
+    assert create_refund(4512, 59.90, "R-REF-03", _approved(4512, 59.90))["status"] == "approved"
+
+
+def test_refund_needs_a_refund_proposal():
+    sub = _approved_sub(4512, "delivered")
+    r = _refused_without_row("refunds", lambda: create_refund(4512, 59.90, "R-REF-03", sub))
+    assert "'subscribe' proposal" in r["error"]
+
+
+def test_amounts_match_after_rounding():
+    pid = _approved(4512, 59.899)                      # rounds to 59.90
+    assert create_refund(4512, 59.90, "R-REF-03", pid)["status"] == "approved"
+
+
+def test_create_subscription_safety_net():
+    def sub(pid):
+        return lambda: create_subscription(4512, "delivered", pid)
+
+    _refused_without_row("subscriptions", lambda: create_subscription(4512, "delivered"))    # no pid
+    _refused_without_row("subscriptions", sub("P-9999"))                                       # unknown pid
+    not_decided = record_proposal({"agent": "A", "action": "subscribe",
+                                   "params": {"order_id": 4512, "event": "delivered"}})["id"]
+    _refused_without_row("subscriptions", sub(not_decided))                                    # not approved
+    _refused_without_row("subscriptions", sub(_approved(4512, 59.90)))                         # action refund
+    _refused_without_row("subscriptions", sub(_approved_sub(4510, "delivered")))               # other order
+    _refused_without_row("subscriptions", sub(_approved_sub(4512, "shipped")))                 # other event
+    pid = _approved_sub(4512, "delivered")
+    assert create_subscription(4512, "delivered", pid)["status"] == "waiting"                  # matching
+    r = _refused_without_row("subscriptions", sub(pid))                                        # used twice
+    assert "already used" in r["error"]
+
+
+def test_record_proposal_always_returns_a_dict():
+    ok = record_proposal({"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90}})
+    assert isinstance(ok, dict) and set(ok) == {"id"} and ok["id"].startswith("P-")
+    for junk in ("junk", None, 42, {"agent": "B"}):
+        assert isinstance(record_proposal(junk), dict) and "error" in record_proposal(junk)

@@ -199,6 +199,7 @@ class DecisionIn(BaseModel):
 class SubscriptionIn(BaseModel):
     order_id: int
     event: str
+    proposal_id: str | None = None   # required by create_subscription; missing -> refused (400)
 
 
 class StatusIn(BaseModel):
@@ -220,11 +221,10 @@ def coordinator_refund(body: RefundIn, x_coordinator_token: str | None = Header(
 
 @app.post("/coordinator/proposals")
 def coordinator_proposal(proposal: dict[str, Any], x_coordinator_token: str | None = Header(default=None)):
-    """Record an agent proposal. Returns {"id": "P-0001"} (record_proposal returns the id itself)."""
+    """Record an agent proposal. Returns {"id": "P-0001"} or {"error": ...} (400)."""
     if (refusal := _token_refusal(x_coordinator_token)) is not None:
         return refusal
-    result = writes.record_proposal(proposal)
-    return _result(result if isinstance(result, dict) else {"id": result}, 400)
+    return _result(writes.record_proposal(proposal), 400)
 
 
 @app.post("/coordinator/proposals/{proposal_id}/decision")
@@ -245,7 +245,7 @@ def coordinator_subscription_sent(subscription_id: int, x_coordinator_token: str
 def coordinator_subscription(body: SubscriptionIn, x_coordinator_token: str | None = Header(default=None)):
     if (refusal := _token_refusal(x_coordinator_token)) is not None:
         return refusal
-    return _result(writes.create_subscription(body.order_id, body.event), 400)
+    return _result(writes.create_subscription(body.order_id, body.event, body.proposal_id), 400)
 
 
 @app.post("/coordinator/orders/{order_id}/status")

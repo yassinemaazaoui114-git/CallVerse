@@ -23,7 +23,8 @@ exactly as it is: the 11 scripted orders 4505–4515 and the 4506 refund). Gener
     any status → `cancelled` or `refunded` (staying on the same status is refused)
 - `refunds(id, order_id, amount, status, rule_id, proposal_id, created_at)`
   - `status`: `approved` (written by the Coordinator), `completed` (paid out, e.g. 4506), `refused`
-- `subscriptions(id, order_id, event, status waiting|sent, created_at)`
+- `subscriptions(id, order_id, event, status waiting|sent, created_at, proposal_id)` — `proposal_id` = the approved
+  `subscribe` proposal it came from
 - `events(id, order_id, event, at)` — one row each time an order reaches a notification event
 - Notification events (= R-NOT-01): `shipped`, `out_for_delivery`, `delivered`.
 - `proposals(id TEXT 'P-0001', agent, action, params JSON, rule_id, facts_used JSON, user_confirmed 0|1, decision,
@@ -64,25 +65,33 @@ Each returns the new row (dict) or `{"error": ...}` (never raises) and writes a 
 are refused (`json.loads` accepts `NaN`, so a tool argument could carry it). They check data (order exists, valid codes) plus two safety nets that hold even
 if the Coordinator has a bug; the other policy checks are the Coordinator's.
 ```python
-record_proposal(proposal) -> "P-0001" | {"error"}              # proposals row, not decided yet; returns the id
+record_proposal(proposal) -> {"id": "P-0001"} | {"error"}      # proposals row, not decided yet; always a dict
 record_decision(proposal_id, decision, reason) -> dict          # updated proposals row; a proposal is decided
                                                                 # once (corrected proposal = new proposal)
 create_refund(order_id, amount, rule_id, proposal_id) -> dict   # refunds row, status "approved";
-                                                                # refused unless proposal_id is a recorded proposal
-                                                                # decided "approve", for this order, not used before;
+                                                                # refused unless proposal_id is a recorded proposal:
+                                                                # decided "approve", action "refund", params.order_id
+                                                                # = order_id, round(params.amount, 2) = round(amount, 2),
+                                                                # not used before for a refund;
                                                                 # refused if amount > paid - refunded_total
                                                                 # or amount not a finite number > 0
 mark_subscription_sent(subscription_id) -> dict                 # subscriptions row now "sent"; refused if not "waiting"
-create_subscription(order_id, event) -> dict                    # subscriptions row, status "waiting";
-                                                                # refused if event not in R-NOT-01
+create_subscription(order_id, event, proposal_id) -> dict       # subscriptions row, status "waiting";
+                                                                # refused if event not in R-NOT-01, or unless
+                                                                # proposal_id is a recorded proposal: decided
+                                                                # "approve", action "subscribe", params.order_id =
+                                                                # order_id, params.event = event, not used before
 set_order_status(order_id, new_status) -> dict                  # {"order_id","old_status","new_status","event"}
 ```
 `set_order_status` refuses unknown status codes and moves outside the allowed list (§2); when the new status is a notification event it inserts one
 `events` row (returned as `event`, else `None`); `delivered` also fills `delivered_date` if empty.
 Demo S3 control: `python -m scripts.advance_status --order 4512 --status out_for_delivery`.
 
-**Coordinator order for a refund**: `record_proposal` → checks (facts re-read, policy, user confirmation) →
-`record_decision` → if `approve`, `create_refund(..., proposal_id)`. Above 300 TND: `layer3_decide` first; if finance
+**Coordinator order for a write**: `record_proposal` → checks (facts re-read, policy, user confirmation) →
+`record_decision` → if `approve`, `create_refund(..., proposal_id)` or `create_subscription(..., proposal_id)`.
+The write must match **exactly** what was approved (P07): an approval for 10.00 TND cannot pay 378.00 TND (which would
+also skip Layer 3), and a `subscribe` approval cannot pay a refund. Proposal shapes:
+refund `{"action": "refund", "params": {"order_id", "amount"}}` · subscription `{"action": "subscribe", "params": {"order_id", "event"}}`. Above 300 TND: `layer3_decide` first; if finance
 approves, the Coordinator records `approve`. `proposal` = `{agent, action, params, rule_id, facts_used, user_confirmed}`
 (other keys such as `user_quote` are ignored; `params`/`facts_used` must be JSON-safe, so no NaN).
 
@@ -153,7 +162,7 @@ with `agent` for tool calls).
 | `GET /traces/recent?n=20` | — | last lines of this server run's trace file |
 | `POST /tools/{name}` body `{"agent": "A", "args": {...}}` | `registry.run_tool(agent, name, args)` | not on the agent's allow-list → **403**; a tool's own `{"error"}` (e.g. order not found) stays 200 |
 | `POST /coordinator/refunds` body `{order_id, amount, rule_id, proposal_id}` | `create_refund` | token; refused → 400 |
-| `POST /coordinator/subscriptions` body `{order_id, event}` | `create_subscription` | token; refused → 400 |
+| `POST /coordinator/subscriptions` body `{order_id, event, proposal_id}` | `create_subscription` | token; missing/unmatched `proposal_id` or refused → 400 |
 | `POST /coordinator/orders/{id}/status` body `{new_status}` | `set_order_status` | token; refused → 400 |
 | `POST /layer3/decide` body `{order_id, amount, reason}` | `layer3_decide` | token; error → 400 |
 | `POST /coordinator/proposals` body = proposal | `record_proposal` | token; returns `{"id": "P-0001"}`; refused → 400 |

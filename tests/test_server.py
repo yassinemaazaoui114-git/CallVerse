@@ -99,6 +99,15 @@ PROPOSAL = {"agent": "B", "action": "refund", "params": {"order_id": 4512, "amou
             "rule_id": "R-REF-03", "facts_used": {"days_late": 6}, "user_confirmed": True}
 
 
+def _approved_sub_over_http(headers, order_id=4512, event="delivered") -> str:
+    """Record a subscribe proposal and an "approve" decision through the endpoints; return its id."""
+    pid = client.post("/coordinator/proposals", headers=headers,
+                      json={"agent": "A", "action": "subscribe", "params": {"order_id": order_id, "event": event},
+                            "rule_id": "R-NOT-01", "facts_used": {}, "user_confirmed": True}).json()["id"]
+    client.post(f"/coordinator/proposals/{pid}/decision", json={"decision": "approve", "reason": "t"}, headers=headers)
+    return pid
+
+
 def _approved_over_http(headers, order_id=4512, amount=59.90) -> str:
     """Record a proposal and an "approve" decision through the endpoints; return the proposal id."""
     pid = client.post("/coordinator/proposals", headers=headers,
@@ -150,7 +159,10 @@ def test_nan_amount_is_400(token_on):
 
 
 def test_other_writes_with_token(token_on):
-    sub = client.post("/coordinator/subscriptions", json={"order_id": 4512, "event": "delivered"}, headers=token_on)
+    no_pid = client.post("/coordinator/subscriptions", json={"order_id": 4512, "event": "delivered"}, headers=token_on)
+    assert no_pid.status_code == 400 and "proposal_id" in no_pid.json()["error"]
+    sub = client.post("/coordinator/subscriptions", headers=token_on,
+                      json={"order_id": 4512, "event": "delivered", "proposal_id": _approved_sub_over_http(token_on)})
     assert sub.status_code == 200 and sub.json()["status"] == "waiting"
     bad = client.post("/coordinator/orders/4505/status", json={"new_status": "shipped"}, headers=token_on)
     assert bad.status_code == 400
@@ -200,7 +212,9 @@ def test_proposal_endpoints_need_the_token(monkeypatch):
 
 
 def test_notifications_over_http(token_on):
-    sub = client.post("/coordinator/subscriptions", json={"order_id": 4512, "event": "delivered"}, headers=token_on).json()
+    sub = client.post("/coordinator/subscriptions", headers=token_on,
+                      json={"order_id": 4512, "event": "delivered",
+                            "proposal_id": _approved_sub_over_http(token_on)}).json()
     for status in ("out_for_delivery", "delivered"):
         client.post("/coordinator/orders/4512/status", json={"new_status": status}, headers=token_on)
     pending = client.get("/notifications/pending").json()

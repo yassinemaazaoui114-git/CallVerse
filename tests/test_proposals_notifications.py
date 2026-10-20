@@ -24,8 +24,8 @@ def _last_trace() -> dict:
 # --- proposals -------------------------------------------------------------
 
 def test_record_proposal_ids_in_order_and_stored():
-    assert record_proposal(PROPOSAL) == "P-0001"
-    assert record_proposal({**PROPOSAL, "params": {"order_id": 4512, "amount": 70.0}}) == "P-0002"
+    assert record_proposal(PROPOSAL) == {"id": "P-0001"}
+    assert record_proposal({**PROPOSAL, "params": {"order_id": 4512, "amount": 70.0}}) == {"id": "P-0002"}
     assert _last_trace()["step"] == "db_write"
     rows = {r["id"]: r for r in list_rows("proposals")}
     p1 = rows["P-0001"]
@@ -44,24 +44,24 @@ def test_record_proposal_refuses_bad_input():
 
 
 def test_record_decision():
-    pid = record_proposal(PROPOSAL)
+    pid = record_proposal(PROPOSAL)["id"]
     row = record_decision(pid, "send_back", "amount above paid")
     assert row["decision"] == "send_back" and row["decision_reason"] == "amount above paid"
     assert row["decided_at"] == "2026-10-09"
     assert "error" in record_decision(pid, "approve", "again")      # decided once: audit is never rewritten
     assert "error" in record_decision("P-9999", "approve", "x")
-    assert "error" in record_decision(record_proposal(PROPOSAL), "maybe", "x")
+    assert "error" in record_decision(record_proposal(PROPOSAL)["id"], "maybe", "x")
 
 
 def test_create_refund_needs_an_approved_proposal_for_the_same_order():
     assert "not found" in create_refund(4512, 59.90, "R-REF-03", "p-made-up")["error"]
-    pid = record_proposal(PROPOSAL)
+    pid = record_proposal(PROPOSAL)["id"]
     assert "not approved" in create_refund(4512, 59.90, "R-REF-03", pid)["error"]       # not decided yet
     record_decision(pid, "approve", "R-REF-03 holds")
     assert "order 4512" in create_refund(4515, 59.90, "R-REF-03", pid)["error"]          # other order
     assert create_refund(4512, 59.90, "R-REF-03", pid)["status"] == "approved"
     assert "already used" in create_refund(4512, 1.00, "R-REF-03", pid)["error"]          # one refund per proposal
-    sent_back = record_proposal(PROPOSAL)
+    sent_back = record_proposal(PROPOSAL)["id"]
     record_decision(sent_back, "send_back", "x")
     assert "not approved" in create_refund(4512, 1.00, "R-REF-03", sent_back)["error"]
 
@@ -69,7 +69,7 @@ def test_create_refund_needs_an_approved_proposal_for_the_same_order():
 def test_layer3_flow_4515():
     """Finance approves first, then the Coordinator records approve, then the refund is written."""
     from callverse.data.layer3 import layer3_decide
-    pid = record_proposal({**PROPOSAL, "params": {"order_id": 4515, "amount": 378.00}})
+    pid = record_proposal({**PROPOSAL, "params": {"order_id": 4515, "amount": 378.00}})["id"]
     assert layer3_decide(4515, 378.00, "late, above 300 TND")["decision"] == "approved"
     record_decision(pid, "approve", "finance approved (Layer 3)")
     assert create_refund(4515, 378.00, "R-REF-03", pid)["status"] == "approved"
@@ -78,7 +78,10 @@ def test_layer3_flow_4515():
 # --- notifications ---------------------------------------------------------
 
 def test_s3_pending_then_sent():
-    sub = create_subscription(4512, "delivered")
+    pid = record_proposal({"agent": "A", "action": "subscribe", "params": {"order_id": 4512, "event": "delivered"},
+                           "rule_id": "R-NOT-01", "facts_used": {}, "user_confirmed": True})["id"]
+    record_decision(pid, "approve", "R-NOT-01 event")
+    sub = create_subscription(4512, "delivered", pid)
     assert get_pending_notifications() == []                     # nothing happened yet
     set_order_status(4512, "out_for_delivery")                   # an event, but not the one subscribed to
     assert get_pending_notifications() == []

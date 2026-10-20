@@ -114,8 +114,14 @@ def s2() -> None:
 
 def s3() -> None:
     title("S3 - client subscribes to 'delivered', the order moves, the event is recorded")
-    sub = post("/coordinator/subscriptions", {"order_id": 4512, "event": "delivered"})
-    say(f"POST /coordinator/subscriptions (4512, delivered) -> subscription #{sub['id']}, status {sub['status']}")
+    # Imitate Agent A's proposal and the Coordinator's approval, then the write (must match the proposal).
+    pid = post("/coordinator/proposals", {"agent": "A", "action": "subscribe",
+                                          "params": {"order_id": 4512, "event": "delivered"}, "rule_id": "R-NOT-01",
+                                          "facts_used": {"status": "stuck_at_depot"}, "user_confirmed": True})["id"]
+    say(f"POST /coordinator/proposals (A, subscribe 4512, delivered, R-NOT-01) -> {pid}")
+    decide(pid, "approve", "R-NOT-01: 'delivered' is a notification event")
+    sub = post("/coordinator/subscriptions", {"order_id": 4512, "event": "delivered", "proposal_id": pid})
+    say(f"POST /coordinator/subscriptions (4512, delivered, {pid}) -> subscription #{sub['id']}, status {sub['status']}")
     for status in ("out_for_delivery", "delivered"):
         r = post("/coordinator/orders/4512/status", {"new_status": status})
         event = f"event #{r['event']['id']} '{r['event']['event']}'" if r["event"] else "no event"
