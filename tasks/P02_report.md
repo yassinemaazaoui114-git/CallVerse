@@ -67,3 +67,5 @@ Core task (Agent B + Coordinator): add `get_refunds` to B's allow-list; the Coor
 tools, checks conditions with `check_condition`, calls `layer3_decide` above 300 TND, then `create_refund` /
 `create_subscription`. Then the notifier: read the `events` rows that match `waiting` subscriptions (the same query as
 the S3 demo) and mark them `sent`.
+
+Git: committed on `platform` (`95d3c2b`) and pushed to `origin/platform` (GitHub access works now; P01 commits are on the remote too). Not merged into `main`.
