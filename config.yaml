@@ -101,3 +101,10 @@ queues:
     return_item: B
     damaged_item: B
     other: A
+
+# Voice channel (task V01): speech-to-text at the door, text-to-speech at the exit. The rest of CallVerse
+# (Intake -> agents -> Coordinator -> SLM) does not change: voice is just another channel.
+# stt.provider is a key of `providers` above (base_url + key_env), so the key stays in .env.
+voice:
+  stt: {provider: groq, model: whisper-large-v3-turbo}
+  tts: {engine: pyttsx3, rate: 170}
