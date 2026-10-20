@@ -37,3 +37,12 @@ def test_traced_and_no_db_change():
     assert snapshot() == before
     last = json.loads(trace.current_path().read_text(encoding="utf-8").splitlines()[-1])
     assert last["step"] == "layer3_decision" and last["actor"] == "layer3"
+
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), True, "378.00"])
+def test_refuses_non_finite_or_non_number(bad):
+    result = layer3_decide(4515, bad, "test")   # must not raise
+    assert "error" in result
+    last = json.loads(trace.current_path().read_text(encoding="utf-8").splitlines()[-1])
+    assert last["step"] == "layer3_decision" and "error" in last["data"]["result"]

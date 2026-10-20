@@ -15,6 +15,7 @@ Each function:
 Dates use the fixed simulation date (sim_today), so demo runs stay reproducible.
 """
 
+import math
 from contextlib import closing
 
 from callverse import trace
@@ -36,6 +37,17 @@ def _done(function: str, args: dict, result: dict) -> dict:
     return result
 
 
+def is_valid_amount(amount) -> bool:
+    """True only for a real, finite number above 0.
+
+    Refused: text ("59.90"), True/False (bool is a kind of int in Python), NaN and infinity.
+    NaN matters because json.loads accepts it, so an LLM tool argument could carry it, and
+    NaN slips through "amount <= 0" (every comparison with NaN is False).
+    """
+    return (isinstance(amount, (int, float)) and not isinstance(amount, bool)
+            and math.isfinite(amount) and amount > 0)
+
+
 def _order_exists(con, order_id: int) -> bool:
     return con.execute("SELECT 1 FROM orders WHERE id = ?", (order_id,)).fetchone() is not None
 
@@ -47,8 +59,8 @@ def create_refund(order_id: int, amount: float, rule_id: str, proposal_id: str) 
     amount > paid - refunded_total, where refunded_total counts approved and completed refunds.
     """
     args = {"order_id": order_id, "amount": amount, "rule_id": rule_id, "proposal_id": proposal_id}
-    if not isinstance(amount, (int, float)) or amount <= 0:
-        return _refuse("create_refund", args, "amount must be a positive number")
+    if not is_valid_amount(amount):
+        return _refuse("create_refund", args, "amount must be a finite number above 0")
 
     with closing(connect()) as con:
         order = con.execute("SELECT paid FROM orders WHERE id = ?", (int(order_id),)).fetchone()

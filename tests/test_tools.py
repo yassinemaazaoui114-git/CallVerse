@@ -53,3 +53,26 @@ def test_labels_on_seed_data():
         assert con.execute("SELECT COUNT(*) FROM orders WHERE ai_generated = 1 AND scripted = 1").fetchone()[0] == 11
         for table in ("users", "products", "orders", "refunds"):
             assert con.execute(f"SELECT COUNT(*) FROM {table} WHERE ai_generated = 0").fetchone()[0] == 0
+
+
+
+def test_get_company_profile():
+    import json as _json
+    from callverse.tools.shopnova_tools import COMPANY_PROFILE_PATH, get_company_profile
+    profile = get_company_profile()
+    assert profile == _json.loads(COMPANY_PROFILE_PATH.read_text(encoding="utf-8"))  # all fields
+    for field in ("name", "domain", "description", "cities_served", "carriers", "delivery_promise_days",
+                  "currency", "support_channels", "ai_generated"):
+        assert field in profile
+    assert profile["name"] == "ShopNova" and profile["currency"] == "TND"
+
+
+def test_get_company_profile_is_not_on_any_allow_list():
+    from callverse.tools.registry import ALLOW_LISTS
+    assert all("get_company_profile" not in allowed for allowed in ALLOW_LISTS.values())
+
+
+def test_seed_uses_sim_today_from_config():
+    from pathlib import Path as _Path
+    seed_text = (_Path(__file__).resolve().parent.parent / "callverse" / "data" / "seed.py").read_text(encoding="utf-8")
+    assert "2026, 10, 9" not in seed_text and "SIM_TODAY" not in seed_text

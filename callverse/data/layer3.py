@@ -17,6 +17,7 @@ from contextlib import closing
 from callverse import trace
 from callverse.config import load_config
 from callverse.data.db import connect
+from callverse.data.writes import is_valid_amount
 from callverse.kb.policies import layer3_threshold
 
 
@@ -25,8 +26,8 @@ def layer3_decide(order_id: int, amount: float, reason: str) -> dict:
     {order_id, amount, decision, by, rule_id, reason} or {"error": ...}."""
     args = {"order_id": order_id, "amount": amount, "reason": reason}
 
-    if not isinstance(amount, (int, float)) or amount <= 0:
-        result = {"error": "amount must be a positive number"}
+    if not is_valid_amount(amount):
+        result = {"error": "amount must be a finite number above 0"}
     else:
         with closing(connect()) as con:
             exists = con.execute("SELECT 1 FROM orders WHERE id = ?", (int(order_id),)).fetchone()

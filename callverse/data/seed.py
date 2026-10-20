@@ -15,9 +15,10 @@ Run it directly:  python -m callverse.data.seed
 import json
 import random
 import sqlite3
-from datetime import date, timedelta
+from datetime import timedelta
 from pathlib import Path
 
+from callverse.config import sim_today
 from callverse.data import db
 from callverse.kb.policies import notification_events
 
@@ -169,7 +170,6 @@ REFUNDS = [
 # generated users, so the scripted clients' order histories stay exactly as written above.
 # ---------------------------------------------------------------------------
 RANDOM_SEED = 2026
-SIM_TODAY = date(2026, 10, 9)  # = sim_today in config.yaml (fixed, never the real clock)
 FIRST_NAMES = ["Ahmed", "Mariem", "Omar", "Ines", "Hamza", "Nour", "Mehdi", "Rania", "Aziz", "Salma"]
 LAST_NAMES = ["Hammami", "Bouazizi", "Chaabane", "Dridi", "Ferchichi", "Khelifi", "Mejri", "Sassi"]
 # status: weight (out of 100). Mostly delivered, like a real shop.
@@ -180,6 +180,7 @@ STATUS_WEIGHTS = {"delivered": 60, "shipped": 10, "processing": 7, "out_for_deli
 def generate_data() -> tuple[list, list, list]:
     """Return (users, orders, refunds) of generated data, always the same (fixed seed)."""
     rng = random.Random(RANDOM_SEED)
+    today = sim_today()  # the fixed demo date from config.yaml (never the real clock)
     users = []
     for uid in range(6, 26):
         first, last = rng.choice(FIRST_NAMES), rng.choice(LAST_NAMES)
@@ -193,17 +194,17 @@ def generate_data() -> tuple[list, list, list]:
                  for _ in range(rng.choice([1, 1, 2, 3]))]
         total = round(sum(i["price"] * i["qty"] for i in items), 2)
 
-        # How long ago the order was placed depends on how far it got (the clock is fixed at SIM_TODAY).
+        # How long ago the order was placed depends on how far it got (the clock is fixed at today = sim_today).
         days_ago = {"processing": (1, 3), "shipped": (2, 7), "out_for_delivery": (3, 8),
                     "stuck_at_depot": (6, 15)}.get(status, (8, 60))
-        order_date = SIM_TODAY - timedelta(days=rng.randint(*days_ago))
+        order_date = today - timedelta(days=rng.randint(*days_ago))
         promised = order_date + timedelta(days=rng.randint(3, 6))
         delivered = None
         if status in ("delivered", "refunded"):
             # About 80% on time (or early), 20% 1-5 days late; never in the future, never before the order.
             delay = rng.choices([-2, -1, 0, 1, 2, 3, 5], weights=[10, 20, 50, 8, 6, 4, 2])[0]
             delivered = promised + timedelta(days=delay)
-            delivered = min(max(delivered, order_date + timedelta(days=1)), SIM_TODAY)
+            delivered = min(max(delivered, order_date + timedelta(days=1)), today)
 
         # Cash on delivery (paid 0) only for orders not delivered yet; cancelled orders were never paid.
         cash_on_delivery = status in ("processing", "shipped", "out_for_delivery") and rng.random() < 0.25
@@ -215,7 +216,7 @@ def generate_data() -> tuple[list, list, list]:
         orders.append((oid, rng.randint(6, 25), items, total, paid, status, order_date.isoformat(),
                        promised.isoformat(), delivered.isoformat() if delivered else None, carrier, tracking))
         if status == "refunded":  # item returned, refunded in full a few days after delivery
-            refund_day = min(delivered + timedelta(days=rng.randint(2, 6)), SIM_TODAY)
+            refund_day = min(delivered + timedelta(days=rng.randint(2, 6)), today)
             refunds.append((len(REFUNDS) + len(refunds) + 1, oid, paid, "completed", "R-RET-01", None,
                             refund_day.isoformat()))
     return users, orders, refunds

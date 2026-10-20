@@ -9,6 +9,7 @@ the tool's name, what it does and which arguments it takes.
 """
 
 import json
+from pathlib import Path
 from contextlib import closing
 from datetime import date
 
@@ -107,6 +108,17 @@ def get_refunds(order_id: int) -> dict:
     return {"order_id": int(order_id), "refunds": rows, "refunded_total": round(total, 2)}
 
 
+COMPANY_PROFILE_PATH = Path(__file__).resolve().parent.parent / "data" / "company_profile.json"
+
+
+def get_company_profile() -> dict:
+    """Return the ShopNova company profile: what it sells, cities, carriers, delivery promise, support."""
+    try:
+        return json.loads(COMPANY_PROFILE_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:  # missing or broken file: tell the caller, never raise
+        return {"error": f"company profile not available: {type(e).__name__}"}
+
+
 # JSON schemas for tool calling (OpenAI "tools" format).
 SCHEMAS = {
     "get_user": {
@@ -160,6 +172,14 @@ SCHEMAS = {
             },
         },
     },
+    "get_company_profile": {
+        "type": "function",
+        "function": {
+            "name": "get_company_profile",
+            "description": "Get the ShopNova company profile: what it sells, cities served, carriers, delivery promise (days), currency, payment methods, support channels and languages.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
 }
 
 # Name -> Python function, used by the registry to actually run a tool.
@@ -169,4 +189,5 @@ FUNCTIONS = {
     "get_order": get_order,
     "get_tracking": get_tracking,
     "get_refunds": get_refunds,
+    "get_company_profile": get_company_profile,
 }

@@ -7,7 +7,6 @@ Usage (from the repo root):
     python -m scripts.data_summary        (or: python scripts/data_summary.py)
 """
 
-import json
 import sys
 from contextlib import closing
 from pathlib import Path
@@ -16,14 +15,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from callverse.data.db import connect  # noqa: E402
-from callverse.tools.shopnova_tools import get_tracking  # noqa: E402
+from callverse.tools.shopnova_tools import get_company_profile, get_tracking  # noqa: E402
 
-PROFILE_PATH = Path(__file__).resolve().parent.parent / "callverse" / "data" / "company_profile.json"
 TABLES = ("users", "products", "orders", "refunds", "subscriptions", "events")
 
 
 def main() -> None:
-    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    profile = get_company_profile()
     print(f"Company : {profile['name']} ({profile['domain']}, {profile['currency']}) "
           f"- profile ai_generated = {profile['ai_generated']}")
     print(f"Carriers: {', '.join(profile['carriers'])} | promise {profile['delivery_promise_days']['min']}-"

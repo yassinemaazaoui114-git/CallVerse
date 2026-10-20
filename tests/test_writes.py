@@ -115,3 +115,21 @@ def test_status_transitions():
     assert "error" not in set_order_status(4511, "shipped")           # processing -> shipped
     assert "error" not in set_order_status(4505, "refunded")          # any -> refunded
     assert "error" not in set_order_status(4513, "cancelled")         # any -> cancelled
+
+
+import pytest  # noqa: E402
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf"), True, "59.90", None])
+def test_create_refund_refuses_non_finite_or_non_number(bad):
+    before = _count("refunds")
+    result = create_refund(4512, bad, "R-REF-03", "p-bad")   # must not raise
+    assert "error" in result
+    assert _count("refunds") == before
+    assert _last_trace()["step"] == "db_write_refused"
+
+
+def test_nan_from_json_tool_arguments_is_refused():
+    # json.loads accepts NaN, so an LLM tool call could really send it.
+    args = json.loads('{"order_id": 4512, "amount": NaN}')
+    assert "error" in create_refund(args["order_id"], args["amount"], "R-REF-03", "p-json")

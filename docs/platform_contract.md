@@ -25,7 +25,8 @@ exactly as it is: the 11 scripted orders 4505–4515 and the 4506 refund). Gener
 - `subscriptions(id, order_id, event, status waiting|sent, created_at)`
 - `events(id, order_id, event, at)` — one row each time an order reaches a notification event
 - Notification events (= R-NOT-01): `shipped`, `out_for_delivery`, `delivered`.
-- Dates are ISO `YYYY-MM-DD`; run-time writes use the fixed demo date (`sim_today`).
+- Dates are ISO `YYYY-MM-DD`; run-time writes and the generated seed data use the fixed demo date
+  (`sim_today` in `config.yaml`, read through `callverse/config.py`; written in one place only).
 
 ## 3. How agents call tools
 Plain Python functions + OpenAI-style JSON definitions (function calling). No LangChain.
@@ -43,6 +44,9 @@ Read tools today: `get_user(email|phone|user_id)`, `get_order(order_id)`, `get_t
 and `days_since_delivery` = sim_today − delivered_date, `null` if not delivered; used by R-RET-01),
 `get_refunds(order_id)` → `{"order_id": 4512, "refunds": [rows], "refunded_total": 0.0}`; `refunded_total` = sum of
 refunds with status `approved` or `completed` (`refused` does not count). Unknown order → `{"error": ...}`. On no allow-list yet.
+`get_company_profile()` → the dict in `callverse/data/company_profile.json` (name, domain, description, sells,
+cities_served, carriers, delivery_promise_days, currency, payment_methods, support_channels, support_languages,
+ai_generated); missing/broken file → `{"error": ...}`. On no allow-list yet.
 
 ## 4. How the Coordinator approves (to be built)
 `review(proposal)` → `approve | send_back | ask_user | ask_proof | layer3 | escalate`.
@@ -51,11 +55,13 @@ row with status `"waiting"`.
 
 Write functions — `callverse/data/writes.py`, **outside** `tools/`, never in the registry or any allow-list.
 Each returns the new row (dict) or `{"error": ...}` (never raises) and writes a trace line
-(`db_write` or `db_write_refused`). They check data (order exists, valid codes) plus two safety nets that hold even
+(`db_write` or `db_write_refused`). Amounts must be a finite number > 0: NaN, infinity, `True`/`False` and text
+are refused (`json.loads` accepts `NaN`, so a tool argument could carry it). They check data (order exists, valid codes) plus two safety nets that hold even
 if the Coordinator has a bug; the other policy checks are the Coordinator's.
 ```python
 create_refund(order_id, amount, rule_id, proposal_id) -> dict   # refunds row, status "approved";
                                                                 # refused if amount > paid - refunded_total
+                                                                # or amount not a finite number > 0
 create_subscription(order_id, event) -> dict                    # subscriptions row, status "waiting";
                                                                 # refused if event not in R-NOT-01
 set_order_status(order_id, new_status) -> dict                  # {"order_id","old_status","new_status","event"}
@@ -88,7 +94,8 @@ Layer 3 stub: refunds > 300 TND go to finance (R-ESC-01 condition); stub approve
 layer3_decide(order_id, amount, reason) -> dict   # callverse/data/layer3.py, no DB write, in no allow-list
 # {order_id, amount, decision, by, rule_id: "R-ESC-01", reason}
 # decision: "not_required" (amount <= 300, by None) | "approved" (<= 500, by "finance") | "refused" (> 500, by "finance")
-# amount <= 0 or unknown order -> {"error": ...}. Traced as step "layer3_decision".
+# amount not a finite number > 0 (NaN, inf, bool, text, <= 0) or unknown order -> {"error": ...}.
+# Traced as step "layer3_decision".
 ```
 The 300 is read from R-ESC-01's condition (`layer3_threshold()`), never written twice.
 `by` is `None` for `not_required`: finance is not involved below 300 TND.
