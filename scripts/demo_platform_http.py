@@ -65,6 +65,21 @@ def check(rule_id: str, facts: dict) -> bool:
     return ok
 
 
+def propose(order_id: int, amount: float, rule_id: str = "R-REF-03") -> str:
+    """Imitate Agent B's refund proposal: POST it to the audit table and return its id."""
+    pid = post("/coordinator/proposals", {"agent": "B", "action": "refund",
+                                          "params": {"order_id": order_id, "amount": amount}, "rule_id": rule_id,
+                                          "facts_used": facts_for(order_id), "user_confirmed": True})["id"]
+    say(f"POST /coordinator/proposals (B, refund {order_id}, {amount:.2f}, {rule_id}) -> {pid}")
+    return pid
+
+
+def decide(pid: str, decision: str, reason: str) -> None:
+    """Imitate the Coordinator's decision: POST it to the audit table."""
+    row = post(f"/coordinator/proposals/{pid}/decision", {"decision": decision, "reason": reason})
+    say(f"POST /coordinator/proposals/{pid}/decision ({decision}) -> decision {row['decision']}")
+
+
 def s1() -> None:
     title("S1 - order 4512 is 6 days late, client asks for a refund -> approved")
     order, tracking, refunds = get("/orders/4512"), get("/orders/4512/tracking"), get("/orders/4512/refunds")
@@ -72,12 +87,14 @@ def s1() -> None:
     say(f"GET /orders/4512/tracking -> {tracking['days_late']} days late, delivered = {tracking['delivered']}")
     say(f"GET /orders/4512/refunds  -> {len(refunds['refunds'])} refunds, "
         f"refunded_total {refunds['refunded_total']:.2f} TND")
+    pid = propose(4512, 59.90)
     facts = facts_for(4512, amount=59.90)
     if check("R-REF-03", facts) and check("R-REF-05", facts):
         l3 = post("/layer3/decide", {"order_id": 4512, "amount": 59.90, "reason": "late delivery refund"})
         say(f"POST /layer3/decide (4512, 59.90) -> {l3['decision']} (R-ESC-01: only above 300 TND)")
+        decide(pid, "approve", "R-REF-03 and R-REF-05 hold")
         row = post("/coordinator/refunds", {"order_id": 4512, "amount": 59.90, "rule_id": "R-REF-03",
-                                            "proposal_id": "demo-s1"})
+                                            "proposal_id": pid})
         say(f"POST /coordinator/refunds (4512, 59.90, R-REF-03) -> refund #{row['id']}, status {row['status']}")
         print(f"  RESULT S1: refund of {row['amount']:.2f} TND APPROVED under R-REF-03.")
 
@@ -85,9 +102,12 @@ def s1() -> None:
 def s2() -> None:
     title("S2 - wrong amount proposed (70.00), sent back, corrected (59.90) -> passes")
     say("Proposal 1: refund 70.00 TND on order 4512 (paid 59.90)")
+    pid = propose(4512, 70.00)
     if not check("R-REF-05", facts_for(4512, amount=70.00)):
+        decide(pid, "send_back", "R-REF-05: 70.00 > paid 59.90 - refunded 0.00")
         say("RESULT: SENT BACK - 70.00 is more than paid minus already refunded (R-REF-05)")
     say("Proposal 2 (corrected): refund 59.90 TND")
+    pid = propose(4512, 59.90)
     if check("R-REF-05", facts_for(4512, amount=59.90)):
         print("  RESULT S2: corrected proposal PASSES R-REF-05 (would then be approved as in S1).")
 
@@ -100,13 +120,18 @@ def s3() -> None:
         r = post("/coordinator/orders/4512/status", {"new_status": status})
         event = f"event #{r['event']['id']} '{r['event']['event']}'" if r["event"] else "no event"
         say(f"POST /coordinator/orders/4512/status ({status}) -> {r['old_status']} -> {r['new_status']}, {event}")
-    # What the notifier (later task) will look for: events matching a waiting subscription.
-    waiting = [s for s in get("/subscriptions") if s["status"] == "waiting"]
-    matches = [(e, s) for e in get("/events") for s in waiting
-               if e["order_id"] == s["order_id"] and e["event"] == s["event"]]
-    for e, s in matches:
-        say(f"event #{e['id']} '{e['event']}' on {e['at']} matches waiting subscription #{s['id']}")
-    print(f"  RESULT S3: {len(matches)} notification ready to send (the notifier will mark it 'sent').")
+    # What the notifier (later task) does: read the pending notifications, send them, mark them sent.
+    pending = get("/notifications/pending")
+    for n in pending:
+        say(f"GET /notifications/pending -> subscription #{n['subscription_id']} '{n['event']}' on {n['event_at']}"
+            f" for {n['user']['name']} ({n['user']['email']})")
+    print(f"  RESULT S3: {len(pending)} notification ready to send (the notifier will mark it 'sent').")
+    for n in pending:
+        row = post(f"/coordinator/subscriptions/{n['subscription_id']}/sent")
+        say(f"POST /coordinator/subscriptions/{n['subscription_id']}/sent -> status {row['status']}")
+    again = client.post(f"/coordinator/subscriptions/{sub['id']}/sent", headers=HEADERS)
+    say(f"POST /coordinator/subscriptions/{sub['id']}/sent again -> HTTP {again.status_code}: {again.json()['error']}")
+    print(f"  RESULT S3: subscription #{sub['id']} marked 'sent'; {len(get('/notifications/pending'))} notifications pending.")
 
 
 def extras() -> None:
@@ -114,9 +139,11 @@ def extras() -> None:
     say("Order 4506 was already refunded 189 TND. Proposal: refund 1 TND more")
     if not check("R-REF-05", facts_for(4506, amount=1)):
         print("  RESULT: 4506 second refund REFUSED by R-REF-05 (already fully refunded).")
-    # Even if the Coordinator had a bug and tried to write it, the platform refuses it (HTTP 400).
+    # Even if the Coordinator had a bug (approving it) and tried to write it, the platform refuses it (HTTP 400).
+    buggy = propose(4506, 1.00)
+    decide(buggy, "approve", "demo: a buggy Coordinator approves it")
     resp = client.post("/coordinator/refunds", json={"order_id": 4506, "amount": 1.00, "rule_id": "R-REF-03",
-                                                     "proposal_id": "demo-safety"}, headers=HEADERS)
+                                                     "proposal_id": buggy}, headers=HEADERS)
     r = resp.json()
     say(f"POST /coordinator/refunds (4506, 1.00) -> HTTP {resp.status_code}: {r.get('error', r)}")
     if "error" in r:
@@ -126,14 +153,16 @@ def extras() -> None:
     say("Order 4515: 2 Smart Watches, 378.00 TND paid, stuck at the depot (Layer 3 story)")
     tracking = get("/orders/4515/tracking")
     say(f"GET /orders/4515/tracking -> {tracking['days_late']} days late, delivered = {tracking['delivered']}")
+    pid = propose(4515, 378.00)
     facts = facts_for(4515, amount=378.00)
     if check("R-REF-03", facts) and check("R-REF-05", facts) and check("R-ESC-01", facts):
         l3 = post("/layer3/decide", {"order_id": 4515, "amount": 378.00,
                                      "reason": "late delivery refund above 300 TND"})
         say(f"POST /layer3/decide (4515, 378.00) -> {l3['decision']} by {l3['by']}")
         if l3["decision"] == "approved":
+            decide(pid, "approve", "finance approved (Layer 3, R-ESC-01)")
             row = post("/coordinator/refunds", {"order_id": 4515, "amount": 378.00, "rule_id": "R-REF-03",
-                                                "proposal_id": "demo-layer3"})
+                                                "proposal_id": pid})
             say(f"POST /coordinator/refunds (4515, 378.00, R-REF-03) -> refund #{row['id']}, status {row['status']}")
             print("  RESULT: 4515 refund of 378.00 TND APPROVED BY FINANCE (Layer 3, R-ESC-01).")
 

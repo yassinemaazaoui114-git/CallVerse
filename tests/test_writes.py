@@ -7,7 +7,8 @@ from contextlib import closing
 
 from callverse import trace
 from callverse.data import db
-from callverse.data.writes import create_refund, create_subscription, set_order_status
+from callverse.data.writes import (create_refund, create_subscription, record_decision, record_proposal,
+                                   set_order_status)
 from callverse.tools import registry
 from callverse.tools.shopnova_tools import get_refunds, get_tracking
 
@@ -21,16 +22,25 @@ def _last_trace() -> dict:
     return json.loads(trace.current_path().read_text(encoding="utf-8").splitlines()[-1])
 
 
+def _approved(order_id: int, amount: float) -> str:
+    """Record a refund proposal and the Coordinator's "approve" decision; return the proposal id."""
+    pid = record_proposal({"agent": "B", "action": "refund", "params": {"order_id": order_id, "amount": amount},
+                           "rule_id": "R-REF-03", "facts_used": {}, "user_confirmed": True})
+    record_decision(pid, "approve", "test")
+    return pid
+
+
 def test_tests_use_a_temporary_db():
     assert db.db_path() != db.DEFAULT_DB_PATH
 
 
 def test_create_refund_4512():
     before = _count("refunds")
-    row = create_refund(4512, 59.90, "R-REF-03", "p-test")
+    pid = _approved(4512, 59.90)
+    row = create_refund(4512, 59.90, "R-REF-03", pid)
     assert _count("refunds") == before + 1
     assert row["status"] == "approved"
-    assert row["amount"] == 59.90 and row["rule_id"] == "R-REF-03" and row["proposal_id"] == "p-test"
+    assert row["amount"] == 59.90 and row["rule_id"] == "R-REF-03" and row["proposal_id"] == pid
     assert row["created_at"] == "2026-10-09"
     assert row["ai_generated"] == 0 and row["scripted"] == 0
     assert get_refunds(4512)["refunds"] == [row]
@@ -39,8 +49,8 @@ def test_create_refund_4512():
 
 
 def test_create_refund_refuses_unknown_order_and_bad_amount():
-    assert "error" in create_refund(9999, 10, "R-REF-03", "p")
-    assert "error" in create_refund(4512, 0, "R-REF-03", "p")
+    assert "error" in create_refund(9999, 10, "R-REF-03", _approved(9999, 10))
+    assert "error" in create_refund(4512, 0, "R-REF-03", _approved(4512, 0))
     assert _last_trace()["step"] == "db_write_refused"
     assert get_refunds(4512)["refunds"] == []
 
@@ -94,14 +104,14 @@ def test_write_functions_are_not_tools():
 def test_refund_safety_net():
     # 4506: paid 189, already refunded 189 -> nothing left, even 1 TND is refused by the DB layer.
     before = _count("refunds")
-    result = create_refund(4506, 1.00, "R-REF-03", "p-safety")
+    result = create_refund(4506, 1.00, "R-REF-03", _approved(4506, 1.00))
     assert "error" in result and "safety net" in result["error"]
     assert _count("refunds") == before
     assert _last_trace()["step"] == "db_write_refused"
     # 4512: more than paid is refused; after a full refund, even 0.01 more is refused.
-    assert "error" in create_refund(4512, 70.00, "R-REF-03", "p")
-    assert create_refund(4512, 59.90, "R-REF-03", "p")["status"] == "approved"
-    assert "error" in create_refund(4512, 0.01, "R-REF-03", "p")
+    assert "error" in create_refund(4512, 70.00, "R-REF-03", _approved(4512, 70.00))
+    assert create_refund(4512, 59.90, "R-REF-03", _approved(4512, 59.90))["status"] == "approved"
+    assert "error" in create_refund(4512, 0.01, "R-REF-03", _approved(4512, 0.01))
 
 
 def test_status_transitions():
@@ -117,13 +127,20 @@ def test_status_transitions():
     assert "error" not in set_order_status(4513, "cancelled")         # any -> cancelled
 
 
+def test_shipped_to_stuck_at_depot_is_allowed():
+    r = set_order_status(4510, "stuck_at_depot")                      # shipped -> stuck_at_depot (P06)
+    assert "error" not in r and r["event"] is None                    # not a notification event
+    assert "error" not in set_order_status(4510, "out_for_delivery")  # then on its way again
+    assert "error" in set_order_status(4505, "shipped")               # delivered -> shipped still refused
+
+
 import pytest  # noqa: E402
 
 
 @pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf"), True, "59.90", None])
 def test_create_refund_refuses_non_finite_or_non_number(bad):
     before = _count("refunds")
-    result = create_refund(4512, bad, "R-REF-03", "p-bad")   # must not raise
+    result = create_refund(4512, bad, "R-REF-03", _approved(4512, 59.90))   # must not raise
     assert "error" in result
     assert _count("refunds") == before
     assert _last_trace()["step"] == "db_write_refused"
@@ -132,4 +149,4 @@ def test_create_refund_refuses_non_finite_or_non_number(bad):
 def test_nan_from_json_tool_arguments_is_refused():
     # json.loads accepts NaN, so an LLM tool call could really send it.
     args = json.loads('{"order_id": 4512, "amount": NaN}')
-    assert "error" in create_refund(args["order_id"], args["amount"], "R-REF-03", "p-json")
+    assert "error" in create_refund(args["order_id"], args["amount"], "R-REF-03", _approved(4512, 59.90))

@@ -96,6 +96,11 @@
   </section>
 
   <section class="full">
+    <h2>Proposals &amp; Coordinator decisions</h2>
+    <div class="scroll"><table id="proposals"></table></div>
+  </section>
+
+  <section class="full">
     <h2>Last 20 trace lines (this server run)</h2>
     <div class="scroll"><pre id="traces"></pre></div>
   </section>
@@ -206,7 +211,11 @@ async function loadPolicies() {
 }
 
 async function loadTables() {
-  const [rf, sub, ev, tr] = await Promise.all([get("/refunds"), get("/subscriptions"), get("/events"), get("/traces/recent?n=20")]);
+  const [rf, sub, ev, pr, tr] = await Promise.all([get("/refunds"), get("/subscriptions"), get("/events"),
+    get("/proposals"), get("/traces/recent?n=20")]);
+  pr.forEach((p) => { p.params = JSON.stringify(p.params); p.user_confirmed = String(p.user_confirmed); });
+  fillTable($("proposals"), pr, ["id", "agent", "action", "params", "rule_id", "user_confirmed", "decision",
+    "decision_reason", "created_at", "decided_at"]);
   fillTable($("refunds"), rf, ["id", "order_id", "amount", "status", "rule_id", "proposal_id", "created_at", "scripted"]);
   fillTable($("subscriptions"), sub, ["id", "order_id", "event", "status", "created_at"]);
   fillTable($("events"), ev, ["id", "order_id", "event", "at"]);

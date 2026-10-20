@@ -33,12 +33,14 @@ COUNTED_REFUND_STATUSES = ("approved", "completed")
 # Allowed status moves (set_order_status). Besides these, any status may go to "cancelled" or "refunded".
 STATUS_MOVES = {
     "processing": ("shipped",),
-    "shipped": ("out_for_delivery",),
+    "shipped": ("out_for_delivery", "stuck_at_depot"),   # a parcel can get stuck after shipping
     "out_for_delivery": ("delivered",),
     "stuck_at_depot": ("out_for_delivery",),
 }
 ALWAYS_ALLOWED = ("cancelled", "refunded")
 SUBSCRIPTION_STATUSES = ("waiting", "sent")
+# Coordinator decisions on a proposal (review(proposal) outcomes). Only "approve" lets a refund be written.
+DECISIONS = ("approve", "send_back", "ask_user", "ask_proof", "layer3", "escalate")
 # Order statuses that create an `events` row (and can be subscribed to).
 # Read from rule R-NOT-01 in the policy file, so the list is written in one place only.
 NOTIFICATION_EVENTS = tuple(notification_events())
@@ -101,6 +103,19 @@ CREATE TABLE events (
     order_id INTEGER NOT NULL REFERENCES orders(id),
     event    TEXT NOT NULL CHECK (event IN {_in(NOTIFICATION_EVENTS)}),
     at       TEXT NOT NULL,{LABELS}
+);
+CREATE TABLE proposals (               -- audit: every agent proposal and the Coordinator's decision on it
+    id              TEXT PRIMARY KEY,  -- "P-0001", "P-0002", ...
+    agent           TEXT NOT NULL,     -- "A", "B", ...
+    action          TEXT NOT NULL,     -- e.g. "refund", "subscribe_update"
+    params          TEXT NOT NULL,     -- JSON, e.g. {{"order_id": 4512, "amount": 59.9}}
+    rule_id         TEXT,              -- policy rule the agent cites
+    facts_used      TEXT NOT NULL,     -- JSON: the facts the agent says it used
+    user_confirmed  INTEGER NOT NULL CHECK (user_confirmed IN (0, 1)),
+    decision        TEXT CHECK (decision IS NULL OR decision IN {_in(DECISIONS)}),  -- NULL = not decided yet
+    decision_reason TEXT,
+    created_at      TEXT NOT NULL,
+    decided_at      TEXT,{LABELS}
 );
 """
 

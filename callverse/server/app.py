@@ -133,6 +133,17 @@ def all_events(limit: int = 100):
     return reports.list_rows("events", limit)
 
 
+@app.get("/proposals")
+def all_proposals(limit: int = 100):
+    return reports.list_rows("proposals", limit)
+
+
+@app.get("/notifications/pending")
+def pending_notifications():
+    """Events that match a waiting subscription (what the notifier must send). Read-only."""
+    return reports.get_pending_notifications()
+
+
 @app.get("/traces/recent")
 def recent_traces(n: int = 20):
     """Last n lines of this server run's trace file (newest last)."""
@@ -180,6 +191,11 @@ class RefundIn(BaseModel):
     proposal_id: str
 
 
+class DecisionIn(BaseModel):
+    decision: str
+    reason: str = ""
+
+
 class SubscriptionIn(BaseModel):
     order_id: int
     event: str
@@ -200,6 +216,29 @@ def coordinator_refund(body: RefundIn, x_coordinator_token: str | None = Header(
     if (refusal := _token_refusal(x_coordinator_token)) is not None:
         return refusal
     return _result(writes.create_refund(body.order_id, body.amount, body.rule_id, body.proposal_id), 400)
+
+
+@app.post("/coordinator/proposals")
+def coordinator_proposal(proposal: dict[str, Any], x_coordinator_token: str | None = Header(default=None)):
+    """Record an agent proposal. Returns {"id": "P-0001"} (record_proposal returns the id itself)."""
+    if (refusal := _token_refusal(x_coordinator_token)) is not None:
+        return refusal
+    result = writes.record_proposal(proposal)
+    return _result(result if isinstance(result, dict) else {"id": result}, 400)
+
+
+@app.post("/coordinator/proposals/{proposal_id}/decision")
+def coordinator_decision(proposal_id: str, body: DecisionIn, x_coordinator_token: str | None = Header(default=None)):
+    if (refusal := _token_refusal(x_coordinator_token)) is not None:
+        return refusal
+    return _result(writes.record_decision(proposal_id, body.decision, body.reason), 400)
+
+
+@app.post("/coordinator/subscriptions/{subscription_id}/sent")
+def coordinator_subscription_sent(subscription_id: int, x_coordinator_token: str | None = Header(default=None)):
+    if (refusal := _token_refusal(x_coordinator_token)) is not None:
+        return refusal
+    return _result(writes.mark_subscription_sent(subscription_id), 400)
 
 
 @app.post("/coordinator/subscriptions")

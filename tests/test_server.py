@@ -94,7 +94,17 @@ def test_write_functions_are_not_tools():
 
 # --- coordinator writes -------------------------------------------------------
 
-REFUND = {"order_id": 4512, "amount": 59.90, "rule_id": "R-REF-03", "proposal_id": "p-http"}
+REFUND = {"order_id": 4512, "amount": 59.90, "rule_id": "R-REF-03", "proposal_id": "P-0001"}
+PROPOSAL = {"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90},
+            "rule_id": "R-REF-03", "facts_used": {"days_late": 6}, "user_confirmed": True}
+
+
+def _approved_over_http(headers, order_id=4512, amount=59.90) -> str:
+    """Record a proposal and an "approve" decision through the endpoints; return the proposal id."""
+    pid = client.post("/coordinator/proposals", headers=headers,
+                      json={**PROPOSAL, "params": {"order_id": order_id, "amount": amount}}).json()["id"]
+    client.post(f"/coordinator/proposals/{pid}/decision", json={"decision": "approve", "reason": "t"}, headers=headers)
+    return pid
 
 
 def test_writes_refused_when_token_env_missing(monkeypatch):
@@ -118,9 +128,14 @@ def test_writes_refused_without_or_with_wrong_token(token_on):
 
 
 def test_refund_with_token(token_on):
-    over = client.post("/coordinator/refunds", json={**REFUND, "amount": 70.00}, headers=token_on)
+    unknown = client.post("/coordinator/refunds", json={**REFUND, "proposal_id": "p-made-up"}, headers=token_on)
+    assert unknown.status_code == 400 and "not found" in unknown.json()["error"]
+    over_id = _approved_over_http(token_on, amount=70.00)
+    over = client.post("/coordinator/refunds", json={**REFUND, "amount": 70.00, "proposal_id": over_id},
+                       headers=token_on)
     assert over.status_code == 400 and "safety net" in over.json()["error"]
-    ok = client.post("/coordinator/refunds", json=REFUND, headers=token_on)
+    ok = client.post("/coordinator/refunds", json={**REFUND, "proposal_id": _approved_over_http(token_on)},
+                     headers=token_on)
     assert ok.status_code == 200 and ok.json()["status"] == "approved"
     assert client.get("/orders/4512/refunds").json()["refunded_total"] == 59.90
 
@@ -147,7 +162,8 @@ def test_other_writes_with_token(token_on):
 
 
 def test_admin_reset(token_on):
-    client.post("/coordinator/refunds", json=REFUND, headers=token_on)
+    client.post("/coordinator/refunds", json={**REFUND, "proposal_id": _approved_over_http(token_on)}, headers=token_on)
+    assert client.get("/orders/4512/refunds").json()["refunded_total"] == 59.90
     assert client.post("/admin/reset", headers=token_on).json()["reset"] is True
     assert client.get("/orders/4512/refunds").json()["refunded_total"] == 0.0
 
@@ -157,3 +173,44 @@ def test_admin_reset(token_on):
 def test_run_script_binds_to_localhost():
     from scripts import run_platform_server
     assert run_platform_server.HOST == "127.0.0.1"
+
+
+
+# --- P06 endpoints ---------------------------------------------------------
+
+def test_proposal_endpoints(token_on):
+    r = client.post("/coordinator/proposals", json=PROPOSAL, headers=token_on)
+    assert r.status_code == 200 and r.json() == {"id": "P-0001"}
+    assert client.post("/coordinator/proposals", json={"action": "refund"}, headers=token_on).status_code == 400
+    d = client.post("/coordinator/proposals/P-0001/decision", json={"decision": "approve", "reason": "ok"},
+                    headers=token_on)
+    assert d.status_code == 200 and d.json()["decision"] == "approve"
+    again = client.post("/coordinator/proposals/P-0001/decision", json={"decision": "escalate"}, headers=token_on)
+    assert again.status_code == 400
+    listed = client.get("/proposals").json()
+    assert listed[0]["id"] == "P-0001" and listed[0]["params"]["order_id"] == 4512
+
+
+def test_proposal_endpoints_need_the_token(monkeypatch):
+    monkeypatch.delenv(TOKEN_ENV, raising=False)
+    assert client.post("/coordinator/proposals", json=PROPOSAL).status_code == 403
+    assert client.post("/coordinator/proposals/P-0001/decision", json={"decision": "approve"}).status_code == 403
+    assert client.post("/coordinator/subscriptions/1/sent").status_code == 403
+    assert client.get("/proposals").json() == []
+
+
+def test_notifications_over_http(token_on):
+    sub = client.post("/coordinator/subscriptions", json={"order_id": 4512, "event": "delivered"}, headers=token_on).json()
+    for status in ("out_for_delivery", "delivered"):
+        client.post("/coordinator/orders/4512/status", json={"new_status": status}, headers=token_on)
+    pending = client.get("/notifications/pending").json()
+    assert len(pending) == 1 and pending[0]["subscription_id"] == sub["id"]
+    sent = client.post(f"/coordinator/subscriptions/{sub['id']}/sent", headers=token_on)
+    assert sent.status_code == 200 and sent.json()["status"] == "sent"
+    assert client.get("/notifications/pending").json() == []
+    assert client.post(f"/coordinator/subscriptions/{sub['id']}/sent", headers=token_on).status_code == 400
+
+
+def test_simulator_data_is_not_over_http():
+    paths = client.get("/openapi.json").json()["paths"]
+    assert not any("own_case" in p or "scenario" in p for p in paths)

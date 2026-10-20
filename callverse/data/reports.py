@@ -13,7 +13,7 @@ from callverse.tools.shopnova_tools import get_company_profile, get_tracking
 
 TABLES = ("users", "products", "orders", "refunds", "subscriptions", "events")
 # Tables the dashboard may list (users/products are not listed in bulk).
-LISTABLE = ("refunds", "subscriptions", "events")
+LISTABLE = ("refunds", "subscriptions", "events", "proposals")
 
 
 def summary() -> dict:
@@ -76,5 +76,33 @@ def list_rows(table: str, limit: int = 100) -> list[dict]:
         raise ValueError(f"table '{table}' cannot be listed")
     with closing(connect()) as con:
         # table comes from the fixed LISTABLE list above, never from the user as-is.
-        return [dict(r) for r in con.execute(f"SELECT * FROM {table} ORDER BY id DESC LIMIT ?",
+        rows = [dict(r) for r in con.execute(f"SELECT * FROM {table} ORDER BY id DESC LIMIT ?",
                                               (max(1, min(int(limit), 500)),)).fetchall()]
+    if table == "proposals":  # JSON columns back to Python values
+        for r in rows:
+            r["params"], r["facts_used"] = json.loads(r["params"]), json.loads(r["facts_used"])
+            r["user_confirmed"] = bool(r["user_confirmed"])
+    return rows
+
+
+def get_pending_notifications() -> list[dict]:
+    """Notifications to send: events that match a subscription still "waiting" (read-only).
+
+    A subscription matches an event of the same order and the same event name that happened on or
+    after the day the client subscribed. One item per subscription (its first matching event).
+    The notifier sends the message, then calls writes.mark_subscription_sent(subscription_id).
+    Returns [{subscription_id, order_id, event, event_at, user: {id, name, email, phone}}].
+    """
+    with closing(connect()) as con:
+        rows = con.execute(
+            "SELECT s.id AS subscription_id, s.order_id, s.event, MIN(e.id) AS event_id"
+            " FROM subscriptions s JOIN events e ON e.order_id = s.order_id AND e.event = s.event"
+            " AND e.at >= s.created_at WHERE s.status = 'waiting' GROUP BY s.id ORDER BY s.id").fetchall()
+        result = []
+        for r in rows:
+            event_at = con.execute("SELECT at FROM events WHERE id = ?", (r["event_id"],)).fetchone()["at"]
+            user = con.execute("SELECT u.id, u.name, u.email, u.phone FROM users u JOIN orders o"
+                               " ON o.user_id = u.id WHERE o.id = ?", (r["order_id"],)).fetchone()
+            result.append({"subscription_id": r["subscription_id"], "order_id": r["order_id"],
+                           "event": r["event"], "event_at": event_at, "user": dict(user)})
+    return result
