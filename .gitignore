@@ -11,3 +11,7 @@ callverse/intake/data/reason_vectors.npz
 __pycache__/
 .pytest_cache/
 .venv/
+
+# Voice channel (V01): recordings are personal data, never committed; generated replies too.
+samples/voice/
+out/

@@ -10,3 +10,7 @@ torch>=2.4
 transformers>=4.44
 sentence-transformers>=3.0
 numpy>=1.26
+
+# Voice channel (V01): offline text-to-speech. Windows uses its built-in voices (SAPI5); Linux needs the
+# system package espeak-ng; macOS uses NSSpeechSynthesizer.
+pyttsx3>=2.90
