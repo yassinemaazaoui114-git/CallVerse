@@ -1,4 +1,8 @@
-"""Text-to-speech: the APPROVED reply text -> WAV audio, with Piper (open source, runs on the server CPU).
+"""Text-to-speech: the APPROVED reply text -> WAV audio.
+
+Engine from config.yaml web_channel.tts.engine:
+  piper   open-source voices running on the server CPU (default: works on any cloud server)
+  pyttsx3 the V01 engine (callverse/channels/voice.py, settings in voice.tts): the computer's own voices
 
 Rule: the audio says exactly the reply shown on screen. The only change before synthesis is a fixed
 pronunciation pass (speech_text below): it adds no words, only changes how symbols are read, e.g.
@@ -54,12 +58,32 @@ def _voice(name: str):
     return PiperVoice.load(path)
 
 
+def _synthesize_pyttsx3(spoken: str) -> dict:
+    """Reuse the V01 voice channel (pyttsx3) and return the same result shape as Piper."""
+    import tempfile
+    from pathlib import Path
+
+    from callverse.channels import voice as v01
+    with tempfile.TemporaryDirectory() as folder:
+        try:
+            out = v01.speak(spoken, Path(folder) / "reply.wav")
+        except v01.VoiceError as e:
+            raise TTSError(str(e))
+        data = Path(out["out_path"]).read_bytes()
+    with wave.open(io.BytesIO(data)) as wav:
+        seconds = wav.getnframes() / float(wav.getframerate())
+    return {"wav": data, "voice": "pyttsx3", "seconds": round(seconds, 2),
+            "synthesis_seconds": out["seconds"], "spoken_text": spoken}
+
+
 def synthesize(text: str, language: str | None = None) -> dict:
     """Return {"wav": bytes, "voice", "seconds" (audio length), "synthesis_seconds", "spoken_text"}."""
-    name = voice_for(language)
     spoken = speech_text(text)
     if not spoken:
         raise TTSError("nothing to say")
+    if load_config()["web_channel"]["tts"].get("engine", "piper") == "pyttsx3":
+        return _synthesize_pyttsx3(spoken)       # traced as tts_call by callverse/channels/voice.py
+    name = voice_for(language)
     start = time.perf_counter()
     try:
         with _load_lock:

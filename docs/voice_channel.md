@@ -1,5 +1,9 @@
 # Voice + text customer channel (`callverse/web/`)
 
+> Two voice pieces live side by side:
+> - **V01** (`callverse/channels/voice.py`, `scripts/run_voice.py`, config `voice:`): the approved CLI voice channel, with Groq Whisper + pyttsx3 (task `tasks/V01_voice_channel.md`, branch `feature/voice`).
+> - **W01** (this document, `callverse/web/`, config `web_channel:`): the web page for customers. It reads the Groq model from `voice.stt` and can speak with Piper (default, cloud) or V01's pyttsx3 (`web_channel.tts.engine`).
+
 A website where a ShopNova customer **types or speaks** to CallVerse and gets a **written and spoken**
 answer. It is a **channel adapter**, not an agent: it turns audio into text and the approved reply into
 audio. All business logic stays in the agents (and later in the Coordinator).
@@ -43,7 +47,7 @@ The raw recording is never written to disk and is dropped after transcription.
 
 ## 3. REAL and MOCK
 
-`config.yaml` → `voice.mode`: `auto` (default) = REAL when `GROQ_API_KEY` is set, otherwise MOCK; or force `real` / `mock`.
+`config.yaml` → `web_channel.mode`: `auto` (default) = REAL when `GROQ_API_KEY` is set, otherwise MOCK; or force `real` / `mock`.
 The channel calls the unified workflow (Intake → Router → agent → Coordinator → response writer); what runs
 in each mode, and how the team's modules plug in, is in [integration.md](integration.md).
 

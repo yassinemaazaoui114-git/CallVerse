@@ -1,7 +1,7 @@
 # I01 — Integration: platform + Intake + voice channel (Semah's lane, proposed)
 
-> **Status: APPROVED (Git section below), relayed by Semah — see "Approved by".** Built and tested at Semah's request in the local branch
-> `integration/platform-voice` (from `main` c2984b1). Published only as this branch + one PR to `main` (not merged).
+> **Status: APPROVED for the original scope (relayed by Semah); the FINAL scope needs one more OK — see "Scope change".** Built and tested at Semah's request in the local branch
+> `integration/platform-voice` (from `main` c2984b1). To be published only as this branch + one PR to `main` (not merged).
 > `tasks/NEXT.md`, `tasks/NEXT_PLATFORM.md` and the other developers' branches are not touched.
 
 ## Why
@@ -43,3 +43,16 @@ Yassine: please confirm it in the PR review.
 
 Order actually used (same result as steps 1–2 above): first commit the I01 work on c2984b1, then
 `git merge origin/main` (merge commit), then replace the interim router and re-run all tests.
+
+## Scope change after the compliance review (needs Yassine's OK) — see `tasks/I01_compliance.md`
+The approved task `tasks/V01_voice_channel.md` became known after this approval. To comply with it:
+- `feature/voice` (V01: `callverse/channels/voice.py`, `scripts/run_voice.py`, pyttsx3, config `voice:`) was built
+  from `main` 22aa220 and pushed under V01's own Git section (commit 69cb044);
+- it was then **merged into this branch** (c0ca4e1). The web channel now reads the Groq model from `voice.stt`, and
+  can speak with V01's pyttsx3 or with Piper (`web_channel.tts.engine`, default `piper`).
+Not covered by the approval above:
+(a) merging `feature/voice` into this branch;
+(b) the web channel's extra libraries `faster-whisper`, `av<16`, `piper-tts` (GPL-3.0), `python-multipart`;
+(c) the deployment files `Dockerfile`, `.dockerignore`, `deploy/huggingface/README.md` (nothing deployed).
+
+Approved by (final scope): ______ (Yassine, date)

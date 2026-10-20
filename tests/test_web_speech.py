@@ -188,3 +188,19 @@ def test_real_round_trip_piper_to_whisper(monkeypatch):
     assert heard["provider"] == "faster_whisper" and heard["language"] == "en"
     assert pipeline.find_order_ids(heard["text"]) == [4512]
     assert "where" in heard["text"].lower()
+
+
+def test_web_tts_can_use_the_v01_pyttsx3_engine(monkeypatch):
+    """web_channel.tts.engine: pyttsx3 -> the web channel speaks through callverse/channels/voice.py (V01)."""
+    from callverse.config import load_config
+    from callverse.channels import voice as v01
+    cfg = load_config()
+    monkeypatch.setitem(cfg["web_channel"]["tts"], "engine", "pyttsx3")
+
+    def fake_speak(text, out_path, engine=None):
+        with wave.open(str(out_path), "wb") as w:
+            w.setnchannels(1); w.setsampwidth(2); w.setframerate(16000); w.writeframes(b"\x00\x00" * 16000)
+        return {"out_path": str(out_path), "seconds": 0.05}
+    monkeypatch.setattr(v01, "speak", fake_speak)
+    out = tts.synthesize("Your order 4512 is late.", "en")
+    assert out["voice"] == "pyttsx3" and out["seconds"] == 1.0 and out["spoken_text"] == "Your order 4 5 1 2 is late."

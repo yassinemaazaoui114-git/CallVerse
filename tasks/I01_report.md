@@ -75,3 +75,18 @@ Docker conversation (2 CPUs, user 1000, no key):
 ## 6. Next step
 Approve and push, deploy the image to a Hugging Face Space with `GROQ_API_KEY`, run the REAL demo live.
 Then T04 (router), Agent B + Coordinator, and T05 (SLM) plug in through `components.py` with no channel change.
+
+## Update — compliance review and refresh (2026-10-20, after the relayed approval)
+- **Refreshed onto `main` 22aa220** (T04) with a merge commit (91ac9ee). Conflicts: `config.yaml` kept both sides;
+  `tasks/NEXT_PLATFORM.md` took main's version.
+- **T04 router:** used directly; `interim_router.py` deleted (de5d403). The router stage reports "real".
+- **Compliance with `tasks/V01_voice_channel.md`** (see `tasks/I01_compliance.md`):
+  - `feature/voice` was built and pushed (69cb044), then merged here (c0ca4e1);
+  - the web settings moved to `web_channel:`;
+  - traces renamed `stt_call` / `tts_call`;
+  - the web voice docs renamed W01;
+  - the web channel can also speak with V01's pyttsx3.
+- **Tests:** **201 passed**, 1 opt-in module skipped (2 runs) = main 101 + V01 8 + P05 15 + web/integration 77.
+  Browser end-to-end 2/2 (3 runs). `demo_platform` and `demo_platform_http` RESULT lines identical to `platform`.
+- **Not published:** the final scope (merging `feature/voice`, the extra libraries, the Docker files) needs
+  Yassine's OK (task file, "Scope change").

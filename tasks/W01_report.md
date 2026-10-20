@@ -32,7 +32,7 @@ cloud service can host.
 - Docs: `docs/voice_channel.md` (flow, choices, API, run, deploy, licences, security, limits), and this report plus `tasks/W01_web_voice_channel.md`
 
 **Changed:**
-- `config.yaml`: new `voice:` section only.
+- `config.yaml`: new web section (now named `web_channel:`, so V01 owns `voice:`).
 - `.gitignore`: `models/`.
 - `README.md`: one section and one folder-map line.
 
