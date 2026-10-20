@@ -69,9 +69,13 @@ Policy search + Agent B (T06): `search_policy` finds rules by meaning (M3, `call
 Agent B (Payment & Refund) asks Agent A for delivery facts, cites the rule and submits a refund
 **proposal** (`propose_refund`, nothing paid). Route B now runs Agent B. Held-out check:
 `python -m scripts.eval_policy_search` (final evaluation only).
+Coordinator (T07): rules only, no LLM (`callverse/coordinator/coordinator.py`). It re-reads the facts,
+checks the cited rule, R-REF-05, the client's confirmation and Layer 3 (> 300 TND), then approves (only then
+the platform writes), sends back (max 2, the agent corrects), asks the client, or escalates. Scenarios:
+`python -m scripts.run_scenario S1|S2|S4`. The LLM layer waits on short rate limits and falls back
+gpt-oss-120b → gpt-oss-20b → Gemini Flash (force one with `CALLVERSE_FORCE_AGENTS_MODEL=<model>`).
 
-**Coming next:** Coordinator (checks and executes proposals), delivery notifications
-(Brief #2) · SLM reply writer and Client Simulator (Brief #4).
+**Coming next:** delivery notifications (S3) · SLM reply writer and Client Simulator (Brief #4).
 
 ## Data
 

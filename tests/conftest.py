@@ -11,7 +11,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from callverse import trace  # noqa: E402
 from callverse.data import db  # noqa: E402
 from callverse.data.seed import seed  # noqa: E402
-from callverse.tools import proposal_tools  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
@@ -22,7 +21,6 @@ def fresh_env(tmp_path):
     """
     db.use_db(tmp_path / "shopnova_test.db")
     seed()
-    trace.start_run("test", trace_dir=tmp_path)
-    proposal_tools.reset()         # every test starts with no proposal and the counter at P-0001
+    trace.start_run("test", trace_dir=tmp_path)   # proposals live in this fresh DB: ids restart at P-0001
     yield
     db.use_db(db.DEFAULT_DB_PATH)  # put the default back after the test

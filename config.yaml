@@ -8,15 +8,26 @@ sim_today: "2026-10-09"
 providers:
   groq:       {base_url: "https://api.groq.com/openai/v1", key_env: GROQ_API_KEY}
   openrouter: {base_url: "https://openrouter.ai/api/v1",   key_env: OPENROUTER_API_KEY}
-  google:     {base_url: "https://generativelanguage.googleapis.com/v1beta/openai/", key_env: GOOGLE_API_KEY}
+  # tool_call_extras: Gemini needs the extra fields of its tool calls sent back (see llm.messages_for).
+  google:     {base_url: "https://generativelanguage.googleapis.com/v1beta/openai/", key_env: GOOGLE_API_KEY,
+               tool_call_extras: true}
+
+# Rate limit (429): wait and retry the same model once if the provider asks for at most this many
+# seconds ("retry-after"); a longer wait moves on to the next model (T07).
+llm: {max_retry_wait_s: 20}
 
 # Each role lists models tried in order: if one fails on the provider's side (rate limit, model not
 # found, server error, unreachable), the next one is used. See callverse/llm.py.
 models:
   agents:    # M2, tried in order (backup chain)
-    - {provider: groq,       model: "openai/gpt-oss-120b"}
+    # options = extra request settings. reasoning_effort low (T07): the agents' steps are simple
+    # (read, cite, propose), and fewer hidden reasoning tokens keep a turn under Groq's per-minute limit.
+    - {provider: groq,       model: "openai/gpt-oss-120b", options: {reasoning_effort: low}}
     # Backup (supervisor decision): smaller model of the same family, free on Groq, with its own rate limits.
-    - {provider: groq,       model: "openai/gpt-oss-20b"}
+    - {provider: groq,       model: "openai/gpt-oss-20b",  options: {reasoning_effort: low}}
+    # 3rd backup (T07): other provider, other rate limits. Checked on 2026-10-20 with one Agent B call:
+    # gemini-3.5-flash 4.4 s; gemini-3.8-flash 47-76 s and gemini-flash-latest 53 s (too slow, 60 s timeout).
+    - {provider: google,     model: "gemini-3.5-flash"}
   simulator: # M1, different family (used in task 4)
     # Supervisor decision: the Gemini Flash model this account can access. To verify at task 4.
     - {provider: google,     model: "gemini-3.8-flash"}
@@ -76,3 +87,13 @@ queues:
     refund_request: "Your request is passed on for a refund check."
     return_item: "Your request is passed on for a returns check."
     damaged_item: "Your request is passed on for a damage check."
+
+# Coordinator (task T07): rules only, no LLM. It checks every agent proposal before anything is written.
+coordinator:
+  # Which rules can justify each action. Rules such as R-REF-05 (limit) or R-ESC-01 (finance) are
+  # always checked, but they cannot be the reason FOR a refund.
+  allowed_rules:
+    refund: [R-REF-03, R-RET-01, R-DMG-01]
+    subscribe: [R-NOT-01, R-DEL-02]
+  # A case may be sent back to the agent this many times; the next send-back becomes "escalate".
+  max_send_backs: 2

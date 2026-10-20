@@ -72,25 +72,28 @@ def search_policy(query: str, k: int = 3) -> list[dict]:
     return results
 
 
-def search_policy_tool(query: str, k: int = 3) -> dict:
+# Tool answers are re-sent at every later model call of the agent's turn, so they are kept short (T07):
+# the 2 best rules, each text cut to about 300 characters. The full text stays in the policy file.
+TOOL_K = 2
+TOOL_TEXT_CHARS = 300
+
+
+def search_policy_tool(query: str, k: int = TOOL_K) -> dict:
     """Tool version for the agents: a dict like every other tool (the rules are under "results")."""
     if not isinstance(query, str) or not query.strip():
         return {"error": "give a non-empty query"}
-    return {"query": query, "results": search_policy(query, k)}
+    results = [{**r, "text": r["text"][:TOOL_TEXT_CHARS]} for r in search_policy(query, k)]
+    return {"results": results}
 
 
 SCHEMA = {
     "type": "function",
     "function": {
         "name": "search_policy",
-        "description": ("Search the ShopNova company rules by meaning. Returns the best matching rules "
-                        "(id, title, text, score). Use it to find and cite the rule that applies."),
+        "description": "Find the ShopNova rules that match a request, by meaning.",
         "parameters": {
             "type": "object",
-            "properties": {
-                "query": {"type": "string", "description": "What you need a rule for, e.g. 'refund for a late order'"},
-                "k": {"type": "integer", "description": "How many rules to return (default 3)"},
-            },
+            "properties": {"query": {"type": "string"}},   # k is not offered: agents always get the 2 best
             "required": ["query"],
         },
     },
