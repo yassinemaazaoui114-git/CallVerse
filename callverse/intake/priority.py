@@ -1,7 +1,7 @@
 """Priority of a ticket: based on the REAL situation first, and only a little on how upset the client sounds.
 
     severity          (0-1) = base for the reason + 0.3 if days_late > 5 + 0.2 if paid > 300   (max 1)
-    time_pressure     (0-1) = min(days_late / 7, 1)   (0 if no order or not late)
+    time_pressure     (0-1) = min(days_late / 7, 1)   (0 if no order, not late, or delivered)
     emotion_intensity (0-1) = negative-sentiment score
     priority = 0.6 * severity + 0.25 * time_pressure + 0.15 * emotion_intensity
     label: high >= 0.6, medium >= 0.35, else low
@@ -40,7 +40,8 @@ def compute(reasons: list[str], facts: dict, negative_score: float) -> dict:
     """
     cfg = load_config()["intake"]["priority"]
     sev = severity(reasons, facts.get("days_late"), facts.get("paid"), cfg)
-    tp = time_pressure(facts.get("days_late"), cfg)
+    # A delivered order has no time pressure left, even if it arrived late.
+    tp = 0.0 if facts.get("delivered") else time_pressure(facts.get("days_late"), cfg)
     emo = max(0.0, min(negative_score, 1.0))
 
     w = cfg["weights"]

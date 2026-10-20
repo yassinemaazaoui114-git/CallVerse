@@ -36,6 +36,9 @@ intake:
   # (python -m scripts.choose_threshold), never on the test set: 47/60 exact, 4 wrong, 9 to the LLM.
   top_k: 3
   reason_threshold: 0.66
+  # main_reason = the first reason of this list found in the ticket (T04, approved).
+  # Money and damage come first: they need Agent B even when the client also asks "where is it?".
+  main_reason_order: [damaged_item, refund_request, return_item, late_delivery, order_status, other]
 
   priority:
     # severity (0-1) = base for the reason + bonuses, capped at 1
@@ -48,9 +51,21 @@ intake:
       other: 0.2
     late_bonus:   {days_late_over: 5,  add: 0.3}
     amount_bonus: {paid_over: 300,     add: 0.2}
-    # time_pressure (0-1) = min(days_late / time_pressure_days, 1)
+    # time_pressure (0-1) = min(days_late / time_pressure_days, 1); 0 when the order is delivered
     time_pressure_days: 7
     # priority = weighted sum of the three parts
     weights: {severity: 0.6, time_pressure: 0.25, emotion_intensity: 0.15}
     # label: high if priority >= high, medium if >= medium, else low
     labels: {high: 0.6, medium: 0.35}
+
+# Queues (task T04): rules, not an LLM, so every routing decision is predictable and explainable.
+# main_reason -> agent. Layer L1 = the first-line agents A and B.
+queues:
+  layer: L1
+  routes:
+    order_status: A
+    late_delivery: A
+    refund_request: B
+    return_item: B
+    damaged_item: B
+    other: A

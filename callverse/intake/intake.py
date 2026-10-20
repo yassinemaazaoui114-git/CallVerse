@@ -19,26 +19,31 @@ import uuid
 
 from callverse import trace
 from callverse.intake import extract, llm_fallback, priority, reasons, sentiment, style
-from callverse.tools import shopnova_tools
+from callverse.config import load_config
+from callverse.tools.registry import run_tool
+
+
+def pick_main_reason(found: list[str]) -> str:
+    """The first reason of config intake.main_reason_order that is in `found` (e.g. refund beats late)."""
+    order = load_config()["intake"]["main_reason_order"]
+    return next((r for r in order if r in found), found[0])
 
 
 def get_facts(order_id: int | None) -> dict:
     """Facts about the order, read with the existing READ tools. All None when there is no (known) order.
 
-    Intake is not an agent, so it is not in the registry's allow-lists; it calls the two read
-    functions directly and traces each call itself.
+    Intake goes through the registry like the agents (allow-list "INTAKE" = get_order, get_tracking),
+    so the same gate checks and traces every read.
     """
     facts = {"order_found": False, "days_late": None, "delivered": None, "paid": None}
     if order_id is None:
         return facts
 
-    order = shopnova_tools.get_order(order_id)
-    trace.log("tool_call", "intake", {"tool": "get_order", "args": {"order_id": order_id}, "result": order})
+    order = run_tool("INTAKE", "get_order", {"order_id": order_id})
     if "error" in order:
         return facts
 
-    tracking = shopnova_tools.get_tracking(order_id)
-    trace.log("tool_call", "intake", {"tool": "get_tracking", "args": {"order_id": order_id}, "result": tracking})
+    tracking = run_tool("INTAKE", "get_tracking", {"order_id": order_id})
     return {"order_found": True, "days_late": tracking.get("days_late"),
             "delivered": tracking.get("delivered"), "paid": order.get("paid")}
 
@@ -97,7 +102,7 @@ def process(text: str, use_llm: bool = True, chat_fn=None) -> dict:
         # each reason = one sub-case; score/sentence are None when the reason came from the LLM fallback
         "reasons": matched["reasons"] if not matched["needs_llm"] else
                    [{"reason": r, "score": None, "sentence": None} for r in found],
-        "main_reason": found[0],   # best-scoring reason (or the LLM's first one)
+        "main_reason": pick_main_reason(found),   # by precedence (config), not by score
         "emotion": feelings["emotion"],
         "sentiment": feelings["sentiment"],
         "facts": {"days_late": facts["days_late"], "delivered": facts["delivered"], "paid": facts["paid"]},

@@ -17,6 +17,8 @@ AGENT_A = ["get_user", "get_order", "get_tracking"]  # Status & Tracking: read-o
 
 ALLOW_LISTS = {
     "A": AGENT_A,
+    # Intake is not an agent, but it reads facts through the same gate: order + tracking only, no user data.
+    "INTAKE": ["get_order", "get_tracking"],
 }
 
 
