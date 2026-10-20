@@ -1,5 +1,5 @@
-"""The unified workflow with the REAL Intake models (M3 + M4) and the real platform data; only the LLM is a fake
-(no API call). Also: the interim router rules (T04), and that the team's components plug in when they exist."""
+"""The unified workflow with the REAL Intake models (M3 + M4), Yassine's T04 router and the real platform data;
+only the LLM is a fake (no API call). Also: the team's missing components plug in when they exist."""
 
 import json
 import sys
@@ -10,7 +10,8 @@ import pytest
 
 pytest.importorskip("sentence_transformers")
 
-from callverse.integration import components, interim_router, workflow  # noqa: E402
+from callverse import trace  # noqa: E402
+from callverse.integration import components  # noqa: E402
 from callverse.web import pipeline  # noqa: E402
 from callverse.web.sessions import Session  # noqa: E402
 
@@ -58,17 +59,15 @@ def statuses(reply):
     return {s["name"]: s["status"] for s in reply["steps"]}
 
 
-# ---------- interim router = the approved T04 rules ----------
-@pytest.mark.parametrize("reasons, agent, main", [
-    (["order_status"], "A", "order_status"), (["late_delivery"], "A", "late_delivery"),
-    (["refund_request"], "B", "refund_request"), (["return_item"], "B", "return_item"),
-    (["damaged_item"], "B", "damaged_item"), (["other"], "A", "other"),
-    (["late_delivery", "refund_request"], "B", "refund_request"),     # precedence: late + refund -> refund
-    (["order_status", "damaged_item"], "B", "damaged_item"),
-])
-def test_interim_router_rules(reasons, agent, main):
-    route = interim_router.route({"reasons": [{"reason": r} for r in reasons], "priority_label": "low"})
-    assert (route["agent"], route["reason"], route["layer"]) == (agent, main, "L1")
+# ---------- the router is Yassine's T04 router ----------
+def test_routing_uses_the_t04_router():
+    session = Session(id="s", verified_user_id=1, verified_orders={4512})
+    pipeline.handle_turn(session, "Order 4512 is a week late. I want my money back.", mode="real", chat_fn=no_llm)
+    steps = [json.loads(line) for line in trace.current_path().read_text(encoding="utf-8").splitlines()]
+    routes = [s for s in steps if s["step"] == "route"]
+    assert routes and routes[-1]["actor"] == "router"                   # callverse/queues/router.py traced it
+    assert routes[-1]["data"]["agent"] == "B"
+    assert components.status()["router"] == "built"
 
 
 # ---------- the whole chain with the real Intake ----------
@@ -80,7 +79,7 @@ def test_status_question_goes_through_intake_router_and_agent_a():
 
     assert reply["route"]["agent"] == "A" and reply["agent"] == "A" and reply["tools_used"] == ["get_tracking"]
     assert reply["ticket"]["priority"] in ("high", "medium", "low") and reply["ticket"]["reasons"]
-    assert statuses(reply) == {"intake": "real", "router": "interim", "agent": "real",
+    assert statuses(reply) == {"intake": "real", "router": "real", "agent": "real",
                                "coordinator": "not built", "response": "not built"}
     assert "6 days late" in reply["text"]
 
@@ -127,18 +126,6 @@ def install(monkeypatch, module_name, **attrs):
     for k, v in attrs.items():
         setattr(module, k, v)
     monkeypatch.setitem(sys.modules, module_name, module)
-
-
-def test_team_router_replaces_the_interim_one(monkeypatch):
-    calls = []
-
-    def route(ticket):
-        calls.append(ticket)
-        return {"agent": "B", "layer": "L1", "reason": "refund_request", "priority_label": "high"}
-    install(monkeypatch, "callverse.queues.router", route=route)
-    assert components.status()["router"] == "built"
-    reply = pipeline.handle_turn(Session(id="s"), "Hello, can you help me?", mode="real", chat_fn=no_llm)
-    assert calls and statuses(reply)["router"] == "real" and reply["route"]["agent"] == "B"
 
 
 class ProposingAgent:

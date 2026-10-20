@@ -106,7 +106,7 @@ def _response(reply: dict, extra: dict | None = None) -> dict:
     body = {"reply": {k: reply[k] for k in ("text", "kind", "agent", "handover", "language", "tools_used")
                       if k in reply} | ({"notice": reply["notice"]} if reply.get("notice") else {}),
             "mode": reply["mode"],
-            # How CallVerse handled the turn: one entry per stage, marked real / interim / mock / not built / skipped.
+            # How CallVerse handled the turn: one entry per stage, marked real / mock / not built / skipped.
             "steps": reply.get("steps", []),
             "ticket": reply.get("ticket"),        # Intake labels only (reasons, emotion, priority), never order facts
             "route": reply.get("route"),

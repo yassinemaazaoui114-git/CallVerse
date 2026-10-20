@@ -1,9 +1,9 @@
-# CallVerse integration — platform + Intake + voice (branch `integration/platform-voice`)
+# CallVerse integration — platform + Intake + router + voice (branch `integration/platform-voice`)
 
 One workflow for every channel. Each stage runs the team's **real** module when it exists, and every reply
 says, stage by stage, what ran (`steps` in the API, the panel "How CallVerse handled this" in the website).
 
-## 1. Flow and status (2026-10-20)
+## 1. Flow and status (2026-10-20, on `main` 22aa220)
 
 ```
 Customer: text, or voice (browser microphone)
@@ -14,7 +14,7 @@ Identity gate  ............. REAL     email of the order, checked with the read 
    ▼
 Intake  .................... REAL     reasons (M3), emotion + sentiment (M4), priority       (Yassine, T03, main)
    ▼
-Router  .................... INTERIM  the approved T04 rules, until callverse/queues/router.py exists (T04)
+Router  .................... REAL     rules in config.yaml queues.routes                     (Yassine, T04, main)
    ▼
 Agent A Status & Tracking .. REAL     with GROQ_API_KEY; MOCK (labelled demo text) without  (main)
 Agent B Payment & Refund ... NOT BUILT  the handover is recorded (T04 behaviour), nothing decided
@@ -39,16 +39,15 @@ Platform underneath (Dali, P01–P04 on `main`; P05 from `platform`):
 
 | Component | Module | Interface | Until it exists |
 |---|---|---|---|
-| Router (T04) | `callverse/queues/router.py` | `route(ticket) -> {agent, layer, reason, priority_label}` | `interim_router.py` (same approved rules) |
 | Agent B | `callverse/agents/agent_b.py` | `class AgentB(BaseAgent)` | handover recorded: "Your request is passed to our refund team." |
 | Coordinator | `callverse/coordinator/coordinator.py` | `review(proposal) -> decision` | proposals are never executed (customer told a colleague will review) |
 | SLM (T05) | `callverse/slm/writer.py` | `write_reply(decision, history=None) -> {reply, ...}` | reply text used as is |
 
-When T04 merges, delete `callverse/integration/interim_router.py`. A module that exists but fails to import is
-**not** hidden: the error is raised (tested).
+The T04 router is merged and imported directly (`callverse/integration/workflow.py`). A module that exists but
+fails to import is **not** hidden: the error is raised (tested).
 
 ## 3. REAL and MOCK
-- **REAL** (`GROQ_API_KEY` set): Intake (with its M2 fallback for unclear messages), the router and Agent A all run.
+- **REAL** (`GROQ_API_KEY` set): Intake (with its M2 fallback for unclear messages), the T04 router and Agent A all run.
 - **MOCK** (no key): Intake and the router still run for real on the real data; only the LLM agent is replaced
   by a demo text that says so. The identity gate applies in both modes, because Intake reads the order facts.
 - A MOCK reply never contains order facts, and REAL never falls back to MOCK: an LLM outage gives
@@ -66,4 +65,6 @@ Only the customer website goes into the Docker image's start command.
 ## 5. Not integrated, on purpose
 - **RAG / `search_policy`:** out of scope. The policy files and `check_condition` are in place, for the Coordinator.
 - **Queue manager (T04 `queue.py`):** one conversation is answered at once, so there is no queue in the channel.
+- **T04 `callverse/pipeline.py`:** the website uses its own workflow (it adds the identity gate, conversation
+  history and per-stage status) with the same Intake, router and Agent A; the two can be merged into one later.
 - **Agents C–F, Simulator, notifier:** not built.

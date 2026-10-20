@@ -70,7 +70,7 @@ def test_no_secret_in_browser_files():
 def test_health(client):
     body = client.get("/api/health").json()
     assert body["status"] == "ok" and body["mode"] == "mock" and body["limits"]["max_audio_seconds"] == 30
-    assert body["components"] == {"intake": "built", "agent_a": "built", "router": "not built",
+    assert body["components"] == {"intake": "built", "agent_a": "built", "router": "built",
                                   "coordinator": "not built", "slm": "not built", "agent_b": "not built"}
 
 
@@ -79,7 +79,7 @@ def test_text_turn_with_audio_matching_the_text(client):
     body = client.post("/api/turn/text", json={"session_id": sid, "text": "Hello, can you help me?"}).json()
     assert body["mode"] == "mock" and body["reply"]["kind"] == "mock"
     assert body["route"]["agent"] == "A" and body["ticket"]["reasons"] == ["other"]
-    assert [s["status"] for s in body["steps"]] == ["real", "interim", "mock", "not built", "not built"]
+    assert [s["status"] for s in body["steps"]] == ["real", "real", "mock", "not built", "not built"]
     assert body["text_sha256"] == hashlib.sha256(body["reply"]["text"].encode()).hexdigest()
     assert body["audio"]["spoken_text"] == tts.speech_text(body["reply"]["text"])
     clip = client.get(body["audio"]["url"])
@@ -172,5 +172,5 @@ def test_real_mode_over_http_with_fake_llm(client, monkeypatch):
     assert second["reply"]["tools_used"] == ["get_tracking"]
     assert "6 days late" in second["reply"]["text"]
     assert {st["name"]: st["status"] for st in second["steps"]} == {
-        "intake": "real", "router": "interim", "agent": "real", "coordinator": "not built", "response": "not built"}
+        "intake": "real", "router": "real", "agent": "real", "coordinator": "not built", "response": "not built"}
     assert second["audio"]["spoken_text"] == tts.speech_text(second["reply"]["text"])

@@ -6,7 +6,7 @@ Text and voice call the SAME function, so both channels get exactly the same ans
    order, the customer must first give the email of the account that owns it, checked with the READ tools.
    It decides nothing about the order itself.
 2. The unified workflow (callverse/integration/workflow.py): Intake -> Router -> agent -> Coordinator ->
-   response writer, each stage marked real / interim / mock / not built in the reply's `steps`.
+   response writer, each stage marked real / mock / not built in the reply's `steps`.
 
 Modes: REAL = the LLM agents run (needs GROQ_API_KEY). MOCK = everything runs for real EXCEPT the LLM agent,
 whose answer is replaced by a labelled demo text; a MOCK reply never looks like a real decision.

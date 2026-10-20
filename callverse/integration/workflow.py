@@ -4,7 +4,6 @@
 
 run() returns the reply AND a list of `steps`, one per stage, each with a status:
   real      the team's implemented component ran
-  interim   a temporary stand-in that applies already-approved rules (only the router, see interim_router.py)
   mock      the LLM agent was replaced by a labelled demo text (no API key)
   not built the component does not exist yet; the workflow did the safe thing instead (said in `detail`)
   skipped   the stage was not needed for this turn (e.g. no action to validate)
@@ -15,7 +14,8 @@ withholds the answer if the agent's tools read orders or clients outside what th
 """
 
 from callverse import trace
-from callverse.integration import components, interim_router
+from callverse.integration import components
+from callverse.queues import router
 
 TEXTS = {
     "en": {
@@ -105,10 +105,9 @@ def run(session, text: str, lang: str, mode: str, chat_fn=None) -> dict:
     steps.append(_step("intake", "real", **summary))
     reply["ticket"] = summary
 
-    # 2. Router (the team's T04 router when merged; until then the interim one with the approved T04 rules).
-    team_router = components.get("router")
-    route = team_router(ticket) if team_router else interim_router.route(ticket)
-    steps.append(_step("router", "real" if team_router else "interim", agent=route["agent"], layer=route.get("layer"),
+    # 2. Router: Yassine's T04 rules (callverse/queues/router.py, config.yaml -> queues.routes).
+    route = router.route(ticket)
+    steps.append(_step("router", "real", agent=route["agent"], layer=route.get("layer"),
                        reason=route.get("reason"), priority=route.get("priority_label")))
     reply["route"] = {k: route.get(k) for k in ("agent", "layer", "reason", "priority_label")}
 

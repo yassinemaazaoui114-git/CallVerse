@@ -2,7 +2,8 @@
 
 Why at call time: when a teammate's branch is merged (router T04, Coordinator, SLM T05, Agent B), the
 workflow picks the real module up with NO change here. Each entry is (module, name) = the interface the
-task files define:
+task files define (the T04 router is merged and is now imported directly by workflow.py; it stays listed
+here only for /api/health):
   - router       callverse/queues/router.py        route(ticket) -> {agent, layer, reason, priority_label}  (T04)
   - coordinator  callverse/coordinator/coordinator.py  review(proposal) -> decision                        (Brief #2)
   - slm          callverse/slm/writer.py           write_reply(decision, history=None) -> {reply, ...}      (T05)
