@@ -10,3 +10,9 @@ torch>=2.4
 transformers>=4.44
 sentence-transformers>=3.0
 numpy>=1.26
+
+# Local platform server (task P05): FastAPI app served by uvicorn on 127.0.0.1 only.
+# httpx is used by FastAPI's TestClient (tests and the HTTP demo).
+fastapi>=0.110
+uvicorn>=0.29
+httpx>=0.27

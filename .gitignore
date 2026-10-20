@@ -11,3 +11,6 @@ callverse/intake/data/reason_vectors.npz
 __pycache__/
 .pytest_cache/
 .venv/
+
+# Downloaded speech models (voice channel): rebuilt by scripts/download_voice_models.py
+models/

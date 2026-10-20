@@ -49,6 +49,7 @@ callverse/          the code
   data/               placeholder ShopNova database (seed.py)
   tools/              tool functions + per-agent allow-lists (registry.py)
   agents/             base agent loop + Agent A
+  web/                customer website: text + voice chat (speech-to-text, text-to-speech), see below
   kb/ coordinator/ queues/ notifier/ intake/ slm/ simulator/   empty, filled by later tasks
 scripts/            runnable entry points (run_demo.py)
 tests/              pytest tests (no API key needed)
@@ -81,6 +82,39 @@ Every row has two labels so AI-generated data is always visible:
 - Rows created while the system runs (refunds, subscriptions, events) get `0 / 0`.
 
 `python -m scripts.data_summary` prints the counts per table, per status, and how many rows are generated or scripted.
+
+## Run the platform server
+
+The ShopNova platform can run as a small web server **on this PC only** (`127.0.0.1`, not reachable from the network):
+
+```powershell
+python scripts/run_platform_server.py
+```
+
+- Dashboard (read-only): <http://127.0.0.1:8000/> — company profile, orders with AI-generated / scripted labels,
+  policies, refunds, subscriptions, events and the last trace lines.
+- All endpoints: <http://127.0.0.1:8000/docs> (FastAPI's API page). Agents call tools with `POST /tools/{name}`,
+  which checks their allow-list.
+- Writes (`/coordinator/*`, `/layer3/decide`, `/admin/reset`) are **off** unless you put a value in
+  `PLATFORM_COORDINATOR_TOKEN` in `.env` and send it in the `X-Coordinator-Token` header.
+- Demo through the HTTP endpoints, no second terminal needed: `python scripts/demo_platform_http.py`.
+
+Details: [docs/platform_contract.md](docs/platform_contract.md) section 8.
+
+## Voice + text website (branch `integration/platform-voice`)
+
+Customers can type **or speak** to CallVerse and get a written and spoken answer, over many turns.
+Voice is a channel adapter: speech-to-text (Groq Whisper, backup: faster-whisper in the server) → identity
+check → **Intake → Router → Agent → Coordinator → response writer** (the same workflow for text and voice)
+→ the reply is spoken by a Piper voice. Each reply shows which stages are real, interim or not built yet
+([docs/integration.md](docs/integration.md)). MOCK mode (no API key) replaces only the LLM agent, clearly labelled.
+
+```bash
+pip install -r requirements-voice.txt
+python -m scripts.download_voice_models   # once, ~210 MB into ./models
+python -m scripts.run_web                 # http://127.0.0.1:8080/
+```
+Docker / Hugging Face Spaces deployment, API, security and limits: [docs/voice_channel.md](docs/voice_channel.md).
 
 ## For the platform builder
 
