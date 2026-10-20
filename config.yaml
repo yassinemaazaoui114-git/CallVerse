@@ -58,6 +58,38 @@ intake:
     # label: high if priority >= high, medium if >= medium, else low
     labels: {high: 0.6, medium: 0.35}
 
+# Voice + text WEB channel (callverse/web, I01 extension of the voice channel V01). It is a CHANNEL ADAPTER:
+# audio -> text at the door, the approved reply -> audio at the exit; it never decides anything itself.
+# The Groq speech-to-text model comes from the V01 `voice.stt` section (one place).
+web_channel:
+  # auto = "real" when the agents' API key (GROQ_API_KEY) is set, otherwise "mock".
+  # real = the LLM agents answer. mock = everything runs except the LLM agent (labelled demo reply).
+  mode: auto
+  languages: [en, fr]
+  stt:
+    # Tried in order. groq = voice.stt (Whisper on Groq's API, needs GROQ_API_KEY);
+    # faster_whisper = the open-source Whisper model running inside our own server container (CPU), no key.
+    providers: [groq, faster_whisper]
+    # "base": in our round-trip test (Piper voice -> Whisper) it was as accurate as "small" and 3x faster.
+    faster_whisper: {model: "base", compute_type: "int8", cpu_threads: 2}
+  tts:
+    # piper = open-source voices that run on any server CPU (cloud-friendly);
+    # pyttsx3 = the V01 engine (voice.tts: the computer's own voices; needs Windows voices or espeak-ng).
+    engine: piper
+    # Piper voices, chosen by a round-trip test and by their data licence:
+    # cori = LibriVox (public domain) recordings, upmc = CC BY-SA 4.0.
+    voices: {en: "en_GB-cori-medium", fr: "fr_FR-upmc-medium"}
+  limits:
+    max_audio_bytes: 5000000      # 5 MB
+    max_audio_seconds: 30
+    max_text_chars: 1000
+    turns_per_session_per_10min: 30
+    turns_per_ip_per_hour: 120
+    turns_global_per_hour: 600    # whole site, protects the shared API quota
+    sessions_per_ip_per_hour: 30
+    session_ttl_minutes: 60
+    max_history_turns: 10         # user+assistant pairs kept as conversation context
+
 # Queues (task T04): rules, not an LLM, so every routing decision is predictable and explainable.
 # main_reason -> agent. Layer L1 = the first-line agents A and B.
 queues:
@@ -69,3 +101,10 @@ queues:
     return_item: B
     damaged_item: B
     other: A
+
+# Voice channel (task V01): speech-to-text at the door, text-to-speech at the exit. The rest of CallVerse
+# (Intake -> agents -> Coordinator -> SLM) does not change: voice is just another channel.
+# stt.provider is a key of `providers` above (base_url + key_env), so the key stays in .env.
+voice:
+  stt: {provider: groq, model: whisper-large-v3-turbo}
+  tts: {engine: pyttsx3, rate: 170}

@@ -1,0 +1,12 @@
+# Voice + text web channel (callverse/web). Install with: pip install -r requirements-voice.txt
+# fastapi, uvicorn and httpx come from requirements.txt (platform server, P05).
+-r requirements.txt
+
+python-multipart>=0.0.9   # file uploads (voice messages)
+
+# Speech models, all running on the server CPU (no GPU, no paid service):
+faster-whisper>=1.1       # speech-to-text fallback when Groq is not available
+# faster-whisper 1.2 calls av.open(metadata_errors=...), which newer PyAV releases removed
+# (verified: av 19 fails, av 15.1 works).
+av>=12,<16
+piper-tts>=1.3            # text-to-speech (engine licence: GPL-3.0; voice licences in docs/voice_channel.md)

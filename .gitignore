@@ -11,3 +11,10 @@ callverse/intake/data/reason_vectors.npz
 __pycache__/
 .pytest_cache/
 .venv/
+
+# Downloaded speech models (voice channel): rebuilt by scripts/download_voice_models.py
+models/
+
+# Voice channel (V01): recordings are personal data, never committed; generated replies too.
+samples/voice/
+out/

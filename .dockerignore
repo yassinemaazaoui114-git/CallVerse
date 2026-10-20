@@ -1,0 +1,12 @@
+# Never copy secrets, local data or caches into the image.
+.env
+.env.*
+!.env.example
+.git
+.venv
+venv
+traces
+*.db
+models
+**/__pycache__
+.pytest_cache
