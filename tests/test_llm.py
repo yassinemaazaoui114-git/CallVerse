@@ -73,3 +73,61 @@ def test_does_not_fall_back_on_400(monkeypatch):
         llm.chat("agents", [{"role": "user", "content": "hi"}])
 
     assert called == ["first"]  # the second model was never tried
+
+
+# ---------- T07: rate limit with "retry-after" ----------
+
+def rate_limit_error(retry_after: str):
+    response = httpx.Response(429, headers={"retry-after": retry_after},
+                              request=httpx.Request("POST", "https://fake.example"))
+    return openai.RateLimitError("rate limit", response=response, body=None)
+
+
+def install_rate_limited_client(monkeypatch, retry_after: str):
+    """Model "first" answers 429 (with retry-after) the first time, then answers; "second" always answers."""
+    called, waits = [], []
+
+    class FakeOpenAI:
+        def __init__(self, **kwargs):
+            self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
+
+        def create(self, model, messages, **kwargs):
+            called.append(model)
+            if model == "first" and called.count("first") == 1:
+                raise rate_limit_error(retry_after)
+            message = SimpleNamespace(content=f"answer from {model}", tool_calls=None)
+            return SimpleNamespace(choices=[SimpleNamespace(message=message)], usage=None)
+
+    monkeypatch.setattr(llm, "OpenAI", FakeOpenAI)
+    monkeypatch.setattr(llm, "load_config", lambda: {**FAKE_CONFIG, "llm": {"max_retry_wait_s": 20}})
+    monkeypatch.setattr(llm, "_sleep", waits.append)      # record the wait instead of sleeping
+    monkeypatch.setenv("FAKE_API_KEY", "not-a-real-key")
+    return called, waits
+
+
+def test_short_retry_after_waits_and_retries_the_same_model(monkeypatch):
+    called, waits = install_rate_limited_client(monkeypatch, "2")
+    reply = llm.chat("agents", [{"role": "user", "content": "hi"}])
+    assert waits == [2.0] and called == ["first", "first"]
+    assert reply.content == "answer from first"
+
+
+def test_long_retry_after_moves_to_the_next_model(monkeypatch):
+    called, waits = install_rate_limited_client(monkeypatch, "60")
+    reply = llm.chat("agents", [{"role": "user", "content": "hi"}])
+    assert waits == [] and called == ["first", "second"]
+    assert reply.content == "answer from second"
+
+
+def test_forced_model_is_the_only_one_tried(monkeypatch):
+    called = install_fake_client(monkeypatch, status_error(openai.RateLimitError, 429))
+    monkeypatch.setenv("CALLVERSE_FORCE_AGENTS_MODEL", "second")
+    assert llm.chat("agents", [{"role": "user", "content": "hi"}]).content == "answer from second"
+    assert called == ["second"]
+
+
+def test_tool_call_extras_kept_only_for_providers_that_need_them():
+    messages = [{"role": "assistant", "content": "", "tool_calls": [
+        {"id": "1", "type": "function", "function": {"name": "f", "arguments": "{}"}, "extra_content": {"x": 1}}]}]
+    assert "extra_content" in llm.messages_for({"tool_call_extras": True}, messages)[0]["tool_calls"][0]
+    assert "extra_content" not in llm.messages_for({}, messages)[0]["tool_calls"][0]

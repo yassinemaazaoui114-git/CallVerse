@@ -68,13 +68,13 @@ GOOD = {"order_id": 4512, "amount": 59.90, "rule_id": "R-REF-03",
         "user_confirmed": True, "user_quote": "I want my money back."}
 
 
-def test_propose_refund_gives_an_id_and_writes_nothing():
+def test_propose_refund_submits_and_writes_nothing():
     out = run_tool("B", "propose_refund", GOOD)
-    assert out == {"proposal_id": "P-0001", "status": "submitted to Coordinator"}
-    assert proposal_tools.get_proposal("P-0001")["amount"] == 59.90
+    assert out == {"status": "submitted to Coordinator"}
     assert "proposal" in trace_steps()
     assert run_tool("B", "get_refunds", {"order_id": 4512})["refunds"] == []    # no database write
-    assert run_tool("B", "propose_refund", GOOD)["proposal_id"] == "P-0002"
+    # the platform shape the Coordinator receives (T07)
+    assert proposal_tools.refund_proposal("B", GOOD)["params"] == {"order_id": 4512, "amount": 59.90}
 
 
 @pytest.mark.parametrize("field, bad", [
@@ -86,7 +86,6 @@ def test_propose_refund_gives_an_id_and_writes_nothing():
 def test_propose_refund_refuses_bad_fields(field, bad):
     out = run_tool("B", "propose_refund", {**GOOD, field: bad})
     assert out["error"].startswith("proposal refused") and field in out["error"]
-    assert proposal_tools.get_proposal("P-0001") is None
 
 
 def test_propose_refund_refuses_missing_rule_id():
@@ -112,7 +111,9 @@ def test_ask_agent_returns_answer_and_facts():
     out = run_tool("B", "ask_agent", {"agent": "A", "question": "Is 4512 late?"},
                    chat_fn=lambda role_key, messages, tools=None: next(replies))
     assert out["answer"] == "6 days late."
-    assert out["facts"][0]["tool"] == "get_tracking" and out["facts"][0]["result"]["days_late"] == 6
+    # T07: compact facts only (not A's whole transcript)
+    assert out["facts"]["source"] == "get_tracking" and out["facts"]["days_late"] == 6
+    assert out["facts"]["delivered"] is False and "carrier" not in out["facts"]
 
 
 # ---------- Agent B in the pipeline ----------
@@ -137,7 +138,7 @@ def scripted_llm():
     return fake
 
 
-def test_route_b_runs_agent_b_and_returns_the_proposal(monkeypatch):
+def test_route_b_runs_agent_b_and_the_coordinator_approves(monkeypatch):
     # stubbed search: no model needed in this test
     monkeypatch.setattr(search, "search_policy", lambda query, k=3: [{"id": "R-REF-03", "title": "", "text": "", "score": 1.0}])
     ticket = {"ticket_id": "T-B", "text": "Order 4512 is a week late. I want my money back.",
@@ -146,9 +147,10 @@ def test_route_b_runs_agent_b_and_returns_the_proposal(monkeypatch):
 
     assert out["route"]["agent"] == "B" and out["handover"] == "B"
     assert out["handover_text"] == "Your request is passed on for a refund check."
-    assert out["proposal"]["proposal_id"] == "P-0001"
-    assert out["proposal"]["amount"] == 59.90 and out["proposal"]["rule_id"] == "R-REF-03"
-    assert out["proposal"]["user_confirmed"] is True
+    assert out["proposal"]["params"] == {"order_id": 4512, "amount": 59.90}
+    assert out["proposal"]["rule_id"] == "R-REF-03" and out["proposal"]["user_confirmed"] is True
+    assert out["decision"]["outcome"] == "approve" and out["decision"]["proposal_id"] == "P-0001"
+    assert run_tool("B", "get_refunds", {"order_id": 4512})["refunded_total"] == 59.90
     assert "R-REF-03" in out["answer"] and "**" not in out["answer"]
 
 

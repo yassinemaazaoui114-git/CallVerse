@@ -30,6 +30,8 @@ def show(out: dict) -> None:
     print(f"Handover : {out['handover'] or 'none'}" + (f"  ({out['handover_text']})" if out['handover_text'] else ""))
     print(f"Answer   : {out['answer']}")
     print(f"Proposal : {out['proposal'] or 'none'}")
+    d = out["decision"]
+    print(f"Decision : {d['outcome']} {d['proposal_id']} ({d['reason']})" if d else "Decision : none")
 
 
 def main() -> None:
