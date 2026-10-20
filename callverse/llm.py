@@ -44,7 +44,11 @@ def chat(role_key: str, messages: list[dict], tools: list[dict] | None = None):
         provider_name, model = entry["provider"], entry["model"]
         provider = cfg["providers"][provider_name]
 
-        api_key = os.getenv(provider["key_env"])
+        if provider.get("key_env") is None:
+            # Local provider (Ollama): no key needed. The SDK still wants a non-empty string.
+            api_key = "local-no-key"
+        else:
+            api_key = os.getenv(provider["key_env"])
         if not api_key:
             reason = f"missing {provider['key_env']} in .env"
             trace.log("llm_skip", "llm", {"role": role_key, "provider": provider_name,

@@ -9,6 +9,8 @@ providers:
   groq:       {base_url: "https://api.groq.com/openai/v1", key_env: GROQ_API_KEY}
   openrouter: {base_url: "https://openrouter.ai/api/v1",   key_env: OPENROUTER_API_KEY}
   google:     {base_url: "https://generativelanguage.googleapis.com/v1beta/openai/", key_env: GOOGLE_API_KEY}
+  # Local Ollama server (task T05). key_env: null = no API key needed (the model runs on this PC).
+  ollama:     {base_url: "http://localhost:11434/v1", key_env: null}
 
 # Each role lists models tried in order: if one fails on the provider's side (rate limit, model not
 # found, server error, unreachable), the next one is used. See callverse/llm.py.
@@ -20,6 +22,10 @@ models:
   simulator: # M1, different family (used in task 4)
     # Supervisor decision: the Gemini Flash model this account can access. To verify at task 4.
     - {provider: google,     model: "gemini-3.8-flash"}
+  slm:       # M5, the reply writer (task T05): small local model, no tools, never reads the database.
+    # Task rule: qwen2.5:3b, or qwen2.5:1.5b if the PC has < 4 GB free VRAM. This PC: RTX 3050 Ti Laptop,
+    # 4 GB total, ~3.3 GB free -> qwen2.5:1.5b (Apache 2.0). Switch back by editing this line only.
+    - {provider: ollama,     model: "qwen2.5:1.5b"}
 
 # Layer 3 stub (ShopNova finance). Refunds above 300 TND go to finance: that threshold is in rule
 # R-ESC-01's condition (callverse/kb/policies_shopnova.json). The stub approves up to this amount
