@@ -21,6 +21,10 @@ from callverse.config import PROJECT_ROOT, load_config
 load_dotenv(PROJECT_ROOT / ".env")
 
 
+# Per-model options that config.yaml may add to a model entry; they are passed to the API as they are.
+SAMPLING_SETTINGS = ("temperature", "seed", "top_p", "max_tokens")
+
+
 class AllModelsFailed(RuntimeError):
     """Raised when every model of a role was skipped or failed."""
 
@@ -91,7 +95,11 @@ def chat(role_key: str, messages: list[dict], tools: list[dict] | None = None):
         provider_name, model = entry["provider"], entry["model"]
         provider = cfg["providers"][provider_name]
 
-        api_key = os.getenv(provider["key_env"])
+        if provider.get("key_env") is None:
+            # Local provider (Ollama): no key needed. The SDK still wants a non-empty string.
+            api_key = "local-no-key"
+        else:
+            api_key = os.getenv(provider["key_env"])
         if not api_key:
             reason = f"missing {provider['key_env']} in .env"
             trace.log("llm_skip", "llm", {"role": role_key, "provider": provider_name,
@@ -105,6 +113,11 @@ def chat(role_key: str, messages: list[dict], tools: list[dict] | None = None):
         request = {"model": model, "messages": messages_for(provider, messages), **entry.get("options", {})}
         if tools:
             request["tools"] = tools
+        # Optional sampling settings written next to the model in config.yaml (e.g. the SLM uses
+        # temperature 0 + seed so the same decision gives the same reply). Not set -> not sent.
+        for setting in SAMPLING_SETTINGS:
+            if setting in entry:
+                request[setting] = entry[setting]
 
         response = None
         for attempt in (1, 2):

@@ -11,6 +11,8 @@ providers:
   # tool_call_extras: Gemini needs the extra fields of its tool calls sent back (see llm.messages_for).
   google:     {base_url: "https://generativelanguage.googleapis.com/v1beta/openai/", key_env: GOOGLE_API_KEY,
                tool_call_extras: true}
+  # Local Ollama server (task T05). key_env: null = no API key needed (the model runs on this PC).
+  ollama:     {base_url: "http://localhost:11434/v1", key_env: null}
 
 # Rate limit (429): wait and retry the same model once if the provider asks for at most this many
 # seconds ("retry-after"); a longer wait moves on to the next model (T07).
@@ -31,6 +33,12 @@ models:
   simulator: # M1, different family (used in task 4)
     # Supervisor decision: the Gemini Flash model this account can access. To verify at task 4.
     - {provider: google,     model: "gemini-3.8-flash"}
+  slm:       # M5, the reply writer (task T05): small local model, no tools, never reads the database.
+    # T05b rule: qwen2.5:3b if free VRAM >= 2.5 GB and a reply takes <= 10 s, else qwen2.5:1.5b.
+    # This PC: RTX 3050 Ti Laptop, 4 GB, 3.3 GB free; 3b uses 2.0 GB, 2.6-3.8 s per reply -> qwen2.5:3b
+    # (Qwen licence). Fallback: "qwen2.5:1.5b" (Apache 2.0), same settings. Switch by editing this line only.
+    # temperature 0 + seed: the same decision always gives the same reply (reproducible evaluation).
+    - {provider: ollama,     model: "qwen2.5:3b", temperature: 0, seed: 42}
 
 # Layer 3 stub (ShopNova finance). Refunds above 300 TND go to finance: that threshold is in rule
 # R-ESC-01's condition (callverse/kb/policies_shopnova.json). The stub approves up to this amount
@@ -97,3 +105,30 @@ coordinator:
     subscribe: [R-NOT-01, R-DEL-02]
   # A case may be sent back to the agent this many times; the next send-back becomes "escalate".
   max_send_backs: 2
+
+# SLM reply writer (tasks T05, T05b): rule-check settings and the calm openers added by code.
+slm:
+  # Forbidden promises / wordings: [regex (lower case text), keyword]. A match is allowed only when the
+  # keyword appears in the decision itself (facts, next_step, must_say): then the Coordinator approved it.
+  # Found on the dev set and the spent v1 set, never on the held-out v2 set.
+  forbidden:
+    - ['keep you (?:updated|informed|posted)', 'keep you']
+    - ['\b(?:we are|we''re|we will be|we''ll be|actively)\s+monitoring\b|\bmonitor(?:ing)? (?:it|your|the)\b', 'monitor']
+    - ['\bguarantee', 'guarantee']
+    - ['\bwithin (?:\d+|a|an|one|two|three|four|five|six|seven|the next|a few|few)\s*(?:\w+\s)?(?:hours?|days?|business days|working days|minutes?|weeks?)\b', 'within']
+    - ['\b(?:we will|we''ll|i will|i''ll) (?:contact|call|chase|reach out to) the carrier', 'carrier']
+    - ['\b(?:we will|we''ll|i will|i''ll) (?:notify|alert|inform) you\b|\byou will (?:be notified|receive a notification)', 'notif']
+    - ['\b(?:as soon as possible|asap|right away|immediately|shortly|soon|right back|in no time)\b', 'soon']
+    - ['\bkeep an eye\b|\b(?:any|further|future|more) updates?\b|\bbe in touch\b', 'update']
+    - ['\b(?:compensation|voucher|discount|coupon|gift card)\b', 'compensation']
+    # T05b additions (seen in v1 / dev replies)
+    - ['\bcontact\b[^.!?]{0,40}\bdirectly\b', 'directly']
+    - ['\bas (?:quickly|fast) as (?:possible|we can)\b', 'quickly']
+    - ['\bminimum threshold\b|\b(?:did|does) not (?:meet|reach) the\b|\bbelow the threshold\b', 'minimum']
+    - ['\bcommitted to (?:resolving|fixing|solving)\b', 'committed']
+    - ['\btechnical (?:issue|problem|error)\b', 'technical']
+  # Fixed first sentence when the client is upset (shouting or negative sentiment), chosen by formality.
+  calm_openers:
+    formal: "Please accept our apologies for the trouble."
+    casual: "I'm really sorry for the trouble."
+    neutral: "I'm sorry for the trouble."
