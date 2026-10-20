@@ -58,22 +58,25 @@ intake:
     # label: high if priority >= high, medium if >= medium, else low
     labels: {high: 0.6, medium: 0.35}
 
-# Voice + text web channel (callverse/web). It is a CHANNEL ADAPTER: it turns audio into text and the
-# approved reply into audio. It never decides anything itself; business logic stays in the agents.
-voice:
+# Voice + text WEB channel (callverse/web, I01 extension of the voice channel V01). It is a CHANNEL ADAPTER:
+# audio -> text at the door, the approved reply -> audio at the exit; it never decides anything itself.
+# The Groq speech-to-text model comes from the V01 `voice.stt` section (one place).
+web_channel:
   # auto = "real" when the agents' API key (GROQ_API_KEY) is set, otherwise "mock".
-  # real = Agent A answers (the only agent built so far). mock = fixed demo replies, no agent, no data.
+  # real = the LLM agents answer. mock = everything runs except the LLM agent (labelled demo reply).
   mode: auto
   languages: [en, fr]
   stt:
-    # Speech-to-text providers, tried in order. groq = Whisper on Groq's API (needs GROQ_API_KEY);
-    # faster_whisper = the open-source Whisper model running inside our own server container (CPU).
+    # Tried in order. groq = voice.stt (Whisper on Groq's API, needs GROQ_API_KEY);
+    # faster_whisper = the open-source Whisper model running inside our own server container (CPU), no key.
     providers: [groq, faster_whisper]
-    groq: {provider: groq, model: "whisper-large-v3-turbo"}
     # "base": in our round-trip test (Piper voice -> Whisper) it was as accurate as "small" and 3x faster.
     faster_whisper: {model: "base", compute_type: "int8", cpu_threads: 2}
   tts:
-    # Piper voices (open source, run on the server CPU). Chosen by a round-trip test and by their data licence:
+    # piper = open-source voices that run on any server CPU (cloud-friendly);
+    # pyttsx3 = the V01 engine (voice.tts: the computer's own voices; needs Windows voices or espeak-ng).
+    engine: piper
+    # Piper voices, chosen by a round-trip test and by their data licence:
     # cori = LibriVox (public domain) recordings, upmc = CC BY-SA 4.0.
     voices: {en: "en_GB-cori-medium", fr: "fr_FR-upmc-medium"}
   limits:

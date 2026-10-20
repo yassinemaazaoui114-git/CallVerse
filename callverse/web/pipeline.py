@@ -112,12 +112,12 @@ def _orders_label(orders: list[int]) -> str:
 # Mode
 # ---------------------------------------------------------------------------
 def resolve_mode() -> str:
-    """'real' or 'mock' from config.yaml voice.mode (auto = real only when the agents' API key is set)."""
+    """'real' or 'mock' from config.yaml web_channel.mode (auto = real only when the agents' API key is set)."""
     import os
 
     from callverse import llm  # noqa: F401  (importing llm loads .env, where the key lives)
 
-    mode = load_config()["voice"]["mode"]
+    mode = load_config()["web_channel"]["mode"]
     if mode in ("real", "mock"):
         return mode
     cfg = load_config()
@@ -196,7 +196,7 @@ def handle_turn(session: Session, text: str, lang: str | None = None, channel: s
     from callverse.integration import workflow
 
     start = time.perf_counter()
-    supported = load_config()["voice"]["languages"]
+    supported = load_config()["web_channel"]["languages"]
     lang = lang if lang in supported else guess_language(text)
     if lang not in supported:
         lang = "en"
@@ -207,7 +207,7 @@ def handle_turn(session: Session, text: str, lang: str | None = None, channel: s
         reply = workflow.run(session, question, lang, mode, chat_fn=chat_fn)
 
     # Conversation context for the next turns: only what the customer said and what was shown.
-    max_turns = load_config()["voice"]["limits"]["max_history_turns"]
+    max_turns = load_config()["web_channel"]["limits"]["max_history_turns"]
     session.history += [{"role": "user", "content": text}, {"role": "assistant", "content": reply["text"]}]
     session.history = session.history[-2 * max_turns:]
     session.turns += 1

@@ -1,8 +1,8 @@
-# V01 — Voice + text customer channel (Semah's lane, proposed)
+# W01 — Web voice + text customer channel (Semah's lane; extension of V01, part of I01)
 
-> **Status: WAITING FOR APPROVAL.** Built by the Builder at Semah's request on the local branch
-> `feature/multimodal-voice` (from `main` fb187b5). Not committed, not pushed: CLAUDE.md rule 1 needs the
-> "Git" section below approved by Yassine first. `tasks/NEXT.md` is not touched.
+> Renamed from "V01" to **W01** so it does not clash with the approved task `tasks/V01_voice_channel.md`
+> (CLI voice channel, branch `feature/voice`). Built before that task file was known, on the local branch
+> `feature/multimodal-voice`; it reaches GitHub only as part of I01. Its extra libraries need approval (I01 report).
 
 ## Why
 Customers must be able to type **or speak** to CallVerse and hear the answer. Voice must be a channel
@@ -22,5 +22,5 @@ adapter (same business logic as text), fully cloud-hostable, with no paid servic
 - All old tests pass; new unit, API, speech and browser tests pass; Docker image runs.
 
 ## Git (TO BE APPROVED BY YASSINE)
-- Commit on branch `feature/multimodal-voice` (from `main` fb187b5): all files listed in `tasks/V01_report.md`.
+- Commit on branch `feature/multimodal-voice` (from `main` fb187b5): all files listed in `tasks/W01_report.md`.
 - Push `feature/multimodal-voice`; open a PR to `main` for review. **Do not merge.**

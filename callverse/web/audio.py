@@ -61,7 +61,7 @@ def duration_seconds(data: bytes, stop_after: float) -> float:
 
 def validate(data: bytes) -> dict:
     """Check an upload and return {"format", "mime", "seconds", "bytes"}; raise AudioError if refused."""
-    limits = load_config()["voice"]["limits"]
+    limits = load_config()["web_channel"]["limits"]
     if not data:
         raise AudioError(400, "empty_audio", "The recording is empty.")
     if len(data) > limits["max_audio_bytes"]:

@@ -1,4 +1,4 @@
-# V01 report — Voice + text customer channel
+# W01 report — Web voice + text customer channel (formerly "V01", see tasks/W01_web_voice_channel.md)
 
 ## 1. In plain words
 CallVerse now has a customer website. A client can type a message or press the microphone and speak. The
@@ -29,7 +29,7 @@ cloud service can host.
 - `scripts/run_web.py`, `scripts/download_voice_models.py`
 - `Dockerfile`, `.dockerignore`, `deploy/huggingface/README.md` (Space header), `requirements-voice.txt`
 - Tests: `tests/test_web_pipeline.py` (26), `tests/test_web_speech.py` (24), `tests/test_web_api.py` (15), `tests/test_web_browser.py` (2, opt-in)
-- Docs: `docs/voice_channel.md` (flow, choices, API, run, deploy, licences, security, limits), and this report plus `tasks/V01_multimodal_voice.md`
+- Docs: `docs/voice_channel.md` (flow, choices, API, run, deploy, licences, security, limits), and this report plus `tasks/W01_web_voice_channel.md`
 
 **Changed:**
 - `config.yaml`: new `voice:` section only.
@@ -75,7 +75,7 @@ Secret scan of the working tree: 0 matches. `git status`: only the files above.
 - **Single process:** sessions, rate limits and the audio cache live in memory.
 
 ## 5. Questions for the Brain
-1. Approve the Git section of `tasks/V01_multimodal_voice.md` (commit, push `feature/multimodal-voice`, PR to `main`, no merge)?
+1. Approve the Git section of `tasks/W01_web_voice_channel.md` (commit, push `feature/multimodal-voice`, PR to `main`, no merge)?
 2. Is the identity check (email of the order) the right rule for the prototype, or should it move into a shared "customer identity" step later used by Intake?
 3. When the Coordinator and SLM exist: should `pipeline.real_reply()` call one orchestrator function (proposal: `handle_turn(session_id, text, channel, lang) -> {final_text, ...}`)?
 4. Create a lane file (`tasks/NEXT_VOICE.md`) for Semah, like Dali's platform lane?

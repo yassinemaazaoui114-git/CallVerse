@@ -1,6 +1,6 @@
 """Speech-to-text: voice message (bytes) -> text, with a backup chain like llm.py.
 
-Providers are tried in the order of config.yaml (voice.stt.providers):
+Providers are tried in the order of config.yaml (web_channel.stt.providers):
   - groq           Whisper large-v3-turbo on Groq's API. Reuses the providers/key_env of config.yaml
                    (the same GROQ_API_KEY as the agents); the key stays on the server, never in the browser.
   - faster_whisper The open-source Whisper model running inside our own server (CPU). Works with no key.
@@ -38,7 +38,7 @@ def _groq(audio: bytes, fmt: str, mime: str, language: str | None) -> tuple[str,
     from openai import APIConnectionError, APIStatusError, OpenAI
 
     cfg = load_config()
-    entry = cfg["voice"]["stt"]["groq"]
+    entry = cfg["voice"]["stt"]          # V01 section: {provider: groq, model: whisper-large-v3-turbo}
     provider = cfg["providers"][entry["provider"]]
     api_key = os.getenv(provider["key_env"])
     if not api_key:
@@ -71,7 +71,7 @@ _model_lock = threading.Lock()
 def _whisper_model():
     from faster_whisper import WhisperModel
 
-    cfg = load_config()["voice"]["stt"]["faster_whisper"]
+    cfg = load_config()["web_channel"]["stt"]["faster_whisper"]
     return WhisperModel(cfg["model"], device="cpu", compute_type=cfg["compute_type"],
                         cpu_threads=cfg["cpu_threads"], download_root=str(whisper_dir()))
 
@@ -93,7 +93,7 @@ PROVIDERS = {"groq": _groq, "faster_whisper": _faster_whisper}
 def transcribe(audio: bytes, fmt: str, mime: str, language: str | None = None) -> dict:
     """Return {"text", "language", "provider", "seconds"}. `language` = "en"/"fr" hint, or None to detect."""
     errors = []
-    for name in load_config()["voice"]["stt"]["providers"]:
+    for name in load_config()["web_channel"]["stt"]["providers"]:
         start = time.perf_counter()
         try:
             text, detected = PROVIDERS[name](audio, fmt, mime, language)
@@ -103,7 +103,7 @@ def transcribe(audio: bytes, fmt: str, mime: str, language: str | None = None) -
             continue
         seconds = round(time.perf_counter() - start, 3)
         text = (text or "").strip()
-        trace.log("stt", "web", {"provider": name, "language": detected, "seconds": seconds, "text": text})
+        trace.log("stt_call", "web", {"provider": name, "language": detected, "seconds": seconds, "text": text})
         if not text:
             raise SpeechError("no_speech", "I could not hear any words. Please try again closer to the microphone.")
         return {"text": text, "language": detected or language, "provider": name, "seconds": seconds}
@@ -115,9 +115,9 @@ def available_providers() -> list[str]:
     """Providers that look usable now (for /api/health): groq needs its key; faster_whisper needs the library."""
     cfg = load_config()
     found = []
-    for name in cfg["voice"]["stt"]["providers"]:
+    for name in cfg["web_channel"]["stt"]["providers"]:
         if name == "groq":
-            key_env = cfg["providers"][cfg["voice"]["stt"]["groq"]["provider"]]["key_env"]
+            key_env = cfg["providers"][cfg["voice"]["stt"]["provider"]]["key_env"]
             if os.getenv(key_env):
                 found.append(name)
         elif name == "faster_whisper":

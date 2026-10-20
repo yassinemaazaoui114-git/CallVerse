@@ -37,7 +37,7 @@ def speech_text(text: str) -> str:
 
 
 def voice_for(language: str | None) -> str:
-    voices = load_config()["voice"]["tts"]["voices"]
+    voices = load_config()["web_channel"]["tts"]["voices"]
     return voices.get(language or "en", voices["en"])
 
 
@@ -76,10 +76,10 @@ def synthesize(text: str, language: str | None = None) -> dict:
         seconds = wav.getnframes() / float(wav.getframerate())
     result = {"wav": data, "voice": name, "seconds": round(seconds, 2),
               "synthesis_seconds": round(time.perf_counter() - start, 3), "spoken_text": spoken}
-    trace.log("tts", "web", {k: v for k, v in result.items() if k != "wav"})
+    trace.log("tts_call", "web", {k: v for k, v in result.items() if k != "wav"})
     return result
 
 
 def available_voices() -> list[str]:
     """Voices of config.yaml whose model file is installed (for /api/health)."""
-    return [v for v in load_config()["voice"]["tts"]["voices"].values() if (piper_dir() / f"{v}.onnx").exists()]
+    return [v for v in load_config()["web_channel"]["tts"]["voices"].values() if (piper_dir() / f"{v}.onnx").exists()]

@@ -8,9 +8,9 @@ says, stage by stage, what ran (`steps` in the API, the panel "How CallVerse han
 ```
 Customer: text, or voice (browser microphone)
    ▼
-Speech-to-text  ............ REAL     Groq Whisper (key) → faster-whisper in the server     (Semah, V01)
+Speech-to-text  ............ REAL     Groq Whisper (key) → faster-whisper in the server     (Semah, W01)
    ▼
-Identity gate  ............. REAL     email of the order, checked with the read tools        (Semah, V01)
+Identity gate  ............. REAL     email of the order, checked with the read tools        (Semah, W01)
    ▼
 Intake  .................... REAL     reasons (M3), emotion + sentiment (M4), priority       (Yassine, T03, main)
    ▼
@@ -23,7 +23,7 @@ Coordinator  ............... NOT BUILT  no agent proposes actions today; any pro
    ▼
 Response writer (SLM) ...... NOT BUILT  the reply text is used as is                         (T05, Dali)
    ▼
-Text-to-speech  ............ REAL     Piper voice on the server                              (Semah, V01)
+Text-to-speech  ............ REAL     Piper voice on the server                              (Semah, W01)
    ▼
 Customer: text + audio (+ replay), same conversation over many turns
 ```

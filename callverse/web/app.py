@@ -29,7 +29,7 @@ from callverse.web import pipeline, stt, tts
 from callverse.web.sessions import AudioStore, RateLimiter, SessionStore
 
 STATIC = Path(__file__).resolve().parent / "static"
-LIMITS = load_config()["voice"]["limits"]
+LIMITS = load_config()["web_channel"]["limits"]
 
 app = FastAPI(title="CallVerse customer channel (text + voice)", docs_url=None, redoc_url=None, openapi_url=None)
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
@@ -129,7 +129,7 @@ def index():
 @app.get("/api/health")
 def health():
     from callverse.integration import components
-    return {"status": "ok", "mode": pipeline.resolve_mode(), "languages": load_config()["voice"]["languages"],
+    return {"status": "ok", "mode": pipeline.resolve_mode(), "languages": load_config()["web_channel"]["languages"],
             "components": {"intake": "built", "agent_a": "built", **components.status()},
             "stt_providers": stt.available_providers(), "tts_voices": tts.available_voices(),
             "limits": {"max_audio_seconds": LIMITS["max_audio_seconds"],

@@ -1,8 +1,8 @@
 """Download the models of config.yaml once, so the website never downloads at request time.
 
 Usage:  python -m scripts.download_voice_models
-- Piper voices (voice.tts.voices) from the official rhasspy/piper-voices repository on Hugging Face.
-- The faster-whisper model (voice.stt.faster_whisper.model).
+- Piper voices (web_channel.tts.voices) from the official rhasspy/piper-voices repository on Hugging Face.
+- The faster-whisper model (web_channel.stt.faster_whisper.model).
 - The Intake models (M3 embeddings, M4 emotion + sentiment), into the Hugging Face cache (HF_HOME),
   plus Intake's example-vector cache.
 Speech files go to CALLVERSE_MODELS_DIR (default: <repo>/models, git-ignored). Existing files are skipped.
@@ -44,7 +44,7 @@ def download(url: str, target: Path, attempts: int = 4) -> None:
 
 
 def main() -> None:
-    cfg = load_config()["voice"]
+    cfg = load_config()["web_channel"]
     piper_dir().mkdir(parents=True, exist_ok=True)
     for voice in cfg["tts"]["voices"].values():
         for ext in ("onnx", "onnx.json"):
