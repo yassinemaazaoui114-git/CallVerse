@@ -50,7 +50,8 @@ intake:
       damaged_item: 0.6
       other: 0.2
     late_bonus:   {days_late_over: 5,  add: 0.3}
-    amount_bonus: {paid_over: 300,     add: 0.2}
+    # "paid over" threshold = the 300 TND of rule R-ESC-01 (read by priority.py, written in one place only)
+    amount_bonus: {add: 0.2}
     # time_pressure (0-1) = min(days_late / time_pressure_days, 1); 0 when the order is delivered
     time_pressure_days: 7
     # priority = weighted sum of the three parts
@@ -69,3 +70,9 @@ queues:
     return_item: B
     damaged_item: B
     other: A
+  # Sentence that announces a handover to Agent B, per reason (T06, Brain decision).
+  # Agent A hands over only for money requests, so its handovers use refund_request.
+  handover_texts:
+    refund_request: "Your request is passed on for a refund check."
+    return_item: "Your request is passed on for a returns check."
+    damaged_item: "Your request is passed on for a damage check."

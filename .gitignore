@@ -6,6 +6,8 @@ traces/
 *.db
 # cached example embeddings of the intake (rebuilt automatically)
 callverse/intake/data/reason_vectors.npz
+# cached policy embeddings of the policy search (rebuilt automatically)
+callverse/kb/policy_vectors.npz
 
 # Python
 __pycache__/

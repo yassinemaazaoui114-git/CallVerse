@@ -1,6 +1,7 @@
 """Priority of a ticket: based on the REAL situation first, and only a little on how upset the client sounds.
 
     severity          (0-1) = base for the reason + 0.3 if days_late > 5 + 0.2 if paid > 300   (max 1)
+                              (the 300 TND is read from rule R-ESC-01, the same threshold as finance approval)
     time_pressure     (0-1) = min(days_late / 7, 1)   (0 if no order, not late, or delivered)
     emotion_intensity (0-1) = negative-sentiment score
     priority = 0.6 * severity + 0.25 * time_pressure + 0.15 * emotion_intensity
@@ -12,6 +13,7 @@ All numbers live in config.yaml (intake.priority), so they can change without to
 """
 
 from callverse.config import load_config
+from callverse.kb.policies import layer3_threshold
 
 
 def severity(reasons: list[str], days_late: int | None, paid: float | None, cfg: dict) -> float:
@@ -21,7 +23,8 @@ def severity(reasons: list[str], days_late: int | None, paid: float | None, cfg:
     value = base
     if days_late is not None and days_late > cfg["late_bonus"]["days_late_over"]:
         value += cfg["late_bonus"]["add"]
-    if paid is not None and paid > cfg["amount_bonus"]["paid_over"]:
+    # Large amount = above R-ESC-01's threshold (single source: the policy file, not config.yaml).
+    if paid is not None and paid > layer3_threshold():
         value += cfg["amount_bonus"]["add"]
     return min(value, 1.0)
 

@@ -12,9 +12,10 @@ from callverse.data.seed import seed
 
 
 def main() -> None:
+    sys.stdout.reconfigure(encoding="utf-8")   # LLM answers may hold characters the Windows console code page lacks
     message = " ".join(sys.argv[1:]) or "Hi, where is my order 4512?"
 
-    seed()                          # fresh placeholder database, so every demo starts from the same data
+    seed()                         # fresh placeholder database, so every demo starts from the same data
     trace_path = trace.start_run()  # one trace file per demo run
 
     result = AgentA().run(message)
