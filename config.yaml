@@ -1,0 +1,22 @@
+# CallVerse prototype configuration.
+# Switching model or provider = edit this file only (no code change).
+
+# Fixed "today" for the simulation, so demo runs are reproducible.
+sim_today: "2026-10-09"
+
+# OpenAI-compatible API endpoints. key_env = name of the variable in .env that holds the key.
+providers:
+  groq:       {base_url: "https://api.groq.com/openai/v1", key_env: GROQ_API_KEY}
+  openrouter: {base_url: "https://openrouter.ai/api/v1",   key_env: OPENROUTER_API_KEY}
+  google:     {base_url: "https://generativelanguage.googleapis.com/v1beta/openai/", key_env: GOOGLE_API_KEY}
+
+# Each role lists models tried in order: if one fails on the provider's side (rate limit, model not
+# found, server error, unreachable), the next one is used. See callverse/llm.py.
+models:
+  agents:    # M2, tried in order (backup chain)
+    - {provider: groq,       model: "openai/gpt-oss-120b"}
+    # Backup (supervisor decision): smaller model of the same family, free on Groq, with its own rate limits.
+    - {provider: groq,       model: "openai/gpt-oss-20b"}
+  simulator: # M1, different family (used in task 4)
+    # Supervisor decision: the Gemini Flash model this account can access. To verify at task 4.
+    - {provider: google,     model: "gemini-3.8-flash"}

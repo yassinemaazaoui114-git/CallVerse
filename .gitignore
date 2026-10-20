@@ -1,0 +1,11 @@
+# Secrets
+.env
+
+# Generated at run time
+traces/
+*.db
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
