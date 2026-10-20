@@ -33,14 +33,23 @@ This repo is the **prototype** for the next validation. The teacher grades **arc
 - Fixed demo date: `sim_today` in `config.yaml` (2026-10-09).
 
 ## Hard rules
-1. **No git commands that change history or the remote (commit, push, merge, branch, reset) unless the
-   task file's "Git" section approves them.**
+1. **Git — free on your own branch, protected on `main`.** Any teammate may, without asking:
+   `git fetch` / `git pull`, create their own branch from the latest `main`, commit on it, and push it.
+   Still **forbidden without the owners' approval** (Yassine + the branch owner): merging into `main`,
+   pushing to `main`, force push, rebase or reset of a shared branch, deleting branches, rewriting history.
 2. **Never tune or choose anything on test data.** Keep test sets separate from examples used for building.
 3. **No secrets in files.** Keys only in `.env` (git-ignored). Never print or copy keys.
 4. **Stop and ask** in the report if something is unclear, contradicts this file, or needs a decision.
 5. Do only the current task. No extra features, no architecture changes, no new libraries unless the task allows them.
 6. Respect the task's **time box**; when it runs out, stop and report what is done and what is left.
 7. Keep all tests passing. Explain new files in simple words.
+
+## Git and branches
+- `main` must always work (tests pass, demo runs). It only changes through a reviewed merge.
+- One branch per part or task, from the latest `main`: `feature/<part>` (e.g. `feature/agent-b`, `feature/voice`, `platform`).
+- Pull, commit and push **your own branch** freely; merge into `main` only after the Brain's review and the owners' OK.
+- Lanes: Yassine (core) "Do the next task" → `tasks/NEXT.md`; Dali (platform) "Do the next platform task" →
+  `tasks/NEXT_PLATFORM.md`; Semah (voice) "Do the next voice task" → `tasks/NEXT_VOICE.md`.
 
 ## Report format — `tasks/Txx_report.md`
 1. **In plain words** — 3–5 sentences a non-programmer understands.
