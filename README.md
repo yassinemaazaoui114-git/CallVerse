@@ -84,6 +84,24 @@ Every row has two labels so AI-generated data is always visible:
 
 `python -m scripts.data_summary` prints the counts per table, per status, and how many rows are generated or scripted.
 
+## Run the platform server
+
+The ShopNova platform can run as a small web server **on this PC only** (`127.0.0.1`, not reachable from the network):
+
+```powershell
+python scripts/run_platform_server.py
+```
+
+- Dashboard (read-only): <http://127.0.0.1:8000/> — company profile, orders with AI-generated / scripted labels,
+  policies, refunds, subscriptions, events and the last trace lines.
+- All endpoints: <http://127.0.0.1:8000/docs> (FastAPI's API page). Agents call tools with `POST /tools/{name}`,
+  which checks their allow-list.
+- Writes (`/coordinator/*`, `/layer3/decide`, `/admin/reset`) are **off** unless you put a value in
+  `PLATFORM_COORDINATOR_TOKEN` in `.env` and send it in the `X-Coordinator-Token` header.
+- Demo through the HTTP endpoints, no second terminal needed: `python scripts/demo_platform_http.py`.
+
+Details: [docs/platform_contract.md](docs/platform_contract.md) section 8.
+
 ## For the platform builder
 
 What the agents expect from the ShopNova mock platform (tables, tools, policies):

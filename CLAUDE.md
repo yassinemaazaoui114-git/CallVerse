@@ -74,3 +74,5 @@ traces/        run logs (git-ignored)
 ## Platform work
 Platform tasks (mock company DB, policies, write tools, clock, Layer 3 stub) are files `tasks/Pxx_*.md`.
 Follow `docs/platform.md`; `docs/platform_contract.md` wins if they disagree.
+When Dali types **"Do the next platform task"**: open `tasks/NEXT_PLATFORM.md` (not `tasks/NEXT.md`) and follow the
+same rules as above (Status READY, "Approved by" filled, write the Pxx report, set WAITING FOR REVIEW).

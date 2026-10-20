@@ -7,7 +7,8 @@ from contextlib import closing
 
 from callverse import trace
 from callverse.data import db
-from callverse.data.writes import create_refund, create_subscription, set_order_status
+from callverse.data.writes import (create_refund, create_subscription, record_decision, record_proposal,
+                                   set_order_status)
 from callverse.tools import registry
 from callverse.tools.shopnova_tools import get_refunds, get_tracking
 
@@ -21,16 +22,33 @@ def _last_trace() -> dict:
     return json.loads(trace.current_path().read_text(encoding="utf-8").splitlines()[-1])
 
 
+def _approved(order_id: int, amount: float) -> str:
+    """Record a refund proposal and the Coordinator's "approve" decision; return the proposal id."""
+    pid = record_proposal({"agent": "B", "action": "refund", "params": {"order_id": order_id, "amount": amount},
+                           "rule_id": "R-REF-03", "facts_used": {}, "user_confirmed": True})["id"]
+    record_decision(pid, "approve", "test")
+    return pid
+
+
+def _approved_sub(order_id: int, event: str) -> str:
+    """Record a subscribe proposal and an "approve" decision; return the proposal id."""
+    pid = record_proposal({"agent": "A", "action": "subscribe", "params": {"order_id": order_id, "event": event},
+                           "rule_id": "R-NOT-01", "facts_used": {}, "user_confirmed": True})["id"]
+    record_decision(pid, "approve", "test")
+    return pid
+
+
 def test_tests_use_a_temporary_db():
     assert db.db_path() != db.DEFAULT_DB_PATH
 
 
 def test_create_refund_4512():
     before = _count("refunds")
-    row = create_refund(4512, 59.90, "R-REF-03", "p-test")
+    pid = _approved(4512, 59.90)
+    row = create_refund(4512, 59.90, "R-REF-03", pid)
     assert _count("refunds") == before + 1
     assert row["status"] == "approved"
-    assert row["amount"] == 59.90 and row["rule_id"] == "R-REF-03" and row["proposal_id"] == "p-test"
+    assert row["amount"] == 59.90 and row["rule_id"] == "R-REF-03" and row["proposal_id"] == pid
     assert row["created_at"] == "2026-10-09"
     assert row["ai_generated"] == 0 and row["scripted"] == 0
     assert get_refunds(4512)["refunds"] == [row]
@@ -39,17 +57,18 @@ def test_create_refund_4512():
 
 
 def test_create_refund_refuses_unknown_order_and_bad_amount():
-    assert "error" in create_refund(9999, 10, "R-REF-03", "p")
-    assert "error" in create_refund(4512, 0, "R-REF-03", "p")
+    assert "error" in create_refund(9999, 10, "R-REF-03", _approved(9999, 10))
+    assert "error" in create_refund(4512, 0, "R-REF-03", _approved(4512, 0))
     assert _last_trace()["step"] == "db_write_refused"
     assert get_refunds(4512)["refunds"] == []
 
 
 def test_create_subscription():
-    row = create_subscription(4512, "out_for_delivery")
-    assert row["status"] == "waiting" and row["event"] == "out_for_delivery"
+    pid = _approved_sub(4512, "out_for_delivery")
+    row = create_subscription(4512, "out_for_delivery", pid)
+    assert row["status"] == "waiting" and row["event"] == "out_for_delivery" and row["proposal_id"] == pid
     before = _count("subscriptions")
-    assert "error" in create_subscription(4512, "lost")
+    assert "error" in create_subscription(4512, "lost", _approved_sub(4512, "lost"))
     assert _count("subscriptions") == before
 
 
@@ -94,14 +113,14 @@ def test_write_functions_are_not_tools():
 def test_refund_safety_net():
     # 4506: paid 189, already refunded 189 -> nothing left, even 1 TND is refused by the DB layer.
     before = _count("refunds")
-    result = create_refund(4506, 1.00, "R-REF-03", "p-safety")
+    result = create_refund(4506, 1.00, "R-REF-03", _approved(4506, 1.00))
     assert "error" in result and "safety net" in result["error"]
     assert _count("refunds") == before
     assert _last_trace()["step"] == "db_write_refused"
     # 4512: more than paid is refused; after a full refund, even 0.01 more is refused.
-    assert "error" in create_refund(4512, 70.00, "R-REF-03", "p")
-    assert create_refund(4512, 59.90, "R-REF-03", "p")["status"] == "approved"
-    assert "error" in create_refund(4512, 0.01, "R-REF-03", "p")
+    assert "error" in create_refund(4512, 70.00, "R-REF-03", _approved(4512, 70.00))
+    assert create_refund(4512, 59.90, "R-REF-03", _approved(4512, 59.90))["status"] == "approved"
+    assert "error" in create_refund(4512, 0.01, "R-REF-03", _approved(4512, 0.01))
 
 
 def test_status_transitions():
@@ -117,13 +136,20 @@ def test_status_transitions():
     assert "error" not in set_order_status(4513, "cancelled")         # any -> cancelled
 
 
+def test_shipped_to_stuck_at_depot_is_allowed():
+    r = set_order_status(4510, "stuck_at_depot")                      # shipped -> stuck_at_depot (P06)
+    assert "error" not in r and r["event"] is None                    # not a notification event
+    assert "error" not in set_order_status(4510, "out_for_delivery")  # then on its way again
+    assert "error" in set_order_status(4505, "shipped")               # delivered -> shipped still refused
+
+
 import pytest  # noqa: E402
 
 
 @pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf"), True, "59.90", None])
 def test_create_refund_refuses_non_finite_or_non_number(bad):
     before = _count("refunds")
-    result = create_refund(4512, bad, "R-REF-03", "p-bad")   # must not raise
+    result = create_refund(4512, bad, "R-REF-03", _approved(4512, 59.90))   # must not raise
     assert "error" in result
     assert _count("refunds") == before
     assert _last_trace()["step"] == "db_write_refused"
@@ -132,4 +158,62 @@ def test_create_refund_refuses_non_finite_or_non_number(bad):
 def test_nan_from_json_tool_arguments_is_refused():
     # json.loads accepts NaN, so an LLM tool call could really send it.
     args = json.loads('{"order_id": 4512, "amount": NaN}')
-    assert "error" in create_refund(args["order_id"], args["amount"], "R-REF-03", "p-json")
+    assert "error" in create_refund(args["order_id"], args["amount"], "R-REF-03", _approved(4512, 59.90))
+
+
+
+# --- P07: writes must match their approved proposal ---------------------------------
+
+def _refused_without_row(table: str, call) -> dict:
+    """Run a write that must be refused: no new row, and the last trace line is db_write_refused."""
+    before = _count(table)
+    result = call()
+    assert "error" in result, result
+    assert _count(table) == before
+    assert _last_trace()["step"] == "db_write_refused"
+    return result
+
+
+def test_refund_amount_must_match_the_approved_amount():
+    small = _approved(4515, 10.00)                     # approved for 10.00 (under the Layer 3 threshold)...
+    r = _refused_without_row("refunds", lambda: create_refund(4515, 378.00, "R-REF-03", small))
+    assert "does not match" in r["error"]              # ...can never pay 378.00
+    r = _refused_without_row("refunds", lambda: create_refund(4512, 30.00, "R-REF-03", _approved(4512, 59.90)))
+    assert "does not match" in r["error"]
+    assert create_refund(4512, 59.90, "R-REF-03", _approved(4512, 59.90))["status"] == "approved"
+
+
+def test_refund_needs_a_refund_proposal():
+    sub = _approved_sub(4512, "delivered")
+    r = _refused_without_row("refunds", lambda: create_refund(4512, 59.90, "R-REF-03", sub))
+    assert "'subscribe' proposal" in r["error"]
+
+
+def test_amounts_match_after_rounding():
+    pid = _approved(4512, 59.899)                      # rounds to 59.90
+    assert create_refund(4512, 59.90, "R-REF-03", pid)["status"] == "approved"
+
+
+def test_create_subscription_safety_net():
+    def sub(pid):
+        return lambda: create_subscription(4512, "delivered", pid)
+
+    _refused_without_row("subscriptions", lambda: create_subscription(4512, "delivered"))    # no pid
+    _refused_without_row("subscriptions", sub("P-9999"))                                       # unknown pid
+    not_decided = record_proposal({"agent": "A", "action": "subscribe",
+                                   "params": {"order_id": 4512, "event": "delivered"}})["id"]
+    _refused_without_row("subscriptions", sub(not_decided))                                    # not approved
+    _refused_without_row("subscriptions", sub(_approved(4512, 59.90)))                         # action refund
+    _refused_without_row("subscriptions", sub(_approved_sub(4510, "delivered")))               # other order
+    _refused_without_row("subscriptions", sub(_approved_sub(4512, "shipped")))                 # other event
+    pid = _approved_sub(4512, "delivered")
+    assert create_subscription(4512, "delivered", pid)["status"] == "waiting"                  # matching
+    r = _refused_without_row("subscriptions", sub(pid))                                        # used twice
+    assert "already used" in r["error"]
+
+
+def test_record_proposal_always_returns_a_dict():
+    ok = record_proposal({"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90}})
+    assert isinstance(ok, dict) and set(ok) == {"id"} and ok["id"].startswith("P-")
+    for junk in ("junk", None, 42, {"agent": "B"}):
+        assert isinstance(record_proposal(junk), dict) and "error" in record_proposal(junk)

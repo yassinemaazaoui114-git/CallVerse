@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShopNova Platform</title>
+<!-- Read-only dashboard of the local ShopNova platform. Plain HTML + inline CSS/JS, works offline.
+     It only calls GET endpoints of the local server; it has no button that writes. -->
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --muted:#667085; --line:#e4e7ec;
+          --accent:#2457c5; --ai:#7a3fd1; --scripted:#b25e09; --bad:#b42318; --ok:#067647; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:16px 24px; background:var(--card); border-bottom:1px solid var(--line); }
+  header h1 { margin:0; font-size:20px; }
+  header p { margin:4px 0 0; color:var(--muted); }
+  main { display:grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap:16px; padding:16px 24px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; min-width:0; }
+  section h2 { margin:0 0 10px; font-size:15px; }
+  .full { grid-column: 1 / -1; }
+  .stats { display:flex; flex-wrap:wrap; gap:10px; }
+  .stat { border:1px solid var(--line); border-radius:6px; padding:8px 12px; min-width:110px; }
+  .stat b { display:block; font-size:20px; }
+  .stat span { color:var(--muted); font-size:12px; }
+  .scroll { max-height:420px; overflow:auto; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { position:sticky; top:0; background:var(--card); color:var(--muted); font-weight:600; }
+  tbody tr.click { cursor:pointer; }
+  tbody tr.click:hover { background:#eef3ff; }
+  tbody tr.sel { background:#dfe8ff; }
+  .tag { display:inline-block; padding:0 6px; border-radius:4px; font-size:11px; font-weight:600; }
+  .tag.ai { color:var(--ai); background:#f1e9fc; }
+  .tag.sc { color:var(--scripted); background:#fdf0e1; }
+  .late { color:var(--bad); font-weight:600; }
+  .muted { color:var(--muted); }
+  .filters { display:flex; gap:12px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+  dl { display:grid; grid-template-columns: max-content 1fr; gap:4px 12px; margin:0; }
+  dt { color:var(--muted); }
+  dd { margin:0; }
+  .rule { border-top:1px solid var(--line); padding:8px 0; }
+  .rule:first-child { border-top:0; }
+  .rule code { font-size:12px; color:var(--accent); }
+  pre { margin:0; font-size:11.5px; white-space:pre-wrap; word-break:break-all; }
+  button { font:inherit; padding:3px 10px; border:1px solid var(--line); border-radius:5px; background:var(--card); cursor:pointer; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; padding:12px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">ShopNova platform</h1>
+  <p id="subtitle">Local mock company for CallVerse - read-only view. All data is fictional (AI-generated).</p>
+</header>
+<main>
+  <section class="full">
+    <h2>Data at a glance <button id="refresh" title="Reload all data">Refresh</button></h2>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section>
+    <h2>Orders</h2>
+    <div class="filters">
+      <label>Status <select id="f-status"><option value="">all</option></select></label>
+      <label><input type="checkbox" id="f-scripted"> scripted only</label>
+      <span class="muted" id="order-count"></span>
+    </div>
+    <div class="scroll"><table id="orders"><thead><tr>
+      <th>Id</th><th>User</th><th>Status</th><th>Total</th><th>Paid</th><th>Ordered</th><th>Promised</th><th>Delivered</th><th>Labels</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section>
+    <h2>Order details</h2>
+    <div id="detail" class="muted">Click an order to see its tracking and refunds.</div>
+  </section>
+
+  <section>
+    <h2>Company profile</h2>
+    <dl id="company"></dl>
+  </section>
+
+  <section>
+    <h2>Policies (8 rules)</h2>
+    <div id="policies" class="scroll"></div>
+  </section>
+
+  <section>
+    <h2>Refunds</h2>
+    <div class="scroll"><table id="refunds"></table></div>
+  </section>
+
+  <section>
+    <h2>Subscriptions &amp; events</h2>
+    <div class="scroll"><table id="subscriptions"></table></div>
+    <div class="scroll" style="margin-top:10px"><table id="events"></table></div>
+  </section>
+
+  <section class="full">
+    <h2>Proposals &amp; Coordinator decisions</h2>
+    <div class="scroll"><table id="proposals"></table></div>
+  </section>
+
+  <section class="full">
+    <h2>Last 20 trace lines (this server run)</h2>
+    <div class="scroll"><pre id="traces"></pre></div>
+  </section>
+</main>
+
+<script>
+// Small helpers. Values are always inserted with textContent (never innerHTML), so data cannot inject HTML.
+const $ = (id) => document.getElementById(id);
+const get = (url) => fetch(url).then((r) => r.json());
+function el(tag, text, cls) {
+  const e = document.createElement(tag);
+  if (text !== undefined && text !== null) e.textContent = text;
+  if (cls) e.className = cls;
+  return e;
+}
+function fillTable(table, rows, cols) {
+  table.replaceChildren();
+  const head = el("thead"); const tr = el("tr");
+  cols.forEach((c) => tr.append(el("th", c)));
+  head.append(tr); table.append(head);
+  const body = el("tbody");
+  if (!rows.length) { const r = el("tr"); const td = el("td", "none yet", "muted"); td.colSpan = cols.length; r.append(td); body.append(r); }
+  rows.forEach((row) => { const r = el("tr"); cols.forEach((c) => r.append(el("td", row[c] ?? "-"))); body.append(r); });
+  table.append(body);
+}
+function labels(row) {
+  const span = el("span");
+  if (row.ai_generated) span.append(el("span", "AI-generated", "tag ai"), " ");
+  if (row.scripted) span.append(el("span", "scripted", "tag sc"));
+  return span;
+}
+
+async function loadSummary() {
+  const s = await get("/summary");
+  const stats = [
+    [s.orders_total, "orders"],
+    [s.scripted_orders.count, "scripted (" + s.scripted_orders.first_id + "-" + s.scripted_orders.last_id + ")"],
+    [s.generated_orders.count, "generated (" + s.generated_orders.first_id + "-" + s.generated_orders.last_id + ")"],
+    [s.tables.orders.ai_generated, "orders AI-generated"],
+    [s.late_not_delivered + s.late_delivered, "late orders"],
+    [s.late_over_5_not_delivered, "late > 5 days, not delivered"],
+    [s.cash_on_delivery_unpaid, "cash on delivery unpaid"],
+    [s.total_paid_tnd.toFixed(2) + " TND", "total paid"],
+    [s.refunds.count + " / " + s.refunds.total_tnd.toFixed(2) + " TND", "refunds"],
+  ];
+  $("stats").replaceChildren(...stats.map(([v, l]) => { const d = el("div", null, "stat"); d.append(el("b", v), el("span", l)); return d; }));
+  const sel = $("f-status"); const current = sel.value;
+  sel.replaceChildren(el("option", "all"));
+  sel.firstChild.value = "";
+  Object.entries(s.orders_per_status).forEach(([st, n]) => { const o = el("option", st + " (" + n + ")"); o.value = st; sel.append(o); });
+  sel.value = current;
+}
+
+async function loadOrders() {
+  const p = new URLSearchParams({ limit: "500" });
+  if ($("f-status").value) p.set("status", $("f-status").value);
+  if ($("f-scripted").checked) p.set("scripted", "1");
+  const rows = await get("/orders?" + p);
+  $("order-count").textContent = rows.length + " shown";
+  const body = $("orders").tBodies[0]; body.replaceChildren();
+  rows.forEach((o) => {
+    const r = el("tr", null, "click");
+    [o.id, o.user_id, o.status, o.total.toFixed(2), o.paid.toFixed(2), o.order_date, o.promised_date, o.delivered_date ?? "-"]
+      .forEach((v) => r.append(el("td", v)));
+    const td = el("td"); td.append(labels(o)); r.append(td);
+    r.onclick = () => { body.querySelectorAll("tr.sel").forEach((x) => x.classList.remove("sel")); r.classList.add("sel"); showOrder(o.id); };
+    body.append(r);
+  });
+}
+
+async function showOrder(id) {
+  const [o, t, rf] = await Promise.all([get("/orders/" + id), get("/orders/" + id + "/tracking"), get("/orders/" + id + "/refunds")]);
+  const d = $("detail"); d.className = ""; d.replaceChildren();
+  d.append(el("h3", "Order " + id, null));
+  const dl = el("dl");
+  const add = (k, v, cls) => { dl.append(el("dt", k)); dl.append(el("dd", v, cls)); };
+  add("Items", o.items.map((i) => i.qty + " x " + i.name + " (" + i.price.toFixed(2) + ")").join(", "));
+  add("Total / paid", o.total.toFixed(2) + " / " + o.paid.toFixed(2) + " TND" + (o.paid === 0 ? " (not paid)" : ""));
+  add("Status", t.status);
+  add("Days late", String(t.days_late), t.days_late > 0 ? "late" : "");
+  add("Delivered", t.delivered ? t.delivered_date + " (" + t.days_since_delivery + " days ago)" : "no");
+  add("Carrier", (t.carrier ?? "-") + " " + (t.tracking_number ?? ""));
+  add("Refunded", rf.refunded_total.toFixed(2) + " TND in " + rf.refunds.length + " refund(s)");
+  const lab = el("dd"); lab.append(labels(o)); dl.append(el("dt", "Labels"), lab);
+  d.append(dl);
+}
+
+async function loadCompany() {
+  const c = await get("/company");
+  const dl = $("company"); dl.replaceChildren();
+  $("title").textContent = c.name + " platform";
+  const rows = [["Name", c.name], ["Domain", c.domain], ["About", c.description], ["Sells", c.sells.join(", ")],
+    ["Cities", c.cities_served.join(", ")], ["Carriers", c.carriers.join(", ")],
+    ["Delivery promise", c.delivery_promise_days.min + "-" + c.delivery_promise_days.max + " days"],
+    ["Currency", c.currency], ["Payment", c.payment_methods.join(", ")], ["Support", c.support_channels.join(", ") + " - " + c.support_languages.join(", ")],
+    ["AI-generated", String(c.ai_generated)]];
+  rows.forEach(([k, v]) => { dl.append(el("dt", k)); dl.append(el("dd", v)); });
+}
+
+async function loadPolicies() {
+  const rules = await get("/policies");
+  $("policies").replaceChildren(...rules.map((r) => {
+    const d = el("div", null, "rule");
+    d.append(el("b", r.id + " - " + r.title), el("div", r.text));
+    const c = el("div"); c.append(el("span", "condition: ", "muted"), el("code", r.condition ?? "none")); d.append(c);
+    return d;
+  }));
+}
+
+async function loadTables() {
+  const [rf, sub, ev, pr, tr] = await Promise.all([get("/refunds"), get("/subscriptions"), get("/events"),
+    get("/proposals"), get("/traces/recent?n=20")]);
+  pr.forEach((p) => { p.params = JSON.stringify(p.params); p.user_confirmed = String(p.user_confirmed); });
+  fillTable($("proposals"), pr, ["id", "agent", "action", "params", "rule_id", "user_confirmed", "decision",
+    "decision_reason", "created_at", "decided_at"]);
+  fillTable($("refunds"), rf, ["id", "order_id", "amount", "status", "rule_id", "proposal_id", "created_at", "scripted"]);
+  fillTable($("subscriptions"), sub, ["id", "order_id", "event", "status", "created_at"]);
+  fillTable($("events"), ev, ["id", "order_id", "event", "at"]);
+  $("traces").textContent = tr.join("\n") || "no trace lines yet";
+}
+
+async function loadAll() {
+  await loadSummary();
+  await Promise.all([loadOrders(), loadCompany(), loadPolicies(), loadTables()]);
+}
+$("f-status").onchange = loadOrders;
+$("f-scripted").onchange = loadOrders;
+$("refresh").onclick = loadAll;
+loadAll();
+</script>
+</body>
+</html>
