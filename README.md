@@ -64,8 +64,10 @@ traces/             run logs (not in git)
 3 read tools (`get_user`, `get_order`, `get_tracking`), allow-list registry, Agent A, traces, tests.
 Intake (T03): message → ticket with reasons, emotion, priority, style
 (`python -m scripts.run_intake "<message>"`; first run downloads the local models, ~1 GB).
+Pipeline (T04): Intake → rule router → Agent A, refund/return/damaged cases recorded as a handover to B,
+priority queue (`python -m scripts.run_pipeline "<message>"` or `--batch`).
 
-**Coming next:** Policy KB + search (RAG), Agent B, Coordinator, queue router, delivery notifications
+**Coming next:** Policy KB + search (RAG), Agent B, Coordinator, delivery notifications
 (Brief #2) · SLM reply writer and Client Simulator (Brief #4).
 
 ## Data
