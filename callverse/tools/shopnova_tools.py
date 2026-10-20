@@ -9,21 +9,11 @@ the tool's name, what it does and which arguments it takes.
 """
 
 import json
-import sqlite3
 from contextlib import closing
 from datetime import date
 
 from callverse.config import sim_today
-from callverse.data.seed import DB_PATH, seed
-
-
-def _connect() -> sqlite3.Connection:
-    """Open the database (create it first if seed.py was never run)."""
-    if not DB_PATH.exists():
-        seed()
-    con = sqlite3.connect(DB_PATH)
-    con.row_factory = sqlite3.Row  # rows behave like dicts: row["name"]
-    return con
+from callverse.data.db import connect as _connect  # opens the DB in use (real one, or a test copy)
 
 
 def _fetch_order(order_id: int) -> dict | None:
@@ -94,6 +84,19 @@ def get_tracking(order_id: int) -> dict:
     }
 
 
+def get_refunds(order_id: int) -> list[dict] | dict:
+    """Return all refund rows of an order (an empty list if it has none).
+
+    Lets an agent or the Coordinator see if an order was already refunded, and how much.
+    """
+    if _fetch_order(order_id) is None:
+        return {"error": f"order {order_id} not found"}
+    with closing(_connect()) as con:
+        rows = con.execute("SELECT * FROM refunds WHERE order_id = ? ORDER BY id",
+                           (int(order_id),)).fetchall()
+    return [dict(r) for r in rows]
+
+
 # JSON schemas for tool calling (OpenAI "tools" format).
 SCHEMAS = {
     "get_user": {
@@ -135,11 +138,25 @@ SCHEMAS = {
             },
         },
     },
+    "get_refunds": {
+        "type": "function",
+        "function": {
+            "name": "get_refunds",
+            "description": "List the refunds already recorded for a ShopNova order (amount, status, rule). Empty list = no refund yet.",
+            "parameters": {
+                "type": "object",
+                "properties": {"order_id": {"type": "integer", "description": "Order number, e.g. 4512"}},
+                "required": ["order_id"],
+            },
+        },
+    },
 }
 
 # Name -> Python function, used by the registry to actually run a tool.
+# Being listed here does NOT give an agent access: the allow-lists in registry.py decide that.
 FUNCTIONS = {
     "get_user": get_user,
     "get_order": get_order,
     "get_tracking": get_tracking,
+    "get_refunds": get_refunds,
 }

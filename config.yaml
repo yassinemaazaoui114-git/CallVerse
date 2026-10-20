@@ -20,3 +20,8 @@ models:
   simulator: # M1, different family (used in task 4)
     # Supervisor decision: the Gemini Flash model this account can access. To verify at task 4.
     - {provider: google,     model: "gemini-3.8-flash"}
+
+# Layer 3 stub (ShopNova finance). Refunds above 300 TND go to finance: that threshold is in rule
+# R-ESC-01's condition (callverse/kb/policies_shopnova.json). The stub approves up to this amount
+# and refuses above it.
+layer3: {stub_max_approve_tnd: 500}

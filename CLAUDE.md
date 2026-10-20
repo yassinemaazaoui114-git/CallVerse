@@ -61,3 +61,7 @@ tasks/         NEXT.md, Txx task files, Txx reports
 docs/          architecture.md, platform_contract.md, briefs_archive/
 traces/        run logs (git-ignored)
 ```
+
+## Platform work
+Platform tasks (mock company DB, policies, write tools, clock, Layer 3 stub) are files `tasks/Pxx_*.md`.
+Follow `docs/platform.md`; `docs/platform_contract.md` wins if they disagree.
