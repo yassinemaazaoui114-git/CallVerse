@@ -59,10 +59,13 @@ The tests now work on a temporary copy of the database, so running them never ch
 2. Is `scripted = 1` on the 4506 refund row right?
 3. Should `set_order_status` also refuse odd jumps (e.g. `delivered` → `shipped`)? Today it only refuses unknown codes.
 4. Policy wording (8 texts in `policies_shopnova.json`) — waiting for Yassine's review.
+5. Push access: add `dalimraihi` as collaborator on GitHub, or work through a fork + pull request?
 
 ## 6. Next step
 Core task for Agent B + Coordinator: add `get_refunds` to B's allow-list, call `create_refund` /
 `create_subscription` on approve, and use `load_policies()` + the conditions for the checks. Then the notifier
 reads `events` rows and marks matching `subscriptions` as `sent` (demo S3).
 
-Git: committed on branch `platform` and pushed to `origin/platform`. Not merged into `main`.
+Git: committed on branch `platform` (commit `70a0e41` + this report fix). **Push failed**: GitHub answered 403,
+"Permission to yassinemaazaoui114-git/CallVerse.git denied to dalimraihi". Yassine needs to add `dalimraihi` as a
+collaborator (or Dali pushes to a fork + PR). Then: `git push -u origin platform`. Not merged into `main`.
