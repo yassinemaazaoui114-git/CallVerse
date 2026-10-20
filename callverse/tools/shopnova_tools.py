@@ -84,17 +84,24 @@ def get_tracking(order_id: int) -> dict:
     }
 
 
-def get_refunds(order_id: int) -> list[dict] | dict:
-    """Return all refund rows of an order (an empty list if it has none).
+# Refund statuses that count as money given back (a "refused" refund does not count).
+COUNTED_REFUND_STATUSES = ("approved", "completed")
 
-    Lets an agent or the Coordinator see if an order was already refunded, and how much.
+
+def get_refunds(order_id: int) -> dict:
+    """Return the refunds of an order and how much was already given back.
+
+    {"order_id": 4512, "refunds": [rows...], "refunded_total": 0.0}
+    refunded_total = sum of refunds with status approved or completed. Rule R-REF-05 uses it,
+    so an order cannot be refunded twice.
     """
     if _fetch_order(order_id) is None:
         return {"error": f"order {order_id} not found"}
     with closing(_connect()) as con:
-        rows = con.execute("SELECT * FROM refunds WHERE order_id = ? ORDER BY id",
-                           (int(order_id),)).fetchall()
-    return [dict(r) for r in rows]
+        rows = [dict(r) for r in con.execute(
+            "SELECT * FROM refunds WHERE order_id = ? ORDER BY id", (int(order_id),)).fetchall()]
+    total = sum(r["amount"] for r in rows if r["status"] in COUNTED_REFUND_STATUSES)
+    return {"order_id": int(order_id), "refunds": rows, "refunded_total": round(total, 2)}
 
 
 # JSON schemas for tool calling (OpenAI "tools" format).
@@ -142,7 +149,7 @@ SCHEMAS = {
         "type": "function",
         "function": {
             "name": "get_refunds",
-            "description": "List the refunds already recorded for a ShopNova order (amount, status, rule). Empty list = no refund yet.",
+            "description": "List the refunds of a ShopNova order (amount, status, rule) and refunded_total, the amount already refunded or approved (TND). Empty list = no refund yet.",
             "parameters": {
                 "type": "object",
                 "properties": {"order_id": {"type": "integer", "description": "Order number, e.g. 4512"}},

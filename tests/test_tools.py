@@ -32,10 +32,11 @@ def test_unknown_order_returns_error():
 
 
 def test_get_refunds():
-    rows = get_refunds(4506)
-    assert len(rows) == 1
-    assert rows[0]["amount"] == 189.00 and rows[0]["status"] == "completed"
-    assert get_refunds(4512) == []
+    r4506 = get_refunds(4506)
+    assert r4506["order_id"] == 4506 and r4506["refunded_total"] == 189.0
+    assert len(r4506["refunds"]) == 1
+    assert r4506["refunds"][0]["amount"] == 189.00 and r4506["refunds"][0]["status"] == "completed"
+    assert get_refunds(4512) == {"order_id": 4512, "refunds": [], "refunded_total": 0.0}
     assert "error" in get_refunds(9999)
 
 

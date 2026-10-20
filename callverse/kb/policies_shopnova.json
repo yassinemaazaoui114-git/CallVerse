@@ -23,8 +23,8 @@
   {
     "id": "R-REF-05",
     "title": "Refund limit",
-    "text": "A refund can never be higher than the amount the client actually paid for the order. For a cash-on-delivery order that is not yet paid, the amount paid is 0 TND, so no refund is possible.",
-    "condition": "amount <= paid",
+    "text": "A refund can never be higher than the amount the client actually paid for the order, minus any refund already given or approved for that order. An order that was already fully refunded cannot be refunded again. For a cash-on-delivery order that is not yet paid, the amount paid is 0 TND, so no refund is possible.",
+    "condition": "amount <= paid - refunded_total",
     "ai_generated": true
   },
   {

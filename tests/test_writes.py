@@ -33,7 +33,8 @@ def test_create_refund_4512():
     assert row["amount"] == 59.90 and row["rule_id"] == "R-REF-03" and row["proposal_id"] == "p-test"
     assert row["created_at"] == "2026-10-09"
     assert row["ai_generated"] == 0 and row["scripted"] == 0
-    assert get_refunds(4512) == [row]
+    assert get_refunds(4512)["refunds"] == [row]
+    assert get_refunds(4512)["refunded_total"] == 59.90
     assert _last_trace()["step"] == "db_write"
 
 
@@ -41,7 +42,7 @@ def test_create_refund_refuses_unknown_order_and_bad_amount():
     assert "error" in create_refund(9999, 10, "R-REF-03", "p")
     assert "error" in create_refund(4512, 0, "R-REF-03", "p")
     assert _last_trace()["step"] == "db_write_refused"
-    assert get_refunds(4512) == []
+    assert get_refunds(4512)["refunds"] == []
 
 
 def test_create_subscription():
@@ -74,8 +75,16 @@ def test_delivered_sets_delivered_date():
     assert tracking["delivered"] is True and tracking["delivered_date"] == "2026-10-09"
 
 
+def test_refused_refund_does_not_count_in_total():
+    from callverse.data import db as _db
+    with closing(_db.connect()) as con:
+        con.execute("INSERT INTO refunds (order_id, amount, status) VALUES (4512, 20, 'refused')")
+        con.commit()
+    assert get_refunds(4512)["refunded_total"] == 0.0
+
+
 def test_write_functions_are_not_tools():
-    for name in ("create_refund", "create_subscription", "set_order_status"):
+    for name in ("create_refund", "create_subscription", "set_order_status", "layer3_decide"):
         assert name not in registry.TOOL_FUNCTIONS
         assert name not in registry.TOOL_SCHEMAS
         assert all(name not in allowed for allowed in registry.ALLOW_LISTS.values())

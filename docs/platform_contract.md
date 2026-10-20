@@ -36,7 +36,8 @@ get_order(order_id: int) -> dict        # the order, or {"error": "..."}
   "parameters": {"type": "object", "properties": {"order_id": {"type": "integer"}}, "required": ["order_id"]}}}
 ```
 Read tools today: `get_user(email|phone|user_id)`, `get_order(order_id)`, `get_tracking(order_id)` (adds `days_late`),
-`get_refunds(order_id)` (list of refund rows, `[]` if none; on no allow-list yet).
+`get_refunds(order_id)` → `{"order_id": 4512, "refunds": [rows], "refunded_total": 0.0}`; `refunded_total` = sum of
+refunds with status `approved` or `completed` (`refused` does not count). Unknown order → `{"error": ...}`. On no allow-list yet.
 
 ## 4. How the Coordinator approves (to be built)
 `review(proposal)` → `approve | send_back | ask_user | ask_proof | layer3 | escalate`.
@@ -58,8 +59,12 @@ Demo S3 control: `python -m scripts.advance_status --order 4512 --status out_for
 
 ## 5. Policies — `callverse/kb/policies_shopnova.json`, loaded by `load_policies()` in `callverse/kb/policies.py`
 Format per rule: `id`, `title`, `text` (what agents read), `condition` (what the Coordinator checks in code).
+`check_condition(condition, facts) -> bool` evaluates a condition without `eval()` (names from `facts`,
+comparisons, `and/or/not`, `+ -`, lists); a missing fact or anything else raises `ValueError`.
+Facts used by the conditions: `days_late`, `delivered`, `amount`, `paid`, `refunded_total`, `days_since_delivery`,
+`proof_received`, `event`.
 Rules the prototype needs (draft): R-DEL-01 delivery promise · R-DEL-02 late 1–5 days: apologise + offer
-notification · R-REF-03 late > 5 days and not delivered: full refund on request · R-REF-05 refund ≤ amount paid ·
+notification · R-REF-03 late > 5 days and not delivered: full refund on request · R-REF-05 refund ≤ amount paid minus past refunds (`amount <= paid - refunded_total`) ·
 R-RET-01 returns within 14 days · R-DMG-01 damaged item: photo proof · R-ESC-01 refunds > 300 TND need
 finance (Layer 3) · R-NOT-01 notifications for shipped, out_for_delivery, delivered.
 
@@ -71,6 +76,13 @@ refunded (189 TND) · 4507 delivered 2 days late · 4510, 4513 shipped on time �
 ## 7. Other settings
 Layer 3 stub: refunds > 300 TND go to finance (R-ESC-01 condition); stub approves ≤ 500 TND, refuses above
 (`layer3.stub_max_approve_tnd` in `config.yaml`).
+```python
+layer3_decide(order_id, amount, reason) -> dict   # callverse/data/layer3.py, no DB write, in no allow-list
+# {order_id, amount, decision, by, rule_id: "R-ESC-01", reason}
+# decision: "not_required" (amount <= 300, by None) | "approved" (<= 500, by "finance") | "refused" (> 500, by "finance")
+# amount <= 0 or unknown order -> {"error": ...}. Traced as step "layer3_decision".
+```
+The 300 is read from R-ESC-01's condition (`layer3_threshold()`), never written twice.
 Agent IDs: `A`, `B` (`C`, `D` later). Vector store: small numpy index (cosine) on `bge-small-en-v1.5`,
 swappable for Chroma/FAISS.
 Demo: S1 refund approved · S2 wrong amount sent back then corrected · S3 delivery notification after
