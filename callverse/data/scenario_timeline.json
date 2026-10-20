@@ -1,0 +1,9 @@
+{
+  "_note": "Scripted delivery timeline for story S3 (delivery notification). AI-generated (task P08). Hours count from the clock start (sim_today 2026-10-09 at 09:00). Order 4510: shipped, promised 2026-10-10, on time; tagged 'on_time' in simulator_data.list_scenario_cases(). Not used by S1/S2/S4 or the damaged case.",
+  "scripted": true,
+  "ai_generated": true,
+  "events": [
+    {"id": "t1", "order_id": 4510, "after_hours": 24, "status": "out_for_delivery"},
+    {"id": "t2", "order_id": 4510, "after_hours": 30, "status": "delivered"}
+  ]
+}

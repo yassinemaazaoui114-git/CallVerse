@@ -50,6 +50,7 @@
 <header>
   <h1 id="title">ShopNova platform</h1>
   <p id="subtitle">Local mock company for CallVerse - read-only view. All data is fictional (AI-generated).</p>
+  <p id="clock" class="muted">Simulation time: ...</p>
 </header>
 <main>
   <section class="full">
@@ -222,7 +223,14 @@ async function loadTables() {
   $("traces").textContent = tr.join("\n") || "no trace lines yet";
 }
 
+async function loadClock() {
+  const c = await get("/clock");
+  const moved = c.now !== c.start ? " (moved from " + c.start.replace("T", " ") + ")" : " (not moved)";
+  $("clock").textContent = "Simulation time: " + c.now.replace("T", " ") + moved;
+}
+
 async function loadAll() {
+  await loadClock();
   await loadSummary();
   await Promise.all([loadOrders(), loadCompany(), loadPolicies(), loadTables()]);
 }
