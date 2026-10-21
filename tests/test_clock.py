@@ -103,12 +103,20 @@ def test_wrong_timeline_event_is_refused_and_reported(tmp_path, monkeypatch):
 
 
 def test_advance_refuses_bad_hours_and_traces():
-    for bad in (0, -5, float("nan"), True, "24"):
+    for bad in (0, -5, float("nan"), float("inf"), float("-inf"), 1e9, clock.MAX_HOURS + 1, True, "24"):
         assert "error" in clock.advance(bad)
     assert clock.now() == clock.start()
     clock.advance(1)
     last = json.loads(trace.current_path().read_text(encoding="utf-8").splitlines()[-1])
     assert last["step"] == "clock_advance" and last["actor"] == "clock"
+
+
+def test_advance_huge_or_infinite_hours_returns_error_not_crash():
+    for bad in (float("inf"), 1e9, clock.MAX_HOURS + 0.5):
+        result = clock.advance(bad)                      # must not raise OverflowError
+        assert "error" in result
+    assert clock.now() == clock.start()                  # clock unchanged
+    assert "error" not in clock.advance(clock.MAX_HOURS) # the limit itself is allowed
 
 
 def test_status_changes_still_use_the_transition_table():

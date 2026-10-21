@@ -13,6 +13,7 @@ new events; the notifier (core work) sends them.
 """
 
 import json
+import math
 import sqlite3
 from contextlib import closing
 from datetime import datetime, time, timedelta
@@ -24,6 +25,7 @@ from callverse.data.db import connect
 
 TIMELINE_PATH = Path(__file__).resolve().parent / "scenario_timeline.json"
 START_HOUR = 9   # the simulated day starts at 09:00
+MAX_HOURS = 24 * 365   # one advance moves at most one year (bigger values would overflow the date)
 
 CLOCK_SCHEMA = """
 CREATE TABLE IF NOT EXISTS sim_clock (
@@ -81,9 +83,11 @@ def advance(hours: float) -> dict:
     hours must be a number > 0 (else {"error": ...}). Each timeline event is handled once: a refused event
     (illegal status move) is reported in `applied` with its reason and is not tried again.
     """
-    if isinstance(hours, bool) or not isinstance(hours, (int, float)) or not hours > 0 or hours != hours:
-        trace.log("clock_refused", "clock", {"hours": hours, "reason": "hours must be a number > 0"})
-        return {"error": "hours must be a number > 0"}
+    if (isinstance(hours, bool) or not isinstance(hours, (int, float)) or not math.isfinite(hours)
+            or not 0 < hours <= MAX_HOURS):
+        reason = f"hours must be a number > 0 and <= {MAX_HOURS}"
+        trace.log("clock_refused", "clock", {"hours": hours, "reason": reason})
+        return {"error": reason}
 
     old = now()
     new = old + timedelta(hours=hours)

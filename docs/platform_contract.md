@@ -185,7 +185,7 @@ unchanged.
 ```python
 clock.start() -> datetime        # sim_today from config.yaml at 09:00 (2026-10-09T09:00)
 clock.now() -> datetime          # current simulated time (= start until advance() is called)
-clock.advance(hours) -> {"from", "to", "applied": [event results]}   # hours > 0, else {"error"}
+clock.advance(hours) -> {"from", "to", "applied": [event results]}   # finite hours, 0 < hours <= 8760 (one year), else {"error"}
 clock.reset() -> {"now", "orders_restored"}
 config.sim_start() -> date       # the fixed start date (used by seed.py, never moves)
 config.sim_today() -> date       # clock.now().date(): days_late, days_since_delivery and new dates follow it
