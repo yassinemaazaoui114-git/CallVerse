@@ -63,6 +63,59 @@ def propose_refund(order_id=None, amount=None, rule_id=None, facts_used=None,
     return {"status": "submitted to Coordinator"}
 
 
+# --- T09: Agent A proposes a delivery notification (story S3) -------------------------------------------
+
+def subscription_proposal(agent: str, args: dict) -> dict:
+    """The subscribe proposal in the platform's shape, from propose_subscription's arguments.
+
+    rule R-NOT-01 (notifications). user_confirmed is True: the agent calls this tool only when the client
+    asked to be told (or accepted the offer); user_quote keeps the client's words as the evidence."""
+    return {"agent": agent, "action": "subscribe",
+            "params": {"order_id": args["order_id"], "event": args.get("event") or "delivered"},
+            "rule_id": "R-NOT-01", "facts_used": {"event": args.get("event") or "delivered"},
+            "user_confirmed": True, "user_quote": args["user_quote"]}
+
+
+def propose_subscription(order_id=None, event="delivered", user_quote=None) -> dict:
+    """Ask the Coordinator to record a delivery notification. Sends nothing, writes nothing in the database.
+
+    event: shipped, out_for_delivery or delivered (the R-NOT-01 events); "when it arrives" = delivered."""
+    from callverse.kb.policies import notification_events
+    fields = {"order_id": order_id, "event": event or "delivered", "user_quote": user_quote}
+    problems = []
+    if isinstance(order_id, bool) or not isinstance(order_id, int):
+        problems.append("order_id must be an integer")
+    if fields["event"] not in notification_events():
+        problems.append(f"event must be one of {notification_events()}")
+    if not isinstance(user_quote, str) or not user_quote.strip():
+        problems.append("user_quote must quote the client's own words")
+    if problems:
+        trace.log("proposal_refused", "proposal_tools", {"fields": fields, "problems": problems})
+        return {"error": "proposal refused: " + "; ".join(problems)}
+
+    trace.log("proposal", "proposal_tools", {"action": "subscribe", **fields})
+    return {"status": "submitted to Coordinator"}
+
+
+SUBSCRIPTION_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "propose_subscription",
+        "description": "Ask for a message to the client when the order reaches an event. Sends nothing itself.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "order_id": {"type": "integer"},
+                "event": {"type": "string", "enum": ["shipped", "out_for_delivery", "delivered"],
+                          "description": "'when it arrives' = delivered"},
+                "user_quote": {"type": "string"},
+            },
+            "required": ["order_id", "event", "user_quote"],
+        },
+    },
+}
+
+
 SCHEMA = {
     "type": "function",
     "function": {

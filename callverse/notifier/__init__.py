@@ -1,1 +1,1 @@
-"""Notifier: sends delivery updates to subscribed users. Filled by the Brief #2 task (notifications). Empty for now."""
+"""Notifier: sends delivery updates to subscribed users (story S3, task T09). See notifier.py."""

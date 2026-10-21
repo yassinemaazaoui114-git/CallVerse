@@ -59,6 +59,10 @@ OUTCOME_GUIDE = {
               "Do NOT say the refund is approved and do NOT promise it will be paid.",
     "escalate": "Tell the client a colleague will take over. Do not promise any result.",
     "info": "Give the client the facts. Do not promise any follow-up action.",
+    # T09
+    "layer3_refused": "Tell the client the refund cannot be approved: the finance team did not approve it. "
+                      "Do NOT promise a refund, another check or any later action.",
+    "notify": "Tell the client the news about their order (the event). Do not promise anything else.",
 }
 
 
@@ -123,7 +127,17 @@ def clean(text: str | None) -> str:
         if i > 0 and line.strip().lower().rstrip(",!. ") in SIGN_OFFS and all(len(x.split()) <= 6 for x in rest):
             lines = lines[:i]   # drop the sign-off line and the signature after it
             break
-    return " ".join(part.strip() for part in "\n".join(lines).split("\n") if part.strip())
+    text = " ".join(part.strip() for part in "\n".join(lines).split("\n") if part.strip())
+    # T09: a sign-off at the END of the text on the same line ("... on its way. Kind regards"), often
+    # copied from the client's own message, is removed too.
+    return SIGN_OFF_TAIL_RE.sub("", text).strip()
+
+
+# A sign-off after the last sentence, with an optional short name after it ("Kind regards, ShopNova Team").
+SIGN_OFF_TAIL_RE = re.compile(
+    r"(?<=[.!?])\s+(?:(?:(?:best|kind|warm|warmest)\s+regards|regards|yours sincerely|sincerely|best wishes|"
+    r"cheers)[,.!]?|(?:many\s+)?thanks(?:,|(?=\s*$)))(?:\s+[\w ]{1,30})?\s*$", re.IGNORECASE)
+# ("Thank you." as a closing sentence is kept: it is a sentence, not a sign-off.)
 
 
 GREETING_RE = re.compile(r"^\s*(?:(?:hi|hello|hey|dear (?:customer|client|sir|madam|valued customer))\b[,!.]?\s*)+",
@@ -198,9 +212,24 @@ def _lower_first_word(text: str) -> str:
     return text[:1].lower() + text[1:]
 
 
+# T09: shouted words copied from the client. "ORDER 4512 Your refund" -> "Order 4512: your refund".
+# The same fragment without capitals ("Order 4515 Your refund", seen in S4) is fixed the same way.
+SHOUTED_FRAGMENT_RE = re.compile(r"\b([A-Z]{2,}(?:\s+[A-Z]{2,})*|[Oo]rder)\s+(\d+)\s+([A-Z][a-z]+)")
+ALL_CAPS_WORD_RE = re.compile(r"\b[A-Z]{2,}\b")
+KEEP_CAPS = {"TND", "OK", "SMS", "ID", "PDF"}   # real abbreviations stay in capitals
+
+
+def unshout(reply: str) -> str:
+    """Never leave the client's all-caps words in the reply (numbers, e.g. the order number, are kept)."""
+    reply = SHOUTED_FRAGMENT_RE.sub(
+        lambda m: f"{m.group(1).capitalize()} {m.group(2)}: {m.group(3).lower()}", reply)
+    return ALL_CAPS_WORD_RE.sub(lambda m: m.group(0) if m.group(0) in KEEP_CAPS else m.group(0).lower(), reply)
+
+
 def fix_punctuation(reply: str) -> str:
-    """No ", Your ..." (comma + capital): split into two sentences; every sentence starts with a capital."""
-    reply = reply.strip()
+    """No ", Your ..." (comma + capital): split into two sentences; every sentence starts with a capital.
+    T09: no shouted (all-caps) words from the client."""
+    reply = unshout(reply.strip())
     greeting = GREETING_RE.match(reply)
     head, body = (greeting.group(0).strip(), reply[greeting.end():].lstrip()) if greeting else ("", reply)
     body = COMMA_CAPITAL_RE.sub(". ", body)
@@ -218,8 +247,22 @@ def must_say_once(reply: str, decision: dict) -> str:
         if not words:
             continue
         pattern = re.compile(r"\s+".join(re.escape(w) for w in words), re.IGNORECASE)
-        for match in reversed(list(pattern.finditer(reply))[1:]):
+        matches = list(pattern.finditer(reply))
+        for match in reversed(matches[1:]):
             reply = reply[:match.start()] + reply[match.end():]
+        if matches:
+            # T09: the one copy keeps the Coordinator's exact wording, as its own sentence
+            # ("Order 4507, please send us a photo" -> "Order 4507. Please send us a photo").
+            first = matches[0]
+            before = reply[:first.start()].rstrip()
+            only_greeting = GREETING_RE.fullmatch(before + " ") is not None
+            if only_greeting:   # "Hello, your order ..." stays one sentence after a greeting
+                exact = words[0][:1].lower() + " ".join(words)[1:] if words[0][1:].islower() else " ".join(words)
+            else:
+                if before.endswith(","):
+                    before = before[:-1] + "."
+                exact = " ".join(words)
+            reply = f"{before} {exact}{reply[first.end():]}".strip()
     return " ".join(reply.split())
 
 
@@ -244,6 +287,28 @@ def finish(raw: str | None, decision: dict) -> str:
     reply = must_say_once(fix_punctuation(reply), decision) if reply else reply
     reply = ensure_order_reference(add_calm_opener(reply, decision), decision)
     return add_formal_greeting(reply, decision)
+
+
+def warm_up(chat_fn=None) -> dict:
+    """Load the SLM into memory with one tiny call (T09), so the first real reply is fast.
+
+    Uses the longer timeout slm.warmup_timeout_s from config.yaml. Never raises: if Ollama is off,
+    it returns ok False with a warning (the pipeline then answers with templates)."""
+    from callverse.config import load_config
+    timeout = load_config()["slm"].get("warmup_timeout_s", 120)
+    start = time.perf_counter()
+    try:
+        if chat_fn:
+            chat_fn("slm", [{"role": "user", "content": "Say OK."}])
+        else:
+            llm.chat("slm", [{"role": "user", "content": "Say OK."}], timeout=timeout)
+        result = {"ok": True, "error": None}
+    except Exception as e:  # Ollama off, model missing...: a warning, never a crash
+        result = {"ok": False, "error": f"{type(e).__name__}: {e}",
+                  "warning": "SLM not available: replies will use the templates"}
+    result["seconds"] = round(time.perf_counter() - start, 3)
+    trace.log("slm_warmup", "slm", result)
+    return result
 
 
 def write_reply(decision: dict, history: list[dict] | None = None, chat_fn=None) -> dict:

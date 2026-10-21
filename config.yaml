@@ -128,6 +128,9 @@ slm:
     - ['\bminimum threshold\b|\b(?:did|does) not (?:meet|reach) the\b|\bbelow the threshold\b', 'minimum']
     - ['\bcommitted to (?:resolving|fixing|solving)\b', 'committed']
     - ['\btechnical (?:issue|problem|error)\b', 'technical']
+  # Warm-up (T09): one tiny call at start-up loads the model into memory, with a longer timeout, so the
+  # first real reply is not slowed by the model load (T08: 62 s timeout on the first reply).
+  warmup_timeout_s: 120
   # Fixed first sentence when the client is upset (shouting or negative sentiment), chosen by formality.
   calm_openers:
     formal: "Please accept our apologies for the trouble."

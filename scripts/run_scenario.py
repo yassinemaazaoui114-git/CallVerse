@@ -6,6 +6,10 @@ Usage (from the repo root):
     python -m scripts.run_scenario S2                  # = S1 with --inject-error: first proposal 70.00
     python -m scripts.run_scenario S1 --inject-error   # same as S2
     python -m scripts.run_scenario S4                  # 4515, 378 TND: finance (Layer 3) approves
+    python -m scripts.run_scenario S3                  # 4510: "tell me when it arrives" -> clock -> 1 message
+
+Every scenario first rebuilds the data and resets the clock, so the order of the runs never matters.
+The SLM is warmed up first (one tiny call), so the first reply is not slowed by loading the model.
 
 --inject-error simulates an agent mistake: Agent B's FIRST proposal reaches the Coordinator with
 amount 70.00 instead of what B proposed. It is written in the trace (step "inject_error"), so the
@@ -21,12 +25,15 @@ import sys
 import time
 
 from callverse import pipeline, trace
-from callverse.data import reports
+from callverse.data import clock, reports
 from callverse.data.seed import seed
 from callverse.intake import intake
+from callverse.notifier.notifier import run_notifier
+from callverse.slm.writer import warm_up
 from callverse.tools.shopnova_tools import get_order, get_refunds
 
 SCENARIOS = {
+    "S3": {"message": "Hi, can you let me know when my order 4510 arrives?", "inject": False},
     "S0": {"message": "Hi, where is my order 4510?", "inject": False},
     "S1": {"message": "Order 4512 is a week late. I want my money back.", "inject": False},
     "S2": {"message": "Order 4512 is a week late. I want my money back.", "inject": True},
@@ -87,7 +94,29 @@ def step_list(path) -> list[str]:
             lines.append(f"    (LLM {d['model']}, {d['tokens']['total']} tokens)")
         elif s in ("llm_wait", "llm_fallback"):
             lines.append(f"    ({s}: {d['model']} {d.get('seconds', '')})")
+        elif s == "slm_warmup":
+            lines.append(f"SLM warm-up: {'ok' if d['ok'] else 'FAILED (' + str(d['error']) + ')'} in {d['seconds']} s")
     return lines
+
+
+def run_s3_after_reply() -> list[dict]:
+    """S3, after the user's reply: move the clock and run the notifier (expected 0, 1, 0 messages)."""
+    results = []
+    for label, hours in (("+24 h", 24), ("+6 h (total 30 h)", 6), ("again, no clock move", None)):
+        if hours:
+            moved = clock.advance(hours)
+            events = [f"{a['order_id']} -> {a['status']}" for a in moved["applied"]]
+            print(f"\nClock {label}: now {moved['to']}  timeline: {events or 'nothing new'}")
+        else:
+            print(f"\nNotifier {label}")
+        messages = run_notifier()
+        print(f"Notifier: {len(messages)} message(s)")
+        for m in messages:
+            print(f"  -> order {m['order_id']} [{m['reply_source']}]: {m['text']}   leak check: {leaks(m['text']) or 'clean'}")
+        results.append({"step": label, "messages": messages})
+    subs = reports.list_rows("subscriptions")
+    print(f"\nSubscriptions: {[(s['id'], s['order_id'], s['event'], s['status']) for s in subs]}")
+    return results
 
 
 def main() -> None:
@@ -101,7 +130,11 @@ def main() -> None:
 
     seed()                              # same placeholder data on every run
     trace_path = trace.start_run()
+    clock.reset()                       # the clock back to 2026-10-09 09:00 (story S3 moves it)
     intake.load_models()
+    warm = warm_up()                    # load the SLM now, not during the first reply
+    if not warm["ok"]:
+        print(f"Warning: {warm['warning']} ({warm['error']})")
     if inject:
         pipeline.review = inject_first_amount(pipeline.review)
 
@@ -118,14 +151,17 @@ def main() -> None:
     print(f"Decision : {decision.get('outcome')}  proposal {decision.get('proposal_id')}  rule {decision.get('rule_id')}")
     # As recorded by the platform (so an injected error shows its real amount).
     recorded = sorted(reports.list_rows("proposals"), key=lambda p: p["id"])
-    print("Proposals: " + "  ".join(f"{p['id']} {p['params'].get('amount')} -> {p['decision']}" for p in recorded))
+    print("Proposals: " + "  ".join(f"{p['id']} {p['action']} {p['params'].get('amount') or p['params'].get('event')}"
+                                    f" -> {p['decision']}" for p in recorded))
     if order_id:
         print(f"Order {order_id}: status {get_order(order_id)['status']}, refunds {get_refunds(order_id)['refunds']}")
     slm_models = sorted({json.loads(x)["data"].get("model") for x in open(trace_path, encoding="utf-8")
                          if '"role": "slm"' in x and '"step": "llm_call"' in x})
     print(f"\nFINAL REPLY [{out['reply_source']}]: {out['final_reply']}")
     print(f"Leak check : {leaks(out['final_reply']) or 'clean'}")
-    print(f"Seconds    : {seconds} (whole scenario)   SLM model: {', '.join(slm_models) or 'none (template)'}")
+    print(f"Seconds    : {seconds} (message to reply)   SLM model: {', '.join(slm_models) or 'none (template)'}")
+    if name == "S3":
+        run_s3_after_reply()
     print(f"Trace file : {trace_path}")
 
 
