@@ -1,4 +1,4 @@
-"""Demo screen (P09): type a client message or press a story button, and see how CallVerse handled it.
+"""Demo screen (P09): type a user message or press a story button, and see how CallVerse handled it.
 
 This is a small first version of the back office. It adds no logic of its own:
 - a message goes through the ONE pipeline: callverse.pipeline.handle();
@@ -283,7 +283,7 @@ def demo_page(request: Request):
 
 @router.post("/demo/message")
 def demo_message(body: MessageIn, request: Request):
-    """Run the whole pipeline on one typed client message."""
+    """Run the whole pipeline on one typed user message."""
     if (r := refusal(request)) is not None:
         return r
     text = body.text.strip()
@@ -304,7 +304,8 @@ def demo_story(name: str, request: Request):
     def go():
         seed()                         # every story starts from the same data...
         clock.reset()                  # ...and the same time (2026-10-09 09:00), like scripts/run_scenario.py
-        result = {"story": name.upper(), **_run(scenario["message"], inject=scenario.get("inject", False))}
+        result = {"story": name.upper(), "message": scenario["message"],   # shown in the chat as the user's text
+                  **_run(scenario["message"], inject=scenario.get("inject", False))}
         if name.upper() == "S3":       # the rest of S3 is played with the buttons: time passes, then the notifier
             result["next"] = ["+24 h", "+30 h", "Send notifications"]
         return answer(result)

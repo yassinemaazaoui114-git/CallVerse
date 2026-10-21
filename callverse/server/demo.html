@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CallVerse Demo</title>
 <!-- Demo screen (P09): a small first version of the back office. Plain HTML + inline CSS/JS, works offline.
-     Left: the client's view (chat). Right: how CallVerse handled it, stage by stage (internal words allowed). -->
+     Left: the user's view (chat). Right: how CallVerse handled it, stage by stage (internal words allowed). -->
 <style>
   :root { --bg:#f5f6f8; --card:#fff; --ink:#1c2230; --muted:#667085; --line:#e3e6eb; --accent:#2457c5;
           --pass:#067647; --pass-bg:#e7f6ee; --fail:#b42318; --fail-bg:#fdecea; --warn:#a15c07; --warn-bg:#fdf3e1;
@@ -74,10 +74,10 @@
 <main>
   <div>
     <section>
-      <h2>Client chat</h2>
+      <h2>User chat</h2>
       <div id="chat"></div>
       <form id="form">
-        <textarea id="text" placeholder="Type as a client, e.g. Order 4512 is a week late. I want my money back."></textarea>
+        <textarea id="text" placeholder="Type as a user, e.g. Order 4512 is a week late. I want my money back."></textarea>
         <button class="primary" type="submit" id="send">Send</button>
       </form>
       <div id="next" class="next" hidden>Next in this story:
@@ -167,15 +167,14 @@ async function refresh() {
 $("form").onsubmit = (e) => {
   e.preventDefault();
   const text = $("text").value.trim(); if (!text) return;
-  say(text, "Client", "user"); $("text").value = "";
+  say(text, "User", "user"); $("text").value = "";
   busy(async () => showResult(await call("POST", "/demo/message", { text })));
 };
 document.querySelectorAll("button[data-story]").forEach((b) => (b.onclick = () => busy(async () => {
   const data = await call("POST", "/demo/story/" + b.dataset.story);
   if (data.error && !data.run_id) { say(b.dataset.story + ": " + data.error, "Story", "bot error"); return; }
   $("chat").replaceChildren();   // a story starts from fresh data, so its chat starts fresh too
-  say(data.story === "S3" ? "Hi, can you let me know when my order 4510 arrives?" : "[story " + b.dataset.story + "]",
-      "Client", "user");
+  say(data.message || "[story " + b.dataset.story + "]", "User", "user");   // the story's own message text
   showResult(data);
   $("next").hidden = !(data.next && data.next.length);
 })));

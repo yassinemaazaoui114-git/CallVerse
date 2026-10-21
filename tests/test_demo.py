@@ -136,6 +136,16 @@ def test_s0_is_an_info_answer(demo_on):
     assert "4510" in data["final_reply"]
 
 
+def test_story_returns_its_message_text_for_the_chat(demo_on):
+    data = client.post("/demo/story/S1").json()
+    assert data["message"] == "Order 4512 is a week late. I want my money back."   # shown instead of "[story S1]"
+
+
+def test_page_says_user_not_client(demo_on):
+    page = client.get("/demo").text
+    assert "User chat" in page and "Client" not in page                          # the teacher's wording
+
+
 def test_story_not_available_yet_does_not_crash(demo_on):
     r = client.post("/demo/story/S9")
     assert r.status_code == 200 and r.json()["error"] == "not available yet"
