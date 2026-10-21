@@ -20,8 +20,10 @@ from callverse import trace  # noqa: E402
 from callverse.data.db import db_path  # noqa: E402
 from callverse.server.app import app  # noqa: E402
 
+from callverse.config import load_config  # noqa: E402
+
 HOST = "127.0.0.1"   # localhost only: never bind to all network interfaces
-PORT = 8000
+PORT = int((load_config().get("server") or {}).get("port", 8000))   # the demo's Host check uses the same port
 
 
 def main() -> None:

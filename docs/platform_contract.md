@@ -186,6 +186,7 @@ shape, or `{"error": "not available yet"}`; `GET /demo/runs/{run_id}` → stages
 `run_[A-Za-z0-9_]+` only); `POST /demo/clock/advance {hours}`, `POST /demo/clock/reset`, `POST /demo/notifier/run`
 (T09), `POST /demo/reset` (re-seed + clock reset). One request at a time (409 when busy), one trace run per request,
 a POST whose `Origin` is not this server → 403, API-key-like strings removed from every answer.
+P09b: a request whose `Host` is not `127.0.0.1:<port>` or `localhost:<port>` (port = `server.port`, default 8000) → 403. `POST /demo/story/S3` resets data + clock, runs the S3 message and returns `next: ["+24 h", "+30 h", "Send notifications"]`; `POST /demo/notifier/run` calls `notifier.run_notifier()` → `{run_id, messages: [{subscription_id, order_id, event, text, reply_source}], sent, stages}`. Typed messages never re-seed (only `POST /demo/reset` does).
 
 ## 9. Simulation clock + scripted delivery timeline (story S3)
 `callverse/data/clock.py`. The clock is stored in the database (one-row table `sim_clock`; applied timeline events in

@@ -11,6 +11,7 @@ Safety, because the server keeps running between requests:
 - each request gets its own trace run (run_id = that run's file); the server's own trace is put back after;
 - S2's injected error wraps pipeline.review only for that request (try/finally), so it never leaks into later ones;
 - a POST coming from another website (Origin header not this server) is refused (403);
+- a request whose Host is not 127.0.0.1:<port> or localhost:<port> is refused (403; port 8000 or server.port);
 - anything that looks like an API key is removed from every answer.
 """
 
@@ -55,10 +56,18 @@ def answer(data: Any, status: int = 200) -> JSONResponse:
     return JSONResponse(json.loads(text), status_code=status)
 
 
+def allowed_hosts() -> set[str]:
+    """The only Host headers the demo answers: this PC, on the server's port (config server.port, default 8000)."""
+    port = (load_config().get("server") or {}).get("port", 8000)
+    return {f"127.0.0.1:{port}", f"localhost:{port}"}
+
+
 def refusal(request: Request) -> JSONResponse | None:
-    """None if the demo request may run; otherwise the error answer (404 when off, 403 cross-site)."""
+    """None if the demo request may run; otherwise the error answer (404 when off, 403 wrong host / cross-site)."""
     if not demo_enabled():
         return JSONResponse({"detail": "Not Found"}, status_code=404)
+    if request.headers.get("host", "").lower() not in allowed_hosts():
+        return JSONResponse({"error": "host refused: the demo answers only on this PC"}, status_code=403)
     origin = request.headers.get("origin")
     if request.method == "POST" and origin:
         own = f"{request.url.scheme}://{request.headers.get('host', '')}"
@@ -131,7 +140,7 @@ def notifier_run():
         module = importlib.import_module("callverse.notifier.notifier")
     except ImportError:
         return None
-    for name in ("run", "send_pending", "notify_pending", "run_notifier"):
+    for name in ("run_notifier", "run", "send_pending", "notify_pending"):
         if callable(getattr(module, name, None)):
             return getattr(module, name)
     return None
@@ -185,6 +194,8 @@ def stages(records: list[dict]) -> list[dict]:
             out["Route"].append(_item(f"handover to agent {d.get('to')} by {d.get('by')}: \"{d.get('text')}\""))
         elif s == "agent_start":
             out["Agent"].append(_item(f"{d.get('agent')} starts (tools: {', '.join(d.get('allowed_tools', []))})"))
+        elif s == "tool_call" and a == "registry" and str(d.get("agent")).upper() == "INTAKE":
+            out["Intake"].append(_item(f"read tool {d.get('tool')}({_short(d.get('args'))}) -> {_short(d.get('result'))}"))
         elif s == "tool_call" and a == "registry":
             out["Agent"].append(_item(f"{d.get('agent')} tool {d.get('tool')}({_short(d.get('args'))}) -> "
                                       f"{_short(d.get('result'))}"))
@@ -240,6 +251,11 @@ def stages(records: list[dict]) -> list[dict]:
         elif s == "final_reply":
             out["Final reply"].append(_item(f"reply [{d.get('reply_source')}] in {d.get('seconds')} s: "
                                             f"{d.get('reply')}", "pass"))
+        elif s == "notification_sent":
+            out["Notifications"].append(_item(f"sent to order {d.get('order_id')} ({d.get('event')}) "
+                                              f"[{d.get('reply_source')}]: {d.get('text')}", "pass"))
+        elif s == "notifier_run":
+            out["Notifications"].append(_item(f"notifier run: {d.get('sent')} message(s) sent"))
         elif a == "notifier" or s.startswith("notif"):
             out["Notifications"].append(_item(f"{s}: {_short(d)}"))
         elif s in ("clock_advance", "clock_reset", "clock_refused"):
@@ -286,8 +302,12 @@ def demo_story(name: str, request: Request):
         return answer({"error": "not available yet", "story": name.upper()})
 
     def go():
-        seed()                         # every story starts from the same data (the clock resets with it)
-        return answer({"story": name.upper(), **_run(scenario["message"], inject=scenario.get("inject", False))})
+        seed()                         # every story starts from the same data...
+        clock.reset()                  # ...and the same time (2026-10-09 09:00), like scripts/run_scenario.py
+        result = {"story": name.upper(), **_run(scenario["message"], inject=scenario.get("inject", False))}
+        if name.upper() == "S3":       # the rest of S3 is played with the buttons: time passes, then the notifier
+            result["next"] = ["+24 h", "+30 h", "Send notifications"]
+        return answer(result)
     return locked(go)
 
 
@@ -333,10 +353,12 @@ def demo_notifier(request: Request):
     def go():
         with _OwnTraceRun() as path:
             try:
-                result = run()
+                messages = run()
             except Exception as e:
-                result = {"error": f"{type(e).__name__}: {e}"}
-        return answer({"run_id": path.stem, "result": result, "stages": stages(read_run(path.stem) or [])})
+                return answer({"run_id": path.stem, "error": f"{type(e).__name__}: {e}", "messages": [],
+                               "stages": stages(read_run(path.stem) or [])})
+        return answer({"run_id": path.stem, "messages": messages, "sent": len(messages),
+                       "stages": stages(read_run(path.stem) or [])})
     return locked(go)
 
 

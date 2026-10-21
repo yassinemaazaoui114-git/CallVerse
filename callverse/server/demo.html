@@ -52,6 +52,8 @@
   th, td { text-align:left; padding:3px 6px; border-bottom:1px solid var(--line); }
   th { color:var(--muted); font-weight:600; }
   .scroll { max-height:70vh; overflow:auto; }
+  .next { margin-top:8px; padding:6px 8px; border:1px dashed var(--accent); border-radius:6px; font-size:12.5px; }
+  .msg.shop { align-self:flex-start; background:var(--pass-bg); }
   @media (max-width: 900px) { main { grid-template-columns:1fr; padding:10px 16px; } #chat { max-height:none; } }
 </style>
 </head>
@@ -63,9 +65,10 @@
   <button data-story="S1" title="4512 a week late, refund approved">S1</button>
   <button data-story="S2" title="S1 with an injected wrong amount: one send-back, then approve">S2</button>
   <button data-story="S4" title="4515, 378 TND: finance (Layer 3) approves">S4</button>
-  <button data-story="S3" title="Delivery notification (needs T09)">S3</button>
-  <button id="advance" title="Move the simulation clock 24 hours forward">+24 h</button>
-  <button id="notify" title="Send pending notifications (needs T09)">Send notifications</button>
+  <button data-story="S3" title="4510: tell me when it arrives (then +24 h / +30 h / Send notifications)">S3</button>
+  <button data-hours="24" title="Add 24 simulated hours to the clock">+24 h</button>
+  <button data-hours="30" title="Add 30 simulated hours to the clock">+30 h</button>
+  <button class="notify" title="Send the pending notifications">Send notifications</button>
   <button id="reset" title="Fresh demo data and clock back to the start">Reset demo</button>
 </header>
 <main>
@@ -77,7 +80,11 @@
         <textarea id="text" placeholder="Type as a client, e.g. Order 4512 is a week late. I want my money back."></textarea>
         <button class="primary" type="submit" id="send">Send</button>
       </form>
+      <div id="next" class="next" hidden>Next in this story:
+        <button data-hours="24">+24 h</button> <button data-hours="30">+30 h</button>
+        <button class="notify">Send notifications</button></div>
       <div class="meta" id="meta"></div>
+      <div class="meta">Data changes stay until you press Reset demo.</div>
     </section>
     <section style="margin-top:14px">
       <h2>Scripted orders (current status)</h2>
@@ -93,7 +100,7 @@
 <script>
 // Values are always inserted with textContent (never innerHTML).
 const $ = (id) => document.getElementById(id);
-const busyButtons = () => document.querySelectorAll("header button, #send");
+const busyButtons = () => document.querySelectorAll("header button, #next button, #send");
 function el(tag, text, cls) { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; }
 
 async function call(method, url, body) {
@@ -166,22 +173,29 @@ $("form").onsubmit = (e) => {
 document.querySelectorAll("button[data-story]").forEach((b) => (b.onclick = () => busy(async () => {
   const data = await call("POST", "/demo/story/" + b.dataset.story);
   if (data.error && !data.run_id) { say(b.dataset.story + ": " + data.error, "Story", "bot error"); return; }
-  say("[story " + b.dataset.story + "]", "Client", "user");
+  $("chat").replaceChildren();   // a story starts from fresh data, so its chat starts fresh too
+  say(data.story === "S3" ? "Hi, can you let me know when my order 4510 arrives?" : "[story " + b.dataset.story + "]",
+      "Client", "user");
   showResult(data);
+  $("next").hidden = !(data.next && data.next.length);
 })));
-$("advance").onclick = () => busy(async () => {
-  const r = await call("POST", "/demo/clock/advance", { hours: 24 });
-  say(r.error ? r.error : "Clock moved " + r.from + " -> " + r.to + "; timeline events: " + (r.applied || []).length,
-      "Clock", r.error ? "bot error" : "bot");
-});
-$("notify").onclick = () => busy(async () => {
+document.querySelectorAll("button[data-hours]").forEach((b) => (b.onclick = () => busy(async () => {
+  const r = await call("POST", "/demo/clock/advance", { hours: Number(b.dataset.hours) });
+  const events = (r.applied || []).map((a) => "order " + a.order_id + " -> " + a.status + (a.applied ? "" : " (refused)"));
+  say(r.error ? r.error : "Clock +" + b.dataset.hours + " h: " + r.to.replace("T", " ") + ". " +
+      (events.length ? "Timeline: " + events.join(", ") : "Nothing new in the timeline."),
+      "Simulation clock", r.error ? "bot error" : "bot");
+})));
+document.querySelectorAll("button.notify").forEach((b) => (b.onclick = () => busy(async () => {
   const r = await call("POST", "/demo/notifier/run");
   if (r.error) { say("Notifier: " + r.error, "Notifier", "bot error"); return; }
-  say("Notifier ran: " + JSON.stringify(r.result).slice(0, 300), "Notifier", "bot"); showStages(r);
-});
+  if (!r.messages.length) say("No notification to send.", "Notifier", "bot");
+  r.messages.forEach((m) => say(m.text, "ShopNova (notification, order " + m.order_id + ")", "shop"));
+  showStages(r);
+})));
 $("reset").onclick = () => busy(async () => {
   const r = await call("POST", "/demo/reset");
-  $("chat").replaceChildren(); showStages({});
+  $("chat").replaceChildren(); showStages({}); $("next").hidden = true;
   say(r.error ? r.error : "Demo reset: fresh data, clock " + r.clock, "Reset", r.error ? "bot error" : "bot");
 });
 refresh();

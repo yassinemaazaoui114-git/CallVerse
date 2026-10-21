@@ -15,7 +15,7 @@ from callverse.server import demo
 from callverse.server.app import app
 from callverse.tools.shopnova_tools import get_order
 
-client = TestClient(app)
+client = TestClient(app, base_url="http://127.0.0.1:8000")   # P09b: the demo answers only on this Host
 S1_TEXT = "Order 4512 is a week late. I want my money back."
 GOOD = {"order_id": 4512, "amount": 59.90, "rule_id": "R-REF-03",
         "facts_used": {"days_late": 6, "delivered": False, "paid": 59.90, "refunded_total": 0.0},
@@ -64,6 +64,7 @@ def fake_intake(text, use_llm=True, chat_fn=None):
 @pytest.fixture
 def demo_on(monkeypatch):
     monkeypatch.setitem(load_config()["server"], "demo_enabled", True)
+    monkeypatch.setitem(load_config()["server"], "port", 8000)   # the client's Host, whatever the working copy says
     monkeypatch.setattr(llm, "chat", fake_llm)
     monkeypatch.setattr(pipeline.intake, "process", fake_intake)
     monkeypatch.setattr(search, "search_policy",
@@ -136,8 +137,12 @@ def test_s0_is_an_info_answer(demo_on):
 
 
 def test_story_not_available_yet_does_not_crash(demo_on):
-    r = client.post("/demo/story/S3")
+    r = client.post("/demo/story/S9")
     assert r.status_code == 200 and r.json()["error"] == "not available yet"
+
+
+def test_notifier_not_available_does_not_crash(demo_on, monkeypatch):
+    monkeypatch.setattr(demo, "notifier_run", lambda: None)
     r = client.post("/demo/notifier/run")
     assert r.status_code == 200 and r.json()["error"] == "not available yet"
 
@@ -182,7 +187,7 @@ def test_default_config_has_the_demo_off():
 def test_cross_site_post_is_refused(demo_on):
     evil = client.post("/demo/reset", headers={"Origin": "http://evil.example"})
     assert evil.status_code == 403
-    same = client.post("/demo/reset", headers={"Origin": "http://testserver"})
+    same = client.post("/demo/reset", headers={"Origin": "http://127.0.0.1:8000"})
     assert same.status_code == 200
     assert client.post("/demo/reset").status_code == 200                 # no Origin header (curl, tests): allowed
 
@@ -214,3 +219,54 @@ def test_page_has_the_buttons(demo_on):
     page = client.get("/demo").text
     for label in ("S0", "S1", "S2", "S4", "S3", "+24 h", "Send notifications", "Reset demo", "AI assistant"):
         assert label in page
+
+
+
+# --- P09b: S3 + notifications, typed messages keep the data, Host check -----------------------
+
+def fake_llm_s3(role_key, messages, tools=None):
+    """Agent A for S3: tracking, then proposes the 'delivered' notification (approved by the Coordinator)."""
+    step = sum(1 for m in messages if m.get("role") == "tool")
+    steps = [tool_reply("get_tracking", {"order_id": 4510}),
+             tool_reply("propose_subscription", {"order_id": 4510, "event": "delivered",
+                                                 "user_quote": "let me know when my order 4510 arrives"})]
+    return steps[step] if step < len(steps) else text_reply("Subscription sent for checking.")
+
+
+def test_s3_story_then_clock_then_notifications(demo_on, monkeypatch):
+    monkeypatch.setattr(llm, "chat", fake_llm_s3)
+    client.post("/demo/clock/advance", json={"hours": 5})               # the story resets the clock anyway
+    s3 = client.post("/demo/story/S3").json()
+    assert s3["story"] == "S3" and s3["next"] == ["+24 h", "+30 h", "Send notifications"]
+    assert s3["decision"]["outcome"] == "approve" and s3["decision"]["action"] == "subscribe"
+    assert len(client.get("/subscriptions").json()) == 1
+    assert client.get("/clock").json()["now"] == "2026-10-09T09:00:00"
+
+    assert client.post("/demo/clock/advance", json={"hours": 24}).json()["applied"][0]["status"] == "out_for_delivery"
+    assert client.post("/demo/notifier/run").json()["sent"] == 0       # +24 h: not delivered yet
+    moved = client.post("/demo/clock/advance", json={"hours": 30}).json()   # +30 h more = 54 h after the start
+    assert [a["status"] for a in moved["applied"]] == ["delivered"]
+    sent = client.post("/demo/notifier/run").json()
+    assert sent["sent"] == 1 and sent["messages"][0]["order_id"] == 4510
+    assert "Your order 4510 has been delivered." in sent["messages"][0]["text"]
+    assert any(st["name"] == "Notifications" for st in sent["stages"])
+    assert client.post("/demo/notifier/run").json()["sent"] == 0       # pressed again: nothing twice
+    assert client.get("/subscriptions").json()[0]["status"] == "sent"
+
+
+def test_typed_messages_keep_the_data(demo_on):
+    first = client.post("/demo/message", json={"text": S1_TEXT}).json()
+    assert first["decision"]["outcome"] == "approve"
+    second = client.post("/demo/message", json={"text": S1_TEXT}).json()   # 4512 is already refunded now
+    assert second["decision"]["outcome"] != "approve"
+    assert get_order(4512)["status"] == "refunded"
+    assert "Data changes stay until you press Reset demo" in client.get("/demo").text
+
+
+def test_wrong_host_is_refused(demo_on):
+    other = TestClient(app, base_url="http://evil.example:8000")
+    assert other.get("/demo").status_code == 403
+    assert other.post("/demo/reset").status_code == 403
+    assert TestClient(app, base_url="http://localhost:8000").get("/demo").status_code == 200
+    assert TestClient(app, base_url="http://127.0.0.1:9999").get("/demo").status_code == 403   # wrong port
+    assert TestClient(app).get("/clock").status_code == 200              # normal read routes: no Host check
