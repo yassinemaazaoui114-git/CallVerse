@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CallVerse Demo</title>
+<!-- Demo screen (P09): a small first version of the back office. Plain HTML + inline CSS/JS, works offline.
+     Left: the client's view (chat). Right: how CallVerse handled it, stage by stage (internal words allowed). -->
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --ink:#1c2230; --muted:#667085; --line:#e3e6eb; --accent:#2457c5;
+          --pass:#067647; --pass-bg:#e7f6ee; --fail:#b42318; --fail-bg:#fdecea; --warn:#a15c07; --warn-bg:#fdf3e1;
+          --user:#2457c5; --user-ink:#fff; --bot:#eef1f5; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+          --bg:#12151b; --card:#1b1f27; --ink:#e6e9ef; --muted:#9aa3b2; --line:#2c323d; --accent:#7aa2ff;
+          --pass:#4cc38a; --pass-bg:#15301f; --fail:#ff7a6e; --fail-bg:#3a1916; --warn:#f0b35a; --warn-bg:#33270f;
+          --user:#3b63c9; --user-ink:#fff; --bot:#262b35; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 16px; background:var(--card);
+           border-bottom:1px solid var(--line); position:sticky; top:0; z-index:1; }
+  header h1 { font-size:16px; margin:0 12px 0 0; }
+  #clock { color:var(--muted); margin-right:auto; }
+  button { font:inherit; padding:5px 11px; border:1px solid var(--line); border-radius:6px; background:var(--card);
+           color:var(--ink); cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:wait; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  main { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); gap:14px; padding:14px 16px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px; min-width:0; }
+  section h2 { font-size:14px; margin:0 0 8px; }
+  #chat { display:flex; flex-direction:column; gap:8px; min-height:240px; max-height:52vh; overflow:auto; padding:4px 0; }
+  .msg { max-width:88%; padding:8px 11px; border-radius:10px; white-space:pre-wrap; word-wrap:break-word; }
+  .msg.user { align-self:flex-end; background:var(--user); color:var(--user-ink); }
+  .msg.bot { align-self:flex-start; background:var(--bot); }
+  .msg .who { display:block; font-size:11px; opacity:.75; margin-bottom:2px; }
+  .msg.error { background:var(--fail-bg); color:var(--fail); }
+  form { display:flex; gap:8px; margin-top:10px; }
+  textarea { flex:1; font:inherit; padding:8px; border:1px solid var(--line); border-radius:6px; resize:vertical;
+             min-height:44px; background:var(--card); color:var(--ink); }
+  .meta { color:var(--muted); font-size:12px; margin-top:6px; }
+  .stage { border:1px solid var(--line); border-radius:8px; margin-bottom:10px; overflow:hidden; }
+  .stage h3 { margin:0; padding:6px 10px; font-size:13px; background:var(--bg); border-bottom:1px solid var(--line); }
+  .stage ul { list-style:none; margin:0; padding:6px 10px; }
+  .stage li { padding:3px 0 3px 8px; border-left:3px solid transparent; font-size:12.5px; word-break:break-word; }
+  .stage li.pass { border-color:var(--pass); background:var(--pass-bg); }
+  .stage li.fail { border-color:var(--fail); background:var(--fail-bg); }
+  .stage li.warn { border-color:var(--warn); background:var(--warn-bg); }
+  .tag { font-weight:600; font-size:11px; margin-right:4px; }
+  li.pass .tag { color:var(--pass); } li.fail .tag { color:var(--fail); } li.warn .tag { color:var(--warn); }
+  #stages-empty { color:var(--muted); }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  th, td { text-align:left; padding:3px 6px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:600; }
+  .scroll { max-height:70vh; overflow:auto; }
+  @media (max-width: 900px) { main { grid-template-columns:1fr; padding:10px 16px; } #chat { max-height:none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>CallVerse demo</h1>
+  <span id="clock">Simulation time: ...</span>
+  <button data-story="S0" title="Where is my order 4510? (info)">S0</button>
+  <button data-story="S1" title="4512 a week late, refund approved">S1</button>
+  <button data-story="S2" title="S1 with an injected wrong amount: one send-back, then approve">S2</button>
+  <button data-story="S4" title="4515, 378 TND: finance (Layer 3) approves">S4</button>
+  <button data-story="S3" title="Delivery notification (needs T09)">S3</button>
+  <button id="advance" title="Move the simulation clock 24 hours forward">+24 h</button>
+  <button id="notify" title="Send pending notifications (needs T09)">Send notifications</button>
+  <button id="reset" title="Fresh demo data and clock back to the start">Reset demo</button>
+</header>
+<main>
+  <div>
+    <section>
+      <h2>Client chat</h2>
+      <div id="chat"></div>
+      <form id="form">
+        <textarea id="text" placeholder="Type as a client, e.g. Order 4512 is a week late. I want my money back."></textarea>
+        <button class="primary" type="submit" id="send">Send</button>
+      </form>
+      <div class="meta" id="meta"></div>
+    </section>
+    <section style="margin-top:14px">
+      <h2>Scripted orders (current status)</h2>
+      <div class="scroll"><table id="orders"><thead><tr><th>Order</th><th>User</th><th>Status</th><th>Paid</th>
+        <th>Promised</th></tr></thead><tbody></tbody></table></div>
+    </section>
+  </div>
+  <section>
+    <h2>How CallVerse handled it <span class="meta" id="run"></span></h2>
+    <div id="stages"><p id="stages-empty">Send a message or press a story button.</p></div>
+  </section>
+</main>
+<script>
+// Values are always inserted with textContent (never innerHTML).
+const $ = (id) => document.getElementById(id);
+const busyButtons = () => document.querySelectorAll("header button, #send");
+function el(tag, text, cls) { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; }
+
+async function call(method, url, body) {
+  const r = await fetch(url, { method, headers: { "Content-Type": "application/json" },
+                               body: body ? JSON.stringify(body) : undefined });
+  let data = {}; try { data = await r.json(); } catch (e) { data = { error: "HTTP " + r.status }; }
+  if (r.status === 404) data = { error: "demo routes are off (set server.demo_enabled: true in config.yaml)" };
+  return data;
+}
+
+function say(text, who, cls) {
+  const m = el("div", null, "msg " + cls);
+  m.append(el("span", who, "who"), document.createTextNode(text));
+  $("chat").append(m); $("chat").scrollTop = $("chat").scrollHeight;
+}
+
+function showStages(data) {
+  const box = $("stages"); box.replaceChildren();
+  $("run").textContent = data.run_id ? "run " + data.run_id : "";
+  (data.stages || []).forEach((st) => {
+    const card = el("div", null, "stage"); card.append(el("h3", st.name));
+    const ul = el("ul");
+    st.items.forEach((it) => {
+      const li = el("li", null, it.status);
+      const tag = { pass: "PASS", fail: "FAIL", warn: "NOTE" }[it.status];
+      if (tag) li.append(el("span", tag, "tag"));
+      li.append(document.createTextNode(it.text)); ul.append(li);
+    });
+    card.append(ul); box.append(card);
+  });
+  if (!box.children.length) box.append(el("p", data.error || "No stages for this run.", "meta"));
+}
+
+function showResult(data, label) {
+  if (data.error && !data.final_reply) say(data.error, label || "Error", "bot error");
+  else if (data.final_reply) say(data.final_reply, "AI assistant", "bot");
+  const bits = [];
+  if (data.story) bits.push("story " + data.story);
+  if (data.route) bits.push("route " + data.route.agent);
+  if (data.decision) bits.push("decision " + data.decision.outcome);
+  if (data.reply_source) bits.push("reply " + data.reply_source);
+  if (data.seconds != null) bits.push(data.seconds + " s");
+  $("meta").textContent = bits.join(" · ");
+  showStages(data);
+}
+
+async function busy(fn) {
+  busyButtons().forEach((b) => (b.disabled = true));
+  try { await fn(); } finally { busyButtons().forEach((b) => (b.disabled = false)); refresh(); }
+}
+
+async function refresh() {
+  const c = await call("GET", "/clock");
+  if (c.now) $("clock").textContent = "Simulation time: " + c.now.replace("T", " ");
+  const orders = await call("GET", "/orders?scripted=1&limit=50");
+  const body = $("orders").tBodies[0]; body.replaceChildren();
+  (Array.isArray(orders) ? orders : []).forEach((o) => {
+    const tr = el("tr");
+    [o.id, o.user_id, o.status, o.paid.toFixed(2), o.promised_date].forEach((v) => tr.append(el("td", v)));
+    body.append(tr);
+  });
+}
+
+$("form").onsubmit = (e) => {
+  e.preventDefault();
+  const text = $("text").value.trim(); if (!text) return;
+  say(text, "Client", "user"); $("text").value = "";
+  busy(async () => showResult(await call("POST", "/demo/message", { text })));
+};
+document.querySelectorAll("button[data-story]").forEach((b) => (b.onclick = () => busy(async () => {
+  const data = await call("POST", "/demo/story/" + b.dataset.story);
+  if (data.error && !data.run_id) { say(b.dataset.story + ": " + data.error, "Story", "bot error"); return; }
+  say("[story " + b.dataset.story + "]", "Client", "user");
+  showResult(data);
+})));
+$("advance").onclick = () => busy(async () => {
+  const r = await call("POST", "/demo/clock/advance", { hours: 24 });
+  say(r.error ? r.error : "Clock moved " + r.from + " -> " + r.to + "; timeline events: " + (r.applied || []).length,
+      "Clock", r.error ? "bot error" : "bot");
+});
+$("notify").onclick = () => busy(async () => {
+  const r = await call("POST", "/demo/notifier/run");
+  if (r.error) { say("Notifier: " + r.error, "Notifier", "bot error"); return; }
+  say("Notifier ran: " + JSON.stringify(r.result).slice(0, 300), "Notifier", "bot"); showStages(r);
+});
+$("reset").onclick = () => busy(async () => {
+  const r = await call("POST", "/demo/reset");
+  $("chat").replaceChildren(); showStages({});
+  say(r.error ? r.error : "Demo reset: fresh data, clock " + r.clock, "Reset", r.error ? "bot error" : "bot");
+});
+refresh();
+</script>
+</body>
+</html>
