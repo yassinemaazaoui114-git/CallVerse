@@ -56,6 +56,17 @@ def models_for(role_key: str, cfg: dict) -> list[dict]:
     return entries
 
 
+# T10b: every model whose DAILY quota answered 429 in this process ("provider/model"), in order.
+DAILY_LIMIT_HITS: list[str] = []
+
+
+def is_daily_limit(error) -> bool:
+    """True when a 429 is about a daily quota: Groq names "tokens per day (TPD)" / "requests per day (RPD)";
+    Gemini says "exceeded your current quota". A per-minute limit (TPM, RPM) is not daily."""
+    text = str(error).lower()
+    return ("per day" in text or "(tpd)" in text or "(rpd)" in text or "exceeded your current quota" in text)
+
+
 def is_model_tool_error(error) -> bool:
     """True for a 400 caused by the model's own broken tool call (Groq: code "tool_use_failed")."""
     body = getattr(error, "body", None)
@@ -156,6 +167,16 @@ def chat(role_key: str, messages: list[dict], tools: list[dict] | None = None, t
                 response = client.chat.completions.create(**request)
                 break
             except RateLimitError as e:
+                if is_daily_limit(e):
+                    # T10b: a DAILY quota is gone (not a short per-minute limit). Remembered, so a test
+                    # run (run_live_check) can stop instead of scoring answers made without the main models.
+                    DAILY_LIMIT_HITS.append(f"{provider_name}/{model}")
+                    trace.log("llm_daily_limit", "llm", {"role": role_key, "provider": provider_name, "model": model})
+                    error = e
+                    trace.log("llm_fallback", "llm", {"role": role_key, "provider": provider_name,
+                                                      "model": model, "error": f"{type(error).__name__}: {error}"})
+                    errors.append(f"{provider_name}/{model}: daily limit")
+                    break
                 wait = retry_after_seconds(e)
                 if attempt == 1 and wait is not None and wait <= max_wait:
                     trace.log("llm_wait", "llm", {"role": role_key, "provider": provider_name,

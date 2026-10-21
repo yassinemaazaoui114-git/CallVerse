@@ -17,6 +17,7 @@ Safety, because the server keeps running between requests:
 
 import importlib
 import json
+import os
 import re
 import threading
 import time
@@ -47,6 +48,10 @@ router = APIRouter(include_in_schema=False)
 # Guards
 # ---------------------------------------------------------------------------
 def demo_enabled() -> bool:
+    """On if config.yaml server.demo_enabled is true, OR (T10b) if the environment variable
+    CALLVERSE_DEMO_ENABLED=1 is set: demo day switches it on without editing a file kept in git."""
+    if os.getenv("CALLVERSE_DEMO_ENABLED", "").strip() == "1":
+        return True
     return bool((load_config().get("server") or {}).get("demo_enabled", False))
 
 
