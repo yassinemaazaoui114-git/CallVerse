@@ -11,7 +11,8 @@
   On "send_back" the SAME agent gets the reason once more and may correct its proposal; the Coordinator
   allows 2 send-backs per case, the 3rd becomes "escalate". Only an approved proposal is written,
   by the Coordinator.
-- No proposal (e.g. a status question): an "info" decision, with facts the Coordinator reads itself.
+- No proposal (e.g. a status question): an "info" decision, with facts the Coordinator reads itself;
+  a damaged item without a proposal: an "ask_proof" decision (R-DMG-01, a photo is needed first, T09).
 - Final reply (T08): the SLM writes it from the decision ONLY (callverse/slm/writer.py), in the client's
   style from Intake. The agent's own text never reaches the user: it is kept as agent_text (trace only),
   because it was written before the decision ("sent for checking").
@@ -23,7 +24,7 @@ from callverse import trace
 from callverse.agents.agent_a import AgentA
 from callverse.agents.agent_b import AgentB
 from callverse.config import load_config
-from callverse.coordinator.coordinator import for_user, info_decision, new_case, review
+from callverse.coordinator.coordinator import for_user, info_decision, new_case, proof_decision, review
 from callverse.intake import intake
 from callverse.queues.router import route
 from callverse.slm.writer import write_reply
@@ -58,7 +59,12 @@ def reply_style(ticket: dict) -> dict:
 
 def final_reply(ticket: dict, decision: dict | None, slm_chat_fn=None) -> tuple[dict, str, str]:
     """(decision said to the user, final reply, reply_source). The SLM sees only the decision + style."""
-    said = for_user(decision) if decision else info_decision(ticket.get("order_id"))
+    if decision:
+        said = for_user(decision)
+    elif ticket.get("main_reason") == "damaged_item":
+        said = proof_decision(ticket.get("order_id"))   # T09: no photo yet -> ask for it (R-DMG-01)
+    else:
+        said = info_decision(ticket.get("order_id"))
     said = {**said, "style": reply_style(ticket)}
     written = write_reply(said, [{"role": "user", "content": ticket["text"]}], chat_fn=slm_chat_fn)
     source = "template" if written["used_template"] else ("slm" if written["attempts"] == 1 else "slm_retry")
@@ -102,6 +108,12 @@ def handle_ticket(ticket: dict, chat_fn=None, slm_chat_fn=None) -> dict:
     if decision["agent"] == "A":
         result, proposals, final = run_agent_with_coordinator(AgentA, message, ticket, chat_fn)
         answer, handover = result["answer"], result.get("handover")
+        if handover == "B" and final is not None:
+            # T09: Agent A already has a Coordinator decision (e.g. an approved notification). A handover
+            # tag in the same answer would replace it with Agent B's result, so it is ignored (traced).
+            trace.log("handover_ignored", "pipeline", {"ticket_id": ticket["ticket_id"],
+                                                       "reason": f"agent A already has a decision: {final['outcome']}"})
+            handover = None
 
     if decision["agent"] == "B" or handover == "B":
         handover = "B"

@@ -131,6 +131,19 @@ def info_decision(order_id) -> dict:
     return decision
 
 
+def proof_decision(order_id) -> dict:
+    """Damaged item and no proposal yet (T09): R-DMG-01 needs a photo before any refund or replacement,
+    so the user is asked for it (not given the order status). Facts from get_tracking."""
+    tracking = get_tracking(order_id) if order_id is not None else {"error": "no order"}
+    facts = {} if "error" in tracking else {"order_status": tracking["status"]}
+    must_say, next_step = user_words("ask_proof", "refund", "R-DMG-01", facts, order_id)
+    decision = {"outcome": "ask_proof", "action": "refund", "order_id": order_id if facts else None,
+                "rule_id": "R-DMG-01", "facts": facts, "must_say": must_say, "next_step": next_step,
+                "reason": "damaged item, no photo yet (R-DMG-01)", "proposal_id": None}
+    trace.log("coordinator_decision", "coordinator", decision)
+    return decision
+
+
 def for_user(decision: dict) -> dict:
     """A decision the user may get a reply for. An internal outcome left at the end of the loop
     (the agent did not correct a sent-back proposal) is said as "escalate": a human looks at it."""

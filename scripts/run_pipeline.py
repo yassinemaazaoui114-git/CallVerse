@@ -11,6 +11,7 @@ from callverse import pipeline, trace
 from callverse.data.seed import seed
 from callverse.intake import intake
 from callverse.queues.queue import QueueManager
+from callverse.slm.writer import warm_up
 
 # Written for this demo (not from any test file): mixed reasons and priorities.
 BATCH = [
@@ -40,6 +41,9 @@ def main() -> None:
     seed()                         # same placeholder data on every run
     trace_path = trace.start_run()
     intake.load_models()
+    warm = warm_up()                # T09: load the SLM now, not during the first reply
+    if not warm["ok"]:
+        print(f"Warning: {warm['warning']} ({warm['error']})")
 
     if sys.argv[1:] == ["--batch"]:
         queue = QueueManager()

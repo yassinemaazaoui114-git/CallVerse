@@ -72,7 +72,10 @@ def messages_for(provider: dict, messages: list[dict]) -> list[dict]:
     return cleaned
 
 
-def chat(role_key: str, messages: list[dict], tools: list[dict] | None = None):
+DEFAULT_TIMEOUT_S = 60
+
+
+def chat(role_key: str, messages: list[dict], tools: list[dict] | None = None, timeout: float | None = None):
     """Send `messages` to the first available model of `role_key` and return the reply message.
 
     - Models are tried in the order of config.yaml (backup chain).
@@ -108,7 +111,9 @@ def chat(role_key: str, messages: list[dict], tools: list[dict] | None = None):
             continue
 
         # max_retries=0: we decide ourselves when to wait, retry or move to the next model.
-        client = OpenAI(base_url=provider["base_url"], api_key=api_key, max_retries=0, timeout=60)
+        # timeout: 60 s by default; a caller may give more (the SLM warm-up loads the model first, T09).
+        client = OpenAI(base_url=provider["base_url"], api_key=api_key, max_retries=0,
+                        timeout=timeout or DEFAULT_TIMEOUT_S)
         # entry "options" = extra request settings of that model in config.yaml (e.g. reasoning_effort).
         request = {"model": model, "messages": messages_for(provider, messages), **entry.get("options", {})}
         if tools:

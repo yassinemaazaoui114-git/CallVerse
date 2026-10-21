@@ -78,7 +78,12 @@ Final reply (T05 + T08): the SLM (`qwen2.5:3b` via Ollama, `callverse/slm/writer
 from the Coordinator's decision only (`must_say`, `next_step`, facts), in the client's style; a rule check
 and templates keep it safe. The agent's own text stays in the trace. Without Ollama the template answers.
 
-**Coming next:** delivery notifications (S3) · Client Simulator (Brief #4).
+Delivery notification (T09, story S3): Agent A proposes `propose_subscription` when the client asks to be
+told; the Coordinator approves (R-NOT-01) and the platform records it; after the simulation clock moves
+(`callverse/data/clock.py`), the notifier (`callverse/notifier/notifier.py`, `python -m scripts.run_notifier`)
+sends one message per subscription. `python -m scripts.run_scenario S3` plays the whole story.
+
+**Coming next:** Client Simulator (Brief #4).
 
 ## Data
 

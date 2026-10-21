@@ -23,6 +23,9 @@ OPENING = {
     "layer3": "your refund request needs approval from our finance team",
     "escalate": "a colleague will take over your request",
     "info": "here is the latest information",
+    # T09
+    "layer3_refused": "we are sorry, we cannot approve this refund",
+    "notify": "here is news",
 }
 
 
