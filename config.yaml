@@ -136,3 +136,8 @@ slm:
     formal: "Please accept our apologies for the trouble."
     casual: "I'm really sorry for the trouble."
     neutral: "I'm sorry for the trouble."
+
+# Local platform server (P05, P09). The demo screen (/demo: type a message, run the stories, see every step)
+# runs the real pipeline and can reset the demo data, so it is OFF by default: turn it on only for a live demo.
+server:
+  demo_enabled: false

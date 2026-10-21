@@ -41,6 +41,10 @@ app = FastAPI(title="ShopNova platform (local)",
               description="Local mock company for CallVerse. Reads are open on this PC; writes need the "
                           "Coordinator token. Agents call tools through POST /tools/{name}.")
 
+# Demo screen (P09): routes under /demo, OFF unless config.yaml server.demo_enabled is true (see demo.py).
+from callverse.server import demo  # noqa: E402
+app.include_router(demo.router)
+
 
 # ---------------------------------------------------------------------------
 # Trace: one line per request
