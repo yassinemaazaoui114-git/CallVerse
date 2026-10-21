@@ -21,12 +21,14 @@ TOOL_FUNCTIONS = {
     **shopnova_tools.FUNCTIONS,
     "search_policy": search.search_policy_tool,
     "propose_refund": proposal_tools.propose_refund,
+    "propose_subscription": proposal_tools.propose_subscription,
     "ask_agent": ask.ask_agent,
 }
 TOOL_SCHEMAS = {
     **shopnova_tools.SCHEMAS,
     "search_policy": search.SCHEMA,
     "propose_refund": proposal_tools.SCHEMA,
+    "propose_subscription": proposal_tools.SUBSCRIPTION_SCHEMA,
     "ask_agent": ask.SCHEMA,
 }
 
@@ -35,7 +37,8 @@ RUNS_AN_AGENT = {"ask_agent"}
 
 # Allow-lists: which tools each agent may use.
 # Status & Tracking: read-only tools + rules + company profile (carriers, delivery promise, cities).
-AGENT_A = ["get_user", "get_order", "get_tracking", "get_company_profile", "search_policy"]
+# T09: + propose_subscription (only a proposal: the Coordinator approves, then the platform records it).
+AGENT_A = ["get_user", "get_order", "get_tracking", "get_company_profile", "search_policy", "propose_subscription"]
 # Payment & Refund: no get_tracking (delivery facts come from Agent A through ask_agent);
 # propose_refund only creates a proposal.
 AGENT_B = ["get_order", "get_refunds", "search_policy", "propose_refund", "ask_agent"]
