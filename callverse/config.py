@@ -18,6 +18,16 @@ def load_config() -> dict:
         return yaml.safe_load(f)
 
 
-def sim_today() -> date:
-    """The fixed simulation date. We use it instead of the real clock so demos are reproducible."""
+def sim_start() -> date:
+    """The date the simulation starts on (sim_today in config.yaml, 2026-10-09). Never moves."""
     return date.fromisoformat(load_config()["sim_today"])
+
+
+def sim_today() -> date:
+    """Today in the simulation: the date of the simulation clock (callverse/data/clock.py).
+
+    The clock starts at sim_start() and only moves when clock.advance() is called (story S3), so if nobody
+    moves it this is the fixed date from config.yaml, as before. Never the real computer clock.
+    """
+    from callverse.data import clock   # imported here: the clock needs the database, config must not at import
+    return clock.now().date()

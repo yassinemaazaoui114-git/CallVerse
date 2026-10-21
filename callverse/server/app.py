@@ -26,7 +26,7 @@ from pydantic import BaseModel
 
 from callverse import trace
 from callverse.config import PROJECT_ROOT
-from callverse.data import db, layer3, reports, writes
+from callverse.data import clock, db, layer3, reports, writes
 from callverse.data.seed import seed
 from callverse.kb.policies import get_policy, load_policies
 from callverse.tools import registry, shopnova_tools
@@ -111,6 +111,12 @@ def refunds(order_id: int):
 @app.get("/users/{user_id}")
 def user(user_id: int):
     return _result(shopnova_tools.get_user(user_id=user_id))
+
+
+@app.get("/clock")
+def sim_clock():
+    """The simulation time (read-only: the clock is moved by scripts/advance_clock.py, never over HTTP)."""
+    return {"now": clock.now().isoformat(), "start": clock.start().isoformat(), "today": clock.now().date().isoformat()}
 
 
 @app.get("/summary")

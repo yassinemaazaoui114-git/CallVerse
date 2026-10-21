@@ -31,8 +31,9 @@ exactly as it is: the 11 scripted orders 4505–4515 and the 4506 refund). Gener
   decision_reason, created_at, decided_at)` — audit of every agent proposal and the Coordinator's decision.
   `decision`: `NULL` (not decided yet) or `approve | send_back | ask_user | ask_proof | layer3 | escalate`.
   `refunds.proposal_id` refers to `proposals.id` (seed refunds predate the system and have `NULL`).
-- Dates are ISO `YYYY-MM-DD`; run-time writes and the generated seed data use the fixed demo date
-  (`sim_today` in `config.yaml`, read through `callverse/config.py`; written in one place only).
+- Dates are ISO `YYYY-MM-DD`. The generated seed data uses the fixed start date (`sim_today` in `config.yaml`,
+  read through `config.sim_start()`; written in one place only). Run-time writes use `sim_today()`, which follows the
+  simulation clock (§9): it is 2026-10-09 until the clock is moved.
 
 ## 3. How agents call tools
 Plain Python functions + OpenAI-style JSON definitions (function calling). No LangChain.
@@ -155,6 +156,7 @@ with `agent` for tool calls).
 | `GET /orders?status=&scripted=&limit=50` | `reports.list_orders()` | list, sorted by id, limit 1–500 |
 | `GET /orders/{id}`, `/orders/{id}/tracking`, `/orders/{id}/refunds` | `get_order`, `get_tracking`, `get_refunds` | `{"error"}` → 404 |
 | `GET /users/{id}` | `get_user(user_id=id)` | `{"error"}` → 404 |
+| `GET /clock` | `clock.now()`, `clock.start()` | read-only `{now, start, today}`; the clock is never moved over HTTP |
 | `GET /summary` | `reports.summary()` | same numbers as `scripts/data_summary.py` |
 | `GET /refunds`, `/subscriptions`, `/events` | `reports.list_rows()` | newest first (for the dashboard) |
 | `GET /proposals` | `reports.list_rows("proposals")` | newest first, JSON columns decoded |
@@ -175,3 +177,30 @@ with `agent` for tool calls).
 them return **403** (writes are off by default). Missing or wrong header → 403. The token value is never printed,
 returned or logged. Write functions are still in no allow-list: `POST /tools/create_refund` → 403.
 `amount` is passed to the function unchanged, so its guard decides (`NaN` in the JSON body → 400).
+
+## 9. Simulation clock + scripted delivery timeline (story S3)
+`callverse/data/clock.py`. The clock is stored in the database (one-row table `sim_clock`; applied timeline events in
+`sim_timeline_applied`). Both tables are created the first time the clock moves, so a freshly seeded database is
+unchanged.
+```python
+clock.start() -> datetime        # sim_today from config.yaml at 09:00 (2026-10-09T09:00)
+clock.now() -> datetime          # current simulated time (= start until advance() is called)
+clock.advance(hours) -> {"from", "to", "applied": [event results]}   # finite hours, 0 < hours <= 8760 (one year), else {"error"}
+clock.reset() -> {"now", "orders_restored"}
+config.sim_start() -> date       # the fixed start date (used by seed.py, never moves)
+config.sim_today() -> date       # clock.now().date(): days_late, days_since_delivery and new dates follow it
+```
+- **Timeline** `callverse/data/scenario_timeline.json` (`scripted: true`, `ai_generated: true`): order **4510**
+  (shipped, promised 2026-10-10, on time; simulator scenario `on_time`): `+24 h → out_for_delivery`, `+30 h → delivered`.
+  Event shape `{id, order_id, after_hours, status}`; hours count from `clock.start()`.
+- `advance()` applies every due event once, in time order, through `set_order_status` (transition table applies);
+  the `events` row that `set_order_status` writes gets `scripted = 1`. An illegal move is refused, reported in `applied`
+  as `{"applied": false, "reason": ...}`, and never retried. Applied: `{"applied": true, "old_status", "event_row", ...}`.
+- Dates stay `YYYY-MM-DD` (`events.at`, `delivered_date`, `created_at`, ...): the clock's date is used. Only `sim_clock`
+  stores a datetime.
+- `reset()` is the **one exception** to "status changes only through `set_order_status`": it restores the timeline
+  orders' seeded `status` and `delivered_date` directly (going back, e.g. delivered → shipped, is refused by the
+  transition table) and deletes their `scripted = 1` events rows and the applied list.
+- Notifications are not sent here: after `advance()`, `reports.get_pending_notifications()` returns the waiting
+  subscriptions whose event has now happened; the notifier (core) sends them and calls `mark_subscription_sent`.
+- Script: `python scripts/advance_clock.py --hours N` / `--reset`. Traced steps: `clock_advance`, `clock_reset`, `clock_refused`.

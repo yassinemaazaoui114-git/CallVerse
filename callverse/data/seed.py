@@ -18,7 +18,7 @@ import sqlite3
 from datetime import timedelta
 from pathlib import Path
 
-from callverse.config import sim_today
+from callverse.config import sim_start
 from callverse.data import db
 from callverse.kb.policies import notification_events
 
@@ -196,7 +196,9 @@ STATUS_WEIGHTS = {"delivered": 60, "shipped": 10, "processing": 7, "out_for_deli
 def generate_data() -> tuple[list, list, list]:
     """Return (users, orders, refunds) of generated data, always the same (fixed seed)."""
     rng = random.Random(RANDOM_SEED)
-    today = sim_today()  # the fixed demo date from config.yaml (never the real clock)
+    # The fixed START date from config.yaml, never the moving clock (the clock lives in the database, which
+    # does not exist yet while seeding; and a rebuilt database must be identical even after the clock moved).
+    today = sim_start()
     users = []
     for uid in range(6, 26):
         first, last = rng.choice(FIRST_NAMES), rng.choice(LAST_NAMES)
@@ -210,7 +212,7 @@ def generate_data() -> tuple[list, list, list]:
                  for _ in range(rng.choice([1, 1, 2, 3]))]
         total = round(sum(i["price"] * i["qty"] for i in items), 2)
 
-        # How long ago the order was placed depends on how far it got (the clock is fixed at today = sim_today).
+        # How long ago the order was placed depends on how far it got (dates count back from the start date).
         days_ago = {"processing": (1, 3), "shipped": (2, 7), "out_for_delivery": (3, 8),
                     "stuck_at_depot": (6, 15)}.get(status, (8, 60))
         order_date = today - timedelta(days=rng.randint(*days_ago))
