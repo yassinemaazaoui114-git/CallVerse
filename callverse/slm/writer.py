@@ -58,7 +58,12 @@ OUTCOME_GUIDE = {
     "layer3": "Tell the client the refund needs approval from the finance team first. "
               "Do NOT say the refund is approved and do NOT promise it will be paid.",
     "escalate": "Tell the client a colleague will take over. Do not promise any result.",
-    "info": "Give the client the facts. Do not promise any follow-up action.",
+    # T10: short and without comments (the dev set showed invented remarks such as "not met", "mix-up").
+    "info": "Give the client the facts in at most two short sentences. Do not comment on them or guess "
+            "(no 'not met', 'mix-up', 'on schedule'). Do not promise any follow-up action.",
+    # T10: an approved notification gets one friendly sentence around the exact sentence.
+    "approve_subscribe": "Tell the client, in one friendly sentence (for example starting with 'Sure,'), "
+                         "that the message is set up. Do not promise anything else.",
     # T09
     "layer3_refused": "Tell the client the refund cannot be approved: the finance team did not approve it. "
                       "Do NOT promise a refund, another check or any later action.",
@@ -86,7 +91,9 @@ def build_messages(decision: dict, history: list[dict] | None = None, problems: 
     """Messages for the SLM: rules, the decision's allowed content, the tone, and the last problems if retrying."""
     allowed = {"order_number": decision.get("order_id"), "facts": decision.get("facts") or {},
                "next_step": decision.get("next_step") or "", "must_say": decision.get("must_say") or []}
-    content = [OUTCOME_GUIDE.get(decision.get("outcome"), OUTCOME_GUIDE["info"]),
+    guide_key = ("approve_subscribe" if decision.get("outcome") == "approve" and decision.get("action") == "subscribe"
+                 else decision.get("outcome"))
+    content = [OUTCOME_GUIDE.get(guide_key, OUTCOME_GUIDE["info"]),
                "What you may say (nothing else):\n" + json.dumps(allowed, ensure_ascii=False, indent=1),
                style_guide(decision.get("style"))]
     if decision.get("order_id") is not None:
@@ -240,8 +247,35 @@ def fix_punctuation(reply: str) -> str:
     return f"{head} {body}".strip()
 
 
+def _norm(sentence: str) -> str:
+    """Lower case, no greeting, no "your", no punctuation: to compare a sentence with a must_say sentence."""
+    s = GREETING_RE.sub("", sentence).lower()
+    s = re.sub(r"\byour\b", " ", s)
+    return " ".join(re.sub(r"[^\w\s]", " ", s).split())
+
+
+def drop_must_say_echoes(reply: str, decision: dict) -> str:
+    """T10: drop a sentence that only repeats part of a must_say sentence
+    ("Hello, order 4510 is on its way. Your order 4510 is on its way." -> keep the second)."""
+    sentences = SENTENCE_SPLIT_RE.split(reply.strip())
+    low = " ".join(reply.lower().split())
+    kept = []
+    for s in sentences:
+        n = _norm(s)
+        for item in decision.get("must_say") or []:
+            exact = " ".join(str(item).lower().split())
+            # drop s if it is a part of a must_say sentence, is not that sentence itself, and the exact
+            # sentence is also in the reply (so nothing is lost)
+            if n and n in _norm(item) and exact not in " ".join(s.lower().split()) and exact in low:
+                break
+        else:
+            kept.append(s)
+    return " ".join(kept)
+
+
 def must_say_once(reply: str, decision: dict) -> str:
     """Each must_say sentence appears once: later exact copies are removed (case-insensitive)."""
+    reply = drop_must_say_echoes(reply, decision)
     for item in decision.get("must_say") or []:
         words = str(item).split()
         if not words:

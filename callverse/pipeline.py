@@ -24,7 +24,8 @@ from callverse import trace
 from callverse.agents.agent_a import AgentA
 from callverse.agents.agent_b import AgentB
 from callverse.config import load_config
-from callverse.coordinator.coordinator import for_user, info_decision, new_case, proof_decision, review
+from callverse.coordinator.coordinator import (escalate_decision, for_user, info_decision, new_case,
+                                               off_topic_decision, proof_decision, review)
 from callverse.intake import intake
 from callverse.queues.router import route
 from callverse.slm.writer import write_reply
@@ -63,10 +64,14 @@ def final_reply(ticket: dict, decision: dict | None, slm_chat_fn=None) -> tuple[
         said = for_user(decision)
     elif ticket.get("main_reason") == "damaged_item":
         said = proof_decision(ticket.get("order_id"))   # T09: no photo yet -> ask for it (R-DMG-01)
+    elif ticket.get("main_reason") == "other" and ticket.get("order_id") is None:
+        said = off_topic_decision()                     # T10: not about an order -> polite redirect
     else:
         said = info_decision(ticket.get("order_id"))
     said = {**said, "style": reply_style(ticket)}
-    written = write_reply(said, [{"role": "user", "content": ticket["text"]}], chat_fn=slm_chat_fn)
+    # T10: the client's own message is NOT given to the SLM (in T10's dev set it copied an insult back word
+    # for word). The tone comes from Intake's style profile; the content only from the decision.
+    written = write_reply(said, None, chat_fn=slm_chat_fn)
     source = "template" if written["used_template"] else ("slm" if written["attempts"] == 1 else "slm_retry")
     trace.log("final_reply", "pipeline", {"ticket_id": ticket["ticket_id"], "outcome": said["outcome"],
                                           "reply": written["reply"], "reply_source": source,
@@ -82,6 +87,13 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
     """
     case = new_case(ticket["ticket_id"])
     result = agent_cls(chat_fn=chat_fn).run(message)
+    if ticket.get("order_id") is not None and not result["tool_calls"] and not result.get("proposal"):
+        # T10 safety net (the S4 slip): Intake found an order id, but the agent used no tool at all
+        # (e.g. it asked the client for the order number). One more run, with the id given plainly.
+        note = f"[Note: The order id is {ticket['order_id']}. Check it with your tools before answering.]"
+        trace.log("agent_retry", "pipeline", {"ticket_id": ticket["ticket_id"], "agent": result["agent"],
+                                              "first_answer": result["answer"], "note": note})
+        result = agent_cls(chat_fn=chat_fn).run(f"{message}\n\n{note}")
     proposals, decision = [], None
     while result.get("proposal"):
         proposals.append(result["proposal"])
@@ -104,7 +116,31 @@ def handle_ticket(ticket: dict, chat_fn=None, slm_chat_fn=None) -> dict:
     message = f"{ticket['text']}\n\n{ticket_note(ticket)}"
     answer, handover, text = None, None, None
     proposals, final = [], None
+    try:
+        answer, handover, text, proposals, final = _run_agents(ticket, decision, message, chat_fn)
+    except AssertionError:
+        raise   # an assert in a test's fake LLM: a failing test must stay visible
+    except Exception as e:
+        # T10: never crash in front of the user. Any error in the agents' part (LLM provider refusing
+        # a request, ...) is traced and the user gets the "extra check" (escalate) reply.
+        trace.log("pipeline_error", "pipeline", {"ticket_id": ticket["ticket_id"], "error": f"{type(e).__name__}: {e}"})
+        final = escalate_decision(ticket.get("order_id"), f"error in the agents: {type(e).__name__}")
 
+    said, reply, source = final_reply(ticket, final, slm_chat_fn)
+    proposal = proposals[-1] if proposals else None
+    out = {"ticket": ticket, "route": decision, "agent_text": answer, "handover": handover,
+           "handover_text": text, "proposal": proposal, "proposals": proposals, "decision": said,
+           "final_reply": reply, "reply_source": source}
+    trace.log("pipeline_done", "pipeline", {"ticket_id": ticket["ticket_id"], "route": decision,
+                                            "agent_text": answer, "handover": handover, "proposal": proposal,
+                                            "decision": said, "final_reply": reply, "reply_source": source})
+    return out
+
+
+def _run_agents(ticket: dict, decision: dict, message: str, chat_fn) -> tuple:
+    """The agents' part of handle_ticket: (agent text, handover, handover text, proposals, final decision)."""
+    answer, handover, text = None, None, None
+    proposals, final = [], None
     if decision["agent"] == "A":
         result, proposals, final = run_agent_with_coordinator(AgentA, message, ticket, chat_fn)
         answer, handover = result["answer"], result.get("handover")
@@ -122,16 +158,7 @@ def handle_ticket(ticket: dict, chat_fn=None, slm_chat_fn=None) -> dict:
         trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "B", "by": by, "text": text})
         result, proposals, final = run_agent_with_coordinator(AgentB, message, ticket, chat_fn)
         answer = result["answer"]
-
-    said, reply, source = final_reply(ticket, final, slm_chat_fn)
-    proposal = proposals[-1] if proposals else None
-    out = {"ticket": ticket, "route": decision, "agent_text": answer, "handover": handover,
-           "handover_text": text, "proposal": proposal, "proposals": proposals, "decision": said,
-           "final_reply": reply, "reply_source": source}
-    trace.log("pipeline_done", "pipeline", {"ticket_id": ticket["ticket_id"], "route": decision,
-                                            "agent_text": answer, "handover": handover, "proposal": proposal,
-                                            "decision": said, "final_reply": reply, "reply_source": source})
-    return out
+    return answer, handover, text, proposals, final
 
 
 def handle(message: str, chat_fn=None, use_llm: bool = True, slm_chat_fn=None) -> dict:

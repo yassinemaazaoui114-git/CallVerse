@@ -131,3 +131,22 @@ def test_tool_call_extras_kept_only_for_providers_that_need_them():
         {"id": "1", "type": "function", "function": {"name": "f", "arguments": "{}"}, "extra_content": {"x": 1}}]}]
     assert "extra_content" in llm.messages_for({"tool_call_extras": True}, messages)[0]["tool_calls"][0]
     assert "extra_content" not in llm.messages_for({}, messages)[0]["tool_calls"][0]
+
+
+# ---------- T10: a model's broken tool call (Groq 400 "tool_use_failed") falls back ----------
+
+def test_tool_use_failed_400_falls_back_but_other_400_does_not(monkeypatch):
+    response = httpx.Response(400, request=httpx.Request("POST", "https://fake.example"))
+    broken = openai.BadRequestError("tool call validation failed", response=response,
+                                    body={"error": {"code": "tool_use_failed", "message": "bad tool name"}})
+    called = install_fake_client(monkeypatch, broken)
+    assert llm.chat("agents", [{"role": "user", "content": "hi"}]).content == "answer from second"
+    assert called == ["first", "second"]
+
+
+def test_foreign_tool_calls_get_a_placeholder_signature_for_gemini():
+    messages = [{"role": "assistant", "content": "", "tool_calls": [
+        {"id": "1", "type": "function", "function": {"name": "f", "arguments": "{}"}}]}]
+    fixed = llm.messages_for({"tool_call_extras": True}, messages)
+    assert fixed[0]["tool_calls"][0]["extra_content"] == llm.FOREIGN_SIGNATURE
+    assert "extra_content" not in messages[0]["tool_calls"][0]       # the original is not changed
