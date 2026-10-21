@@ -8,6 +8,9 @@ It gets no tools and never reads the database: its only input is the decision + 
 Parts written by CODE, not by the model (T05b): the calm opener for an upset client, the order reference
 if the model forgot it, and the removal of repeated sentences. Exact sentences the Coordinator requires
 (must_say) are asked from the model and verified by the check.
+T08 adds three more code fixes (polish): no ", Your ..." (comma + capital) and a capital at every sentence
+start; each must_say sentence only once; "Dear customer," first for a formal client. They are applied to
+the SLM's reply and to the template reply.
 
 Flow of write_reply():
   1. SLM writes a reply -> code parts -> rule check (check.py).
@@ -179,10 +182,68 @@ def ensure_order_reference(reply: str, decision: dict) -> str:
     return f"{head} About your order {order}: {rest}".strip()
 
 
+# --- T08: three small fixes by code (Dali's review of T05b) -------------------------------------------
+
+# ", Your refund ..." -> ". Your refund ...": a comma followed by a capital starts a new sentence.
+# Not for "I" ("..., I am"). A greeting at the start ("Hi, Your") is handled apart (lower case instead).
+COMMA_CAPITAL_RE = re.compile(r",\s+(?!I\b|I')(?=[A-Z][a-z])")
+SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+
+
+def _lower_first_word(text: str) -> str:
+    """Lower-case the first letter after a greeting, unless it is "I" or a name such as "ShopNova"."""
+    word = text.split(" ", 1)[0]
+    if word in ("I", "I'm", "I've", "I'll") or not word[1:].islower():
+        return text
+    return text[:1].lower() + text[1:]
+
+
+def fix_punctuation(reply: str) -> str:
+    """No ", Your ..." (comma + capital): split into two sentences; every sentence starts with a capital."""
+    reply = reply.strip()
+    greeting = GREETING_RE.match(reply)
+    head, body = (greeting.group(0).strip(), reply[greeting.end():].lstrip()) if greeting else ("", reply)
+    body = COMMA_CAPITAL_RE.sub(". ", body)
+    body = body.replace(".. ", ". ")
+    body = " ".join(s[:1].upper() + s[1:] for s in SENTENCE_SPLIT_RE.split(body) if s)
+    if head and head.endswith(","):
+        body = _lower_first_word(body)   # "Hi, your refund ..." stays one sentence
+    return f"{head} {body}".strip()
+
+
+def must_say_once(reply: str, decision: dict) -> str:
+    """Each must_say sentence appears once: later exact copies are removed (case-insensitive)."""
+    for item in decision.get("must_say") or []:
+        words = str(item).split()
+        if not words:
+            continue
+        pattern = re.compile(r"\s+".join(re.escape(w) for w in words), re.IGNORECASE)
+        for match in reversed(list(pattern.finditer(reply))[1:]):
+            reply = reply[:match.start()] + reply[match.end():]
+    return " ".join(reply.split())
+
+
+def add_formal_greeting(reply: str, decision: dict) -> str:
+    """Formal client: the reply starts with "Dear customer," (by code, before the calm opener if any).
+    Casual / neutral: no fixed greeting is added."""
+    if ((decision.get("style") or {}).get("formality")) != "formal" or not reply:
+        return reply
+    body = GREETING_RE.sub("", reply).strip()
+    return f"Dear customer, {_lower_first_word(body)}"
+
+
+def polish(reply: str, decision: dict) -> str:
+    """The T08 fixes, used on SLM replies AND on template replies: punctuation, must_say once, greeting."""
+    return add_formal_greeting(must_say_once(fix_punctuation(reply), decision), decision)
+
+
 def finish(raw: str | None, decision: dict) -> str:
-    """Model text -> final reply: clean-up, then the parts written by code (calm opener, order reference)."""
+    """Model text -> final reply: clean-up, then the parts written by code (calm opener, order reference,
+    T08 fixes: punctuation, must_say once, formal greeting)."""
     reply = drop_repeated_sentences(clean(raw))
-    return ensure_order_reference(add_calm_opener(reply, decision), decision)
+    reply = must_say_once(fix_punctuation(reply), decision) if reply else reply
+    reply = ensure_order_reference(add_calm_opener(reply, decision), decision)
+    return add_formal_greeting(reply, decision)
 
 
 def write_reply(decision: dict, history: list[dict] | None = None, chat_fn=None) -> dict:
@@ -208,7 +269,7 @@ def write_reply(decision: dict, history: list[dict] | None = None, chat_fn=None)
                     "seconds": round(time.perf_counter() - start, 3)}
         problems = check["problems"] if not error else ["the model did not answer"]
 
-    reply = templates.render(decision)
+    reply = polish(templates.render(decision), decision)
     check = check_reply(reply, decision)
     trace.log("slm_template", "slm", {"outcome": decision.get("outcome"), "reply": reply, **check})
     return {"reply": reply, "check": check, "attempts": MAX_ATTEMPTS, "used_template": True,

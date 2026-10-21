@@ -1,6 +1,7 @@
 """Run a demo scenario end to end and print what happened, step by step.
 
 Usage (from the repo root):
+    python -m scripts.run_scenario S0                  # status question for 4510 (info, no proposal)
     python -m scripts.run_scenario S1                  # late order 4512, refund approved
     python -m scripts.run_scenario S2                  # = S1 with --inject-error: first proposal 70.00
     python -m scripts.run_scenario S1 --inject-error   # same as S2
@@ -9,10 +10,15 @@ Usage (from the repo root):
 --inject-error simulates an agent mistake: Agent B's FIRST proposal reaches the Coordinator with
 amount 70.00 instead of what B proposed. It is written in the trace (step "inject_error"), so the
 demo never hides it. The Coordinator sends it back (R-REF-05), B corrects, the Coordinator approves.
+
+The end shows the FINAL REPLY the user gets (written by the SLM from the decision, T08), its source
+(slm / slm_retry / template), and a leak check: internal words must never reach the user.
 """
 
 import json
+import re
 import sys
+import time
 
 from callverse import pipeline, trace
 from callverse.data import reports
@@ -21,11 +27,20 @@ from callverse.intake import intake
 from callverse.tools.shopnova_tools import get_order, get_refunds
 
 SCENARIOS = {
+    "S0": {"message": "Hi, where is my order 4510?", "inject": False},
     "S1": {"message": "Order 4512 is a week late. I want my money back.", "inject": False},
     "S2": {"message": "Order 4512 is a week late. I want my money back.", "inject": True},
     "S4": {"message": "Order 4515 is very late, I want a full refund.", "inject": False},
 }
 INJECTED_AMOUNT = 70.00
+
+# Internal words that must never be in a final reply (T08 leak check).
+LEAK_RE = re.compile(r"coordinator|agent|proposal|P-0|\bR-[A-Z]{0,3}-?\d|sent for checking", re.IGNORECASE)
+
+
+def leaks(reply: str) -> list[str]:
+    """Internal words found in a reply (empty list = clean)."""
+    return [m.group(0) for m in LEAK_RE.finditer(reply or "")]
 
 
 def inject_first_amount(review):
@@ -92,18 +107,25 @@ def main() -> None:
 
     print(f"Scenario {name}{' (inject error)' if inject else ''}")
     print(f"Client   : {scenario['message']}\n")
+    start = time.perf_counter()
     out = pipeline.handle(scenario["message"])
+    seconds = round(time.perf_counter() - start, 1)
 
     print("\n".join(step_list(trace_path)))
     decision = out["decision"] or {}
     order_id = out["ticket"]["order_id"]
-    print(f"\nAnswer   : {out['answer']}")
+    print(f"\nAgent text (trace only, not sent): {out['agent_text']}")
     print(f"Decision : {decision.get('outcome')}  proposal {decision.get('proposal_id')}  rule {decision.get('rule_id')}")
     # As recorded by the platform (so an injected error shows its real amount).
     recorded = sorted(reports.list_rows("proposals"), key=lambda p: p["id"])
     print("Proposals: " + "  ".join(f"{p['id']} {p['params'].get('amount')} -> {p['decision']}" for p in recorded))
     if order_id:
         print(f"Order {order_id}: status {get_order(order_id)['status']}, refunds {get_refunds(order_id)['refunds']}")
+    slm_models = sorted({json.loads(x)["data"].get("model") for x in open(trace_path, encoding="utf-8")
+                         if '"role": "slm"' in x and '"step": "llm_call"' in x})
+    print(f"\nFINAL REPLY [{out['reply_source']}]: {out['final_reply']}")
+    print(f"Leak check : {leaks(out['final_reply']) or 'clean'}")
+    print(f"Seconds    : {seconds} (whole scenario)   SLM model: {', '.join(slm_models) or 'none (template)'}")
     print(f"Trace file : {trace_path}")
 
 

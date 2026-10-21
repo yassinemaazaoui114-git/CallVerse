@@ -1,28 +1,32 @@
-"""The end-to-end flow: client message -> Intake -> Router -> Agent A or Agent B.
+"""The end-to-end flow: client message -> Intake -> Router -> Agent A or B -> Coordinator -> SLM -> reply.
 
-    handle(message) -> {ticket, route, answer, handover, handover_text, proposal, proposals, decision}
+    handle(message) -> {ticket, route, agent_text, handover, handover_text, proposal, proposals,
+                        decision, final_reply, reply_source}
 
-- Route A: Agent A answers. If Agent A signals [HANDOVER: B] (the client wants money back),
-  Agent B takes the same message.
-- Route B: Agent B answers directly.
+- Route A: Agent A runs. If Agent A signals [HANDOVER: B] (the client wants money back),
+  Agent B takes the same message. Route B: Agent B runs directly.
 - handover_text: the short sentence that announces the handover, per reason (config.yaml,
-  queues.handover_texts), e.g. "Your request is passed on for a refund check." It is traced and
-  returned for the channel to show/say; the client's answer itself is Agent B's answer.
+  queues.handover_texts). Traced and returned for the channel.
 - Coordinator (T07): when an agent submits a proposal, the Coordinator reviews it (rules, no LLM).
   On "send_back" the SAME agent gets the reason once more and may correct its proposal; the Coordinator
   allows 2 send-backs per case, the 3rd becomes "escalate". Only an approved proposal is written,
   by the Coordinator.
-- proposal: the last proposal, proposals: every proposal of the case, decision: the Coordinator's
-  final decision dict (None when there was no proposal).
+- No proposal (e.g. a status question): an "info" decision, with facts the Coordinator reads itself.
+- Final reply (T08): the SLM writes it from the decision ONLY (callverse/slm/writer.py), in the client's
+  style from Intake. The agent's own text never reaches the user: it is kept as agent_text (trace only),
+  because it was written before the decision ("sent for checking").
+- reply_source: "slm" (first try passed the rule check), "slm_retry" (second try), "template"
+  (both failed, or Ollama is not running: the pipeline still answers, it never crashes).
 """
 
 from callverse import trace
 from callverse.agents.agent_a import AgentA
 from callverse.agents.agent_b import AgentB
 from callverse.config import load_config
-from callverse.coordinator.coordinator import new_case, review
+from callverse.coordinator.coordinator import for_user, info_decision, new_case, review
 from callverse.intake import intake
 from callverse.queues.router import route
+from callverse.slm.writer import write_reply
 
 
 def ticket_note(ticket: dict) -> str:
@@ -37,6 +41,33 @@ def handover_text(reason: str) -> str:
     return texts.get(reason, texts["refund_request"])
 
 
+def searched_rules(result: dict) -> set[str]:
+    """Rule ids that search_policy returned to the agent during this turn."""
+    return {r["id"] for c in result["tool_calls"] if c["tool"] == "search_policy" and isinstance(c["result"], dict)
+            for r in c["result"].get("results", [])}
+
+
+def reply_style(ticket: dict) -> dict:
+    """The style the SLM writes in, from the Intake ticket (hand-made test tickets may lack some fields)."""
+    style = ticket.get("style") or {}
+    return {"formality": style.get("formality", "neutral"), "length": style.get("length", "short"),
+            "shouting": bool(style.get("shouting")),
+            "emotion": (ticket.get("emotion") or {}).get("label", "neutral"),
+            "sentiment": (ticket.get("sentiment") or {}).get("label", "neutral")}
+
+
+def final_reply(ticket: dict, decision: dict | None, slm_chat_fn=None) -> tuple[dict, str, str]:
+    """(decision said to the user, final reply, reply_source). The SLM sees only the decision + style."""
+    said = for_user(decision) if decision else info_decision(ticket.get("order_id"))
+    said = {**said, "style": reply_style(ticket)}
+    written = write_reply(said, [{"role": "user", "content": ticket["text"]}], chat_fn=slm_chat_fn)
+    source = "template" if written["used_template"] else ("slm" if written["attempts"] == 1 else "slm_retry")
+    trace.log("final_reply", "pipeline", {"ticket_id": ticket["ticket_id"], "outcome": said["outcome"],
+                                          "reply": written["reply"], "reply_source": source,
+                                          "seconds": written["seconds"]})
+    return said, written["reply"], source
+
+
 def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=None) -> tuple[dict, list, dict | None]:
     """Run the agent; review each proposal it makes; on send_back let the same agent correct it.
 
@@ -48,6 +79,7 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
     proposals, decision = [], None
     while result.get("proposal"):
         proposals.append(result["proposal"])
+        case["searched_rules"] = searched_rules(result)   # for the Coordinator's rule_not_searched warning
         decision = review(result["proposal"], case)
         if decision["outcome"] != "send_back":
             break
@@ -59,8 +91,9 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
     return result, proposals, decision
 
 
-def handle_ticket(ticket: dict, chat_fn=None) -> dict:
-    """Route an existing ticket and answer it (used by handle() and by the queue batch)."""
+def handle_ticket(ticket: dict, chat_fn=None, slm_chat_fn=None) -> dict:
+    """Route an existing ticket and answer it (used by handle() and by the queue batch).
+    chat_fn = fake LLM for the agents (tests); slm_chat_fn = fake LLM for the SLM (tests)."""
     decision = route(ticket)
     message = f"{ticket['text']}\n\n{ticket_note(ticket)}"
     answer, handover, text = None, None, None
@@ -78,16 +111,18 @@ def handle_ticket(ticket: dict, chat_fn=None) -> dict:
         result, proposals, final = run_agent_with_coordinator(AgentB, message, ticket, chat_fn)
         answer = result["answer"]
 
+    said, reply, source = final_reply(ticket, final, slm_chat_fn)
     proposal = proposals[-1] if proposals else None
-    out = {"ticket": ticket, "route": decision, "answer": answer, "handover": handover,
-           "handover_text": text, "proposal": proposal, "proposals": proposals, "decision": final}
+    out = {"ticket": ticket, "route": decision, "agent_text": answer, "handover": handover,
+           "handover_text": text, "proposal": proposal, "proposals": proposals, "decision": said,
+           "final_reply": reply, "reply_source": source}
     trace.log("pipeline_done", "pipeline", {"ticket_id": ticket["ticket_id"], "route": decision,
-                                            "answer": answer, "handover": handover, "proposal": proposal,
-                                            "decision": final})
+                                            "agent_text": answer, "handover": handover, "proposal": proposal,
+                                            "decision": said, "final_reply": reply, "reply_source": source})
     return out
 
 
-def handle(message: str, chat_fn=None, use_llm: bool = True) -> dict:
+def handle(message: str, chat_fn=None, use_llm: bool = True, slm_chat_fn=None) -> dict:
     """Whole flow for one message. chat_fn = fake LLM for tests (used by the agents and the Intake fallback)."""
     ticket = intake.process(message, use_llm=use_llm, chat_fn=chat_fn)
-    return handle_ticket(ticket, chat_fn=chat_fn)
+    return handle_ticket(ticket, chat_fn=chat_fn, slm_chat_fn=slm_chat_fn)

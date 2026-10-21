@@ -151,7 +151,9 @@ def test_route_b_runs_agent_b_and_the_coordinator_approves(monkeypatch):
     assert out["proposal"]["rule_id"] == "R-REF-03" and out["proposal"]["user_confirmed"] is True
     assert out["decision"]["outcome"] == "approve" and out["decision"]["proposal_id"] == "P-0001"
     assert run_tool("B", "get_refunds", {"order_id": 4512})["refunded_total"] == 59.90
-    assert "R-REF-03" in out["answer"] and "**" not in out["answer"]
+    assert "R-REF-03" in out["agent_text"]                              # agent text: trace only
+    assert "Your refund of 59.90 TND is approved." in out["final_reply"]
+    assert "R-REF" not in out["final_reply"] and "**" not in out["final_reply"]
 
 
 def test_handover_texts_per_reason():
