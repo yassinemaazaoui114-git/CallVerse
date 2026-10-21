@@ -33,7 +33,9 @@ def steps():
 def test_s1_refund_is_approved_and_written():
     d = review(refund(), new_case("T-1"))
     assert d["outcome"] == "approve" and d["proposal_id"] == "P-0001"
-    assert d["facts"]["days_late"] == 6 and d["facts"]["delivered"] is False and d["facts"]["paid"] == 59.90
+    assert d["facts"] == {"order_status": "refunded", "days_late": 6, "amount_tnd": 59.90}   # SLM format (T08)
+    assert d["must_say"] == ["Your refund of 59.90 TND is approved."]
+    assert d["next_step"] == "Your order 4512 is now cancelled."
     rows = get_refunds(4512)["refunds"]
     assert len(rows) == 1 and rows[0]["amount"] == 59.90 and rows[0]["rule_id"] == "R-REF-03"
     assert rows[0]["status"] == "approved" and rows[0]["proposal_id"] == "P-0001"
@@ -81,6 +83,8 @@ def test_damaged_without_proof_asks_for_proof():
 def test_4515_goes_to_layer3_and_is_approved():
     d = review(refund(order_id=4515, amount=378.00), new_case("T-6"))
     assert d["outcome"] == "approve" and d["facts"]["layer3_decision"] == "approved"
+    assert d["facts"]["threshold_tnd"] == 300.0
+    assert d["must_say"] == ["Your refund of 378.00 TND is approved after a check by our finance team."]
     assert get_refunds(4515)["refunds"][0]["amount"] == 378.00
 
 

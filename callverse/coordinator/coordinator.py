@@ -26,6 +26,11 @@ Outcomes:
   escalate       -> a human colleague takes over
   refused        -> the proposal was already decided (a proposal is decided once); nothing written
 Every check is traced (coordinator_check) and so is the final decision (coordinator_decision).
+
+What the user is told (T08): the decision carries `must_say` (the key fact, copied word for word) and
+`next_step`, both written TO THE USER by this file (user_words), plus `facts` in the SLM's format
+(docs/decision_format.md). The SLM only chooses the wording around them. Cases without a proposal get an
+`info` decision (info_decision), with facts read from get_tracking, never from the agent's text.
 """
 
 from callverse import trace
@@ -33,21 +38,110 @@ from callverse.config import load_config
 from callverse.data.layer3 import layer3_decide
 from callverse.data.writes import (create_refund, create_subscription, is_valid_amount, record_decision,
                                    record_proposal, set_order_status)
-from callverse.kb.policies import check_condition, get_policy
+from callverse.kb.policies import check_condition, get_policy, layer3_threshold
 from callverse.tools.shopnova_tools import get_order, get_refunds, get_tracking
-
-NEXT_STEPS = {
-    "approve": "tell the client the request is approved",
-    "send_back": "the agent corrects its proposal",
-    "ask_user": "ask the client to confirm the request",
-    "ask_proof": "ask the client for a photo of the damage",
-    "layer3_refused": "tell the client the finance team refused the refund",
-    "escalate": "a human colleague takes over the case",
-    "refused": "nothing to do: this proposal was already decided",
-}
 
 # Outcome -> decision stored in the proposals table (the platform's list of decisions).
 RECORDED_AS = {"layer3_refused": "layer3"}
+
+# Outcomes the user never gets a reply for: the loop goes on (send_back) or nothing happened (refused).
+INTERNAL_OUTCOMES = ("send_back", "refused")
+
+# How an order status code is said to the user (T08). Unknown codes: underscores become spaces.
+STATUS_WORDS = {
+    "processing": "being prepared",
+    "shipped": "on its way",
+    "stuck_at_depot": "delayed at the delivery depot",
+    "out_for_delivery": "out for delivery",
+    "delivered": "delivered",
+    "refunded": "refunded",
+    "cancelled": "cancelled",
+}
+
+
+def status_words(code) -> str:
+    return STATUS_WORDS.get(code, str(code).replace("_", " "))
+
+
+def user_words(outcome: str, action, rule_id, facts: dict, order_id) -> tuple[list[str], str]:
+    """(must_say, next_step) written TO THE USER for a decision (T08 table).
+
+    Only facts from the data or the policy text: no timing and no payment method (the data has neither).
+    The SLM copies must_say word for word and ends with next_step.
+    """
+    amount = facts.get("amount_tnd")
+    if outcome == "approve" and action == "refund":
+        if facts.get("layer3_decision") == "approved":
+            must = f"Your refund of {amount:.2f} TND is approved after a check by our finance team."
+        else:
+            must = f"Your refund of {amount:.2f} TND is approved."
+        next_step = {"R-REF-03": f"Your order {order_id} is now cancelled.",
+                     "R-RET-01": "The refund is paid once we receive the returned item."}.get(rule_id, "")
+        return [must], next_step
+    if outcome == "approve" and action == "subscribe":
+        return [f"You will get a message here when your order is {status_words(facts.get('event'))}."], ""
+    if outcome == "layer3_refused":
+        return ([f"We cannot approve a refund of {amount:.2f} TND for order {order_id}."],
+                "Our finance team reviewed it and did not approve it.")
+    if outcome == "ask_user":
+        if action == "refund" and amount is not None:
+            return [f"Please confirm that you want a refund of {amount:.2f} TND for order {order_id}."], ""
+        return [f"Please confirm that you want a message when your order is {status_words(facts.get('event'))}."], ""
+    if outcome == "ask_proof":
+        return ["Please send us a photo of the damage."], ""
+    if outcome == "escalate":
+        return ["Your case needs an extra check, so it has been passed on for review."], ""
+    return [], ""   # send_back / refused: internal, no words for the user
+
+
+def slm_facts(checked: dict, action) -> dict:
+    """The facts the reply may use (docs/decision_format.md), from the facts the Coordinator re-read."""
+    out = {"order_status": checked.get("status"), "days_late": checked.get("days_late")}
+    if action == "refund" and checked.get("amount") is not None:
+        out["amount_tnd"] = round(float(checked["amount"]), 2) if is_valid_amount(checked["amount"]) else None
+    if action == "subscribe":
+        out["event"] = checked.get("event")
+    if checked.get("layer3_decision"):
+        out["layer3_decision"] = checked["layer3_decision"]
+        out["threshold_tnd"] = layer3_threshold()
+    return {k: v for k, v in out.items() if v is not None}
+
+
+def info_decision(order_id) -> dict:
+    """Decision for a case WITHOUT a proposal (status questions): facts read here with get_tracking,
+    never taken from the agent's text."""
+    if order_id is None or "error" in (tracking := get_tracking(order_id)):
+        decision = {"outcome": "info", "action": "status", "order_id": None, "rule_id": None, "facts": {},
+                    "must_say": [], "next_step": "Please tell us your order number so we can check it.",
+                    "reason": "no known order", "proposal_id": None}
+    else:
+        facts = {"order_status": tracking["status"], "days_late": tracking["days_late"],
+                 "promised_date": tracking["promised_date"]}
+        if tracking.get("carrier"):
+            facts["carrier"] = tracking["carrier"]
+        # R-DEL-02 case (1 to 5 days late, not delivered): offer the delivery message.
+        r_del_02 = 1 <= tracking["days_late"] <= 5 and not tracking["delivered"]
+        decision = {"outcome": "info", "action": "status", "order_id": order_id,
+                    "rule_id": "R-DEL-02" if r_del_02 else None, "facts": facts,
+                    "must_say": [f"Your order {order_id} is {status_words(tracking['status'])}."],
+                    "next_step": ("If you like, we can send you a message when it is out for delivery."
+                                  if r_del_02 else ""),
+                    "reason": "status from get_tracking", "proposal_id": None}
+    trace.log("coordinator_decision", "coordinator", decision)
+    return decision
+
+
+def for_user(decision: dict) -> dict:
+    """A decision the user may get a reply for. An internal outcome left at the end of the loop
+    (the agent did not correct a sent-back proposal) is said as "escalate": a human looks at it."""
+    if decision["outcome"] not in INTERNAL_OUTCOMES:
+        return decision
+    must_say, next_step = user_words("escalate", decision["action"], decision["rule_id"], decision["facts"],
+                                     decision["order_id"])
+    out = {**decision, "outcome": "escalate", "must_say": must_say, "next_step": next_step,
+           "reason": f"internal outcome {decision['outcome']} at the end of the case: {decision['reason']}"}
+    trace.log("internal_outcome_to_escalate", "coordinator", {"from": decision["outcome"], "proposal_id": decision["proposal_id"]})
+    return out
 
 
 def new_case(case_id: str) -> dict:
@@ -120,6 +214,11 @@ def review(proposal: dict, case: dict) -> dict:
                   f"rules that can justify '{action}': {cfg['allowed_rules'][action]}"):
         return done("send_back", f"rule {rule_id} cannot justify a {action}; "
                                  f"use one of {cfg['allowed_rules'][action]}")
+    # Warning only (T07 follow-up): the agent cites a rule it did not look up with search_policy this turn.
+    searched = case.get("searched_rules")
+    if searched is not None and rule_id not in searched:
+        trace.log("rule_not_searched", "coordinator", {"rule_id": rule_id, "searched": sorted(searched),
+                                                       "proposal_id": proposal_id})
     try:
         holds = check_condition(rule["condition"], facts)
     except ValueError as e:
@@ -188,13 +287,20 @@ def _finish(outcome, case, proposal_id, action, order_id, rule_id, facts, reason
         if action == "refund":
             row = create_refund(order_id, facts["amount"], rule_id, proposal_id)
             if "error" not in row and rule_id == "R-REF-03":
-                set_order_status(order_id, "refunded")   # full refund for a late order: order is cancelled/refunded
+                moved = set_order_status(order_id, "refunded")   # full refund for a late order: order is cancelled/refunded
+                if "error" not in moved:
+                    facts["status"] = moved["new_status"]
         else:
             row = create_subscription(order_id, facts["event"], proposal_id)
         if "error" in row:      # a platform safety net refused the write: a human must look
             outcome, reason = "escalate", f"write refused by the platform: {row['error']}"
 
+    # What the user may be told (T08): only verified facts, sentences written to the user.
+    reply_facts = slm_facts(facts, action)
+    must_say, next_step = user_words(outcome, action, rule_id, reply_facts, order_id)
     decision = {"outcome": outcome, "action": action, "order_id": order_id, "rule_id": rule_id,
-                "facts": facts, "next_step": NEXT_STEPS[outcome], "reason": reason, "proposal_id": proposal_id}
-    trace.log("coordinator_decision", "coordinator", {**decision, "case": dict(case)})
+                "facts": reply_facts, "must_say": must_say, "next_step": next_step, "reason": reason,
+                "proposal_id": proposal_id}
+    # The trace also keeps every fact the checks used (paid, refunded_total, delivered, ...).
+    trace.log("coordinator_decision", "coordinator", {**decision, "checked_facts": facts, "case": dict(case)})
     return decision

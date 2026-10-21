@@ -28,7 +28,8 @@ def show(out: dict) -> None:
     print(f"           main_reason {t['main_reason']}  priority {t['priority_label'].upper()} {t['priority_score']}")
     print(f"Route    : agent {r['agent']} ({r['layer']})")
     print(f"Handover : {out['handover'] or 'none'}" + (f"  ({out['handover_text']})" if out['handover_text'] else ""))
-    print(f"Answer   : {out['answer']}")
+    print(f"Agent text (trace only, not sent): {out['agent_text']}")
+    print(f"REPLY    : {out['final_reply']}   [{out['reply_source']}]")
     print(f"Proposal : {out['proposal'] or 'none'}")
     d = out["decision"]
     print(f"Decision : {d['outcome']} {d['proposal_id']} ({d['reason']})" if d else "Decision : none")

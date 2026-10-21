@@ -72,10 +72,13 @@ Agent B (Payment & Refund) asks Agent A for delivery facts, cites the rule and s
 Coordinator (T07): rules only, no LLM (`callverse/coordinator/coordinator.py`). It re-reads the facts,
 checks the cited rule, R-REF-05, the client's confirmation and Layer 3 (> 300 TND), then approves (only then
 the platform writes), sends back (max 2, the agent corrects), asks the client, or escalates. Scenarios:
-`python -m scripts.run_scenario S1|S2|S4`. The LLM layer waits on short rate limits and falls back
+`python -m scripts.run_scenario S0|S1|S2|S4`. The LLM layer waits on short rate limits and falls back
 gpt-oss-120b → gpt-oss-20b → Gemini Flash (force one with `CALLVERSE_FORCE_AGENTS_MODEL=<model>`).
+Final reply (T05 + T08): the SLM (`qwen2.5:3b` via Ollama, `callverse/slm/writer.py`) writes the user's reply
+from the Coordinator's decision only (`must_say`, `next_step`, facts), in the client's style; a rule check
+and templates keep it safe. The agent's own text stays in the trace. Without Ollama the template answers.
 
-**Coming next:** delivery notifications (S3) · SLM reply writer and Client Simulator (Brief #4).
+**Coming next:** delivery notifications (S3) · Client Simulator (Brief #4).
 
 ## Data
 

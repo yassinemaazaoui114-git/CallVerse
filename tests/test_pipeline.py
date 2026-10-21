@@ -60,7 +60,8 @@ def test_late_plus_refund_goes_to_b():
 
     out = pipeline.handle_ticket(t, chat_fn=fake)
     assert out["route"]["agent"] == "B" and out["handover"] == "B"
-    assert out["answer"] == "Your request is sent for checking."
+    assert out["agent_text"] == "Your request is sent for checking."   # kept for the trace only
+    assert "sent for checking" not in out["final_reply"]                # T08: never sent to the user
 
 
 def test_intake_cannot_read_user_data():
@@ -84,7 +85,11 @@ def test_pipeline_route_a_answers():
 
     out = pipeline.handle_ticket(make_ticket(), chat_fn=fake)
     assert out["route"]["agent"] == "A" and out["handover"] is None
-    assert "6 days late" in out["answer"]
+    assert "6 days late" in out["agent_text"]
+    # T08: no proposal -> info decision from get_tracking; the reply comes from the decision, not the agent
+    assert out["decision"]["outcome"] == "info" and out["decision"]["facts"]["days_late"] == 6
+    assert "Your order 4512 is delayed at the delivery depot." in out["final_reply"]
+    assert out["reply_source"] == "template"                            # SLM offline in tests
     assert "order id = 4512" in seen[0] and "main reason = order_status" in seen[0]
 
 
@@ -96,5 +101,5 @@ def test_pipeline_agent_a_handover_goes_to_agent_b():
 
     out = pipeline.handle_ticket(make_ticket(), chat_fn=fake)
     assert out["route"]["agent"] == "A"
-    assert out["handover"] == "B" and out["answer"] == "Agent B answer."
+    assert out["handover"] == "B" and out["agent_text"] == "Agent B answer."
     assert out["handover_text"] == "Your request is passed on for a refund check."
