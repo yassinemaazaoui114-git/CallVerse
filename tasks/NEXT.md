@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | Status | WAITING FOR REVIEW |
-| Task file | tasks/T09_s3_notify.md |
-| Approved by | Yassine — 2026-10-21 (merge feature/reply + feature/sim-clock into main; 4 fixes from T08; story S3) |
-| Last done | T08 — reviewed by the Brain 2026-10-21: 243/243 on the PC (Brain re-run 240/243, 3 need local models); S0, S1, S2, S4 final replies OK; leak check 0 |
+| Task file | tasks/T10_live_check.md |
+| Approved by | Yassine — 2026-10-21 (merge feature/s3-notify into main; agent safety net; warmer subscribe wording; live-typing test) |
+| Last done | T09 — reviewed by the Brain 2026-10-21: 265/265 on the PC (Brain re-run 262/265, 3 need local models); S3 OK (0 → 1 → 0 notifications); 4 fixes OK |
 
 Status values: READY · IN PROGRESS · WAITING FOR REVIEW · DONE
 Dali's lane: tasks/NEXT_PLATFORM.md ("Do the next platform task") · Semah's lane: tasks/NEXT_VOICE.md ("Do the next voice task")

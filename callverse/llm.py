@@ -12,7 +12,8 @@ import os
 import time
 
 from dotenv import load_dotenv
-from openai import APIConnectionError, InternalServerError, NotFoundError, OpenAI, RateLimitError
+from openai import (APIConnectionError, BadRequestError, InternalServerError, NotFoundError, OpenAI,
+                    RateLimitError)
 
 from callverse import trace
 from callverse.config import PROJECT_ROOT, load_config
@@ -55,14 +56,38 @@ def models_for(role_key: str, cfg: dict) -> list[dict]:
     return entries
 
 
+def is_model_tool_error(error) -> bool:
+    """True for a 400 caused by the model's own broken tool call (Groq: code "tool_use_failed")."""
+    body = getattr(error, "body", None)
+    if isinstance(body, dict):
+        body = body.get("error", body)
+        if isinstance(body, dict) and body.get("code") == "tool_use_failed":
+            return True
+    return "tool_use_failed" in str(error)
+
+
+# Placeholder thought signature for a tool call made by ANOTHER model (Google's documented value).
+FOREIGN_SIGNATURE = {"google": {"thought_signature": "skip_thought_signature_validator"}}
+
+
 def messages_for(provider: dict, messages: list[dict]) -> list[dict]:
     """The messages as this provider accepts them.
 
     Gemini adds an "extra_content" field (its thought signature) to each tool call and needs it back.
     Other providers may refuse unknown fields, so it is removed for them (config: tool_call_extras).
+
+    T10: a turn can START on Groq and FALL BACK to Gemini (rate limit). Gemini then refuses the earlier
+    tool calls (made by Groq, so without a signature) with a 400 error. Google documents a placeholder
+    signature for tool calls that come from another model: it is added to those calls only.
     """
     if provider.get("tool_call_extras"):
-        return messages
+        fixed = []
+        for m in messages:
+            if m.get("tool_calls"):
+                m = {**m, "tool_calls": [tc if tc.get("extra_content") else {**tc, "extra_content": FOREIGN_SIGNATURE}
+                                         for tc in m["tool_calls"]]}
+            fixed.append(m)
+        return fixed
     cleaned = []
     for m in messages:
         if m.get("tool_calls"):
@@ -139,6 +164,12 @@ def chat(role_key: str, messages: list[dict], tools: list[dict] | None = None, t
                     continue
                 error = e
             except (NotFoundError, InternalServerError, APIConnectionError) as e:
+                error = e
+            except BadRequestError as e:
+                # T10: a 400 is normally OUR bug (no fallback), except Groq's "tool_use_failed": the MODEL
+                # wrote a broken tool call (seen: 'ask_agent<|channel|>commentary'). Another model may do it right.
+                if not is_model_tool_error(e):
+                    raise
                 error = e
             # 429 (long wait or second time) / 404 / 5xx / network problem: try the next model.
             trace.log("llm_fallback", "llm", {"role": role_key, "provider": provider_name,

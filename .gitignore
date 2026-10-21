@@ -9,6 +9,9 @@ callverse/intake/data/reason_vectors.npz
 # cached policy embeddings of the policy search (rebuilt automatically)
 callverse/kb/policy_vectors.npz
 
+# Live-check results (T10)
+out/
+
 # Python
 __pycache__/
 .pytest_cache/

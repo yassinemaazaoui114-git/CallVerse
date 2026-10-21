@@ -110,10 +110,16 @@ def slm_facts(checked: dict, action) -> dict:
 def info_decision(order_id) -> dict:
     """Decision for a case WITHOUT a proposal (status questions): facts read here with get_tracking,
     never taken from the agent's text."""
-    if order_id is None or "error" in (tracking := get_tracking(order_id)):
+    if order_id is None:
         decision = {"outcome": "info", "action": "status", "order_id": None, "rule_id": None, "facts": {},
                     "must_say": [], "next_step": "Please tell us your order number so we can check it.",
-                    "reason": "no known order", "proposal_id": None}
+                    "reason": "no order number", "proposal_id": None}
+    elif "error" in (tracking := get_tracking(order_id)):
+        # T10: an order number that does not exist is said plainly (no facts are invented about it).
+        decision = {"outcome": "info", "action": "status", "order_id": order_id, "rule_id": None, "facts": {},
+                    "must_say": [f"We could not find order {order_id}."],
+                    "next_step": "Please check the order number and send it again.",
+                    "reason": "unknown order", "proposal_id": None}
     else:
         facts = {"order_status": tracking["status"], "days_late": tracking["days_late"],
                  "promised_date": tracking["promised_date"]}
@@ -127,6 +133,25 @@ def info_decision(order_id) -> dict:
                     "next_step": ("If you like, we can send you a message when it is out for delivery."
                                   if r_del_02 else ""),
                     "reason": "status from get_tracking", "proposal_id": None}
+    trace.log("coordinator_decision", "coordinator", decision)
+    return decision
+
+
+def off_topic_decision() -> dict:
+    """Not about an order (T10): a polite redirect to what ShopNova support can do. No facts at all."""
+    decision = {"outcome": "info", "action": "redirect", "order_id": None, "rule_id": None, "facts": {},
+                "must_say": ["I can help with your ShopNova orders: delivery, refunds, returns and damaged items."],
+                "next_step": "If your question is about an order, please send us the order number.",
+                "reason": "off topic", "proposal_id": None}
+    trace.log("coordinator_decision", "coordinator", decision)
+    return decision
+
+
+def escalate_decision(order_id, reason: str) -> dict:
+    """Something went wrong before a decision (e.g. an error in the agents' part, T10): a human looks at it."""
+    must_say, next_step = user_words("escalate", None, None, {}, order_id)
+    decision = {"outcome": "escalate", "action": None, "order_id": None, "rule_id": None, "facts": {},
+                "must_say": must_say, "next_step": next_step, "reason": reason, "proposal_id": None}
     trace.log("coordinator_decision", "coordinator", decision)
     return decision
 

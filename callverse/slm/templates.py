@@ -57,6 +57,8 @@ def render(decision: dict) -> str:
     about = f" about your order {order}" if order is not None else ""
     opener = calm_opener(style)
     first = f"{OPENING[outcome].capitalize()}{about}."
+    if outcome == "approve" and decision.get("action") == "subscribe":
+        first = f"Sure, we can do that{' for your order ' + str(order) if order is not None else ''}."   # T10
     parts = [f"{opener} {first}" if opener else f"{_greeting(style)}, {first}"]
 
     details = [FACT_PHRASES[k](v) for k, v in facts.items() if k in FACT_PHRASES and v is not None]
