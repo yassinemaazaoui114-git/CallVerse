@@ -1,0 +1,6 @@
+{
+  "_note": "Scenario seeds for Agent E. TRAIN: training only. VAL: model selection / early checkpoint choice / tuning. TEST: final comparison only, never used to choose anything (CLAUDE.md rule 2). 'compound' (spike + slowdown) appears ONLY in TEST, as an unseen-condition check. All days are synthetic.",
+  "train": {"seed_range": [0, 19999], "scenarios": ["normal", "high", "spike", "drift", "slowdown", "failure"]},
+  "val":   {"seeds_per_scenario": 5, "seed_start": 20000, "scenarios": ["normal", "high", "spike", "drift", "slowdown", "failure"]},
+  "test":  {"seeds_per_scenario": 8, "seed_start": 30000, "scenarios": ["normal", "high", "spike", "drift", "slowdown", "failure", "compound"]}
+}
