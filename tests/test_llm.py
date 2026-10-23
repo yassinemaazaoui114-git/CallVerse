@@ -150,3 +150,20 @@ def test_foreign_tool_calls_get_a_placeholder_signature_for_gemini():
     fixed = llm.messages_for({"tool_call_extras": True}, messages)
     assert fixed[0]["tool_calls"][0]["extra_content"] == llm.FOREIGN_SIGNATURE
     assert "extra_content" not in messages[0]["tool_calls"][0]       # the original is not changed
+
+
+# ---------- T10b: daily quota (429 "tokens per day") is detected and remembered ----------
+
+def test_daily_limit_is_detected_and_remembered(monkeypatch):
+    response = httpx.Response(429, request=httpx.Request("POST", "https://fake.example"))
+    daily = openai.RateLimitError("Rate limit reached on tokens per day (TPD): Limit 200000", response=response, body=None)
+    called = install_fake_client(monkeypatch, daily)
+    monkeypatch.setattr(llm, "DAILY_LIMIT_HITS", [])
+    assert llm.chat("agents", [{"role": "user", "content": "hi"}]).content == "answer from second"
+    assert called == ["first", "second"] and llm.DAILY_LIMIT_HITS == ["fake/first"]
+
+
+def test_per_minute_limit_is_not_daily():
+    response = httpx.Response(429, request=httpx.Request("POST", "https://fake.example"))
+    assert not llm.is_daily_limit(openai.RateLimitError("tokens per minute (TPM): Limit 8000", response=response, body=None))
+    assert llm.is_daily_limit(openai.RateLimitError("You exceeded your current quota", response=response, body=None))
