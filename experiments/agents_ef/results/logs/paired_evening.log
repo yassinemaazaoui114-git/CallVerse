@@ -1,0 +1,7 @@
+== evening: Forecast ret 107.32
+  erlang_c(0.95)         dRet  -1.26 [-2.21,-0.37]  dSLA +1.84 [+1.56,+2.12]  dCost +112.5  win 0.32
+  dueling_400k           dRet  -6.15 [-7.56,-4.75]  dSLA -2.07 [-3.32,-0.32]  dCost  +23.2  win 0.07
+  guarded_dueling_400k   dRet  -1.13 [-2.10,-0.22]  dSLA -0.07 [-0.37,+0.23]  dCost   -6.2  win 0.35
+  dueling_dr             dRet  -5.02 [-7.04,-3.11]  dSLA -1.22 [-4.27,+0.69]  dCost   -9.3  win 0.11
+  guarded_dueling_dr     dRet  -0.49 [-1.28,+0.32]  dSLA +0.10 [-0.25,+0.42]  dCost   +0.6  win 0.42
+  ppo                    dRet  -2.66 [-3.66,-1.73]  dSLA -0.80 [-1.30,-0.27]  dCost  +31.5  win 0.23

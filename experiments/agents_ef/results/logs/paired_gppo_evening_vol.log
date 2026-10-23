@@ -1,0 +1,2 @@
+== evening_vol: Forecast ret 102.60
+  guarded_ppo            dRet  +1.60 [-0.47,+5.12]  dSLA +0.39 [-0.14,+1.26]  dCost   +0.6  win 0.08

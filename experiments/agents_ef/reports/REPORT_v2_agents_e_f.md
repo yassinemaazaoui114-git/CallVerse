@@ -380,3 +380,40 @@ All are outside git (`*.pt` git-ignored), in the session scratchpad. They are **
 3. **Hardware:** no GPU numbers. CPU latencies were measured under shared load.
 4. **Seeds:** 3 per configuration. Some differences (e.g. DQN vs Double DQN) are within seed noise.
 5. **Scope and approval:** E and F remain out of the prototype's scope (CLAUDE.md). Integration needs a task file and Brain + Yassine approval. Nothing in `callverse/` was changed.
+
+---
+
+## 13. Round 3 (2026-10-23, evening): validation work completed
+
+**Access**
+- Still no connection to the Windows PC: no Remote Control session or bridge was found when checked at the start of this round.
+- Your CallVerse files and the RTX 4050 numbers therefore remain **NOT VERIFIED**.
+
+**Agent E: scientific justification**
+- New document: `reports/AGENT_E_SCIENTIFIC_JUSTIFICATION.md`.
+- It covers the exact 43-dimensional state, the 17 actions, the reward formula, why Double/Dueling, the Intake link, masking and safety, and statistics.
+- Three new measured analyses:
+  - **Paired statistics** (`bench/paired_stats_e.py`, two-level bootstrap over seeds × days):
+    - pure Dueling DDQN vs the VAL-tuned rule: return +0.22 [−1.08, +1.50] in-distribution, but −4.06 to −6.33 (significant) on shifted shapes;
+    - the guarded hybrid stays within about 1 return point everywhere, with SLA never significantly worse (+0.39 [+0.11, +0.71] in-distribution).
+  - **Failure mechanism** (`bench/diagnose_e.py`):
+    - clock ablation costs −5.3 return on familiar shapes but gains +0.45/+0.96 on reversed shapes, so the network learned a time-indexed schedule;
+    - its staffing tracks load less than the rule's (correlation 0.70 vs 0.90, evening);
+    - only 1–5.5% of states are out of distribution.
+  - **Why DDQN in the hybrid and not PPO:**
+    - PPO's actions are 99.2% capacity toggles, so guarded PPO equals the rule (win rate 1–19%);
+    - DDQN's actions are 46% allocation moves, which the hybrid keeps.
+- **Worked decision** (`bench/explain_decision.py`): a real state, Q-values, the guard's decision, the reward decomposition, and one Double-DQN TD update with real numbers.
+
+**Agent F: preserved and reproducible**
+- Pipeline: `pipelines/agent_f_pipeline.py`. Data SHA256 checks → subsets → fine-tune → checkpoint outside git → manifest → reload check.
+- Revision of multilingual-e5-small pinned to `614241f…`.
+- Re-running it reproduced the validated checkpoint **bit-for-bit**: SHA256 `6bae1f48…`, TEST MAE 0.6309, reload MAE identical (`results/agent_f_pipeline/manifest_cpu_repro.json`).
+- Bit-identity is expected only for the same CPU, thread count and libraries. On the RTX 4050 (`run_local.ps1 -TrainF`, fp16), expect MAE within the seed spread.
+- The checkpoint itself (113 MB) is preserved outside git in the sandbox, in two copies: `checkpoints/f_v2_enfr/e5small_trim_ft_s0` and `f_pipeline_repro/checkpoints/`.
+  - The sandbox is not durable storage, and there is no connected outside-git storage large enough.
+  - The durable copy must be produced on your PC by the one-command pipeline.
+
+**Tests**
+- Research: 63/63, including new determinism and "work folder outside git" tests.
+- Prototype: 300/300.

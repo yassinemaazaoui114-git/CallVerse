@@ -8,8 +8,8 @@ What it does (each step prints what it is doing; nothing is pushed anywhere):
   3. Runs the research tests (CPU).
   4. Measures real latency / peak RAM / peak VRAM of the Agent E networks and the Agent F encoders
      -> experiments\agents_ef\results\local_measure\measure_v2_cuda.json   (share this file)
-  5. -TrainF: downloads the EN/FR genuine-rating review subset (~5 MB) and fine-tunes the chosen Agent F model on
-     the GPU (3 seeds, fp16), checkpoints OUTSIDE git in $CkptDir.
+  5. -TrainF: runs pipelines/agent_f_pipeline.py: downloads the hash-checked EN/FR reviews (~5 MB) + Olist (~45 MB),
+     rebuilds the subsets, fine-tunes the chosen Agent F model on the GPU (3 seeds, fp16), writes manifest.json.
   6. -TrainE: trains the Intake-aware Dueling Double DQN (CPU is enough: 7k parameters), 3 seeds.
 Data and checkpoints go to $DataDir / $CkptDir (outside the repository). Nothing is committed.
 
@@ -21,7 +21,6 @@ param(
     [string]$Venv = (Join-Path (Get-Location) ".venv-agents-ef"),
     [string]$DataDir = (Join-Path $(if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { $HOME }) "callverse_agents_ef\data"),
     [string]$CkptDir = (Join-Path $(if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { $HOME }) "callverse_agents_ef\checkpoints"),
-    [string]$FModel = "e5small_trim_ft",
     [switch]$SkipInstall, [switch]$SkipTests, [switch]$TrainF, [switch]$TrainE
 )
 $ErrorActionPreference = "Stop"
@@ -54,17 +53,12 @@ try {
     Write-Host "== 4. Hardware measurements (GPU if available)"
     & $P -m bench.measure_local --out results\local_measure
     if ($TrainF) {
-        Write-Host "== 5. Agent F on the GPU: $FModel, 3 seeds"
-        $raw = Join-Path $DataDir "amazon"; New-Item -ItemType Directory -Force $raw | Out-Null
-        foreach ($l in "en", "fr") { foreach ($s in "validation", "test") {
-            $f = Join-Path $raw "$($l)_$($s).jsonl"
-            if (-not (Test-Path $f)) { Invoke-WebRequest "https://huggingface.co/datasets/mteb/amazon_reviews_multi/resolve/main/$l/$s.jsonl" -OutFile $f }
-        } }
-        $sub = Join-Path $DataDir "subset_enfr"
-        & $P -m real_data.build_reviews_subset --raw $raw --per-lang 1000 --out $sub
-        & $P -m real_data.eval_f_v2 --data $sub --model $FModel --seeds 0 1 2 --device cuda --fp16 --threads 4 `
-            --vocab-corpus (Join-Path $raw "en_validation.jsonl") (Join-Path $raw "fr_validation.jsonl") `
-            --save-dir (Join-Path $CkptDir "agent_f") --out results\local_f_gpu --label "EN/FR genuine stars, RTX 4050"
+        Write-Host "== 5. Agent F pipeline on the GPU (hash-checked data, e5-small trimmed, 3 seeds, fp16)"
+        $work = Join-Path $DataDir "agent_f_pipeline"
+        $dev = (& $P -c "import torch,sys; sys.stdout.write('cuda' if torch.cuda.is_available() else 'cpu')")
+        $extra = @(); if ($dev -eq "cuda") { $extra = @("--fp16") }
+        & $P -m pipelines.agent_f_pipeline --work $work --device $dev --threads 4 @extra
+        Write-Host "Checkpoint + manifest.json are in $work (outside git). Share manifest.json (no text, no weights)."
     }
     if ($TrainE) {
         Write-Host "== 6. Agent E (Intake-aware Dueling Double DQN), CPU, 3 seeds"

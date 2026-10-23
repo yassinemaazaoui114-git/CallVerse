@@ -1,0 +1,7 @@
+== in_dist: Forecast ret 106.06
+  erlang_c(0.95)         dRet  -0.54 [-1.53,+0.37]  dSLA +1.78 [+1.50,+2.05]  dCost +119.1  win 0.50
+  dueling_400k           dRet  +0.22 [-1.08,+1.50]  dSLA +1.13 [+0.23,+2.28]  dCost   +4.1  win 0.52
+  guarded_dueling_400k   dRet  -0.51 [-1.40,+0.34]  dSLA +0.39 [+0.11,+0.71]  dCost   -7.1  win 0.39
+  dueling_dr             dRet  -2.93 [-4.77,-1.42]  dSLA +0.01 [-1.87,+1.42]  dCost  -10.3  win 0.23
+  guarded_dueling_dr     dRet  -0.33 [-1.09,+0.40]  dSLA +0.40 [+0.11,+0.68]  dCost   +0.2  win 0.49
+  ppo                    dRet  -0.66 [-1.64,+0.26]  dSLA +0.22 [-0.14,+0.55]  dCost  +25.5  win 0.46

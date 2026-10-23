@@ -38,7 +38,9 @@ ENC = {
     "e5small": "intfloat/multilingual-e5-small",
     "mminilmv2l6": "nreimers/mMiniLMv2-L6-H384-distilled-from-XLMR-Large",
 }
-PREFIX = {"e5small": "query: "}          # e5 models expect this prefix
+PREFIX = {"e5small": "query: "}
+# pinned Hugging Face revisions (reproducibility): the commit the validated Agent F checkpoint was trained from
+REVISION = {"e5small": "614241f622f53c4eeff9890bdc4f31cfecc418b3"}          # e5 models expect this prefix
 SENTIMENT = "cardiffnlp/twitter-roberta-base-sentiment-latest"   # Intake M4 (config.yaml)
 FT = {"tinybert_ft": ("tinybert", False), "mminilm_ft": ("mminilm", False), "mminilm_trim_ft": ("mminilm", True),
       "e5small_trim_ft": ("e5small", True), "mminilmv2l6_trim_ft": ("mminilmv2l6", True)}
@@ -120,9 +122,10 @@ def oov_rate(tok, remap, texts):
 def run_ft(name, seed, tr, va, te, a):
     from transformers import AutoModel, AutoTokenizer
     enc_key, trim = FT[name]
-    tok = AutoTokenizer.from_pretrained(ENC[enc_key])
+    rev = REVISION.get(enc_key)
+    tok = AutoTokenizer.from_pretrained(ENC[enc_key], revision=rev)
     pre = PREFIX.get(enc_key, "")
-    bert = AutoModel.from_pretrained(ENC[enc_key]).float()          # some checkpoints ship in fp16
+    bert = AutoModel.from_pretrained(ENC[enc_key], revision=rev).float()          # some checkpoints ship in fp16
     full_params = sum(p.numel() for p in bert.parameters())
     remap = None
     if trim:
@@ -168,7 +171,7 @@ def run_ft(name, seed, tr, va, te, a):
     model.load_state_dict(best_state)
     n_params = sum(p.numel() for p in model.parameters())
     info = {"seed": seed, "best_epoch": int(np.argmin(curve)) + 1, "val_mae_curve": curve, "n_params": n_params,
-            "encoder_params_before_trim": full_params, "base_model": ENC[enc_key],
+            "encoder_params_before_trim": full_params, "base_model": ENC[enc_key], "revision": rev,
             "vocab_kept": int(model.bert.config.vocab_size), "trimmed": trim,
             "test_oov_token_rate": oov_rate(tok, remap, [pre + r["text"] for r in te]),
             "device": str(dev), "fp16": bool(a.fp16 and dev.type == "cuda"),

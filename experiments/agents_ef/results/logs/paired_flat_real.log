@@ -1,0 +1,7 @@
+== flat_real: Forecast ret 109.33
+  erlang_c(0.95)         dRet  -2.52 [-3.33,-1.72]  dSLA +1.42 [+1.16,+1.69]  dCost +130.9  win 0.23
+  dueling_400k           dRet  -4.06 [-5.21,-2.86]  dSLA -0.31 [-1.15,+0.72]  dCost  +40.7  win 0.10
+  guarded_dueling_400k   dRet  -0.99 [-1.88,-0.16]  dSLA -0.05 [-0.32,+0.19]  dCost   -0.8  win 0.35
+  dueling_dr             dRet  -4.28 [-5.33,-3.23]  dSLA -1.22 [-3.59,+0.67]  dCost   -2.9  win 0.12
+  guarded_dueling_dr     dRet  -1.34 [-1.92,-0.75]  dSLA -0.19 [-0.41,+0.04]  dCost   +3.9  win 0.30
+  ppo                    dRet  -1.93 [-2.66,-1.24]  dSLA -0.13 [-0.48,+0.22]  dCost  +32.7  win 0.24

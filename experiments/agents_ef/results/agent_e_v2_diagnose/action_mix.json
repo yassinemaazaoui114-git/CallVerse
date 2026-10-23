@@ -1,0 +1,26 @@
+{
+  "ppo_intake_h64x64_s0|pure": {
+    "keep": 0.0,
+    "move": 0.008,
+    "fallback": 0.0,
+    "capacity": 0.992
+  },
+  "ppo_intake_h64x64_s0|guarded": {
+    "keep": 0.226,
+    "move": 0.212,
+    "fallback": 0.007,
+    "capacity": 0.554
+  },
+  "dueling_double_dqn_intake_h64x64_s0_400k|pure": {
+    "keep": 0.045,
+    "move": 0.461,
+    "fallback": 0.027,
+    "capacity": 0.468
+  },
+  "dueling_double_dqn_intake_h64x64_s0_400k|guarded": {
+    "keep": 0.138,
+    "move": 0.282,
+    "fallback": 0.03,
+    "capacity": 0.551
+  }
+}

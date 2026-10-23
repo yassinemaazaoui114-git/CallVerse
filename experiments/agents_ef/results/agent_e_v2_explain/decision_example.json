@@ -1,0 +1,235 @@
+{
+  "checkpoint": "results/runs/dueling_double_dqn_intake_h64x64_s0_400k",
+  "state": {
+    "t_step": 30,
+    "minute": 150.0,
+    "scenario": "spike",
+    "inputs": {
+      "A.arrivals_last_step/10": 0.5,
+      "A.backlog/50": 0.0,
+      "A.mean_wait/SLA": 0.0,
+      "A.p90_wait/SLA": 0.0,
+      "A.sessions/24": 0.2083,
+      "A.utilisation=EWMA*service/(5min*sessions)": 0.8949,
+      "B.arrivals_last_step/10": 0.5,
+      "B.backlog/50": 0.04,
+      "B.mean_wait/SLA": 0.0585,
+      "B.p90_wait/SLA": 0.0857,
+      "B.sessions/24": 0.1667,
+      "B.utilisation=EWMA*service/(5min*sessions)": 1.0927,
+      "C.arrivals_last_step/10": 0.7,
+      "C.backlog/50": 0.14,
+      "C.mean_wait/SLA": 0.6573,
+      "C.p90_wait/SLA": 1.161,
+      "C.sessions/24": 0.2083,
+      "C.utilisation=EWMA*service/(5min*sessions)": 1.1551,
+      "D.arrivals_last_step/10": 0.9,
+      "D.backlog/50": 0.08,
+      "D.mean_wait/SLA": 0.0493,
+      "D.p90_wait/SLA": 0.0752,
+      "D.sessions/24": 0.125,
+      "D.utilisation=EWMA*service/(5min*sessions)": 1.2827,
+      "active_sessions/24": 0.7083,
+      "available_capacity/24": 1.0,
+      "fallback_on": 1.0,
+      "budget_left_share": 0.7622,
+      "sin(2*pi*t)": 0.9239,
+      "cos(2*pi*t)": -0.3827,
+      "EWMA_total_arrivals/10": 1.9552,
+      "A.high_priority_waiting/20": 0.0,
+      "A.mean_priority_score_waiting": 0.0,
+      "A.oldest_high_wait/(0.3*SLA)": 0.0,
+      "B.high_priority_waiting/20": 0.0,
+      "B.mean_priority_score_waiting": 0.4059,
+      "B.oldest_high_wait/(0.3*SLA)": 0.0,
+      "C.high_priority_waiting/20": 0.0,
+      "C.mean_priority_score_waiting": 0.4434,
+      "C.oldest_high_wait/(0.3*SLA)": 0.0,
+      "D.high_priority_waiting/20": 0.0,
+      "D.mean_priority_score_waiting": 0.1601,
+      "D.oldest_high_wait/(0.3*SLA)": 0.0
+    },
+    "sessions_per_queue": {
+      "A_status": 5,
+      "B_refund": 4,
+      "C_urgent": 5,
+      "D_availability": 3
+    },
+    "waiting_per_queue": {
+      "A_status": 0,
+      "B_refund": 2,
+      "C_urgent": 7,
+      "D_availability": 4
+    },
+    "high_priority_waiting": {
+      "A_status": 0,
+      "B_refund": 0,
+      "C_urgent": 0,
+      "D_availability": 0
+    }
+  },
+  "V(s)": 32.9074,
+  "mean_A": 0.0609,
+  "actions": [
+    {
+      "id": 0,
+      "action": "keep",
+      "valid": true,
+      "A": 0.0959,
+      "Q": 32.9423
+    },
+    {
+      "id": 1,
+      "action": "move_session A_status->B_refund",
+      "valid": true,
+      "A": 0.1734,
+      "Q": 33.0199
+    },
+    {
+      "id": 2,
+      "action": "move_session A_status->C_urgent",
+      "valid": true,
+      "A": 0.4569,
+      "Q": 33.3033
+    },
+    {
+      "id": 3,
+      "action": "move_session A_status->D_availability",
+      "valid": true,
+      "A": 0.1805,
+      "Q": 33.0269
+    },
+    {
+      "id": 4,
+      "action": "move_session B_refund->A_status",
+      "valid": true,
+      "A": -0.0019,
+      "Q": 32.8446
+    },
+    {
+      "id": 5,
+      "action": "move_session B_refund->C_urgent",
+      "valid": true,
+      "A": 0.2086,
+      "Q": 33.0551
+    },
+    {
+      "id": 6,
+      "action": "move_session B_refund->D_availability",
+      "valid": true,
+      "A": -0.1774,
+      "Q": 32.6691
+    },
+    {
+      "id": 7,
+      "action": "move_session C_urgent->A_status",
+      "valid": true,
+      "A": -0.21,
+      "Q": 32.6364
+    },
+    {
+      "id": 8,
+      "action": "move_session C_urgent->B_refund",
+      "valid": true,
+      "A": -0.1295,
+      "Q": 32.7169
+    },
+    {
+      "id": 9,
+      "action": "move_session C_urgent->D_availability",
+      "valid": true,
+      "A": -0.182,
+      "Q": 32.6644
+    },
+    {
+      "id": 10,
+      "action": "move_session D_availability->A_status",
+      "valid": true,
+      "A": -0.0936,
+      "Q": 32.7528
+    },
+    {
+      "id": 11,
+      "action": "move_session D_availability->B_refund",
+      "valid": true,
+      "A": 0.1163,
+      "Q": 32.9627
+    },
+    {
+      "id": 12,
+      "action": "move_session D_availability->C_urgent",
+      "valid": true,
+      "A": 0.2586,
+      "Q": 33.1051
+    },
+    {
+      "id": 13,
+      "action": "fallback_on",
+      "valid": false,
+      "A": -0.0572,
+      "Q": 32.7892
+    },
+    {
+      "id": 14,
+      "action": "fallback_off",
+      "valid": true,
+      "A": 0.0099,
+      "Q": 32.8563
+    },
+    {
+      "id": 15,
+      "action": "activate_session",
+      "valid": true,
+      "A": 0.3153,
+      "Q": 33.1617
+    },
+    {
+      "id": 16,
+      "action": "deactivate_session",
+      "valid": true,
+      "A": 0.0723,
+      "Q": 32.9187
+    }
+  ],
+  "rl_action": {
+    "id": 2,
+    "action": "move_session A_status->C_urgent"
+  },
+  "forecast_rule_action": {
+    "id": 14,
+    "action": "fallback_off"
+  },
+  "hybrid_action": {
+    "id": 2,
+    "action": "move_session A_status->C_urgent"
+  },
+  "reward": {
+    "total": 1.1418,
+    "parts": {
+      "served": 1.5333,
+      "abandon": 0.2667,
+      "late": 0.1333,
+      "cost": 1.0625,
+      "csat": 0.5397
+    },
+    "weights": {
+      "w_served": 1.0,
+      "w_abandon": 1.0,
+      "w_sla": 1.0,
+      "w_cost": 0.5,
+      "w_csat": 1.0
+    },
+    "check": 1.1418
+  },
+  "learning_step": {
+    "a_star_next (online argmax)": "move_session A_status->C_urgent",
+    "Q_target(s',a*)": 32.8137,
+    "gamma": 0.97,
+    "TD_target_y": 32.9711,
+    "Q(s,a)_before": 33.3033,
+    "TD_error": -0.3322,
+    "huber_loss": 0.055177,
+    "grad_norm": 9.324,
+    "Q(s,a)_after_one_adam_step": 32.7717
+  }
+}

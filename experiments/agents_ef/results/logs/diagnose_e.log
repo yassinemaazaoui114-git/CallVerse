@@ -1,0 +1,11 @@
+== in_dist: ret forecast 106.06 rl 106.28 rl_no_clock 100.97 (delta -5.31) | corr(active, load) rl 0.74 forecast 0.86 | OOD 0.010
+   ratio active/load by hour  RL: [1.55, 1.31, 1.13, 1.05, 1.22, 1.28, 1.14, 1.22]  Forecast: [1.49, 1.18, 1.13, 1.21, 1.23, 1.14, 1.18, 1.22]
+== flat_real: ret forecast 109.33 rl 105.27 rl_no_clock 102.69 (delta -2.59) | corr(active, load) rl 0.47 forecast 0.79 | OOD 0.011
+   ratio active/load by hour  RL: [1.28, 1.3, 1.38, 1.09, 1.1, 1.37, 1.18, 1.11]  Forecast: [1.25, 1.18, 1.2, 1.19, 1.2, 1.18, 1.16, 1.17]
+== evening: ret forecast 107.32 rl 101.17 rl_no_clock 101.62 (delta +0.45) | corr(active, load) rl 0.70 forecast 0.90 | OOD 0.020
+   ratio active/load by hour  RL: [2.0, 1.68, 1.78, 1.19, 1.09, 1.21, 1.07, 0.95]  Forecast: [1.88, 1.34, 1.28, 1.24, 1.2, 1.14, 1.12, 1.13]
+== volatile: ret forecast 100.25 rl 101.39 rl_no_clock 96.21 (delta -5.18) | corr(active, load) rl 0.75 forecast 0.81 | OOD 0.055
+   ratio active/load by hour  RL: [1.51, 1.26, 1.02, 0.96, 1.17, 1.2, 1.06, 1.18]  Forecast: [1.46, 1.15, 1.01, 1.06, 1.17, 1.08, 1.12, 1.21]
+== evening_vol: ret forecast 102.60 rl 96.26 rl_no_clock 97.23 (delta +0.96) | corr(active, load) rl 0.77 forecast 0.84 | OOD 0.055
+   ratio active/load by hour  RL: [1.9, 1.62, 1.64, 1.16, 1.03, 1.13, 1.0, 0.89]  Forecast: [1.81, 1.33, 1.25, 1.2, 1.14, 1.1, 1.04, 1.03]
+DDONE

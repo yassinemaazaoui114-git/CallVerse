@@ -1,0 +1,122 @@
+1. data
+  OK  amazon/en_validation.jsonl 715498d7f42d9654
+  OK  amazon/en_test.jsonl a18f5860ed40a89a
+  OK  amazon/fr_validation.jsonl fa9089ddad304890
+  OK  amazon/fr_test.jsonl cc8a56cb3c7bbb05
+  OK  olist/raw/olist_order_reviews_dataset.csv 012b61c7593e34f5
+2. Olist subset (vocabulary corpus)
+{
+ "subset": {
+  "train": 600,
+  "val": 199,
+  "test": 201
+ },
+ "satisfaction_labels": true,
+ "timestamps": false,
+ "leakage": {
+  "train_vs_val": {
+   "same_text": 0,
+   "same_conversation": 0
+  },
+  "train_vs_test": {
+   "same_text": 0,
+   "same_conversation": 0
+  },
+  "val_vs_test": {
+   "same_text": 0,
+   "same_conversation": 0
+  },
+  "test_near_duplicates_of_train_cos>=0.9": 0,
+  "test_max_cos_to_train_median": 0.38245015742813665,
+  "near_duplicates_removed": {
+   "val": 1,
+   "test": 0
+  }
+ }
+}
+  OK  olist/subset/train.jsonl 2779866e92559fdd
+3. EN/FR subset
+{
+ "source": "mteb/amazon_reviews_multi (en, fr); TRAIN/VAL from official validation, TEST from official test",
+ "splits": {
+  "train": {
+   "n": 1200,
+   "by_lang": {
+    "en": 600,
+    "fr": 600
+   },
+   "by_star": {
+    "3": 236,
+    "1": 248,
+    "4": 238,
+    "2": 237,
+    "5": 241
+   }
+  },
+  "val": {
+   "n": 400,
+   "by_lang": {
+    "en": 200,
+    "fr": 200
+   },
+   "by_star": {
+    "2": 83,
+    "5": 79,
+    "3": 84,
+    "1": 72,
+    "4": 82
+   }
+  },
+  "test": {
+   "n": 399,
+   "by_lang": {
+    "en": 200,
+    "fr": 199
+   },
+   "by_star": {
+    "1": 80,
+    "2": 80,
+    "3": 79,
+    "4": 80,
+    "5": 80
+   }
+  }
+ },
+ "leakage": {
+  "train_vs_val": {
+   "same_text": 0,
+   "same_conversation": 0
+  },
+  "train_vs_test": {
+   "same_text": 0,
+   "same_conversation": 0
+  },
+  "val_vs_test": {
+   "same_text": 0,
+   "same_conversation": 0
+  },
+  "test_near_duplicates_of_train_cos>=0.9": 0,
+  "test_max_cos_to_train_median": 0.27211615629346747,
+  "near_duplicates_removed": {
+   "val": 0,
+   "test": 1
+  }
+ },
+ "words_mean": 34.67583791895948
+}
+  OK  enfr/train.jsonl 20d7cc86e6efbb57
+  OK  enfr/val.jsonl 69b86b6d4e80c581
+  OK  enfr/test.jsonl 2c7bc9be79da8cb4
+4. fine-tune e5small_trim_ft
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:   5%|▍         | 9/199 [00:00<00:05, 33.84it/s]Loading weights:   7%|▋         | 13/199 [00:00<00:06, 30.38it/s]Loading weights:  11%|█         | 22/199 [00:00<00:03, 47.39it/s]Loading weights:  14%|█▍        | 28/199 [00:01<00:07, 23.32it/s]Loading weights:  16%|█▌        | 32/199 [00:01<00:06, 24.17it/s]Loading weights:  18%|█▊        | 36/199 [00:01<00:06, 24.07it/s]Loading weights:  20%|██        | 40/199 [00:01<00:07, 21.04it/s]Loading weights:  22%|██▏       | 43/199 [00:01<00:08, 18.79it/s]Loading weights:  23%|██▎       | 46/199 [00:01<00:07, 20.18it/s]Loading weights:  25%|██▍       | 49/199 [00:02<00:09, 15.25it/s]Loading weights:  30%|██▉       | 59/199 [00:02<00:06, 22.41it/s]Loading weights:  34%|███▎      | 67/199 [00:02<00:04, 30.97it/s]Loading weights:  45%|████▍     | 89/199 [00:03<00:02, 41.92it/s]Loading weights:  48%|████▊     | 95/199 [00:03<00:02, 42.90it/s]Loading weights:  50%|█████     | 100/199 [00:03<00:02, 41.21it/s]Loading weights:  53%|█████▎    | 106/199 [00:03<00:03, 28.53it/s]Loading weights:  55%|█████▌    | 110/199 [00:03<00:03, 27.38it/s]Loading weights:  57%|█████▋    | 114/199 [00:04<00:04, 19.91it/s]Loading weights:  59%|█████▉    | 118/199 [00:04<00:03, 21.53it/s]Loading weights:  61%|██████▏   | 122/199 [00:04<00:04, 15.68it/s]Loading weights:  65%|██████▌   | 130/199 [00:05<00:03, 22.84it/s]Loading weights:  67%|██████▋   | 134/199 [00:05<00:02, 24.79it/s]Loading weights:  69%|██████▉   | 138/199 [00:05<00:02, 22.50it/s]Loading weights:  71%|███████▏  | 142/199 [00:05<00:02, 25.33it/s]Loading weights:  75%|███████▍  | 149/199 [00:05<00:01, 29.21it/s]Loading weights: 100%|██████████| 199/199 [00:05<00:00, 35.14it/s]
+e5small_trim_ft {'all': 'MAE 0.631±0.000 F1 0.655', 'en': 'MAE 0.641±0.000 F1 0.624', 'fr': 'MAE 0.621±0.000 F1 0.686'} params 27804417
+5. manifest
+6. verify (reload through the integration interface, re-score TEST)
+{
+ "reloaded_test_mae": 0.6308696741854636,
+ "training_run_test_mae": 0.6308718615008476,
+ "same": true,
+ "within_reference_spread": true
+} 
+manifest: /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_pipeline_repro/manifest.json
+PDONE

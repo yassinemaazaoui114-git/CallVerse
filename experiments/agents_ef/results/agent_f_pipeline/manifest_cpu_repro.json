@@ -1,0 +1,112 @@
+{
+  "data": {
+    "amazon/en_validation.jsonl": {
+      "sha256": "715498d7f42d96548754a862984a90fa33522a2f9a4b844df58f4e9b821e7848",
+      "matches_reference": true
+    },
+    "amazon/en_test.jsonl": {
+      "sha256": "a18f5860ed40a89a2d2af4a0d1ed300394560ae61e414158009c1d781f2cce03",
+      "matches_reference": true
+    },
+    "amazon/fr_validation.jsonl": {
+      "sha256": "fa9089ddad304890d842284fa32e17b64f61ae03713483a33e1ac1a8d31c82ac",
+      "matches_reference": true
+    },
+    "amazon/fr_test.jsonl": {
+      "sha256": "cc8a56cb3c7bbb05671573d06dd7ae01cafff2f329a866b0b7749a64069ad5ea",
+      "matches_reference": true
+    },
+    "olist/raw/olist_order_reviews_dataset.csv": {
+      "sha256": "012b61c7593e34f51fa614efdf802b9c7056ce6aae5307ddb93236e7cfc797d7",
+      "matches_reference": true
+    },
+    "olist/subset/train.jsonl": {
+      "sha256": "2779866e92559fdd2f83857778bd98662a672ecbaa56e62eb530d14ab96a2833",
+      "matches_reference": true
+    },
+    "enfr/train.jsonl": {
+      "sha256": "20d7cc86e6efbb575bfeae41d29f60c0a739720856069dd6aacae537e841f64a",
+      "matches_reference": true
+    },
+    "enfr/val.jsonl": {
+      "sha256": "69b86b6d4e80c5814d416d404b8102e924761942ace46ae8a215e87e29b5aa75",
+      "matches_reference": true
+    },
+    "enfr/test.jsonl": {
+      "sha256": "2c7bc9be79da8cb421b4e22cee17ee136115bfe932c394620c56d1ebd3ab0384",
+      "matches_reference": true
+    }
+  },
+  "best_seed_by_val": 0,
+  "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_pipeline_repro/checkpoints/e5small_trim_ft_s0",
+  "checkpoint_sha256": "6bae1f48b244b4ec40e1893940a713ba429bfb9080683b0ebc3fce06586aa22e",
+  "checkpoint_matches_reference_bitwise": true,
+  "test_mean": {
+    "all": {
+      "mae": 0.6308718615008476,
+      "rmse": 0.7732273359370863,
+      "f1_macro_3class": 0.6548631126827654,
+      "f1_macro_5class": 0.4787525474767774,
+      "spearman": 0.8291753713554999
+    },
+    "en": {
+      "mae": 0.6408538061380387,
+      "rmse": 0.7970868277281926,
+      "f1_macro_3class": 0.6238963421625959,
+      "f1_macro_5class": 0.4850130752352039,
+      "spearman": 0.8191199162235079
+    },
+    "fr": {
+      "mae": 0.6208397563378415,
+      "rmse": 0.7484820233473231,
+      "f1_macro_3class": 0.6859635578039868,
+      "f1_macro_5class": 0.46988809555828254,
+      "spearman": 0.8376520115526451
+    }
+  },
+  "test_std": {
+    "all": {
+      "mae": 0.0,
+      "rmse": 0.0,
+      "f1_macro_3class": 0.0,
+      "f1_macro_5class": 0.0,
+      "spearman": 0.0
+    },
+    "en": {
+      "mae": 0.0,
+      "rmse": 0.0,
+      "f1_macro_3class": 0.0,
+      "f1_macro_5class": 0.0,
+      "spearman": 0.0
+    },
+    "fr": {
+      "mae": 0.0,
+      "rmse": 0.0,
+      "f1_macro_3class": 0.0,
+      "f1_macro_5class": 0.0,
+      "spearman": 0.0
+    }
+  },
+  "reference": {
+    "checkpoint_sha256_cpu_2threads": "6bae1f48b244b4ec40e1893940a713ba429bfb9080683b0ebc3fce06586aa22e",
+    "test_mae_mean_3seeds": 0.63,
+    "test_mae_std": 0.007,
+    "best_seed": 0
+  },
+  "versions": {
+    "python": "3.13.16",
+    "torch": "2.14.1+cpu",
+    "transformers": "5.20.2",
+    "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+    "device": "cpu",
+    "fp16": false,
+    "threads": 2
+  },
+  "git_commit": "0121b1601c84875b8e52196d1dec99e27acb6ea3",
+  "verify": {
+    "reloaded_test_mae": 0.6308696741854636,
+    "training_run_test_mae": 0.6308718615008476,
+    "same": true,
+    "within_reference_spread": true
+  }
+}

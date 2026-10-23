@@ -34,7 +34,8 @@ class SatisfactionPredictor:
         ckpt_dir = Path(ckpt_dir)
         meta = json.loads((ckpt_dir / "meta.json").read_text())
         state = torch.load(ckpt_dir / "model.pt", map_location="cpu", weights_only=False)
-        cfg = AutoConfig.from_pretrained(meta["base_model"])
+        rev = meta.get("revision")
+        cfg = AutoConfig.from_pretrained(meta["base_model"], revision=rev)
         bert = AutoModel.from_config(cfg)
         n_vocab = state["bert.embeddings.word_embeddings.weight"].shape[0]
         if n_vocab != cfg.vocab_size:                                   # trimmed vocabulary
@@ -44,7 +45,7 @@ class SatisfactionPredictor:
         remap = state.get("remap")
         model = Reg(bert, remap if remap is not None and remap.numel() else None)
         model.load_state_dict(state)
-        return cls(model.to(device), AutoTokenizer.from_pretrained(meta["base_model"]), meta, device)
+        return cls(model.to(device), AutoTokenizer.from_pretrained(meta["base_model"], revision=rev), meta, device)
 
     @torch.no_grad()
     def predict(self, texts: list[str], batch: int = 32) -> list[dict]:
