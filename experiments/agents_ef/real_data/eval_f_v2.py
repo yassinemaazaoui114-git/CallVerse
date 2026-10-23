@@ -21,7 +21,6 @@ TRAIN fits, VAL picks epoch / alpha / best seed, TEST scored once. Metrics overa
 import argparse
 import json
 import os
-import resource
 import sys
 import time
 from pathlib import Path
@@ -45,6 +44,15 @@ FT = {"tinybert_ft": ("tinybert", False), "mminilm_ft": ("mminilm", False), "mmi
       "e5small_trim_ft": ("e5small", True), "mminilmv2l6_trim_ft": ("mminilmv2l6", True)}
 FROZEN = {"mminilm_frozen_ridge": "mminilm", "e5small_frozen_ridge": "e5small"}
 CLASSIC = ["mean", "tfidf_ridge", "sentiment_zeroshot", "sentiment_ridge"]
+
+
+def peak_ram_mb():
+    try:
+        import resource
+        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    except ImportError:                       # Windows
+        import psutil
+        return psutil.Process().memory_info().peak_wset / 2**20
 
 
 def load(folder, split, langs=None):
@@ -114,15 +122,19 @@ def run_ft(name, seed, tr, va, te, a):
     enc_key, trim = FT[name]
     tok = AutoTokenizer.from_pretrained(ENC[enc_key])
     pre = PREFIX.get(enc_key, "")
-    bert = AutoModel.from_pretrained(ENC[enc_key])
+    bert = AutoModel.from_pretrained(ENC[enc_key]).float()          # some checkpoints ship in fp16
     full_params = sum(p.numel() for p in bert.parameters())
     remap = None
     if trim:
         kept, remap = build_remap(tok, [pre + t for t in corpus_texts(a.vocab_corpus)])
         bert = trim_model(bert, kept)
     torch.manual_seed(seed)
-    model = Reg(bert, remap)
-    enc = lambda X: tok([pre + x for x in X], padding=True, truncation=True, max_length=128, return_tensors="pt")
+    dev = torch.device(a.device)
+    model = Reg(bert, remap).to(dev)
+    if dev.type == "cuda":
+        torch.cuda.reset_peak_memory_stats()
+    enc = lambda X: {k: v.to(dev) for k, v in tok([pre + x for x in X], padding=True, truncation=True,
+                                                    max_length=128, return_tensors="pt").items()}
     opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=0.01)
     Xtr, ytr = [r["text"] for r in tr], np.array([r["rating"] for r in tr], np.float32)
     Xva, yva = [r["text"] for r in va], np.array([r["rating"] for r in va], np.float32)
@@ -133,7 +145,7 @@ def run_ft(name, seed, tr, va, te, a):
         with torch.no_grad():
             for i in range(0, len(X), bs):
                 b = enc(X[i:i + bs])
-                out.append(model(b["input_ids"], b["attention_mask"]).numpy())
+                out.append(model(b["input_ids"], b["attention_mask"]).float().cpu().numpy())
         return np.concatenate(out)
 
     best, best_state, curve = 1e9, None, []
@@ -143,7 +155,9 @@ def run_ft(name, seed, tr, va, te, a):
         for i in range(0, len(Xtr), 16):
             idx = perm[i:i + 16]
             b = enc([Xtr[j] for j in idx])
-            loss = nn.functional.mse_loss(model(b["input_ids"], b["attention_mask"]), torch.as_tensor(ytr[idx]))
+            with torch.autocast(device_type=dev.type, dtype=torch.float16, enabled=a.fp16 and dev.type == "cuda"):
+                pred = model(b["input_ids"], b["attention_mask"])
+            loss = nn.functional.mse_loss(pred.float(), torch.as_tensor(ytr[idx], device=dev))
             opt.zero_grad()
             loss.backward()
             opt.step()
@@ -157,6 +171,8 @@ def run_ft(name, seed, tr, va, te, a):
             "encoder_params_before_trim": full_params, "base_model": ENC[enc_key],
             "vocab_kept": int(model.bert.config.vocab_size), "trimmed": trim,
             "test_oov_token_rate": oov_rate(tok, remap, [pre + r["text"] for r in te]),
+            "device": str(dev), "fp16": bool(a.fp16 and dev.type == "cuda"),
+            "peak_vram_mb": round(torch.cuda.max_memory_allocated() / 2**20, 1) if dev.type == "cuda" else None,
             "disk_mb_fp32": round(sum(v.numel() * v.element_size() for v in model.state_dict().values()) / 1e6, 1)}
     if a.save_dir:
         ck = Path(a.save_dir) / f"{name}_s{seed}"
@@ -227,6 +243,8 @@ def main(argv=None):
     ap.add_argument("--train-langs", nargs="*", default=None, help="train on these languages only")
     ap.add_argument("--vocab-corpus", nargs="*", default=None, help="UNLABELLED texts for vocab trimming (not TEST)")
     ap.add_argument("--save-dir", default=None)
+    ap.add_argument("--device", default="cpu", help="cpu or cuda (RTX 4050)")
+    ap.add_argument("--fp16", action="store_true", help="CUDA only: mixed precision training")
     ap.add_argument("--out", required=True)
     ap.add_argument("--label", default="")
     a = ap.parse_args(argv)
@@ -259,8 +277,8 @@ def main(argv=None):
            "test_mean": {g: {k: float(np.mean([r["test"][g][k] for r in runs])) for k in keys} for g in groups},
            "test_std": {g: {k: float(np.std([r["test"][g][k] for r in runs])) for k in keys} for g in groups},
            "best_seed_by_val": best.get("seed", 0), "runs": runs,
-           "peak_rss_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1),
-           "threads": a.threads, "device": "cpu"}
+           "peak_rss_mb": round(peak_ram_mb(), 1),
+           "threads": a.threads, "device": a.device}
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     tag = a.model + ("_" + "".join(a.train_langs) if a.train_langs else "")

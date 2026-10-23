@@ -137,3 +137,26 @@ def test_sampler_label_mix_is_plausible():
     ranks = np.concatenate([s.sample(q, 5000, rng)[1] for q in range(4)])
     share = np.bincount(ranks, minlength=3) / len(ranks)
     assert 0.02 < share[2] < 0.3 and share[0] > 0.3
+
+
+def test_integration_snapshot_gives_same_obs_and_mask_as_simulator(tmp_path):
+    import json
+    from integration.agent_e_policy import AgentEPolicy, snapshot_from_env
+    env = make_env("intake")
+    run = tmp_path / "run"
+    run.mkdir()
+    agent = make_agent("dueling_double_dqn", env.obs_dim, env.n_actions, seed=0)
+    torch.save(agent.state_dict(), run / "best.pt")
+    (run / "run.json").write_text(json.dumps({"algo": "dueling_double_dqn", "seed": 0, "hidden": [64, 64],
+                                              "env": "intake"}))
+    pol = AgentEPolicy.load(run)
+    rng = np.random.default_rng(0)
+    obs, info = env.reset(seed=4, scenario="failure")
+    for _ in range(60):
+        snap = json.loads(json.dumps(snapshot_from_env(env)))          # what crosses the interface: plain JSON
+        o2, m2 = pol.observe(snap)
+        assert np.allclose(obs, o2, atol=1e-5) and (m2 == info["action_mask"]).all()
+        prop = pol.propose(snap)
+        assert prop["kind"] == "capacity_proposal" and info["action_mask"][prop["action_id"]]
+        assert prop["action_id"] == agent.act(obs, info["action_mask"], explore=False)
+        obs, _, _, _, info = env.step(int(rng.integers(N_ACTIONS)))
