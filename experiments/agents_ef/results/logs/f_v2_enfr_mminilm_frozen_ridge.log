@@ -1,0 +1,2 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 3420.16it/s]
+mminilm_frozen_ridge {'all': 'MAE 0.757±0.000 F1 0.624', 'en': 'MAE 0.817±0.000 F1 0.596', 'fr': 'MAE 0.697±0.000 F1 0.652'} params 117654145

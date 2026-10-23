@@ -1,0 +1,2 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 3404.01it/s]
+e5small_frozen_ridge {'all': 'MAE 0.709±0.000 F1 0.656', 'en': 'MAE 0.705±0.000 F1 0.663', 'fr': 'MAE 0.713±0.000 F1 0.649'} params 117654145

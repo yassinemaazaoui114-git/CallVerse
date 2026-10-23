@@ -1,0 +1,13 @@
+e5small_trim_ft done 15:25 e5small_trim_ft {'all': 'MAE 0.630±0.007 F1 0.672', 'en': 'MAE 0.638±0.015 F1 0.652', 'fr': 'MAE 0.622±0.002 F1 0.693'} params 27804417
+mminilmv2l6_trim_ft done 15:25 RuntimeError: mat1 and mat2 must have the same dtype, but got Half and Float
+mminilm_trim_ft done 16:18 mminilm_trim_ft {'all': 'MAE 0.645±0.013 F1 0.664', 'en': 'MAE 0.691±0.012 F1 0.624', 'fr': 'MAE 0.599±0.015 F1 0.704'} params 27805185
+e5small_frozen_ridge done 16:19 e5small_frozen_ridge {'all': 'MAE 0.709±0.000 F1 0.656', 'en': 'MAE 0.705±0.000 F1 0.663', 'fr': 'MAE 0.713±0.000 F1 0.649'} params 117654145
+mminilm_frozen_ridge done 16:20 mminilm_frozen_ridge {'all': 'MAE 0.757±0.000 F1 0.624', 'en': 'MAE 0.817±0.000 F1 0.596', 'fr': 'MAE 0.697±0.000 F1 0.652'} params 117654145
+tinybert_ft done 16:33 tinybert_ft {'all': 'MAE 0.743±0.004 F1 0.625', 'en': 'MAE 0.709±0.018 F1 0.647', 'fr': 'MAE 0.778±0.011 F1 0.602'} params 14370345
+mminilm_ft done 17:32 mminilm_ft {'all': 'MAE 0.642±0.015 F1 0.668', 'en': 'MAE 0.692±0.015 F1 0.624', 'fr': 'MAE 0.592±0.019 F1 0.711'} params 117678465
+ALLDONE
+mminilmv2l6_trim_ft done 17:48 mminilmv2l6_trim_ft {'all': 'MAE 0.804±0.009 F1 0.579', 'en': 'MAE 0.861±0.014 F1 0.549', 'fr': 'MAE 0.746±0.010 F1 0.608'} params 17158785
+ALLDONE
+F2ALLDONE
+olist e5small_trim done 17:56 e5small_trim_ft {'all': 'MAE 0.702±0.005 F1 0.645', 'pt': 'MAE 0.702±0.005 F1 0.645'} params 27804417
+F3ALLDONE

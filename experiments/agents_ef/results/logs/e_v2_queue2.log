@@ -1,0 +1,7 @@
+freward s0 capped exit=0 15:41
+freward s0 nocap exit=0 15:42
+freward s1 capped exit=0 15:48
+freward s1 nocap exit=0 15:48
+freward s2 capped exit=0 15:54
+freward s2 nocap exit=0 15:55
+ALLDONE

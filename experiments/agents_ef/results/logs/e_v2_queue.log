@@ -1,0 +1,16 @@
+dqn s0 plain exit=0 14:51
+dueling_double_dqn s0 plain exit=0 14:52
+double_dqn s0 plain exit=0 14:57
+ppo s0 plain exit=0 14:58
+dueling_double_dqn s0 dr exit=0 15:03
+dueling_double_dqn s1 plain exit=0 15:05
+dqn s1 plain exit=0 15:09
+double_dqn s1 plain exit=0 15:11
+ppo s1 plain exit=0 15:16
+dueling_double_dqn s1 dr exit=0 15:17
+dueling_double_dqn s2 plain exit=0 15:22
+dqn s2 plain exit=0 15:23
+double_dqn s2 plain exit=0 15:28
+ppo s2 plain exit=0 15:29
+dueling_double_dqn s2 dr exit=0 15:34
+ALLDONE

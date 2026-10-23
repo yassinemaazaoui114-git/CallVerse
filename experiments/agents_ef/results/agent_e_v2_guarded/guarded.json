@@ -1,0 +1,367 @@
+{
+  "in_dist": {
+    "guarded_dueling_double_dqn_intake_h64x64_400k": {
+      "mean": {
+        "ret": 105.54798390141521,
+        "handled_pct": 97.08120048308172,
+        "abandon_pct": 2.7133990036537163,
+        "sla_pct": 95.50753026602575,
+        "urgent_sla_pct": 99.86264999062989,
+        "mean_wait_min": 2.4590207710086105,
+        "p95_wait_min": 8.74541960138489,
+        "sim_csat": 4.592993231157382,
+        "cost": 1272.327380952381,
+        "violations": 0.0,
+        "fallback_share": 0.032614087301587304,
+        "end_backlog": 2.375,
+        "c_queue_sla_pct": 84.20379251368145,
+        "abandon_high_pct": 0.007440476190476191,
+        "abandon_low_pct": 3.3146907596870423,
+        "p95_wait_high_min": 2.2234215415215863,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.042143253364560596,
+        "budget_ok_pct": 100.0
+      },
+      "std": {
+        "ret": 0.24903485916818138,
+        "handled_pct": 0.10725576256320567,
+        "abandon_pct": 0.09206484108131018,
+        "sla_pct": 0.11790032837129095,
+        "urgent_sla_pct": 0.03927412123828504,
+        "mean_wait_min": 0.024338716369534618,
+        "p95_wait_min": 0.14992194837865436,
+        "sim_csat": 0.0020142114396512097,
+        "cost": 0.47387831517842877,
+        "violations": 0.0,
+        "fallback_share": 0.008374438757879818,
+        "end_backlog": 0.22015764296317766,
+        "c_queue_sla_pct": 0.5032287344180064,
+        "abandon_high_pct": 0.010522422339085529,
+        "abandon_low_pct": 0.10608376470298994,
+        "p95_wait_high_min": 0.017939219257143688,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.00951062016954205,
+        "budget_ok_pct": 0.0
+      },
+      "gap_vs_forecast": {
+        "sla_pct": [
+          0.519164077577031,
+          0.11693275314443308,
+          3
+        ],
+        "urgent_sla_pct": [
+          -0.06386048197887344,
+          0.03941082761078754,
+          3
+        ],
+        "abandon_pct": [
+          -0.2830383939861563,
+          0.09142358624070288,
+          3
+        ],
+        "abandon_high_pct": [
+          -0.010456912980625746,
+          0.010524373907077441,
+          3
+        ],
+        "sim_csat": [
+          0.00038850289233138824,
+          0.002280346203440626,
+          3
+        ]
+      }
+    }
+  },
+  "flat_real": {
+    "guarded_dueling_double_dqn_intake_h64x64_400k": {
+      "mean": {
+        "ret": 108.34295743116259,
+        "handled_pct": 97.72952622677172,
+        "abandon_pct": 1.9707422808217638,
+        "sla_pct": 96.41986950391146,
+        "urgent_sla_pct": 99.83062530228625,
+        "mean_wait_min": 2.1701124540052263,
+        "p95_wait_min": 7.666609167020613,
+        "sim_csat": 4.637050027330203,
+        "cost": 1252.4583333333333,
+        "violations": 0.0,
+        "fallback_share": 0.02573164682539682,
+        "end_backlog": 3.4880952380952377,
+        "c_queue_sla_pct": 87.21156913282873,
+        "abandon_high_pct": 0.016459235209235208,
+        "abandon_low_pct": 2.409061852497203,
+        "p95_wait_high_min": 2.252472230255389,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.024991485667385807,
+        "budget_ok_pct": 100.0
+      },
+      "std": {
+        "ret": 0.48073640975701465,
+        "handled_pct": 0.07016425624562385,
+        "abandon_pct": 0.04076746104927751,
+        "sla_pct": 0.11796046376619462,
+        "urgent_sla_pct": 0.10501134010391684,
+        "mean_wait_min": 0.038106023034340485,
+        "p95_wait_min": 0.11290540095968316,
+        "sim_csat": 0.007683410045146628,
+        "cost": 1.400796461169008,
+        "violations": 0.0,
+        "fallback_share": 0.009387408984396,
+        "end_backlog": 0.7499055118106485,
+        "c_queue_sla_pct": 0.7608058659526756,
+        "abandon_high_pct": 0.0232768736591892,
+        "abandon_low_pct": 0.04934189133081365,
+        "p95_wait_high_min": 0.030339434638129815,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.008466793399101788,
+        "budget_ok_pct": 0.0
+      },
+      "gap_vs_forecast": {
+        "sla_pct": [
+          -0.029598062471147085,
+          0.09840281233827163,
+          3
+        ],
+        "urgent_sla_pct": [
+          -0.10206788459826537,
+          0.10387020306325043,
+          3
+        ],
+        "abandon_pct": [
+          0.032429417661661075,
+          0.021225188565848936,
+          3
+        ],
+        "abandon_high_pct": [
+          0.016211216719990536,
+          0.022939443499429325,
+          3
+        ],
+        "sim_csat": [
+          -0.012430183977438189,
+          0.00682435779837214,
+          3
+        ]
+      }
+    }
+  },
+  "evening": {
+    "guarded_dueling_double_dqn_intake_h64x64_400k": {
+      "mean": {
+        "ret": 106.19230792279625,
+        "handled_pct": 96.9316355088411,
+        "abandon_pct": 2.486274305785611,
+        "sla_pct": 95.53154330700839,
+        "urgent_sla_pct": 99.71064985749696,
+        "mean_wait_min": 2.450363727575018,
+        "p95_wait_min": 8.509401593674792,
+        "sim_csat": 4.610533446046175,
+        "cost": 1232.5892857142858,
+        "violations": 0.0,
+        "fallback_share": 0.04606894841269841,
+        "end_backlog": 6.714285714285715,
+        "c_queue_sla_pct": 86.04882778008353,
+        "abandon_high_pct": 0.035247826697844896,
+        "abandon_low_pct": 3.1394395820281495,
+        "p95_wait_high_min": 2.231158028221813,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.03453517865521265,
+        "budget_ok_pct": 100.0
+      },
+      "std": {
+        "ret": 0.4808529439714458,
+        "handled_pct": 0.09320571475304186,
+        "abandon_pct": 0.07809373984781465,
+        "sla_pct": 0.11784762895589955,
+        "urgent_sla_pct": 0.10409924502450137,
+        "mean_wait_min": 0.035559123791675806,
+        "p95_wait_min": 0.1163641101064371,
+        "sim_csat": 0.004713879312076382,
+        "cost": 2.200465705192407,
+        "violations": 0.0,
+        "fallback_share": 0.008496127546111428,
+        "end_backlog": 0.5463235193135126,
+        "c_queue_sla_pct": 0.5988948919366449,
+        "abandon_high_pct": 0.013924780555537369,
+        "abandon_low_pct": 0.09447159919622468,
+        "p95_wait_high_min": 0.018838896355698208,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.0033530040604195905,
+        "budget_ok_pct": 0.0
+      },
+      "gap_vs_forecast": {
+        "sla_pct": [
+          0.14052804543312902,
+          0.14311146451598505,
+          3
+        ],
+        "urgent_sla_pct": [
+          -0.03777070635664378,
+          0.0999078065082112,
+          3
+        ],
+        "abandon_pct": [
+          -0.09349281862989296,
+          0.10845263609568216,
+          3
+        ],
+        "abandon_high_pct": [
+          0.035247826697844896,
+          0.013924780555537369,
+          3
+        ],
+        "sim_csat": [
+          -0.0067610259530273,
+          0.006250996194674327,
+          3
+        ]
+      }
+    }
+  },
+  "volatile": {
+    "guarded_dueling_double_dqn_intake_h64x64_400k": {
+      "mean": {
+        "ret": 101.05729476273774,
+        "handled_pct": 95.4867374332734,
+        "abandon_pct": 4.256076364362815,
+        "sla_pct": 93.63884554571659,
+        "urgent_sla_pct": 99.57526740405301,
+        "mean_wait_min": 2.7622841271680074,
+        "p95_wait_min": 9.90213386538086,
+        "sim_csat": 4.505303497558125,
+        "cost": 1265.392857142857,
+        "violations": 0.0,
+        "fallback_share": 0.07452876984126984,
+        "end_backlog": 3.619047619047619,
+        "c_queue_sla_pct": 81.48086763659059,
+        "abandon_high_pct": 0.08207540740934131,
+        "abandon_low_pct": 5.112726388303769,
+        "p95_wait_high_min": 2.265211767257989,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.07878128118127863,
+        "budget_ok_pct": 100.0
+      },
+      "std": {
+        "ret": 0.25888665958965423,
+        "handled_pct": 0.16690526619182805,
+        "abandon_pct": 0.11253342237005101,
+        "sla_pct": 0.12905842617005864,
+        "urgent_sla_pct": 0.12527165598752837,
+        "mean_wait_min": 0.025647386564875262,
+        "p95_wait_min": 0.10841323973419255,
+        "sim_csat": 0.004177912313141246,
+        "cost": 2.093224817370181,
+        "violations": 0.0,
+        "fallback_share": 0.011607831769679127,
+        "end_backlog": 0.6587540634408059,
+        "c_queue_sla_pct": 1.2802482260477546,
+        "abandon_high_pct": 0.0166383688342234,
+        "abandon_low_pct": 0.2719634604385504,
+        "p95_wait_high_min": 0.04000818301139312,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.010499947900721502,
+        "budget_ok_pct": 0.0
+      },
+      "gap_vs_forecast": {
+        "sla_pct": [
+          0.4346849432072304,
+          0.17368720807994198,
+          3
+        ],
+        "urgent_sla_pct": [
+          0.11285936898547295,
+          0.11931586981785597,
+          3
+        ],
+        "abandon_pct": [
+          -0.3017704454674561,
+          0.1384483189789101,
+          3
+        ],
+        "abandon_high_pct": [
+          -0.03930798867482881,
+          0.0184381949384106,
+          3
+        ],
+        "sim_csat": [
+          -0.013636026439314127,
+          0.004699868065126095,
+          3
+        ]
+      }
+    }
+  },
+  "evening_vol": {
+    "guarded_dueling_double_dqn_intake_h64x64_400k": {
+      "mean": {
+        "ret": 101.73952637876111,
+        "handled_pct": 95.25902823621622,
+        "abandon_pct": 3.944538722578727,
+        "sla_pct": 93.66636197424434,
+        "urgent_sla_pct": 99.45124168327311,
+        "mean_wait_min": 2.7645621653457417,
+        "p95_wait_min": 9.687291642111951,
+        "sim_csat": 4.535358730275372,
+        "cost": 1246.5833333333333,
+        "violations": 0.0,
+        "fallback_share": 0.07527281746031746,
+        "end_backlog": 13.136904761904761,
+        "c_queue_sla_pct": 83.17918765396796,
+        "abandon_high_pct": 0.14280933630203713,
+        "abandon_low_pct": 4.805879268779161,
+        "p95_wait_high_min": 2.3010788352885636,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.054527338621624115,
+        "budget_ok_pct": 100.0
+      },
+      "std": {
+        "ret": 0.5435342763476391,
+        "handled_pct": 0.26413085702493727,
+        "abandon_pct": 0.2651074679685655,
+        "sla_pct": 0.21782822560029586,
+        "urgent_sla_pct": 0.09661293570227948,
+        "mean_wait_min": 0.0648976187298449,
+        "p95_wait_min": 0.3814358689139057,
+        "sim_csat": 0.010765344386699316,
+        "cost": 2.399525770418524,
+        "violations": 0.0,
+        "fallback_share": 0.00536181981873225,
+        "end_backlog": 0.4805603069509386,
+        "c_queue_sla_pct": 1.2433153798097638,
+        "abandon_high_pct": 0.0899490713507324,
+        "abandon_low_pct": 0.40100679056448263,
+        "p95_wait_high_min": 0.04172668856569619,
+        "high_on_fallback": 0.0,
+        "fallback_ticket_share": 0.003341864457631893,
+        "budget_ok_pct": 0.0
+      },
+      "gap_vs_forecast": {
+        "sla_pct": [
+          0.2724822634348622,
+          0.208022434225688,
+          3
+        ],
+        "urgent_sla_pct": [
+          -0.09292984965126057,
+          0.10309002447062997,
+          3
+        ],
+        "abandon_pct": [
+          -0.056321047346396945,
+          0.25505772470973487,
+          3
+        ],
+        "abandon_high_pct": [
+          0.1281190466059118,
+          0.0909547971223336,
+          3
+        ],
+        "sim_csat": [
+          -0.010809470863592926,
+          0.010188151059056454,
+          3
+        ]
+      }
+    }
+  }
+}

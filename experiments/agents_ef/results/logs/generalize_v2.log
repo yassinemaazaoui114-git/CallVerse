@@ -1,0 +1,56 @@
+== in_dist
+  forecast                           ret  106.06 cost   1279 SLA  95.11 urg  99.93 ab  2.91 csat 4.597
+  erlang_c                           ret  105.52 cost   1398 SLA  96.90 urg  99.94 ab  1.81 csat 4.655
+  double_dqn_intake_h64x64           ret  104.23±0.49 cost   1209 SLA  94.83 urg  99.85 ab  2.94 csat 4.518 fb 0.14 | vsForecast@cost SLA +1.33 ab -1.09 (n=3)
+  dqn_intake_h64x64                  ret  104.93±0.66 cost   1321 SLA  95.76 urg  99.92 ab  2.69 csat 4.599 fb 0.03 | vsForecast@cost SLA -0.27 ab +0.31 (n=3)
+  dueling_double_dqn_intake_h64x64   ret  105.52±0.98 cost   1273 SLA  95.51 urg  99.84 ab  2.63 csat 4.564 fb 0.10 | vsForecast@cost SLA +0.56 ab -0.45 (n=3)
+  dueling_double_dqn_intake_h64x64_400k ret  106.28±0.91 cost   1284 SLA  96.24 urg  99.85 ab  2.20 csat 4.600 fb 0.07 | vsForecast@cost SLA +1.08 ab -0.75 (n=3)
+  dueling_double_dqn_intake_h64x64_dr ret  103.13±1.28 cost   1269 SLA  95.12 urg  99.82 ab  2.93 csat 4.532 fb 0.12 | vsForecast@cost SLA +0.38 ab -0.30 (n=3)
+  dueling_double_dqn_intake_h64x64_freward ret  102.45±0.68 cost   1320 SLA  96.49 urg  99.91 ab  2.09 csat 4.549 fb 0.25 | vsForecast@cost SLA +0.46 ab -0.28 (n=3)
+  dueling_double_dqn_intake_h64x64_freward_nocap ret  102.10±0.83 cost   1264 SLA  95.62 urg  99.84 ab  2.74 csat 4.519 fb 0.25 | vsForecast@cost SLA +0.76 ab -0.37 (n=3)
+  ppo_intake_h64x64                  ret  105.40±0.46 cost   1305 SLA  95.34 urg  99.85 ab  2.80 csat 4.612 fb 0.00 | vsForecast@cost SLA -0.36 ab +0.23 (n=3)
+== flat_real
+  forecast                           ret  109.33 cost   1253 SLA  96.47 urg  99.93 ab  1.93 csat 4.650
+  erlang_c                           ret  106.82 cost   1384 SLA  97.89 urg  99.98 ab  1.13 csat 4.692
+  double_dqn_intake_h64x64           ret  103.95±1.17 cost   1198 SLA  94.50 urg  99.82 ab  3.25 csat 4.528 fb 0.14 | vsForecast@cost SLA -0.50 ab +0.41 (n=3)
+  dqn_intake_h64x64                  ret  103.91±0.56 cost   1296 SLA  95.25 urg  99.88 ab  2.98 csat 4.589 fb 0.04 | vsForecast@cost SLA -1.66 ab +1.26 (n=3)
+  dueling_double_dqn_intake_h64x64   ret  103.70±0.77 cost   1276 SLA  95.31 urg  99.74 ab  2.98 csat 4.569 fb 0.09 | vsForecast@cost SLA -1.03 ab +0.91 (n=3)
+  dueling_double_dqn_intake_h64x64_400k ret  105.27±0.81 cost   1294 SLA  96.16 urg  99.82 ab  2.31 csat 4.608 fb 0.06 | vsForecast@cost SLA -0.60 ab +0.50 (n=3)
+  dueling_double_dqn_intake_h64x64_dr ret  105.05±0.69 cost   1250 SLA  95.25 urg  99.80 ab  2.91 csat 4.574 fb 0.07 | vsForecast@cost SLA -0.79 ab +0.42 (n=2)
+  dueling_double_dqn_intake_h64x64_freward ret  102.41±1.18 cost   1314 SLA  96.65 urg  99.92 ab  1.94 csat 4.563 fb 0.25 | vsForecast@cost SLA -0.57 ab +0.40 (n=3)
+  dueling_double_dqn_intake_h64x64_freward_nocap ret  102.21±0.37 cost   1259 SLA  95.70 urg  99.90 ab  2.71 csat 4.527 fb 0.25 | vsForecast@cost SLA -0.66 ab +0.70 (n=3)
+  ppo_intake_h64x64                  ret  107.40±0.26 cost   1286 SLA  96.34 urg  99.94 ab  1.96 csat 4.651 fb 0.00 | vsForecast@cost SLA -0.53 ab +0.24 (n=3)
+== evening
+  forecast                           ret  107.32 cost   1239 SLA  95.60 urg  99.77 ab  2.46 csat 4.624
+  erlang_c                           ret  106.05 cost   1351 SLA  97.44 urg  99.93 ab  1.37 csat 4.681
+  double_dqn_intake_h64x64           ret   97.70±0.34 cost   1183 SLA  91.24 urg  99.75 ab  5.17 csat 4.431 fb 0.17 | vsForecast@cost SLA -2.95 ab +1.84 (n=2)
+  dqn_intake_h64x64                  ret   99.05±0.20 cost   1235 SLA  92.05 urg  99.79 ab  4.65 csat 4.498 fb 0.09 | vsForecast@cost SLA -3.18 ab +1.99 (n=3)
+  dueling_double_dqn_intake_h64x64   ret   99.79±2.32 cost   1224 SLA  92.58 urg  99.64 ab  4.66 csat 4.497 fb 0.10 | vsForecast@cost SLA -2.20 ab +1.66 (n=3)
+  dueling_double_dqn_intake_h64x64_400k ret  101.17±0.93 cost   1262 SLA  93.53 urg  99.76 ab  3.56 csat 4.533 fb 0.09 | vsForecast@cost SLA -2.38 ab +1.26 (n=3)
+  dueling_double_dqn_intake_h64x64_dr ret  102.30±1.61 cost   1229 SLA  94.38 urg  99.84 ab  3.33 csat 4.504 fb 0.13 | vsForecast@cost SLA -1.18 ab +0.56 (n=2)
+  dueling_double_dqn_intake_h64x64_freward ret   98.97±0.17 cost   1310 SLA  94.53 urg  99.89 ab  2.96 csat 4.549 fb 0.25 | vsForecast@cost SLA -2.53 ab +1.31 (n=3)
+  dueling_double_dqn_intake_h64x64_freward_nocap ret   98.06±1.59 cost   1237 SLA  93.02 urg  99.75 ab  4.24 csat 4.491 fb 0.25 | vsForecast@cost SLA -2.26 ab +1.58 (n=3)
+  ppo_intake_h64x64                  ret  104.65±0.41 cost   1270 SLA  94.80 urg  99.90 ab  2.77 csat 4.612 fb 0.00 | vsForecast@cost SLA -1.54 ab +0.73 (n=3)
+== volatile
+  forecast                           ret  100.25 cost   1265 SLA  93.21 urg  99.45 ab  4.55 csat 4.519
+  erlang_c                           ret   99.94 cost   1367 SLA  94.67 urg  99.88 ab  3.59 csat 4.565
+  double_dqn_intake_h64x64           ret   99.84±0.68 cost   1227 SLA  93.24 urg  99.68 ab  4.32 csat 4.453 fb 0.16 | vsForecast@cost SLA +1.14 ab -0.93 (n=3)
+  dqn_intake_h64x64                  ret   99.01±0.61 cost   1320 SLA  93.76 urg  99.76 ab  4.32 csat 4.511 fb 0.07 | vsForecast@cost SLA -0.29 ab +0.22 (n=3)
+  dueling_double_dqn_intake_h64x64   ret  100.41±1.05 cost   1268 SLA  93.76 urg  99.41 ab  4.10 csat 4.492 fb 0.12 | vsForecast@cost SLA +0.82 ab -0.66 (n=3)
+  dueling_double_dqn_intake_h64x64_400k ret  101.39±0.56 cost   1290 SLA  94.49 urg  99.72 ab  3.63 csat 4.518 fb 0.10 | vsForecast@cost SLA +1.15 ab -0.89 (n=3)
+  dueling_double_dqn_intake_h64x64_dr ret  100.08±1.29 cost   1278 SLA  93.57 urg  99.55 ab  4.23 csat 4.475 fb 0.14 | vsForecast@cost SLA +0.45 ab -0.43 (n=3)
+  dueling_double_dqn_intake_h64x64_freward ret   97.57±1.01 cost   1316 SLA  94.35 urg  99.74 ab  3.90 csat 4.472 fb 0.25 | vsForecast@cost SLA +0.35 ab -0.22 (n=3)
+  dueling_double_dqn_intake_h64x64_freward_nocap ret   97.76±1.11 cost   1269 SLA  93.73 urg  99.61 ab  4.33 csat 4.451 fb 0.25 | vsForecast@cost SLA +0.69 ab -0.34 (n=3)
+  ppo_intake_h64x64                  ret   99.92±0.51 cost   1292 SLA  93.20 urg  99.78 ab  4.55 csat 4.527 fb 0.01 | vsForecast@cost SLA -0.42 ab +0.22 (n=3)
+== evening_vol
+  forecast                           ret  102.60 cost   1251 SLA  93.50 urg  99.56 ab  3.94 csat 4.549
+  erlang_c                           ret  101.96 cost   1345 SLA  95.48 urg  99.86 ab  2.74 csat 4.609
+  double_dqn_intake_h64x64           ret   92.95±1.75 cost   1203 SLA  89.97 urg  99.66 ab  6.11 csat 4.386 fb 0.18 | vsForecast@cost SLA -2.15 ab +1.30 (n=3)
+  dqn_intake_h64x64                  ret   94.69±0.54 cost   1253 SLA  90.67 urg  99.72 ab  5.84 csat 4.440 fb 0.09 | vsForecast@cost SLA -2.80 ab +1.82 (n=3)
+  dueling_double_dqn_intake_h64x64   ret   95.98±2.55 cost   1234 SLA  90.98 urg  99.27 ab  5.85 csat 4.438 fb 0.11 | vsForecast@cost SLA -1.85 ab +1.42 (n=3)
+  dueling_double_dqn_intake_h64x64_400k ret   96.26±0.77 cost   1267 SLA  91.77 urg  99.42 ab  4.93 csat 4.466 fb 0.11 | vsForecast@cost SLA -1.93 ab +1.06 (n=3)
+  dueling_double_dqn_intake_h64x64_dr ret   99.75±0.91 cost   1240 SLA  92.99 urg  99.74 ab  4.43 csat 4.464 fb 0.14 | vsForecast@cost SLA -0.33 ab +0.05 (n=2)
+  dueling_double_dqn_intake_h64x64_freward ret   94.86±0.68 cost   1304 SLA  92.78 urg  99.36 ab  4.31 csat 4.490 fb 0.25 | vsForecast@cost SLA -1.93 ab +0.97 (n=3)
+  dueling_double_dqn_intake_h64x64_freward_nocap ret   94.41±1.41 cost   1249 SLA  91.48 urg  99.46 ab  5.35 csat 4.441 fb 0.25 | vsForecast@cost SLA -1.94 ab +1.30 (n=3)
+  ppo_intake_h64x64                  ret  101.53±0.73 cost   1276 SLA  93.28 urg  99.83 ab  3.83 csat 4.561 fb 0.01 | vsForecast@cost SLA -0.85 ab +0.20 (n=3)
+GENDONE

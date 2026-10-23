@@ -1,3 +1,5 @@
+> **Superseded for current conclusions by `REPORT_v2_agents_e_f.md` (2026-10-23): Intake-aware Agent E, EN/FR Agent F on genuine ratings.** This file is kept as the record of rounds 1-2.
+
 # Agents E (M6) and F (M7): tiny-model research report
 
 Branch: `research/agents-e-f-tiny-models` (from `main` @ `4cba464`). Folder: `experiments/agents_ef/`.

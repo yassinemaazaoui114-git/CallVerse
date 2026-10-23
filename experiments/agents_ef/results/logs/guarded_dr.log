@@ -1,0 +1,11 @@
+== in_dist  forecast(z=0) ret 106.06 cost 1279 SLA 95.11
+  guarded_dueling_double_dqn_intake_h64x64_dr  ret  105.73±0.18 cost   1280 SLA  95.52 ab  2.78 csat 4.595 fb 0.03 | gap SLA 0.39 ab -0.12
+== flat_real  forecast(z=0) ret 109.33 cost 1253 SLA 96.47
+  guarded_dueling_double_dqn_intake_h64x64_dr  ret  107.99±0.03 cost   1257 SLA  96.28 ab  2.14 csat 4.635 fb 0.01 | gap SLA -0.23 ab 0.23
+== evening  forecast(z=0) ret 107.32 cost 1239 SLA 95.60
+  guarded_dueling_double_dqn_intake_h64x64_dr  ret  106.82±0.27 cost   1239 SLA  95.70 ab  2.55 csat 4.605 fb 0.03 | gap SLA 0.1 ab 0.09
+== volatile  forecast(z=0) ret 100.25 cost 1265 SLA 93.21
+  guarded_dueling_double_dqn_intake_h64x64_dr  ret  102.09±0.24 cost   1273 SLA  94.02 ab  4.00 csat 4.523 fb 0.07 | gap SLA 0.69 ab -0.48
+== evening_vol  forecast(z=0) ret 102.60 cost 1251 SLA 93.50
+  guarded_dueling_double_dqn_intake_h64x64_dr  ret  103.21±0.16 cost   1249 SLA  94.09 ab  3.67 csat 4.541 fb 0.06 | gap SLA 0.63 ab -0.3
+GDONE

@@ -1,0 +1,179 @@
+{
+  "hardware": {
+    "device": "cpu",
+    "gpu": null,
+    "gpu_total_mb": null,
+    "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+    "python": "3.13.16",
+    "torch": "2.14.1+cpu",
+    "cuda": null,
+    "cpu_threads": 4
+  },
+  "agent_e": {
+    "v1_dqn": {
+      "params": 7313,
+      "p50_ms": 0.0209,
+      "p95_ms": 0.039,
+      "vram_mb": null
+    },
+    "v1_dueling_double_dqn": {
+      "params": 7378,
+      "p50_ms": 0.0466,
+      "p95_ms": 0.1037,
+      "vram_mb": null
+    },
+    "v1_ppo": {
+      "params": 13586,
+      "p50_ms": 0.0204,
+      "p95_ms": 0.0368,
+      "vram_mb": null
+    },
+    "intake_dqn": {
+      "params": 8081,
+      "p50_ms": 0.0208,
+      "p95_ms": 0.0344,
+      "vram_mb": null
+    },
+    "intake_dueling_double_dqn": {
+      "params": 8146,
+      "p50_ms": 0.0323,
+      "p95_ms": 0.0582,
+      "vram_mb": null
+    },
+    "intake_ppo": {
+      "params": 15122,
+      "p50_ms": 0.0202,
+      "p95_ms": 0.0347,
+      "vram_mb": null
+    }
+  },
+  "agent_f": {
+    "tinybert_4l": {
+      "params": 14350248,
+      "vocab": 30522,
+      "infer_batch1": {
+        "p50_ms": 9.8516,
+        "p95_ms": 12.0804
+      },
+      "infer_batch64": {
+        "p50_ms": 344.0437,
+        "p95_ms": 395.9708
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch16_fp32": {
+        "p50_ms": 431.3317,
+        "p95_ms": 472.5003
+      },
+      "vram_train_batch16_fp32_mb": null
+    },
+    "e5_small": {
+      "params": 117653760,
+      "vocab": 250037,
+      "infer_batch1": {
+        "p50_ms": 29.6724,
+        "p95_ms": 42.7561
+      },
+      "infer_batch64": {
+        "p50_ms": 1054.2042,
+        "p95_ms": 1173.8937
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch16_fp32": {
+        "p50_ms": 1967.3345,
+        "p95_ms": 2042.5707
+      },
+      "vram_train_batch16_fp32_mb": null
+    },
+    "e5_small_trim16k": {
+      "params": 27783552,
+      "vocab": 16000,
+      "infer_batch1": {
+        "p50_ms": 31.2605,
+        "p95_ms": 39.1566
+      },
+      "infer_batch64": {
+        "p50_ms": 1080.4569,
+        "p95_ms": 1174.8399
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch16_fp32": {
+        "p50_ms": 1566.4686,
+        "p95_ms": 1629.6319
+      },
+      "vram_train_batch16_fp32_mb": null
+    },
+    "mminilm_l12": {
+      "params": 117653760,
+      "vocab": 250037,
+      "infer_batch1": {
+        "p50_ms": 31.0434,
+        "p95_ms": 38.9257
+      },
+      "infer_batch64": {
+        "p50_ms": 1101.486,
+        "p95_ms": 1264.5069
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch16_fp32": {
+        "p50_ms": 1832.9464,
+        "p95_ms": 1902.848
+      },
+      "vram_train_batch16_fp32_mb": null
+    },
+    "mminilm_l12_trim16k": {
+      "params": 27783552,
+      "vocab": 16000,
+      "infer_batch1": {
+        "p50_ms": 28.9359,
+        "p95_ms": 38.5672
+      },
+      "infer_batch64": {
+        "p50_ms": 1098.9211,
+        "p95_ms": 1191.6762
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch16_fp32": {
+        "p50_ms": 1510.0822,
+        "p95_ms": 1615.4487
+      },
+      "vram_train_batch16_fp32_mb": null
+    },
+    "mminilmv2_l6": {
+      "params": 106993920,
+      "vocab": 250002,
+      "infer_batch1": {
+        "p50_ms": 16.5326,
+        "p95_ms": 19.6888
+      },
+      "infer_batch64": {
+        "p50_ms": 569.7959,
+        "p95_ms": 672.6632
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch16_fp32": {
+        "p50_ms": 1140.637,
+        "p95_ms": 1181.2606
+      },
+      "vram_train_batch16_fp32_mb": null
+    },
+    "mminilmv2_l6_trim16k": {
+      "params": 17137152,
+      "vocab": 16000,
+      "infer_batch1": {
+        "p50_ms": 15.3881,
+        "p95_ms": 19.4614
+      },
+      "infer_batch64": {
+        "p50_ms": 502.3686,
+        "p95_ms": 578.3123
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch16_fp32": {
+        "p50_ms": 709.3869,
+        "p95_ms": 865.6216
+      },
+      "vram_train_batch16_fp32_mb": null
+    }
+  },
+  "peak_ram_mb": 4336.0
+}

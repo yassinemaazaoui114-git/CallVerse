@@ -1,0 +1,4 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2267.93it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 10801.81it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 19631.82it/s]
+e5small_trim_ft {'all': 'MAE 0.630±0.007 F1 0.672', 'en': 'MAE 0.638±0.015 F1 0.652', 'fr': 'MAE 0.622±0.002 F1 0.693'} params 27804417
