@@ -24,13 +24,14 @@ import time
 import traceback
 from pathlib import Path
 
-from callverse import pipeline, trace
+from callverse import llm, pipeline, trace
 from callverse.data import clock, reports
 from callverse.data.seed import seed
 from callverse.intake import intake
 from callverse.kb.policies import check_condition, get_policy
 from callverse.slm.writer import warm_up
 from callverse.tools.shopnova_tools import get_order, get_refunds, get_tracking
+from scripts.quota_check import check_models
 
 OUT_DIR = Path("out")
 MAX_WORDS = 120
@@ -183,6 +184,16 @@ def run_one(message: dict) -> dict:
             "seconds": seconds, "passed": not problems, "problems": problems}
 
 
+def abort(path: Path, reason: str, done: int) -> None:
+    """Stop the whole run WITHOUT scoring (T10b): an aborted run does not count as the one held-out run."""
+    print(f"\nABORTED, NOT SCORED: {reason}. Messages finished before the stop: {done} (results not shown).")
+    OUT_DIR.mkdir(exist_ok=True)
+    (OUT_DIR / f"live_check_{path.stem}_aborted.json").write_text(
+        json.dumps({"aborted": True, "reason": reason, "finished_before_stop": done}, indent=1), encoding="utf-8")
+    trace.log("live_check_aborted", "live_check", {"reason": reason, "finished_before_stop": done})
+    sys.exit(2)
+
+
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
@@ -197,10 +208,21 @@ def main() -> None:
     if not warm["ok"]:
         print(f"Warning: {warm['warning']} ({warm['error']})")
 
+    # T10b quota guard: a daily-limit error (before or during the run) ABORTS the run without scoring,
+    # so answers made while the main models were out of quota never count as the result.
+    quota = check_models()
+    if any(q["status"] == "daily_limit" for q in quota):
+        abort(path, f"daily limit before the start: {[q['model'] for q in quota if q['status'] == 'daily_limit']}", 0)
+
     results = []
     for m in messages:
+        hits_before = len(llm.DAILY_LIMIT_HITS)
         r = run_one(m)
+        if len(llm.DAILY_LIMIT_HITS) > hits_before:
+            abort(path, f"daily limit during message {m['id']}: {llm.DAILY_LIMIT_HITS[hits_before:]}", len(results))
         results.append(r)
+
+    for r in results:   # printed only when the run finished (an aborted run shows no scores)
         writes = [f"refund {x['order_id']} {x['amount']}" for x in r["refunds"]] + \
                  [f"subscribe {x['order_id']} {x['event']}" for x in r["subscriptions"]]
         print(f"{r['id']:<5} route {r['route'] or '-'}  {str(r['outcome']):<14} writes {writes or '-'}  "
