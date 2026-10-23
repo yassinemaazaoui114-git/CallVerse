@@ -1,0 +1,1 @@
+{"arch": "shared", "seed": 1, "train_s": 255.4, "params_total_unique": 17747, "e_ret": 106.46, "e_sla": 96.08, "f_mae": 0.6357, "f_f1": 0.8514}

@@ -1,0 +1,19 @@
+{
+  "algo": "dqn",
+  "seed": 0,
+  "steps": 150048,
+  "episodes": 1563,
+  "preset": "sla_heavy",
+  "hidden": [
+    64,
+    64
+  ],
+  "train_wall_s": 170.6,
+  "steps_per_s": 879.6,
+  "best_val_return": 68.3234257200987,
+  "n_params": 7313,
+  "device": "cpu",
+  "peak_rss_mb": 333.6,
+  "torch": "2.14.1+cpu",
+  "cpu_count": 4
+}

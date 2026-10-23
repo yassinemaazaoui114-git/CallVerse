@@ -57,15 +57,19 @@ class Priority(Threshold):
 
 
 class Forecast:
-    """Square-root staffing on an EWMA forecast."""
+    """Square-root staffing on an EWMA forecast. z = safety-staffing factor (0.5 = default); sweeping z traces the
+    heuristic's cost-vs-service frontier (bench/frontier.py)."""
     name = "forecast"
+
+    def __init__(self, z: float = 0.5):
+        self.z = z
 
     def act(self, env, obs, mask):
         c = env.cfg
         backlog = np.array([len(w) for w in env.waiting], float)
         svc = env.svc * np.where(env.fallback & env.fb_ok, c.fallback_speedup, 1.0)
         offered = env.ewma * svc / c.step_min + backlog * svc / (3 * c.step_min)   # sessions needed
-        need = offered + 0.5 * np.sqrt(offered) * env.pw / env.pw.mean()
+        need = offered + self.z * np.sqrt(offered) * env.pw / env.pw.mean()
         need[2] = max(need[2], c.min_alloc_urgent)
         total_need = need.sum()
         active = env.alloc.sum()

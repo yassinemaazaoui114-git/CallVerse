@@ -8,7 +8,8 @@ Models (smallest first):
   bow_mlp        hashed bag-of-words (4096) + context -> 2-layer MLP trained from scratch (PyTorch).
   bge_head       BAAI/bge-small-en-v1.5 (the project's M3, frozen) sentence embedding + context -> MLP head.
   minilm_head    sentence-transformers/all-MiniLM-L6-v2 (frozen) + context -> MLP head.
-  tinybert_ft    huawei-noah/TinyBERT_General_4L_312D fine-tuned end-to-end, [CLS] + context -> head.
+  tinybert_ft    huawei-noah/TinyBERT_General_4L_312D (14M) fine-tuned end-to-end, [CLS] + context -> head.
+  distilbert_ft  distilbert-base-uncased (66M) fine-tuned the same way: the "bigger model" reference.
 Training uses TRAIN only; epochs / alpha / early stopping use VAL only; TEST is scored once at the end.
 Regression to CSAT (1..5); metrics: MAE, RMSE, exact accuracy (rounded), macro-F1 on 3 classes
 (1-2 unhappy / 3 neutral / 4-5 happy), Spearman. Plus parameters, disk size, CPU latency, peak RAM.
@@ -32,6 +33,7 @@ import torch.nn as nn
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 DATA = Path(__file__).resolve().parent.parent / "results" / "agent_f_data"
+EPOCHS = {"tinybert_ft": 3, "distilbert_ft": 2}     # same data, fewer epochs for the 66M model (CPU budget)
 
 
 def load(split):
@@ -182,9 +184,10 @@ def run(model_name: str):
         info["encoder_frozen_params"] = sum(p.numel() for p in enc.parameters())
         disk = size_bytes(enc[0].auto_model) + size_bytes(net)
 
-    elif model_name == "tinybert_ft":
+    elif model_name in ("tinybert_ft", "distilbert_ft"):
         from transformers import AutoModel, AutoTokenizer
-        name = "huawei-noah/TinyBERT_General_4L_312D"
+        name = {"tinybert_ft": "huawei-noah/TinyBERT_General_4L_312D",
+                "distilbert_ft": "distilbert-base-uncased"}[model_name]
         tok = AutoTokenizer.from_pretrained(name)
         bert = AutoModel.from_pretrained(name)
 
@@ -212,7 +215,7 @@ def run(model_name: str):
                     b = enc(rows[i:i + bs])
                     out.append(model(b["input_ids"], b["attention_mask"], torch.as_tensor(m[i:i + bs])).numpy())
             return np.concatenate(out)
-        for ep in range(3):                                   # epochs capped at 3 (CPU budget)
+        for ep in range(EPOCHS.get(model_name, 3)):         # epochs capped (CPU budget)
             model.train()
             perm = np.random.default_rng(ep).permutation(len(tr))
             for i in range(0, len(tr), 32):

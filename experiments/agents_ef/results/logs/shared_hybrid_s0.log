@@ -1,0 +1,1 @@
+{"arch": "hybrid", "seed": 0, "train_s": 251.4, "params_total_unique": 17747, "e_ret": 106.15, "e_sla": 97.28, "f_mae": 0.6346, "f_f1": 0.8483}

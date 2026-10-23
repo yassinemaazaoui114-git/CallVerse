@@ -1,0 +1,345 @@
+{
+  "fixed": {
+    "n_seeds": 1,
+    "mean": {
+      "ret": 54.34789819026243,
+      "sla_pct": 94.41476253966258,
+      "urgent_sla_pct": 89.73224822984763,
+      "abandon_pct": 3.6372437988450605,
+      "mean_wait_min": 2.5139133707233396,
+      "p95_wait_min": 10.020716108360265,
+      "sim_csat": 4.562699584927497,
+      "cost": 1536.0,
+      "violations": 0.0
+    },
+    "std_over_seeds": {
+      "ret": 0.0,
+      "sla_pct": 0.0,
+      "urgent_sla_pct": 0.0,
+      "abandon_pct": 0.0,
+      "mean_wait_min": 0.0,
+      "p95_wait_min": 0.0,
+      "sim_csat": 0.0,
+      "cost": 0.0,
+      "violations": 0.0
+    },
+    "by_scenario_ret": {
+      "normal": 55.905541414603235,
+      "high": 61.64426681709074,
+      "spike": 53.062841351256765,
+      "drift": 56.43963304880376,
+      "slowdown": 52.65022372429934,
+      "failure": 60.34028433899111,
+      "compound": 40.392496636792046
+    },
+    "by_scenario_sla": {
+      "normal": 99.11537149228823,
+      "high": 90.75610586567232,
+      "spike": 94.32467080444165,
+      "drift": 94.16030278131029,
+      "slowdown": 95.42072537838172,
+      "failure": 98.58364056704957,
+      "compound": 88.54252088849432
+    },
+    "budget_ok_pct": 100.0,
+    "decision_latency_ms_p50": 0.0005470001269713975,
+    "decision_latency_ms_p95": 0.001651500156185648,
+    "n_params": 0,
+    "checkpoint_kb": 0,
+    "train_s_mean": 0.0
+  },
+  "threshold": {
+    "n_seeds": 1,
+    "mean": {
+      "ret": 58.245183377981625,
+      "sla_pct": 96.68072953284627,
+      "urgent_sla_pct": 86.01693810788106,
+      "abandon_pct": 1.7968127088689825,
+      "mean_wait_min": 2.030658821668726,
+      "p95_wait_min": 7.517316074957039,
+      "sim_csat": 4.635802951583625,
+      "cost": 1536.0,
+      "violations": 0.0
+    },
+    "std_over_seeds": {
+      "ret": 0.0,
+      "sla_pct": 0.0,
+      "urgent_sla_pct": 0.0,
+      "abandon_pct": 0.0,
+      "mean_wait_min": 0.0,
+      "p95_wait_min": 0.0,
+      "sim_csat": 0.0,
+      "cost": 0.0,
+      "violations": 0.0
+    },
+    "by_scenario_ret": {
+      "normal": 57.02336489748077,
+      "high": 67.05930384378496,
+      "spike": 54.52753631942573,
+      "drift": 63.961322113565586,
+      "slowdown": 52.58152939461908,
+      "failure": 60.602484596535525,
+      "compound": 51.96074248045969
+    },
+    "by_scenario_sla": {
+      "normal": 99.40227282008067,
+      "high": 94.59314421856288,
+      "spike": 96.00307780229397,
+      "drift": 97.22749404916365,
+      "slowdown": 96.16200471202399,
+      "failure": 99.0862563897195,
+      "compound": 94.29085673807934
+    },
+    "budget_ok_pct": 100.0,
+    "decision_latency_ms_p50": 0.013480000006893533,
+    "decision_latency_ms_p95": 0.02926425020177703,
+    "n_params": 0,
+    "checkpoint_kb": 0,
+    "train_s_mean": 0.0
+  },
+  "priority": {
+    "n_seeds": 1,
+    "mean": {
+      "ret": 60.32459514861633,
+      "sla_pct": 96.95106552209245,
+      "urgent_sla_pct": 96.93363993753178,
+      "abandon_pct": 2.53950902514165,
+      "mean_wait_min": 2.9120942959945757,
+      "p95_wait_min": 9.370889635049625,
+      "sim_csat": 4.608526766917388,
+      "cost": 1536.0,
+      "violations": 0.0
+    },
+    "std_over_seeds": {
+      "ret": 0.0,
+      "sla_pct": 0.0,
+      "urgent_sla_pct": 0.0,
+      "abandon_pct": 0.0,
+      "mean_wait_min": 0.0,
+      "p95_wait_min": 0.0,
+      "sim_csat": 0.0,
+      "cost": 0.0,
+      "violations": 0.0
+    },
+    "by_scenario_ret": {
+      "normal": 55.58406601643189,
+      "high": 76.3203490905899,
+      "spike": 59.14165666957197,
+      "drift": 64.13066906374009,
+      "slowdown": 55.6382942878554,
+      "failure": 58.595232415078286,
+      "compound": 52.861898497046795
+    },
+    "by_scenario_sla": {
+      "normal": 98.71909521210323,
+      "high": 96.19184096501701,
+      "spike": 97.1792353018554,
+      "drift": 97.09153539063021,
+      "slowdown": 97.13882444172364,
+      "failure": 98.38751915864205,
+      "compound": 93.94940818467555
+    },
+    "budget_ok_pct": 100.0,
+    "decision_latency_ms_p50": 0.012835499774155323,
+    "decision_latency_ms_p95": 0.019888499878106813,
+    "n_params": 0,
+    "checkpoint_kb": 0,
+    "train_s_mean": 0.0
+  },
+  "forecast": {
+    "n_seeds": 1,
+    "mean": {
+      "ret": 66.00803024535685,
+      "sla_pct": 98.02940213809745,
+      "urgent_sla_pct": 92.6338832084102,
+      "abandon_pct": 1.0935342659662683,
+      "mean_wait_min": 1.8396898263676427,
+      "p95_wait_min": 6.607504556587801,
+      "sim_csat": 4.686972284794373,
+      "cost": 1453.857142857143,
+      "violations": 0.0
+    },
+    "std_over_seeds": {
+      "ret": 0.0,
+      "sla_pct": 0.0,
+      "urgent_sla_pct": 0.0,
+      "abandon_pct": 0.0,
+      "mean_wait_min": 0.0,
+      "p95_wait_min": 0.0,
+      "sim_csat": 0.0,
+      "cost": 0.0,
+      "violations": 0.0
+    },
+    "by_scenario_ret": {
+      "normal": 63.143166285206874,
+      "high": 77.46376837545552,
+      "spike": 62.05734564057343,
+      "drift": 70.22708244744345,
+      "slowdown": 62.49414373107045,
+      "failure": 66.68540865362954,
+      "compound": 59.985296584118664
+    },
+    "by_scenario_sla": {
+      "normal": 99.06297904753671,
+      "high": 97.65944418616888,
+      "spike": 97.51639532070872,
+      "drift": 99.00276705561288,
+      "slowdown": 97.89898107831843,
+      "failure": 99.03757622784183,
+      "compound": 96.02767205049479
+    },
+    "budget_ok_pct": 100.0,
+    "decision_latency_ms_p50": 0.02189949987041473,
+    "decision_latency_ms_p95": 0.04086600017672026,
+    "n_params": 0,
+    "checkpoint_kb": 0,
+    "train_s_mean": 0.0
+  },
+  "dqn_h64x64": {
+    "n_seeds": 3,
+    "mean": {
+      "ret": 68.36829028248172,
+      "sla_pct": 97.13458812913775,
+      "urgent_sla_pct": 90.7458159271008,
+      "abandon_pct": 1.5546433926960077,
+      "mean_wait_min": 2.1323349258254276,
+      "p95_wait_min": 7.6763675448917015,
+      "sim_csat": 4.406640081789337,
+      "cost": 1128.6785714285716,
+      "violations": 0.0
+    },
+    "std_over_seeds": {
+      "ret": 0.3879627639255548,
+      "sla_pct": 0.6322498464418337,
+      "urgent_sla_pct": 2.9231080765004376,
+      "abandon_pct": 0.29286175336236947,
+      "mean_wait_min": 0.14207539602937838,
+      "p95_wait_min": 0.4303254591340207,
+      "sim_csat": 0.08105408212830599,
+      "cost": 89.1090299447092,
+      "violations": 0.0
+    },
+    "by_scenario_ret": {
+      "normal": 66.5817809326873,
+      "high": 81.32511111225001,
+      "spike": 64.74103764102138,
+      "drift": 72.04976784095385,
+      "slowdown": 64.06042347817815,
+      "failure": 68.80737221379796,
+      "compound": 61.012538758483366
+    },
+    "by_scenario_sla": {
+      "normal": 97.96131766193521,
+      "high": 97.79920747399308,
+      "spike": 96.67368665637292,
+      "drift": 97.53801117827827,
+      "slowdown": 96.971691778021,
+      "failure": 97.99499215859686,
+      "compound": 95.00320999676705
+    },
+    "budget_ok_pct": 100.0,
+    "decision_latency_ms_p50": 0.06860183339085779,
+    "decision_latency_ms_p95": 0.15712608338465847,
+    "n_params": 7313,
+    "checkpoint_kb": 31.2,
+    "train_s_mean": 170.13333333333335
+  },
+  "dueling_double_dqn_h64x64": {
+    "n_seeds": 3,
+    "mean": {
+      "ret": 68.1923321610356,
+      "sla_pct": 97.4121228930399,
+      "urgent_sla_pct": 92.18364556442714,
+      "abandon_pct": 1.3577003389845164,
+      "mean_wait_min": 2.033017560612503,
+      "p95_wait_min": 7.328638178918896,
+      "sim_csat": 4.387711569370048,
+      "cost": 1140.642857142857,
+      "violations": 0.0
+    },
+    "std_over_seeds": {
+      "ret": 0.30094201725842773,
+      "sla_pct": 0.4154672573146593,
+      "urgent_sla_pct": 2.655406979980996,
+      "abandon_pct": 0.09170494726418424,
+      "mean_wait_min": 0.09918007988965995,
+      "p95_wait_min": 0.16724783318718736,
+      "sim_csat": 0.018649442752983542,
+      "cost": 35.37491436493567,
+      "violations": 0.0
+    },
+    "by_scenario_ret": {
+      "normal": 66.0581140583172,
+      "high": 81.77405819730966,
+      "spike": 64.7987962325182,
+      "drift": 70.88413979596352,
+      "slowdown": 63.751627860271775,
+      "failure": 68.38564434646774,
+      "compound": 61.693944636401035
+    },
+    "by_scenario_sla": {
+      "normal": 98.42193801410686,
+      "high": 98.03543889250538,
+      "spike": 96.83574236402889,
+      "drift": 97.85562693854258,
+      "slowdown": 97.08476568582785,
+      "failure": 98.07296217808675,
+      "compound": 95.57838617818113
+    },
+    "budget_ok_pct": 100.0,
+    "decision_latency_ms_p50": 0.10723533334081974,
+    "decision_latency_ms_p95": 0.23748799992517888,
+    "n_params": 7378,
+    "checkpoint_kb": 31.8,
+    "train_s_mean": 281.09999999999997
+  },
+  "ppo_h64x64": {
+    "n_seeds": 3,
+    "mean": {
+      "ret": 65.62352186148242,
+      "sla_pct": 97.17694677640668,
+      "urgent_sla_pct": 84.04230937816027,
+      "abandon_pct": 1.1291391425084603,
+      "mean_wait_min": 1.6970674947800344,
+      "p95_wait_min": 6.606366907058316,
+      "sim_csat": 4.369431969781846,
+      "cost": 1143.857142857143,
+      "violations": 0.0
+    },
+    "std_over_seeds": {
+      "ret": 0.4703809939904902,
+      "sla_pct": 0.16838277849877803,
+      "urgent_sla_pct": 0.3888049075729273,
+      "abandon_pct": 0.1686578241298415,
+      "mean_wait_min": 0.1637072180083337,
+      "p95_wait_min": 0.370049236555789,
+      "sim_csat": 0.08890981241834255,
+      "cost": 74.17435133695815,
+      "violations": 0.0
+    },
+    "by_scenario_ret": {
+      "normal": 64.46844793177377,
+      "high": 78.71277260736473,
+      "spike": 63.377301998319574,
+      "drift": 67.86490537621123,
+      "slowdown": 60.31978769015755,
+      "failure": 65.76790986624412,
+      "compound": 58.85352756030604
+    },
+    "by_scenario_sla": {
+      "normal": 98.0089516573845,
+      "high": 97.43004548333732,
+      "spike": 96.7876014535456,
+      "drift": 97.17664673872173,
+      "slowdown": 96.79156549522308,
+      "failure": 98.1478991094257,
+      "compound": 95.89591749720883
+    },
+    "budget_ok_pct": 100.0,
+    "decision_latency_ms_p50": 0.3387073331850843,
+    "decision_latency_ms_p95": 0.5577925001792513,
+    "n_params": 13586,
+    "checkpoint_kb": 56.9,
+    "train_s_mean": 384.7
+  }
+}

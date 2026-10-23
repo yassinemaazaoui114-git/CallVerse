@@ -1,0 +1,32 @@
+{
+  "hardware": {
+    "device": "cpu",
+    "gpu": null,
+    "platform": "Linux-6.18.44-fc-v140-x86_64-with-glibc2.39",
+    "python": "3.13.16",
+    "torch": "2.14.1+cpu",
+    "cpu_threads": 4
+  },
+  "agent_e": {
+    "dqn": {
+      "params": 7313,
+      "p50_ms": 0.0211,
+      "p95_ms": 0.0499,
+      "vram_mb": null
+    },
+    "dueling_double_dqn": {
+      "params": 7378,
+      "p50_ms": 0.033,
+      "p95_ms": 0.0818,
+      "vram_mb": null
+    },
+    "ppo": {
+      "params": 13586,
+      "p50_ms": 0.0218,
+      "p95_ms": 0.0539,
+      "vram_mb": null
+    }
+  },
+  "agent_f": {},
+  "peak_ram_mb": 299.1
+}

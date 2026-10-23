@@ -1,0 +1,1 @@
+{"arch": "separate", "seed": 0, "train_s": 276.9, "params_total_unique": 19155, "e_ret": 107.04, "e_sla": 97.56, "f_mae": 0.6538, "f_f1": 0.8459}

@@ -17,5 +17,6 @@ __pycache__/
 .pytest_cache/
 .venv/
 
-# research (experiments/agents_ef): regenerable data; checkpoints stay (tiny), logs stay
+# research (experiments/agents_ef): regenerable data and model checkpoints stay local; logs stay
 experiments/agents_ef/results/agent_f_data/*.jsonl
+experiments/agents_ef/results/**/*.pt
