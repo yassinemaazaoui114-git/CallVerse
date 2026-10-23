@@ -1,0 +1,19 @@
+{
+  "algo": "ppo",
+  "seed": 1,
+  "steps": 150048,
+  "episodes": 1563,
+  "preset": "balanced",
+  "hidden": [
+    64,
+    64
+  ],
+  "train_wall_s": 213.3,
+  "steps_per_s": 703.4,
+  "best_val_return": 105.5238993358165,
+  "n_params": 13586,
+  "device": "cpu",
+  "peak_rss_mb": 309.5,
+  "torch": "2.14.1+cpu",
+  "cpu_count": 4
+}

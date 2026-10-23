@@ -16,3 +16,6 @@ out/
 __pycache__/
 .pytest_cache/
 .venv/
+
+# research (experiments/agents_ef): regenerable data; checkpoints stay (tiny), logs stay
+experiments/agents_ef/results/agent_f_data/*.jsonl

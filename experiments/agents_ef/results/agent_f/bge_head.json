@@ -1,0 +1,29 @@
+{
+  "model": "bge_head",
+  "n_params": 33385537,
+  "disk_mb": 133.62,
+  "train_s": 185.5,
+  "epochs": 13,
+  "encoder_frozen_params": 33360000,
+  "val": {
+    "mae": 0.4998631179332733,
+    "rmse": 0.6052773594856262,
+    "exact_acc": 0.535,
+    "f1_macro_3class": 0.7655794287005456,
+    "spearman": 0.5798045566018233
+  },
+  "test": {
+    "mae": 0.5493979454040527,
+    "rmse": 0.6711999773979187,
+    "exact_acc": 0.5048148148148148,
+    "f1_macro_3class": 0.7699119593856437,
+    "spearman": 0.6208792734295198
+  },
+  "latency_ms_p50": 31.721,
+  "latency_ms_p95": 37.659,
+  "throughput_per_s_batch512": 89.4,
+  "peak_rss_mb": 833.0,
+  "device": "cpu",
+  "torch_threads": 1,
+  "data": "SIMULATED (agent_f/make_dataset.py)"
+}

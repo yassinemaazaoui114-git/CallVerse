@@ -1,0 +1,28 @@
+{
+  "model": "meta_gbm",
+  "n_params": 5734,
+  "disk_mb": 0.344,
+  "train_s": 2.2,
+  "param_note": "number of tree nodes",
+  "val": {
+    "mae": 0.5827340824288801,
+    "rmse": 0.6896726737351113,
+    "exact_acc": 0.5488888888888889,
+    "f1_macro_3class": 0.5963720210584063,
+    "spearman": 0.3033732282277324
+  },
+  "test": {
+    "mae": 0.5925124891902144,
+    "rmse": 0.7039636669846315,
+    "exact_acc": 0.5403703703703704,
+    "f1_macro_3class": 0.6147980528080957,
+    "spearman": 0.29699604190215106
+  },
+  "latency_ms_p50": 0.629,
+  "latency_ms_p95": 1.248,
+  "throughput_per_s_batch512": 209094.2,
+  "peak_rss_mb": 332.9,
+  "device": "cpu",
+  "torch_threads": 1,
+  "data": "SIMULATED (agent_f/make_dataset.py)"
+}

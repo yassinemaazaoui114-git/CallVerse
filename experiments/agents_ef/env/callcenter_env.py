@@ -118,8 +118,12 @@ class CallCenterEnv:
     n_actions = N_ACTIONS
 
     def __init__(self, config: EnvConfig | None = None, scenarios=("normal", "high", "spike", "drift",
-                                                                    "slowdown", "failure")):
+                                                                    "slowdown", "failure"), log_tickets=False):
         self.cfg = config or EnvConfig()
+        # Optional log of every served/abandoned request with the queue state E saw at that step (Agent F data).
+        # It only READS the state, so the simulation (and its random numbers) is exactly the same with or without.
+        self.log_tickets = log_tickets
+        self.tickets = []
         self.scenario_kinds = list(scenarios)
         c = self.cfg
         self.pw = np.array(c.priority_w)
@@ -144,6 +148,7 @@ class CallCenterEnv:
         self.spent = 0.0
         self.last_arr = np.zeros(N_Q)
         self.ewma = self.base * profile(0.0) * self.sc.load
+        self.tickets = []
         self.kpi = dict(arrived=np.zeros(N_Q), served=np.zeros(N_Q), abandoned=np.zeros(N_Q),
                         served_in_sla=np.zeros(N_Q), waits=[], csat=[], cost=0.0, violations=0,
                         invalid_attempts=0, fallback_steps=0, urgent_fallback=0)
@@ -182,6 +187,8 @@ class CallCenterEnv:
 
     def step(self, action: int):
         c = self.cfg
+        # the queue state Agent E decided on (logged with each request for Agent F's dataset)
+        blocks = self._obs()[:6 * N_Q].reshape(N_Q, 6) if self.log_tickets else None
         mask = self.action_mask()
         if not (0 <= int(action) < N_ACTIONS) or not mask[int(action)]:
             self.kpi["violations"] += 1          # safety layer: an invalid proposal becomes "keep"
@@ -226,11 +233,21 @@ class CallCenterEnv:
                 csat_step.extend(cs.tolist())
                 served_w += self.pw[q] * n
                 late_w += self.pw[q] * int((waits > self.sla[q]).sum())
+                if self.log_tickets:
+                    for w_, c_ in zip(waits, cs):
+                        self.tickets.append({"queue": q, "t": self.t, "wait": float(w_), "fallback": bool(fb),
+                                             "abandoned": False, "csat_sim": float(c_), "state": blocks[q].tolist(),
+                                             "scenario": self.sc.kind})
             # 2) then abandonment of those still waiting: hazard 1/patience after a short grace period
             if len(wq):
                 exposed = np.clip(end - np.maximum(wq + c.abandon_grace_min, now), 0, c.step_min)
                 leave = self.rng.random(len(wq)) < 1 - np.exp(-exposed / self.patience[q])
                 n_ab = int(leave.sum())
+                if n_ab and self.log_tickets:
+                    for a_ in wq[leave]:
+                        self.tickets.append({"queue": q, "t": self.t, "wait": float(end - a_), "fallback": False,
+                                             "abandoned": True, "csat_sim": 1.0, "state": blocks[q].tolist(),
+                                             "scenario": self.sc.kind})
                 if n_ab:
                     self.kpi["abandoned"][q] += n_ab
                     self.kpi["csat"].extend([1.0] * n_ab)

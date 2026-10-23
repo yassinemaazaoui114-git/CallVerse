@@ -1,0 +1,19 @@
+{
+  "algo": "dueling_double_dqn",
+  "seed": 1,
+  "steps": 150048,
+  "episodes": 1563,
+  "preset": "balanced",
+  "hidden": [
+    64,
+    64
+  ],
+  "train_wall_s": 250.0,
+  "steps_per_s": 600.3,
+  "best_val_return": 106.42824734116759,
+  "n_params": 7378,
+  "device": "cpu",
+  "peak_rss_mb": 333.5,
+  "torch": "2.14.1+cpu",
+  "cpu_count": 4
+}

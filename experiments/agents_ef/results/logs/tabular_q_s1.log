@@ -1,0 +1,1 @@
+{"algo": "tabular_q", "seed": 1, "steps": 150048, "episodes": 1563, "preset": "balanced", "hidden": [64, 64], "train_wall_s": 80.5, "steps_per_s": 1862.9, "best_val_return": 91.5932193200157, "n_params": 1224, "device": "cpu", "peak_rss_mb": 222.3, "torch": "2.14.1+cpu", "cpu_count": 4}

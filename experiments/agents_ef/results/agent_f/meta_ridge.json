@@ -1,0 +1,28 @@
+{
+  "model": "meta_ridge",
+  "n_params": 14,
+  "disk_mb": 0.0,
+  "train_s": 2.1,
+  "alpha_chosen_on_val": 0.1,
+  "val": {
+    "mae": 0.5912781953811646,
+    "rmse": 0.6999369263648987,
+    "exact_acc": 0.5111111111111111,
+    "f1_macro_3class": 0.5702124114345222,
+    "spearman": 0.2990672907350089
+  },
+  "test": {
+    "mae": 0.5994889140129089,
+    "rmse": 0.7139009237289429,
+    "exact_acc": 0.5025925925925926,
+    "f1_macro_3class": 0.5805982225931949,
+    "spearman": 0.3217975704309437
+  },
+  "latency_ms_p50": 0.048,
+  "latency_ms_p95": 0.074,
+  "throughput_per_s_batch512": 4723944.5,
+  "peak_rss_mb": 323.8,
+  "device": "cpu",
+  "torch_threads": 1,
+  "data": "SIMULATED (agent_f/make_dataset.py)"
+}

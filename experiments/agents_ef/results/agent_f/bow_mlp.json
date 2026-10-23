@@ -1,0 +1,28 @@
+{
+  "model": "bow_mlp",
+  "n_params": 263105,
+  "disk_mb": 1.055,
+  "train_s": 11.4,
+  "epochs": 18,
+  "val": {
+    "mae": 0.44810912013053894,
+    "rmse": 0.6771736741065979,
+    "exact_acc": 0.6155555555555555,
+    "f1_macro_3class": 0.7077918924028763,
+    "spearman": 0.5545795644788
+  },
+  "test": {
+    "mae": 0.9568413496017456,
+    "rmse": 1.1213735342025757,
+    "exact_acc": 0.2733333333333333,
+    "f1_macro_3class": 0.6184345385521602,
+    "spearman": 0.3191718015906029
+  },
+  "latency_ms_p50": 0.591,
+  "latency_ms_p95": 0.744,
+  "throughput_per_s_batch512": 31078.5,
+  "peak_rss_mb": 778.6,
+  "device": "cpu",
+  "torch_threads": 1,
+  "data": "SIMULATED (agent_f/make_dataset.py)"
+}

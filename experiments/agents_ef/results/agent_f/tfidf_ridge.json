@@ -1,0 +1,28 @@
+{
+  "model": "tfidf_ridge",
+  "n_params": 5534,
+  "disk_mb": 0.17,
+  "train_s": 1.9,
+  "alpha_chosen_on_val": 0.1,
+  "val": {
+    "mae": 0.5306444942851376,
+    "rmse": 0.6193279213995442,
+    "exact_acc": 0.49277777777777776,
+    "f1_macro_3class": 0.6812587311762174,
+    "spearman": 0.5097030051886775
+  },
+  "test": {
+    "mae": 0.6385654675176845,
+    "rmse": 0.7439544495831569,
+    "exact_acc": 0.37592592592592594,
+    "f1_macro_3class": 0.7895516317543664,
+    "spearman": 0.4769449721070493
+  },
+  "latency_ms_p50": 0.56,
+  "latency_ms_p95": 0.68,
+  "throughput_per_s_batch512": 65787.8,
+  "peak_rss_mb": 340.0,
+  "device": "cpu",
+  "torch_threads": 1,
+  "data": "SIMULATED (agent_f/make_dataset.py)"
+}

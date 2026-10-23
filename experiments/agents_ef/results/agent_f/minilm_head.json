@@ -1,0 +1,29 @@
+{
+  "model": "minilm_head",
+  "n_params": 22738753,
+  "disk_mb": 90.996,
+  "train_s": 93.9,
+  "epochs": 13,
+  "encoder_frozen_params": 22713216,
+  "val": {
+    "mae": 0.4788290858268738,
+    "rmse": 0.6551792025566101,
+    "exact_acc": 0.5988888888888889,
+    "f1_macro_3class": 0.6381241186809241,
+    "spearman": 0.5396627407399613
+  },
+  "test": {
+    "mae": 0.6044043302536011,
+    "rmse": 0.7432221174240112,
+    "exact_acc": 0.46,
+    "f1_macro_3class": 0.6734772743867591,
+    "spearman": 0.44630821279822214
+  },
+  "latency_ms_p50": 14.74,
+  "latency_ms_p95": 17.586,
+  "throughput_per_s_batch512": 174.9,
+  "peak_rss_mb": 778.6,
+  "device": "cpu",
+  "torch_threads": 1,
+  "data": "SIMULATED (agent_f/make_dataset.py)"
+}
