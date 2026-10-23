@@ -7,6 +7,8 @@ the z with the best VAL return, scored on TEST. SIMULATOR results only.
 """
 
 import json
+import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -15,7 +17,8 @@ import numpy as np
 KPIS = ["sla_pct", "urgent_sla_pct", "abandon_pct", "sim_csat"]
 
 
-def main(path="results/frontier/frontier.json"):
+def main(path=None):
+    path = path or (sys.argv[1] if len(sys.argv) > 1 else "results/frontier/frontier.json")
     d = json.loads(Path(path).read_text())
     out = {}
     for split in ("val", "test"):
@@ -24,7 +27,7 @@ def main(path="results/frontier/frontier.json"):
         cost = np.array([h[z]["cost"] for z in zs])
         gaps = defaultdict(list)
         for run, r in d["rl"][split].items():
-            algo = run.split("_balanced")[0]
+            algo = re.sub(r"_balanced_h\d+x\d+_s\d+", "", run)        # drop preset/size/seed, keep any tag
             g = {k: r[k] - float(np.interp(r["cost"], cost, [h[z][k] for z in zs])) for k in KPIS}
             gaps[algo].append(g)
         out[split] = {a: {k: [float(np.mean([g[k] for g in v])), float(np.std([g[k] for g in v]))] for k in KPIS}

@@ -1,0 +1,4 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 3599.72it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2626.97it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 3767.40it/s]
+mminilm_ft {'mae': '0.5910±0.0062', 'rmse': '0.9359±0.0251', 'exact_acc': '0.5970±0.0141', 'f1_macro_3class': '0.6003±0.0146', 'f1_macro_5class': '0.4003±0.0214', 'spearman': '0.8146±0.0071'}

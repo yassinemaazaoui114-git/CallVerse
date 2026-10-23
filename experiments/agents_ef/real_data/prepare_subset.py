@@ -91,12 +91,15 @@ def parse_rating(v):
 
 
 def normalise(raw: list[dict], a) -> tuple[list[dict], dict]:
-    rows, lang_source = [], "column" if a.lang else "heuristic (no language column)"
+    rows = []
+    lang_source = f"fixed --lang-value {a.lang_value}" if a.lang_value else (
+        "column" if a.lang else "heuristic (no language column)")
     for i, r in enumerate(raw):
         text = str(r.get(a.text) or "").strip()
         if not text:
             continue
-        lang = str(r.get(a.lang) or "").strip().lower()[:2] if a.lang else guess_lang(text)
+        lang = (a.lang_value if a.lang_value else
+                str(r.get(a.lang) or "").strip().lower()[:2] if a.lang else guess_lang(text))
         rows.append({
             "id": str(r.get(a.id_col) or i),
             "conv": str(r.get(a.conv_id) or f"row{i}") if a.conv_id else f"row{i}",
@@ -131,6 +134,11 @@ def dedup(rows):
     return out, dropped
 
 
+def stratum(r):
+    """language x intent, plus the rounded rating when real ratings exist (keeps rare 2- and 3-star cases)."""
+    return (r["lang"], r["intent"], round(r["rating"]) if r["rating"] is not None else None)
+
+
 def stratified_groups(rows, n_target, seed, min_per_stratum=6):
     """Pick whole conversations until ~n_target messages, proportional to language x intent strata, with a floor
     so rare strata are still present. Returns the chosen rows."""
@@ -140,7 +148,7 @@ def stratified_groups(rows, n_target, seed, min_per_stratum=6):
         convs[r["conv"]].append(r)
     strata = defaultdict(list)                   # stratum of a conversation = its first message's lang x intent
     for c, rs in convs.items():
-        strata[(rs[0]["lang"], rs[0]["intent"])].append(c)
+        strata[stratum(rs[0])].append(c)
     total = sum(len(v) for v in convs.values())
     chosen = []
     for key, cs in sorted(strata.items()):
@@ -163,7 +171,7 @@ def split(rows, seed):
         convs[r["conv"]].append(r)
     strata = defaultdict(list)
     for c, rs in convs.items():
-        strata[(rs[0]["lang"], rs[0]["intent"])].append(c)
+        strata[stratum(rs[0])].append(c)
     out = {s: [] for s in SPLITS}
     for key, cs in sorted(strata.items()):
         cs = list(rng.permutation(cs))
@@ -284,6 +292,7 @@ def main(argv=None):
     ap.add_argument("--text", required=True)
     ap.add_argument("--intent")
     ap.add_argument("--lang")
+    ap.add_argument("--lang-value", dest="lang_value", help="whole dataset is one language (e.g. pt for Olist)")
     ap.add_argument("--scenario")
     ap.add_argument("--rating", help="ONLY a genuine satisfaction rating column (CSAT/stars/NPS)")
     ap.add_argument("--conv-id", dest="conv_id")

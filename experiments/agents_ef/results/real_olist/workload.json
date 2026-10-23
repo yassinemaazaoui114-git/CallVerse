@@ -1,0 +1,128 @@
+{
+  "source": "Olist public dataset (Kaggle olistbr/brazilian-ecommerce, CC BY-NC-SA 4.0); ORDER data, not support-contact logs",
+  "n_orders": 99441,
+  "n_reviews": 99224,
+  "period": [
+    "2016-09-04",
+    "2018-10-17"
+  ],
+  "hourly_share": [
+    0.0241,
+    0.0118,
+    0.0051,
+    0.0027,
+    0.0021,
+    0.0019,
+    0.005,
+    0.0124,
+    0.0298,
+    0.0481,
+    0.0621,
+    0.0661,
+    0.0603,
+    0.0655,
+    0.0661,
+    0.0649,
+    0.0671,
+    0.0618,
+    0.058,
+    0.0602,
+    0.0623,
+    0.0625,
+    0.0585,
+    0.0415
+  ],
+  "weekday_share_mon_to_sun": [
+    0.1629,
+    0.1605,
+    0.1564,
+    0.1484,
+    0.142,
+    0.1095,
+    0.1203
+  ],
+  "busiest_8h_window_start_hour": 10,
+  "busiest_8h_window_share_of_day": 0.514,
+  "peak_to_mean_within_8h_window": 1.045,
+  "daily_orders_steady_period": {
+    "mean": 190.6,
+    "cv": 0.434,
+    "p95_over_mean": 1.58,
+    "max_over_mean": 6.169
+  },
+  "peak_day": {
+    "date": "2017-11-24",
+    "orders": 1176
+  },
+  "order_status_share": {
+    "delivered": 0.9702,
+    "shipped": 0.0111,
+    "canceled": 0.0063,
+    "unavailable": 0.0061,
+    "invoiced": 0.0032,
+    "processing": 0.003,
+    "created": 0.0001,
+    "approved": 0.0
+  },
+  "delivery": {
+    "n_delivered_with_estimate": 96476,
+    "late_share": 0.0811,
+    "late_over_3d_share": 0.0535,
+    "days_purchase_to_delivery_p50": 10.2,
+    "days_late_p90_given_late": 21.5
+  },
+  "review_score_vs_lateness": {
+    "early >7d": {
+      "n_orders": 70934,
+      "mean_score": 4.317,
+      "share_1_2_stars": 0.089
+    },
+    "early 0-7d": {
+      "n_orders": 17234,
+      "mean_score": 4.201,
+      "share_1_2_stars": 0.102
+    },
+    "late 0-3d": {
+      "n_orders": 2636,
+      "mean_score": 3.767,
+      "share_1_2_stars": 0.191
+    },
+    "late 3-7d": {
+      "n_orders": 1773,
+      "mean_score": 2.317,
+      "share_1_2_stars": 0.613
+    },
+    "late 7-14d": {
+      "n_orders": 1749,
+      "mean_score": 1.746,
+      "share_1_2_stars": 0.78
+    },
+    "late >14d": {
+      "n_orders": 1504,
+      "mean_score": 1.711,
+      "share_1_2_stars": 0.787
+    }
+  },
+  "review_score_canceled_or_unavailable": 1.666,
+  "review_score_distribution_all": {
+    "1": 0.1151,
+    "2": 0.0318,
+    "3": 0.0824,
+    "4": 0.1929,
+    "5": 0.5778
+  },
+  "review_score_distribution_with_comment": {
+    "1": 0.2135,
+    "2": 0.0524,
+    "3": 0.0868,
+    "4": 0.1458,
+    "5": 0.5015
+  },
+  "not_supported_by_this_data": [
+    "support-contact arrival rates",
+    "queue waiting times",
+    "abandonment",
+    "handle/service times",
+    "intent mix of support contacts"
+  ]
+}

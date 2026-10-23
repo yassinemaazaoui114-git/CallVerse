@@ -19,7 +19,9 @@ def env_config(preset: str = "balanced", calibration: str | None = None) -> EnvC
     if not calibration:
         return cfg
     cal = json.loads(Path(calibration).read_text())
-    share = cal["queue_share"]
+    share = cal.get("queue_share")
+    if not share:                                    # e.g. Olist: no intents -> keep the queue mix
+        share = {q: r for q, r in zip(QUEUES, cfg.base_rate)}
     total = sum(cfg.base_rate)
     # a queue with no real traffic keeps a small floor so the action space stays meaningful
     raw = [max(share.get(q, 0.0), 0.02) for q in QUEUES]
@@ -28,4 +30,7 @@ def env_config(preset: str = "balanced", calibration: str | None = None) -> EnvC
     svc = cal.get("service_min_by_queue")
     if isinstance(svc, dict):
         cfg = replace(cfg, service_min=tuple(float(svc.get(q, d)) for q, d in zip(QUEUES, cfg.service_min)))
+    hp = cal.get("hourly_profile_8h")
+    if isinstance(hp, list) and len(hp) >= 2:
+        cfg = replace(cfg, hourly_profile=tuple(float(x) for x in hp))
     return cfg

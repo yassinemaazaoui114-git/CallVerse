@@ -1,0 +1,53 @@
+{
+  "simulated": {
+    "n": 12600,
+    "words_mean": 18.106825396825396,
+    "words_p95": 23.0,
+    "distinct_text_share": 0.9863492063492063,
+    "type_token_ratio": 0.003791431802442296,
+    "label_share_1to5": {
+      "1": 0.0302,
+      "2": 0.0213,
+      "3": 0.101,
+      "4": 0.288,
+      "5": 0.5594
+    },
+    "imbalance_max_over_min_class": 26.2
+  },
+  "authentic": {
+    "n": 1000,
+    "words_mean": 13.922,
+    "words_p95": 34.0,
+    "distinct_text_share": 1.0,
+    "type_token_ratio": 0.16247665565292344,
+    "label_share_1to5": {
+      "1": 0.242,
+      "2": 0.06,
+      "3": 0.094,
+      "4": 0.139,
+      "5": 0.465
+    },
+    "imbalance_max_over_min_class": 7.75
+  },
+  "authentic_tokens_seen_in_simulated_vocab": 0.0576,
+  "tokenizer_tinybert": {
+    "simulated": {
+      "pieces_per_word": 1.093,
+      "unk_share": 0.0
+    },
+    "authentic": {
+      "pieces_per_word": 2.016,
+      "unk_share": 0.0
+    }
+  },
+  "tokenizer_multilingual_minilm": {
+    "simulated": {
+      "pieces_per_word": 1.154,
+      "unk_share": 0.0
+    },
+    "authentic": {
+      "pieces_per_word": 1.21,
+      "unk_share": 0.0
+    }
+  }
+}

@@ -99,3 +99,21 @@ def test_helpers():
     assert guess_lang("bonjour, où est ma commande ?") == "fr"
     assert guess_lang("hello, where is my order?") == "en"
     assert parse_rating("4") == 4 and parse_rating("10") == 5 and parse_rating("positive") is None
+
+
+def test_hourly_profile_keeps_total_load_and_default(tmp_path):
+    import numpy as np
+    from env.callcenter_env import CallCenterEnv, EnvConfig, profile
+    cal = tmp_path / "cal.json"
+    cal.write_text(json.dumps({"hourly_profile_8h": [1.0] * 8}))      # flat real demand, no queue mix
+    flat, base = env_config("balanced", str(cal)), env_config("balanced")
+    assert flat.base_rate == base.base_rate and flat.hourly_profile == (1.0,) * 8
+    e_flat, e_def = CallCenterEnv(flat), CallCenterEnv(EnvConfig())
+    xs = np.linspace(0, 1, 97)
+    assert np.mean([e_flat._profile(x) for x in xs]) == pytest.approx(np.mean([profile(x) for x in xs]), rel=0.02)
+    assert [e_def._profile(x) for x in xs] == [profile(x) for x in xs]     # default unchanged
+    e_flat.reset(seed=1, scenario="normal")
+    done = False
+    while not done:
+        _, _, done, _, _ = e_flat.step(0)
+    assert e_flat.episode_kpis()["violations"] == 0

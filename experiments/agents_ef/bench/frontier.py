@@ -5,6 +5,7 @@ RL policies (VAL-chosen checkpoints) are placed on the same axes. Nothing is sel
 trade-offs. Writes results/frontier/frontier.json and frontier.png.
 """
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -16,21 +17,30 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from baselines.heuristics import Forecast  # noqa: E402
 from bench.benchmark_e import load_run  # noqa: E402
-from bench.evaluation import evaluate, summarize  # noqa: E402
+from bench.evaluation import SPLITS, evaluate, summarize  # noqa: E402
+from env.callcenter_env import CallCenterEnv  # noqa: E402
+from real_data.calibration import env_config  # noqa: E402
 
+ap = argparse.ArgumentParser()
+ap.add_argument("--calibration", default=None, help="real-data calibrated simulator (e.g. Olist demand shape)")
+ap.add_argument("--glob", default="*_balanced_h64x64_s*", help="which runs in results/runs")
+ap.add_argument("--out", default="results/frontier")
+a = ap.parse_args()
 torch.set_num_threads(1)
-out = Path("results/frontier")
+cfg = env_config("balanced", a.calibration)
+out = Path(a.out)
 out.mkdir(parents=True, exist_ok=True)
 res = {"heuristic": {}, "rl": {}}
 for split in ("val", "test"):
+    env = CallCenterEnv(cfg, scenarios=SPLITS[split]["scenarios"])
     for z in (-0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0, 1.5):
         p = Forecast(z)
-        res["heuristic"].setdefault(split, {})[str(z)] = summarize(evaluate(lambda e, o, m: p.act(e, o, m), split))
-    for run in sorted(Path("results/runs").glob("*_balanced_h64x64_s*")):
+        res["heuristic"].setdefault(split, {})[str(z)] = summarize(evaluate(lambda e, o, m: p.act(e, o, m), split, env))
+    for run in sorted(Path("results/runs").glob(a.glob)):
         info, agent = load_run(run)
         if info["algo"] == "tabular_q":
             continue
-        s = summarize(evaluate(lambda e, o, m: agent.act(o, m, explore=False), split))
+        s = summarize(evaluate(lambda e, o, m: agent.act(o, m, explore=False), split, env))
         res["rl"].setdefault(split, {})[run.name] = s
 (out / "frontier.json").write_text(json.dumps(res, indent=2))
 

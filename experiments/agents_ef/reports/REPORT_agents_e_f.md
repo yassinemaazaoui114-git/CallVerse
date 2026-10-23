@@ -18,6 +18,11 @@ Date: 2026-10-23. Hardware used: cloud sandbox, 4 CPU cores, 15 GB RAM, **no GPU
 > - No GPU numbers were measured. The RTX 4050 script exists but has **not been run** (NOT VERIFIED).
 > - CLAUDE.md lists agents E and F as **out of scope for the prototype**. This work is isolated research: nothing in `callverse/` changed, and nothing is merged into `main`. Integration needs Brain + Yassine approval.
 
+> **Update 2026-10-23: first validation on real data (section 14).**
+> - On genuine 1–5 review scores (public Olist data, Portuguese), TinyBERT **loses** its lead: MAE 0.78–0.85, worse than TF-IDF at 0.76. A multilingual MiniLM wins: **MAE 0.59**.
+> - With the real demand shape, a tuned heuristic **matches** the RL agent on overall return. RL keeps an edge on urgent tickets, but only after retraining.
+> - Your own CallVerse files are still **not verified**: they live on your PC.
+
 ---
 
 ## 1. In plain words
@@ -558,3 +563,160 @@ python -m bench.benchmark_e --filter _real --calibration $CALLVERSE_DATA_DIR/sub
 ```
 
 The F evaluation on real text needs a small loader for the subset format. It is not written yet, because the label column (or the annotation output) does not exist yet.
+
+---
+
+## 14. Real-data validation, round 2 (2026-10-23)
+
+### 14.1 Your CallVerse files: access status
+
+The folder `C:\Users\semah\Documents\ChatGPT\data collection\callverse-data` is on your Windows PC.
+
+This session runs in a cloud sandbox. It has **no access to your PC**: no Remote Control session from your computer is connected, and none of the connected tools reach local Windows files.
+
+So these are **NOT VERIFIED**: their row counts, schemas, labels, annotation completion, and the 144,794 / 8,000 counts:
+- `CALLVERSE_ECOM_FINAL\complaints\ecommerce_complaints_5305.csv`
+- `new_human_gold_collection\callverse_existing_plus_new_human_gold_2cols.csv`
+- `final_annotation\`
+- `migrated_dataset_v1_3_2\migration_progress.json`
+
+**Read-only inventory script:** `real_data/inventory_windows.ps1`.
+- Tested here with PowerShell 7.4.6 on the real Olist CSVs and on fake JSON/JSONL files.
+- Correct record counts, including multi-line quoted CSV fields.
+- Never prints free-text or personal columns.
+- What it writes: one report file, `Documents\callverse_inventory.json`. It reports:
+  - per file: path, size, modified date, SHA256, header and record count;
+  - per column: non-empty and distinct counts;
+  - value counts for short categorical columns only (where label columns such as intent, language and rating appear);
+  - JSON keys, with the values of small files such as `migration_progress.json`.
+- It never changes, moves or copies a data file.
+
+### 14.2 What could be verified: the public Olist data (your item 5)
+
+`olist\raw\olist_orders_dataset.csv` is part of the **public** Olist dataset:
+- source: Kaggle `olistbr/brazilian-ecommerce`, licence CC BY-NC-SA 4.0;
+- content: Brazilian e-commerce from 2016 to 2018.
+
+The same files were downloaded here from Kaggle's public endpoint into the sandbox, not into git.
+
+| File | Records (quote-aware) | SHA256 (compare with your copy via the inventory) |
+|---|---|---|
+| olist_orders_dataset.csv | 99,441 | `8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf` |
+| olist_order_reviews_dataset.csv | 99,224 | `012b61c7593e34f51fa614efdf802b9c7056ce6aae5307ddb93236e7cfc797d7` |
+
+**Labels**
+- `review_score` (1–5) is a **genuine customer satisfaction rating**, given by the customer after delivery.
+- 40,950 reviews have comment text; 33,662 remain after exact dedup.
+
+**Limits**
+- Olist is **product/delivery reviews in Portuguese**, not CallVerse support conversations in EN/FR.
+- It has **no** support-contact logs.
+- So it validates *methods and model choice on authentic text with real labels*. It does not replace your CallVerse data.
+
+### 14.3 Agent F on genuine satisfaction labels (TRAINED, BENCHMARKED; Olist, Portuguese)
+
+**Data**
+- Stratified 1,000-review subset: rating × language strata, grouped by order.
+- Splits: TRAIN 600 / VAL 199 / TEST 201.
+- Leakage checks: 0 shared texts and 0 shared orders across splits; 1 near-duplicate removed from VAL.
+- Raw text stays in the sandbox, outside git.
+
+**Method**
+- Text-only: the simulator's queue-state features do not exist in real data.
+- Epoch, alpha and best seed are chosen on VAL; TEST is scored once.
+
+| Model | Parameters | TEST MAE | RMSE | 3-class macro-F1 | 5-class macro-F1 | Spearman | CPU latency p50 | Training time (CPU, per seed) |
+|---|---|---|---|---|---|---|---|---|
+| Predict TRAIN mean | 1 | 1.506 | 1.660 | 0.251 | 0.049 | — | — | 0 s |
+| TF-IDF (word + char) + Ridge | 8.3k | 0.758 | 1.032 | 0.569 | 0.329 | 0.784 | 1.4 ms | 2 s |
+| TinyBERT-4L, 6 epochs, 3 seeds | 14.4M | 0.850 ± 0.030 | 1.220 | 0.524 ± 0.042 | 0.293 | 0.717 | ~7 ms | 90–154 s |
+| TinyBERT-4L, 12 epochs, 3 seeds | 14.4M | 0.783 ± 0.032 | 1.203 | 0.571 ± 0.029 | 0.360 | 0.726 | ~7 ms | 150–184 s |
+| **Multilingual MiniLM-L12, 6 epochs, 3 seeds** | 117.7M | **0.591 ± 0.006** | 0.936 | **0.600 ± 0.015** | **0.400** | **0.815** | ~21 ms | ~350 s |
+
+`results/real_f_olist/`, `results/real_f_olist_e12/`
+
+**Simulated vs real for Agent F**
+
+| | Simulated benchmark (section 7/13) | Real labels (Olist) |
+|---|---|---|
+| TinyBERT MAE | 0.373 ± 0.014 (best model) | 0.78–0.85 (**worse than TF-IDF**) |
+| Best model | TinyBERT | multilingual MiniLM, 0.591 |
+| Share of negative labels (1–2★) | 5% | 30% |
+| Type-token ratio of the text | 0.004 (templates) | 0.16 |
+| Real word tokens found in the simulated vocabulary | — | 5.8% |
+| TinyBERT pieces per word | 1.09 | 2.02 (English vocabulary on Portuguese) |
+
+`results/real_f_olist/text_comparison.json`
+
+**Reading**
+- The simulated benchmark **over-rated TinyBERT**. Its template text is narrow and English, and the labels come from a formula.
+- On authentic text with real labels:
+  - an English-only 4-layer model is not enough;
+  - a multilingual encoder wins clearly;
+  - TF-IDF is a strong cheap baseline.
+- Every model struggles with **3-star (neutral)** reviews: MAE 1.1–1.4 on that class.
+- **For CallVerse (EN/FR), the safer choice is now the multilingual MiniLM.**
+  - 118M parameters.
+  - CPU training peak RAM 5.8 GB.
+  - Fine-tuning should fit the RTX 4050 at batch 16, length 128. That is RESEARCHED, NOT VERIFIED.
+- This must be confirmed on your EN/FR data. Portuguese reviews are only a proxy.
+
+**Checkpoints**
+- The best seed on VAL was saved per model, outside git, in the sandbox scratchpad: `checkpoints/agent_f_real*`.
+- That folder is temporary. Re-run with `--save-dir` on your PC to keep one.
+
+### 14.4 Agent E: what real order data supports (BENCHMARKED; Olist)
+
+`real_data/olist_workload.py` writes `results/real_olist/workload.json` and `workload.png`.
+
+| Property | Simulator assumption | Olist (real orders) | Used? |
+|---|---|---|---|
+| Demand shape inside an 8 h day | two peaks, peak/mean 1.51 | busiest window 10:00–18:00 is **flat**, peak/mean 1.045 | **yes** (`hourly_profile_8h`) |
+| Day-to-day load | normal ×0.9–1.05, high ×1.25–1.4 | CV 0.43, p95/mean 1.58, max 6.2× (Black Friday 2017-11-24) | no (reported) |
+| Late deliveries (a contact driver) | — | 8.1% late, 5.4% more than 3 days late | no (reported) |
+| Satisfaction vs lateness | SIM-CSAT falls linearly with wait | 4.3★ early → 3.8★ (0–3 d late) → 2.3★ (3–7 d) → 1.7★ (>7 d) | qualitative check only |
+| Arrival rates, waits, abandonment, handle times | assumed | **not in the data** | no |
+
+**On the Olist-shaped simulator** (TEST; same seeds, splits and safety layer; `results/agent_e_olist/`, `results/frontier_olist/`)
+
+| Policy | Return | SLA | Urgent SLA | Abandon | Cost |
+|---|---|---|---|---|---|
+| Forecast z=0 (z chosen on VAL) | **108.97** | 96.79 | 85.32 | 1.39 | 1266 |
+| Dueling DDQN retrained on the Olist shape (3 seeds) | 108.34 ± 0.30 | 96.41 | 88.38 | 2.05 | 1224 |
+| Dueling DDQN trained on the original simulator | 105.94 ± 1.09 | 96.45 | 89.72 | 1.97 | 1283 |
+| Forecast z=0.5 (default) | 105.67 | 98.72 | 94.71 | 0.62 | 1446 |
+
+**Gap against the heuristic curve at equal cost (TEST)**
+
+| | SLA | Urgent SLA | Abandon (− = better) | SIM-CSAT |
+|---|---|---|---|---|
+| DDQN retrained | +0.45 ± 0.30 | +6.55 ± 1.35 | +0.22 ± 0.06 | 0.00 |
+| DDQN, original training | −0.61 ± 0.29 | +2.86 ± 1.77 | +0.68 ± 0.23 | −0.04 |
+
+The same signs appear on VAL. 0 violations everywhere.
+
+**Reading**
+- **Return advantage:** with the real (flat) demand shape, the tuned heuristic matches or beats RL on overall return.
+- **Urgent tickets:** the RL agent still serves urgent tickets better at the same cost (+6.6 points), but lets slightly more people abandon.
+- **Distribution shift:** a policy trained on the synthetic shape must be **retrained**, because it falls below the curve on overall SLA.
+- **Conclusion for Agent E:** a small RL policy is still viable. But its advantage over a well-tuned rule is small and depends on the workload model. Keep the Forecast rule as baseline and fallback.
+
+### 14.5 Leakage, imbalance and authenticity checks
+
+**Leakage**
+- Group-aware splits (by order); exact and near-duplicate removal; 0 overlaps.
+- z, epochs and seeds chosen on VAL only.
+
+**Imbalance**
+- Real ratings: 46.5% are 5★, 6% are 2★ (ratio 7.75). Macro-F1 is reported for that reason.
+- Selection bias: reviews with comments are more negative (21% 1★) than all reviews (12% 1★).
+
+**Synthetic vs authentic**
+- Large gaps in vocabulary, length spread, label balance and language (table in 14.3).
+
+### 14.6 Next steps
+
+1. Run the inventory on your PC (command in the chat reply) and share `Documents\callverse_inventory.json`. It holds no raw text.
+2. From the inventory, decide which file holds the authorised 8,000 EN/FR subset, and check whether any column is a genuine satisfaction rating.
+3. Run `real_data/prepare_subset.py` and `real_data/eval_f_real.py` **on your PC**, so raw customer text never leaves it. Share only the result JSONs.
+4. If there is no rating column: run `real_data/ANNOTATION_PROTOCOL.md` on 300 conversations.

@@ -1,0 +1,30 @@
+== val
+forecast z= -0.5 cost   1129 SLA  93.93 urg  74.91 aband  3.07 csat 4.580 fb 0.00
+forecast z=-0.25 cost   1185 SLA  95.75 urg  81.31 aband  2.03 csat 4.637 fb 0.00
+forecast z=  0.0 cost   1248 SLA  97.16 urg  87.13 aband  1.23 csat 4.678 fb 0.00
+forecast z= 0.25 cost   1339 SLA  98.06 urg  90.66 aband  0.76 csat 4.708 fb 0.00
+forecast z=  0.5 cost   1437 SLA  98.90 urg  95.34 aband  0.49 csat 4.729 fb 0.00
+forecast z= 0.75 cost   1549 SLA  99.26 urg  97.62 aband  0.39 csat 4.738 fb 0.00
+forecast z=  1.0 cost   1650 SLA  99.44 urg  98.35 aband  0.31 csat 4.743 fb 0.00
+forecast z=  1.5 cost   1754 SLA  99.34 urg  99.03 aband  0.46 csat 4.740 fb 0.00
+dueling_double_dqn_balanced_h64x64_s0  cost   1285 SLA  97.30 urg  90.30 aband  1.25 csat 4.679 fb 0.01
+dueling_double_dqn_balanced_h64x64_s0_olist cost   1187 SLA  96.50 urg  87.56 aband  1.94 csat 4.635 fb 0.03
+dueling_double_dqn_balanced_h64x64_s1  cost   1232 SLA  96.49 urg  88.46 aband  1.89 csat 4.633 fb 0.03
+dueling_double_dqn_balanced_h64x64_s1_olist cost   1207 SLA  96.29 urg  86.06 aband  1.90 csat 4.648 fb 0.00
+dueling_double_dqn_balanced_h64x64_s2  cost   1256 SLA  96.14 urg  88.90 aband  2.09 csat 4.621 fb 0.05
+dueling_double_dqn_balanced_h64x64_s2_olist cost   1227 SLA  97.12 urg  90.89 aband  1.59 csat 4.669 fb 0.01
+== test
+forecast z= -0.5 cost   1144 SLA  93.37 urg  73.14 aband  3.34 csat 4.554 fb 0.01
+forecast z=-0.25 cost   1191 SLA  95.29 urg  79.07 aband  2.19 csat 4.617 fb 0.01
+forecast z=  0.0 cost   1266 SLA  96.79 urg  85.32 aband  1.39 csat 4.663 fb 0.00
+forecast z= 0.25 cost   1341 SLA  98.03 urg  91.90 aband  0.89 csat 4.699 fb 0.00
+forecast z=  0.5 cost   1446 SLA  98.72 urg  94.71 aband  0.62 csat 4.721 fb 0.00
+forecast z= 0.75 cost   1563 SLA  99.16 urg  97.65 aband  0.46 csat 4.731 fb 0.00
+forecast z=  1.0 cost   1654 SLA  99.30 urg  98.78 aband  0.48 csat 4.733 fb 0.00
+forecast z=  1.5 cost   1755 SLA  99.00 urg  99.33 aband  0.75 csat 4.719 fb 0.01
+dueling_double_dqn_balanced_h64x64_s0  cost   1313 SLA  97.06 urg  90.91 aband  1.53 csat 4.663 fb 0.02
+dueling_double_dqn_balanced_h64x64_s0_olist cost   1201 SLA  96.38 urg  88.39 aband  2.21 csat 4.623 fb 0.03
+dueling_double_dqn_balanced_h64x64_s1  cost   1251 SLA  96.18 urg  89.50 aband  2.12 csat 4.621 fb 0.04
+dueling_double_dqn_balanced_h64x64_s1_olist cost   1217 SLA  96.06 urg  86.97 aband  2.15 csat 4.637 fb 0.00
+dueling_double_dqn_balanced_h64x64_s2  cost   1285 SLA  96.10 urg  88.74 aband  2.26 csat 4.613 fb 0.04
+dueling_double_dqn_balanced_h64x64_s2_olist cost   1253 SLA  96.78 urg  89.78 aband  1.81 csat 4.650 fb 0.02

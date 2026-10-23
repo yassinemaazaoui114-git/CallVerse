@@ -59,6 +59,9 @@ class EnvConfig:
     w_sla: float = 0.0
     w_cost: float = 0.5
     w_csat: float = 1.0
+    # optional real demand shape over the simulated day (e.g. 8 hourly values from order timestamps, see
+    # real_data/olist_workload.py). Empty = the built-in two-peak shape. Rescaled so the day's TOTAL load is unchanged.
+    hourly_profile: tuple = ()
 
 
 REWARD_PRESETS = {
@@ -147,7 +150,7 @@ class CallCenterEnv:
         self.carry = np.zeros(N_Q)                           # fractional service capacity carried over
         self.spent = 0.0
         self.last_arr = np.zeros(N_Q)
-        self.ewma = self.base * profile(0.0) * self.sc.load
+        self.ewma = self.base * self._profile(0.0) * self.sc.load
         self.tickets = []
         self.kpi = dict(arrived=np.zeros(N_Q), served=np.zeros(N_Q), abandoned=np.zeros(N_Q),
                         served_in_sla=np.zeros(N_Q), waits=[], csat=[], cost=0.0, violations=0,
@@ -273,10 +276,20 @@ class CallCenterEnv:
         return self._obs(), float(reward), done, False, info
 
     # ------------------------------------------------------------------ helpers
+    def _profile(self, t_frac: float) -> float:
+        hp = self.cfg.hourly_profile
+        if not hp:
+            return profile(t_frac)
+        if getattr(self, "_hp_key", None) != hp:              # computed once per config, not every step
+            v = np.asarray(hp, float)
+            self._hp_key, self._hp_x = hp, (np.arange(len(v)) + 0.5) / len(v)
+            self._hp_y = v / v.mean() * float(np.mean([profile(x) for x in np.linspace(0, 1, 97)]))
+        return float(np.interp(t_frac, self._hp_x, self._hp_y))
+
     def _rates(self, t_frac: float) -> np.ndarray:
         sc = self.sc
         mix = 1 + (sc.mix_end - 1) * t_frac
-        lam = self.base * profile(t_frac) * sc.load * mix
+        lam = self.base * self._profile(t_frac) * sc.load * mix
         if sc.spike_q >= 0 and sc.spike_t[0] <= self.t < sc.spike_t[1]:
             lam[sc.spike_q] *= sc.spike_mult
         return lam

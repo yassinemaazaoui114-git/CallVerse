@@ -1,0 +1,14 @@
+{
+  "source": "olist_workload.py: hourly demand shape of the busiest 8h window (order timestamps). Queue mix, service times, patience: NOT from data (simulator assumptions kept).",
+  "hourly_profile_8h": [
+    0.9667,
+    1.0295,
+    0.9383,
+    1.0201,
+    1.0281,
+    1.0101,
+    1.0447,
+    0.9625
+  ],
+  "window_start_hour": 10
+}
