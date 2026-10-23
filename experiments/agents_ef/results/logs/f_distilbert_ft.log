@@ -11,3 +11,4 @@ vocab_layer_norm.weight | UNEXPECTED |  |
 
 Notes:
 - UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+{"model": "distilbert_ft", "n_params": 66412993, "disk_mb": 265.691, "train_s": 745.8, "latency_ms_p50": 17.28, "peak_rss_mb": 2620.8, "test_mae": 0.4047, "test_f1": 0.8214}

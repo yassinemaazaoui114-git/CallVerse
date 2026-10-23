@@ -10,23 +10,75 @@
   "agent_e": {
     "dqn": {
       "params": 7313,
-      "p50_ms": 0.0211,
-      "p95_ms": 0.0499,
+      "p50_ms": 0.0213,
+      "p95_ms": 0.0543,
       "vram_mb": null
     },
     "dueling_double_dqn": {
       "params": 7378,
-      "p50_ms": 0.033,
-      "p95_ms": 0.0818,
+      "p50_ms": 0.0327,
+      "p95_ms": 0.0796,
       "vram_mb": null
     },
     "ppo": {
       "params": 13586,
-      "p50_ms": 0.0218,
-      "p95_ms": 0.0539,
+      "p50_ms": 0.0204,
+      "p95_ms": 0.0547,
       "vram_mb": null
     }
   },
-  "agent_f": {},
-  "peak_ram_mb": 299.1
+  "agent_f": {
+    "tinybert_4l": {
+      "params": 14350248,
+      "infer_batch1": {
+        "p50_ms": 3.4526,
+        "p95_ms": 5.6122
+      },
+      "infer_batch64": {
+        "p50_ms": 41.053,
+        "p95_ms": 56.9284
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch32": {
+        "p50_ms": 163.6901,
+        "p95_ms": 172.0975
+      },
+      "vram_train_batch32_mb": null
+    },
+    "bge_small": {
+      "params": 33360000,
+      "infer_batch1": {
+        "p50_ms": 12.8892,
+        "p95_ms": 20.8162
+      },
+      "infer_batch64": {
+        "p50_ms": 164.2721,
+        "p95_ms": 194.8983
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch32": {
+        "p50_ms": 437.1404,
+        "p95_ms": 473.8023
+      },
+      "vram_train_batch32_mb": null
+    },
+    "distilbert": {
+      "params": 66362880,
+      "infer_batch1": {
+        "p50_ms": 15.4778,
+        "p95_ms": 21.8919
+      },
+      "infer_batch64": {
+        "p50_ms": 307.4325,
+        "p95_ms": 398.446
+      },
+      "vram_infer_batch64_mb": null,
+      "train_step_batch32": {
+        "p50_ms": 697.9924,
+        "p95_ms": 735.1387
+      },
+      "vram_train_batch32_mb": null
+    }
+  },
+  "peak_ram_mb": 2006.8
 }

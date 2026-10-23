@@ -1,0 +1,28 @@
+{
+  "model": "distilbert_ft",
+  "n_params": 66412993,
+  "disk_mb": 265.691,
+  "train_s": 745.8,
+  "epochs": 1,
+  "val": {
+    "mae": 0.5590701699256897,
+    "rmse": 0.7159679532051086,
+    "exact_acc": 0.5566666666666666,
+    "f1_macro_3class": 0.6172571431158401,
+    "spearman": 0.7166264744252488
+  },
+  "test": {
+    "mae": 0.40471896529197693,
+    "rmse": 0.49206244945526123,
+    "exact_acc": 0.6362962962962962,
+    "f1_macro_3class": 0.8213731203894934,
+    "spearman": 0.7104378216960542
+  },
+  "latency_ms_p50": 17.28,
+  "latency_ms_p95": 23.411,
+  "throughput_per_s_batch512": 152.7,
+  "peak_rss_mb": 2620.8,
+  "device": "cpu",
+  "torch_threads": 4,
+  "data": "SIMULATED (agent_f/make_dataset.py)"
+}

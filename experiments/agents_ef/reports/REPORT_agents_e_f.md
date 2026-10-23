@@ -278,12 +278,24 @@ Bigger is not better here. 128×128 is less stable across seeds.
 | 5 | MiniLM-L6 embeddings + head | common small sentence encoder | 0.604 | 0.674 | 0.446 | 22.7M | 91 MB | 14.7 ms | 779 MB | 94 s |
 | 6 | TF-IDF + Ridge | classic text baseline | 0.639 | 0.790 | 0.477 | 5.5k | 0.17 MB | 0.56 ms | 340 MB | 2 s |
 | 7 | Bag-of-words MLP | tiny neural net | 0.957 | 0.618 | 0.319 | 263k | 1.1 MB | 0.59 ms | 779 MB | 11 s |
-| — | DistilBERT fine-tuned (2 epochs) | "bigger model" reference (66M) | DISTILBERT_ROW | | | | | | | |
+| 2* | DistilBERT fine-tuned (2 epochs) | "bigger model" reference | 0.405 | 0.821 | 0.710 | 66.4M | 266 MB | 17.3 ms | 2621 MB | 746 s |
 
 **Reading**
 - Fine-tuning a tiny transformer end to end beats frozen embeddings and classical models by a wide margin (0.35 vs 0.55+ MAE).
+- A 4.6× bigger model did not help: DistilBERT is worse than TinyBERT (MAE 0.405 vs 0.346), 3.4× slower, and uses 2.5× the RAM.
+  - \*Caveat: DistilBERT had 2 epochs vs TinyBERT's 3 (CPU budget). The comparison is not exactly equal-effort.
 - The bag-of-words MLP overfits the training phrasings. That is the expected failure on unseen wording.
 - Meta features alone already give MAE ≈ 0.6, because waiting time and fallback drive the simulated label.
+
+**Encoder cost on CPU** (`bench/measure_local.py`, `results/local_measure/measure_cpu.json`, BENCHMARKED, CPU only)
+
+| Encoder | Parameters | Inference batch 1 p50 | Inference batch 64 p50 | One training step, batch 32, p50 |
+|---|---|---|---|---|
+| TinyBERT-4L | 14.4M | 3.5 ms | 41 ms | 164 ms |
+| bge-small | 33.4M | 12.9 ms | 164 ms | 437 ms |
+| DistilBERT | 66.4M | 15.5 ms | 307 ms | 698 ms |
+
+The VRAM columns are empty: there is no GPU here (NOT VERIFIED). The same command on the RTX 4050 fills them.
 
 **Caveats**
 - One seed per model; seed variance NOT VERIFIED.
@@ -349,6 +361,7 @@ Bigger is not better here. 128×128 is less stable across seeds.
 2. **Best Agent F: TinyBERT-4L fine-tuned, 14.4M parameters** (TRAINED, BENCHMARKED, simulated data only).
    - TEST MAE 0.35, F1 0.85.
    - 5 ms per prediction on CPU, 58 MB.
+   - Beat DistilBERT (66M, MAE 0.405) at a fraction of the size.
    - Cheap option if a transformer is not wanted: TF-IDF + Ridge (MAE 0.64, under 1 ms, 0.2 MB).
 3. **Best shared/hybrid: none is recommended.**
    - The shared encoder (B) is the least bad: no F loss, but −5 points urgent SLA for E.
