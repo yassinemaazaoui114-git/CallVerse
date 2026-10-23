@@ -22,7 +22,6 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from bench.evaluation import SPLITS, evaluate, summarize  # noqa: E402
-from env.callcenter_env import CallCenterEnv  # noqa: E402
 from rl.agents import make_agent  # noqa: E402
 
 
@@ -35,7 +34,10 @@ def main():
     p.add_argument("--algo", required=True)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--steps", type=int, default=150_000)
-    p.add_argument("--preset", default="balanced")
+    p.add_argument("--preset", default=None, help="reward preset (default: balanced for v1, intake for intake)")
+    p.add_argument("--env", default="v1", choices=["v1", "intake"])
+    p.add_argument("--overrides", default="{}", help='EnvConfig overrides as JSON, e.g. {"load_sigma": 0.43}')
+    p.add_argument("--f-reward", default=None, help="Agent F reward model (agent_f/f_reward.py) instead of SIM-CSAT")
     p.add_argument("--hidden", default="64,64")
     p.add_argument("--eval-every", type=int, default=15_000)
     p.add_argument("--device", default="cpu")
@@ -46,10 +48,15 @@ def main():
     torch.set_num_threads(1)
     hidden = tuple(int(h) for h in args.hidden.split(","))
 
-    from real_data.calibration import env_config
-    cfg = env_config(args.preset, args.calibration)
-    env = CallCenterEnv(cfg, scenarios=SPLITS["train"]["scenarios"])
-    val_env = CallCenterEnv(cfg, scenarios=SPLITS["val"]["scenarios"])
+    from env.factory import make_env
+    args.preset = args.preset or ("intake" if args.env == "intake" else "balanced")
+    ov = json.loads(args.overrides)
+    kw = {}
+    if args.f_reward:
+        from agent_f.f_reward import load_f_reward
+        kw["f_reward"] = load_f_reward(args.f_reward)
+    env = make_env(args.env, args.preset, args.calibration, ov, SPLITS["train"]["scenarios"], **kw)
+    val_env = make_env(args.env, args.preset, args.calibration, ov, SPLITS["val"]["scenarios"], **kw)
     agent = make_agent(args.algo, env.obs_dim, env.n_actions, args.seed, hidden=hidden)
     run_dir = Path(args.out) / f"{args.algo}_{args.preset}_h{args.hidden.replace(',', 'x')}_s{args.seed}{args.tag}"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -85,6 +92,8 @@ def main():
             w.writeheader()
             w.writerows(rows)
     info = {"algo": args.algo, "seed": args.seed, "steps": steps, "episodes": ep, "preset": args.preset,
+            "env": args.env, "overrides": ov, "calibration": args.calibration, "f_reward": args.f_reward,
+            "tag": args.tag,
             "hidden": hidden, "train_wall_s": round(wall, 1), "steps_per_s": round(steps / wall, 1),
             "best_val_return": best, "n_params": agent.n_params(), "device": args.device,
             "peak_rss_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1),

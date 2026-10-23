@@ -18,8 +18,8 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from baselines.heuristics import BASELINES  # noqa: E402
-from bench.evaluation import KPI_KEYS, SPLITS, evaluate, summarize  # noqa: E402
+from baselines.heuristics import BASELINES, BASELINES_V2  # noqa: E402
+from bench.evaluation import KPI_KEYS, SPLITS, V2_KEYS, evaluate, summarize  # noqa: E402
 from env.callcenter_env import CallCenterEnv  # noqa: E402
 from rl.agents import make_agent  # noqa: E402
 
@@ -28,17 +28,18 @@ HEADLINE = ["ret", "sla_pct", "urgent_sla_pct", "abandon_pct", "mean_wait_min", 
 
 
 def load_run(run_dir: Path):
+    from env.factory import obs_dim
     info = json.loads((run_dir / "run.json").read_text())
-    env = CallCenterEnv()
-    agent = make_agent(info["algo"], env.obs_dim, env.n_actions, info["seed"], hidden=tuple(info["hidden"]))
+    agent = make_agent(info["algo"], obs_dim(info.get("env", "v1")), CallCenterEnv.n_actions, info["seed"],
+                       hidden=tuple(info["hidden"]))
     state = torch.load(run_dir / "best.pt", weights_only=False)
     agent.load_state_dict(state)
     return info, agent
 
 
-def score(policy, preset, calibration=None):
-    from real_data.calibration import env_config
-    env = CallCenterEnv(env_config(preset, calibration), scenarios=SPLITS["test"]["scenarios"])
+def score(policy, preset, calibration=None, kind="v1", overrides=None, split="test"):
+    from env.factory import make_env
+    env = make_env(kind, preset, calibration, overrides, SPLITS[split]["scenarios"])
     times = []
     rows = evaluate(policy, "test", env, decision_times=times)
     return rows, float(np.median(times) * 1e3), float(np.percentile(times, 95) * 1e3)
@@ -48,18 +49,23 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", default="results/runs")
     ap.add_argument("--out", default="results/agent_e")
-    ap.add_argument("--preset", default="balanced")
+    ap.add_argument("--preset", default=None)
+    ap.add_argument("--env", default="v1", choices=["v1", "intake"])
+    ap.add_argument("--overrides", default="{}", help="TEST-time EnvConfig overrides (e.g. another demand shape)")
+    ap.add_argument("--train-preset", default=None, help="only runs trained with this preset (default = --preset)")
     ap.add_argument("--filter", default="", help="only runs whose folder contains this text")
     ap.add_argument("--calibration", default=None, help="score on the real-data-calibrated simulator")
     a = ap.parse_args()
+    a.preset = a.preset or ("intake" if a.env == "intake" else "balanced")
+    ov = json.loads(a.overrides)
     torch.set_num_threads(1)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     per_policy, csv_rows = defaultdict(list), []
 
-    for name, P in BASELINES.items():
+    for name, P in (BASELINES_V2 if a.env == "intake" else BASELINES).items():
         p = P()
-        rows, lat50, lat95 = score(lambda env, obs, mask: p.act(env, obs, mask), a.preset, a.calibration)
+        rows, lat50, lat95 = score(lambda env, obs, mask: p.act(env, obs, mask), a.preset, a.calibration, a.env, ov)
         per_policy[name].append({"rows": rows, "lat50": lat50, "lat95": lat95, "n_params": 0, "disk_kb": 0,
                                  "train_s": 0, "seed": 0})
 
@@ -67,10 +73,11 @@ def main():
         if not (run_dir / "best.pt").exists() or a.filter not in run_dir.name:
             continue
         info, agent = load_run(run_dir)
-        if info["preset"] != a.preset:
+        if info["preset"] != (a.train_preset or a.preset) or info.get("env", "v1") != a.env:
             continue
         key = f"{info['algo']}_h{'x'.join(map(str, info['hidden']))}" + (run_dir.name.split(f"_s{info['seed']}")[-1])
-        rows, lat50, lat95 = score(lambda env, obs, mask: agent.act(obs, mask, explore=False), a.preset, a.calibration)
+        rows, lat50, lat95 = score(lambda env, obs, mask: agent.act(obs, mask, explore=False), a.preset, a.calibration,
+                                     a.env, ov)
         per_policy[key].append({"rows": rows, "lat50": lat50, "lat95": lat95, "n_params": info["n_params"],
                                 "disk_kb": round((run_dir / "best.pt").stat().st_size / 1024, 1),
                                 "train_s": info["train_wall_s"], "seed": info["seed"]})
@@ -78,15 +85,17 @@ def main():
     summary = {}
     for name, runs in per_policy.items():
         overall = [summarize(r["rows"]) for r in runs]                    # one summary per training seed
+        hk = HEADLINE + [k for k in ["fallback_share"] + V2_KEYS if k in overall[0]]
         by_sc = defaultdict(list)
         for r in runs:
             for row in r["rows"]:
                 by_sc[row["scenario"]].append(row)
-                csv_rows.append({"policy": name, "seed": r["seed"], **{k: row[k] for k in ["scenario"] + KPI_KEYS}})
+                csv_rows.append({"policy": name, "seed": r["seed"],
+                                 **{k: row[k] for k in ["scenario"] + KPI_KEYS + V2_KEYS if k in row}})
         summary[name] = {
             "n_seeds": len(runs),
-            "mean": {k: float(np.mean([o[k] for o in overall])) for k in HEADLINE},
-            "std_over_seeds": {k: float(np.std([o[k] for o in overall])) for k in HEADLINE},
+            "mean": {k: float(np.mean([o[k] for o in overall])) for k in hk},
+            "std_over_seeds": {k: float(np.std([o[k] for o in overall])) for k in hk},
             "by_scenario_ret": {sc: float(np.mean([x["ret"] for x in v])) for sc, v in by_sc.items()},
             "by_scenario_sla": {sc: float(np.mean([x["sla_pct"] for x in v])) for sc, v in by_sc.items()},
             "budget_ok_pct": float(np.mean([o["budget_ok_pct"] for o in overall])),

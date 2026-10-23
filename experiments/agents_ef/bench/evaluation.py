@@ -44,7 +44,11 @@ def evaluate(policy, split: str, env=None, decision_times=None) -> list[dict]:
     return [run_day(env, policy, s, sc, decision_times) for s, sc in split_days(split)]
 
 
+V2_KEYS = ["c_queue_sla_pct", "abandon_high_pct", "abandon_low_pct", "p95_wait_high_min", "high_on_fallback",
+           "fallback_ticket_share", "f_pred_mean"]                   # Intake-aware env (env/intake_env.py)
+
+
 def summarize(rows: list[dict]) -> dict:
-    out = {k: float(np.mean([r[k] for r in rows])) for k in KPI_KEYS}
+    out = {k: float(np.mean([r[k] for r in rows])) for k in KPI_KEYS + [k for k in V2_KEYS if k in rows[0]]}
     out["budget_ok_pct"] = 100.0 * np.mean([r["budget_ok"] for r in rows])
     return out

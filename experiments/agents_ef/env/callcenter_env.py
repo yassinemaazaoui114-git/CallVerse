@@ -62,6 +62,14 @@ class EnvConfig:
     # optional real demand shape over the simulated day (e.g. 8 hourly values from order timestamps, see
     # real_data/olist_workload.py). Empty = the built-in two-peak shape. Rescaled so the day's TOTAL load is unchanged.
     hourly_profile: tuple = ()
+    # ---- options used by the Intake-aware env v2 (defaults = v1 behaviour, so v1 results stay reproducible)
+    fallback_max_share: float = 1.0      # hard cap: fallback may be ON for at most this share of the day's steps
+    load_sigma: float = 0.0              # day-to-day volatility: day load x lognormal(0, sigma) (Olist CV ~0.43)
+    shape_pool: tuple = ()               # demand shapes to draw from at reset (domain randomisation), () = off
+    abandon_tier_w: tuple = (1.0, 2.0, 4.0)   # v2 business penalty for losing a low / medium / high ticket
+    late_tier_w: tuple = (0.25, 0.5, 1.0)     # v2 business penalty for serving it after the SLA
+    patience_emotion_k: float = 0.3      # v2 ASSUMPTION: patience x (1 - k * emotion_intensity)
+    tier_sla_factor: tuple = (1.5, 1.0, 0.3)  # v2 ASSUMPTION: SLA of a low / medium / high ticket = queue SLA x factor
 
 
 REWARD_PRESETS = {
@@ -69,6 +77,8 @@ REWARD_PRESETS = {
     "balanced": dict(w_served=1.0, w_abandon=2.0, w_sla=0.0, w_cost=0.5, w_csat=1.0),
     "cost_heavy": dict(w_served=1.0, w_abandon=2.0, w_sla=0.0, w_cost=1.5, w_csat=1.0),
     "sla_heavy": dict(w_served=1.0, w_abandon=2.0, w_sla=1.0, w_cost=0.5, w_csat=0.5),
+    # v2 (Intake-aware): abandonment / lateness are already scaled per priority tier (abandon_tier_w, late_tier_w)
+    "intake": dict(w_served=1.0, w_abandon=1.0, w_sla=1.0, w_cost=0.5, w_csat=1.0, fallback_max_share=0.25),
 }
 
 
@@ -143,6 +153,9 @@ class CallCenterEnv:
         self.rng = np.random.default_rng(seed)
         kind = scenario or self.scenario_kinds[int(self.rng.integers(len(self.scenario_kinds)))]
         self.sc = make_scenario(kind, self.rng, c.steps_per_day)
+        if c.load_sigma > 0:                      # extra draws only when enabled: v1 days are unchanged
+            self.sc.load *= float(self.rng.lognormal(-c.load_sigma ** 2 / 2, c.load_sigma))
+        self._shape = tuple(c.shape_pool[int(self.rng.integers(len(c.shape_pool)))]) if c.shape_pool else ()
         self.t = 0
         self.fallback = False
         self.alloc = self._proportional(c.init_active)
@@ -179,7 +192,7 @@ class CallCenterEnv:
         for k, (i, j) in enumerate(MOVES, start=1):
             floor = c.min_alloc_urgent if i == 2 else 0
             m[k] = self.alloc[i] > floor
-        m[A_FB_ON] = not self.fallback
+        m[A_FB_ON] = not self.fallback and self.kpi["fallback_steps"] < c.fallback_max_share * c.steps_per_day
         m[A_FB_OFF] = self.fallback
         active = int(self.alloc.sum())
         steps_left = c.steps_per_day - self.t
@@ -262,6 +275,9 @@ class CallCenterEnv:
         self.spent += cost
         self.kpi["cost"] += cost
         self.kpi["fallback_steps"] += int(self.fallback)
+        if c.fallback_max_share < 1.0 and self.fallback and \
+                self.kpi["fallback_steps"] >= c.fallback_max_share * c.steps_per_day:
+            self.fallback = False                 # safety layer: the day's fallback allowance is used up
 
         norm = float((self.base * self.pw).sum())        # typical weighted arrivals per step
         csat_term = (np.mean(csat_step) - 3.0) / 2.0 * min(len(csat_step) / max(lam.sum(), 1e-6), 1.0) \
@@ -277,7 +293,7 @@ class CallCenterEnv:
 
     # ------------------------------------------------------------------ helpers
     def _profile(self, t_frac: float) -> float:
-        hp = self.cfg.hourly_profile
+        hp = getattr(self, "_shape", ()) or self.cfg.hourly_profile
         if not hp:
             return profile(t_frac)
         if getattr(self, "_hp_key", None) != hp:              # computed once per config, not every step
