@@ -1,0 +1,24 @@
+{
+  "algo": "dqn",
+  "seed": 0,
+  "steps": 150048,
+  "episodes": 1563,
+  "preset": "intake",
+  "env": "intake",
+  "overrides": {},
+  "calibration": null,
+  "f_reward": null,
+  "tag": "",
+  "hidden": [
+    64,
+    64
+  ],
+  "train_wall_s": 374.4,
+  "steps_per_s": 400.7,
+  "best_val_return": 105.46871757818215,
+  "n_params": 8081,
+  "device": "cpu",
+  "peak_rss_mb": 344.0,
+  "torch": "2.14.1+cpu",
+  "cpu_count": 4
+}

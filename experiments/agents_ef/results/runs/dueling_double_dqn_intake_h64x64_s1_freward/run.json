@@ -1,0 +1,24 @@
+{
+  "algo": "dueling_double_dqn",
+  "seed": 1,
+  "steps": 150048,
+  "episodes": 1563,
+  "preset": "intake",
+  "env": "intake",
+  "overrides": {},
+  "calibration": null,
+  "f_reward": "results/f_reward/olist_isotonic.json",
+  "tag": "_freward",
+  "hidden": [
+    64,
+    64
+  ],
+  "train_wall_s": 408.0,
+  "steps_per_s": 367.8,
+  "best_val_return": 102.86998532482335,
+  "n_params": 8146,
+  "device": "cpu",
+  "peak_rss_mb": 344.7,
+  "torch": "2.14.1+cpu",
+  "cpu_count": 4
+}

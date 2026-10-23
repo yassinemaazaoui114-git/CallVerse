@@ -1,0 +1,24 @@
+{
+  "algo": "ppo",
+  "seed": 0,
+  "steps": 150048,
+  "episodes": 1563,
+  "preset": "intake",
+  "env": "intake",
+  "overrides": {},
+  "calibration": null,
+  "f_reward": null,
+  "tag": "",
+  "hidden": [
+    64,
+    64
+  ],
+  "train_wall_s": 393.6,
+  "steps_per_s": 381.2,
+  "best_val_return": 105.89461901841021,
+  "n_params": 15122,
+  "device": "cpu",
+  "peak_rss_mb": 311.9,
+  "torch": "2.14.1+cpu",
+  "cpu_count": 4
+}

@@ -31,14 +31,27 @@ from env.factory import make_env  # noqa: E402
 CONDITIONS = {"in_dist": {}, "flat_real": {"hourly_profile": "flat"}, "evening": {"hourly_profile": "evening"},
               "volatile": {"load_sigma": 0.43}, "evening_vol": {"hourly_profile": "evening", "load_sigma": 0.43}}
 Z = (-0.5, -0.25, 0.0, 0.25, 0.5, 1.0)
-TARGETS = (0.6, 0.4, 0.3, 0.2, 0.1, 0.05)
+TARGETS = (0.95, 0.8, 0.6, 0.4, 0.2, 0.05)
 KPIS = ["sla_pct", "urgent_sla_pct", "abandon_pct", "abandon_high_pct", "sim_csat"]
 
 
 def interp_gap(r, curve):
+    """RL KPI - heuristic KPI at the same cost. None when the RL cost is outside the curve's cost range
+    (no extrapolation: comparing with the curve's end point would be unfair)."""
     pts = sorted(curve.values(), key=lambda s: s["cost"])
     cost = [p["cost"] for p in pts]
+    if not cost[0] <= r["cost"] <= cost[-1]:
+        return {k: None for k in KPIS if k in r}
     return {k: r[k] - float(np.interp(r["cost"], cost, [p[k] for p in pts])) for k in KPIS if k in r}
+
+
+def gap_stats(v, key):
+    """mean, std over seeds of the gaps that exist, and how many seeds were inside the curve's cost range."""
+    out = {}
+    for k in v[0][key]:
+        xs = [x[key][k] for x in v if x[key][k] is not None]
+        out[k] = [float(np.mean(xs)), float(np.std(xs)), len(xs)] if xs else [None, None, 0]
+    return out
 
 
 def main():
@@ -84,12 +97,8 @@ def main():
             "rl": {g: {"seeds": v,
                        "mean": {k: float(np.mean([x[k] for x in v])) for k in v[0] if isinstance(v[0][k], float)},
                        "std": {k: float(np.std([x[k] for x in v])) for k in v[0] if isinstance(v[0][k], float)},
-                       "gap_vs_forecast": {k: [float(np.mean([x["gap_vs_forecast"][k] for x in v])),
-                                               float(np.std([x["gap_vs_forecast"][k] for x in v]))]
-                                           for k in v[0]["gap_vs_forecast"]},
-                       "gap_vs_erlang_c": {k: [float(np.mean([x["gap_vs_erlang_c"][k] for x in v])),
-                                               float(np.std([x["gap_vs_erlang_c"][k] for x in v]))]
-                                           for k in v[0]["gap_vs_erlang_c"]}}
+                       "gap_vs_forecast": gap_stats(v, "gap_vs_forecast"),
+                       "gap_vs_erlang_c": gap_stats(v, "gap_vs_erlang_c")}
                    for g, v in rl.items()}}
         (out / "generalization.json").write_text(json.dumps(res, indent=2))
         c = res["conditions"][cname]
@@ -99,10 +108,12 @@ def main():
                   f"urg {s['urgent_sla_pct']:6.2f} ab {s['abandon_pct']:5.2f} csat {s['sim_csat']:.3f}")
         for g, v in c["rl"].items():
             m, sd = v["mean"], v["std"]
-            ge = v["gap_vs_erlang_c"]
+            gf = v["gap_vs_forecast"]
+            gap = (f"vsForecast@cost SLA {gf['sla_pct'][0]:+.2f} ab {gf['abandon_pct'][0]:+.2f} (n={gf['sla_pct'][2]})"
+                   if gf["sla_pct"][0] is not None else "outside forecast cost range")
             print(f"  {g:34s} ret {m['ret']:7.2f}±{sd['ret']:.2f} cost {m['cost']:6.0f} SLA {m['sla_pct']:6.2f} "
                   f"urg {m['urgent_sla_pct']:6.2f} ab {m['abandon_pct']:5.2f} csat {m['sim_csat']:.3f} "
-                  f"fb {m['fallback_share']:.2f} | vsErlang@cost SLA {ge['sla_pct'][0]:+.2f} ab {ge['abandon_pct'][0]:+.2f}")
+                  f"fb {m['fallback_share']:.2f} | {gap}")
 
 
 if __name__ == "__main__":
