@@ -22,7 +22,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from bench.evaluation import SPLITS, evaluate, summarize  # noqa: E402
-from env.callcenter_env import REWARD_PRESETS, CallCenterEnv, EnvConfig  # noqa: E402
+from env.callcenter_env import CallCenterEnv  # noqa: E402
 from rl.agents import make_agent  # noqa: E402
 
 
@@ -41,11 +41,13 @@ def main():
     p.add_argument("--device", default="cpu")
     p.add_argument("--out", default="results/runs")
     p.add_argument("--tag", default="")
+    p.add_argument("--calibration", default=None, help="e_calibration.json from real_data (queue mix)")
     args = p.parse_args()
     torch.set_num_threads(1)
     hidden = tuple(int(h) for h in args.hidden.split(","))
 
-    cfg = EnvConfig(**REWARD_PRESETS[args.preset])
+    from real_data.calibration import env_config
+    cfg = env_config(args.preset, args.calibration)
     env = CallCenterEnv(cfg, scenarios=SPLITS["train"]["scenarios"])
     val_env = CallCenterEnv(cfg, scenarios=SPLITS["val"]["scenarios"])
     agent = make_agent(args.algo, env.obs_dim, env.n_actions, args.seed, hidden=hidden)

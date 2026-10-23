@@ -1,0 +1,28 @@
+{
+  "n_seeds": 3,
+  "test_mean": {
+    "mae": 0.37322257955869037,
+    "rmse": 0.4786130388577779,
+    "exact_acc": 0.7245679012345678,
+    "f1_macro_3class": 0.8347714151200928,
+    "spearman": 0.7099572188659833
+  },
+  "test_std": {
+    "mae": 0.013782976635457508,
+    "rmse": 0.008323163849805498,
+    "exact_acc": 0.01171344075864737,
+    "f1_macro_3class": 0.021662432070249312,
+    "spearman": 0.0062593309545098536
+  },
+  "best_seed_by_val": 0,
+  "best_val_mae": 0.386395126581192,
+  "best_test": {
+    "mae": 0.3538353443145752,
+    "rmse": 0.46845147013664246,
+    "exact_acc": 0.7411111111111112,
+    "f1_macro_3class": 0.8635775497852087,
+    "spearman": 0.7156096759099808
+  },
+  "checkpoint_outside_git": "/tmp/claude-0/-home-user-CallVerse/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/checkpoints/agent_f/tinybert_ft_s0",
+  "data": "SIMULATED"
+}

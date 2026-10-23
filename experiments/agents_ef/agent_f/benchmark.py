@@ -114,7 +114,7 @@ def hashed_bow(texts, dim=4096):
     return hv, hv.transform(texts).toarray().astype(np.float32)
 
 
-def run(model_name: str):
+def run(model_name: str, seed: int = 0, save_dir: str | None = None):
     tr, va, te = load("train"), load("val"), load("test")
     ytr, yva, yte = (np.array([r["csat"] for r in s], np.float32) for s in (tr, va, te))
     mtr, mva, mte = meta(tr), meta(va), meta(te)
@@ -200,9 +200,9 @@ def run(model_name: str):
                 h = self.bert(input_ids=ids, attention_mask=att).last_hidden_state[:, 0]
                 return self.head(torch.cat([h, m], -1))
 
+        torch.manual_seed(seed)                              # seeds the head's initial weights too
         model = TB()
         enc = lambda rows: tok(txt(rows), padding=True, truncation=True, max_length=64, return_tensors="pt")
-        torch.manual_seed(0)
         opt = torch.optim.AdamW(model.parameters(), lr=5e-5, weight_decay=0.01)
         Mtr, Mva = torch.as_tensor(mtr), torch.as_tensor(mva)
         best, best_state, ep_used = 1e9, None, 0
@@ -217,7 +217,7 @@ def run(model_name: str):
             return np.concatenate(out)
         for ep in range(EPOCHS.get(model_name, 3)):         # epochs capped (CPU budget)
             model.train()
-            perm = np.random.default_rng(ep).permutation(len(tr))
+            perm = np.random.default_rng(1000 * seed + ep).permutation(len(tr))
             for i in range(0, len(tr), 32):
                 idx = perm[i:i + 32]
                 b = enc([tr[j] for j in idx])
@@ -231,6 +231,15 @@ def run(model_name: str):
                 best, best_state, ep_used = mae, {k: v.clone() for k, v in model.state_dict().items()}, ep + 1
         model.load_state_dict(best_state)
         info["epochs"] = ep_used
+        info["seed"] = seed
+        if save_dir:                                         # checkpoint OUTSIDE git (weights never committed)
+            ck = Path(save_dir) / f"{model_name}_s{seed}"
+            ck.mkdir(parents=True, exist_ok=True)
+            torch.save(model.state_dict(), ck / "model.pt")
+            (ck / "meta.json").write_text(json.dumps({"base_model": name, "seed": seed, "epochs": ep_used,
+                                                       "val_mae": best, "max_length": 64, "meta_features": 13,
+                                                       "data": "SIMULATED"}, indent=2))
+            info["checkpoint"] = str(ck)
         predict = pred_rows
         n_params = sum(p.numel() for p in model.parameters())
         disk = size_bytes(model)
@@ -265,13 +274,16 @@ def main():
     ap.add_argument("--model", required=True)
     ap.add_argument("--out", default="results/agent_f")
     ap.add_argument("--threads", type=int, default=2)
+    ap.add_argument("--seed", type=int, default=None, help="tinybert/distilbert: training seed (file gets _s<seed>)")
+    ap.add_argument("--save-dir", default=None, help="save the fine-tuned checkpoint here; keep it OUTSIDE git")
     a = ap.parse_args()
     torch.set_num_threads(a.threads)
     os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
-    res = run(a.model)
+    res = run(a.model, seed=a.seed or 0, save_dir=a.save_dir)
+    tag = a.model if a.seed is None else f"{a.model}_s{a.seed}"
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    (out / f"{a.model}.json").write_text(json.dumps(res, indent=2))
+    (out / f"{tag}.json").write_text(json.dumps(res, indent=2))
     print(json.dumps({k: res[k] for k in ("model", "n_params", "disk_mb", "train_s", "latency_ms_p50", "peak_rss_mb")}
                      | {"test_mae": round(res["test"]["mae"], 4), "test_f1": round(res["test"]["f1_macro_3class"], 4)}))
 

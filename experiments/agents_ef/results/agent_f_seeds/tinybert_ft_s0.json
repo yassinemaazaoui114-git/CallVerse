@@ -1,0 +1,30 @@
+{
+  "model": "tinybert_ft",
+  "n_params": 14371177,
+  "disk_mb": 57.513,
+  "train_s": 264.7,
+  "epochs": 2,
+  "seed": 0,
+  "checkpoint": "/tmp/claude-0/-home-user-CallVerse/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/checkpoints/agent_f/tinybert_ft_s0",
+  "val": {
+    "mae": 0.386395126581192,
+    "rmse": 0.5374906659126282,
+    "exact_acc": 0.6594444444444445,
+    "f1_macro_3class": 0.8127619522222057,
+    "spearman": 0.7234729145346179
+  },
+  "test": {
+    "mae": 0.3538353443145752,
+    "rmse": 0.46845147013664246,
+    "exact_acc": 0.7411111111111112,
+    "f1_macro_3class": 0.8635775497852087,
+    "spearman": 0.7156096759099808
+  },
+  "latency_ms_p50": 3.749,
+  "latency_ms_p95": 5.546,
+  "throughput_per_s_batch512": 1311.9,
+  "peak_rss_mb": 1014.9,
+  "device": "cpu",
+  "torch_threads": 4,
+  "data": "SIMULATED (agent_f/make_dataset.py)"
+}

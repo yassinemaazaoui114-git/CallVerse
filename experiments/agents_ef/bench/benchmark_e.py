@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from baselines.heuristics import BASELINES  # noqa: E402
 from bench.evaluation import KPI_KEYS, SPLITS, evaluate, summarize  # noqa: E402
-from env.callcenter_env import REWARD_PRESETS, CallCenterEnv, EnvConfig  # noqa: E402
+from env.callcenter_env import CallCenterEnv  # noqa: E402
 from rl.agents import make_agent  # noqa: E402
 
 HEADLINE = ["ret", "sla_pct", "urgent_sla_pct", "abandon_pct", "mean_wait_min", "p95_wait_min", "sim_csat", "cost",
@@ -36,8 +36,9 @@ def load_run(run_dir: Path):
     return info, agent
 
 
-def score(policy, preset):
-    env = CallCenterEnv(EnvConfig(**REWARD_PRESETS[preset]), scenarios=SPLITS["test"]["scenarios"])
+def score(policy, preset, calibration=None):
+    from real_data.calibration import env_config
+    env = CallCenterEnv(env_config(preset, calibration), scenarios=SPLITS["test"]["scenarios"])
     times = []
     rows = evaluate(policy, "test", env, decision_times=times)
     return rows, float(np.median(times) * 1e3), float(np.percentile(times, 95) * 1e3)
@@ -49,6 +50,7 @@ def main():
     ap.add_argument("--out", default="results/agent_e")
     ap.add_argument("--preset", default="balanced")
     ap.add_argument("--filter", default="", help="only runs whose folder contains this text")
+    ap.add_argument("--calibration", default=None, help="score on the real-data-calibrated simulator")
     a = ap.parse_args()
     torch.set_num_threads(1)
     out = Path(a.out)
@@ -57,7 +59,7 @@ def main():
 
     for name, P in BASELINES.items():
         p = P()
-        rows, lat50, lat95 = score(lambda env, obs, mask: p.act(env, obs, mask), a.preset)
+        rows, lat50, lat95 = score(lambda env, obs, mask: p.act(env, obs, mask), a.preset, a.calibration)
         per_policy[name].append({"rows": rows, "lat50": lat50, "lat95": lat95, "n_params": 0, "disk_kb": 0,
                                  "train_s": 0, "seed": 0})
 
@@ -68,7 +70,7 @@ def main():
         if info["preset"] != a.preset:
             continue
         key = f"{info['algo']}_h{'x'.join(map(str, info['hidden']))}" + (run_dir.name.split(f"_s{info['seed']}")[-1])
-        rows, lat50, lat95 = score(lambda env, obs, mask: agent.act(obs, mask, explore=False), a.preset)
+        rows, lat50, lat95 = score(lambda env, obs, mask: agent.act(obs, mask, explore=False), a.preset, a.calibration)
         per_policy[key].append({"rows": rows, "lat50": lat50, "lat95": lat95, "n_params": info["n_params"],
                                 "disk_kb": round((run_dir / "best.pt").stat().st_size / 1024, 1),
                                 "train_s": info["train_wall_s"], "seed": info["seed"]})

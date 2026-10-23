@@ -1,0 +1,13 @@
+{
+  "_note": "ASSUMPTION to review with the Brain/Yassine: which real intent goes to which Agent E queue. Keys = intent labels of the real dataset (edit to match). Intake reasons from callverse/intake are used as the default keys.",
+  "order_status": "A_status",
+  "late_delivery": "A_status",
+  "refund_request": "B_refund",
+  "return_item": "B_refund",
+  "damaged_item": "C_urgent",
+  "complaint": "C_urgent",
+  "availability": "D_availability",
+  "product_question": "D_availability",
+  "other": "D_availability",
+  "_default": "D_availability"
+}

@@ -20,3 +20,4 @@ __pycache__/
 # research (experiments/agents_ef): regenerable data and model checkpoints stay local; logs stay
 experiments/agents_ef/results/agent_f_data/*.jsonl
 experiments/agents_ef/results/**/*.pt
+experiments/agents_ef/results/real_data/

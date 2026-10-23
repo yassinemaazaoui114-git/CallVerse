@@ -1,0 +1,18 @@
+Loading weights:   0%|          | 0/71 [00:00<?, ?it/s]Loading weights: 100%|██████████| 71/71 [00:00<00:00, 12624.34it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: huawei-noah/TinyBERT_General_4L_312D
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+fit_denses.{0, 1, 2, 3, 4}.bias            | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.decoder.weight             | UNEXPECTED |  | 
+fit_denses.{0, 1, 2, 3, 4}.weight          | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+{"model": "tinybert_ft", "n_params": 14371177, "disk_mb": 57.513, "train_s": 264.7, "latency_ms_p50": 3.749, "peak_rss_mb": 1014.9, "test_mae": 0.3538, "test_f1": 0.8636}

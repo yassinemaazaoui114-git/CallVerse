@@ -298,8 +298,12 @@ Bigger is not better here. 128×128 is less stable across seeds.
 The VRAM columns are empty: there is no GPU here (NOT VERIFIED). The same command on the RTX 4050 fills them.
 
 **Caveats**
-- One seed per model; seed variance NOT VERIFIED.
-- Fine-tuned weights were **not saved**, to keep model weights out of git. Re-run to reproduce.
+- TinyBERT update (2026-10-23): re-trained with **3 seeds**; see section 13.
+  - TEST MAE 0.373 ± 0.014, F1 0.835 ± 0.022.
+  - The single-seed 0.346 above was a favourable seed.
+  - The ranking does not change.
+- The other F models still have one seed each.
+- The TinyBERT checkpoints are saved **outside git** (section 13).
 
 ---
 
@@ -359,7 +363,7 @@ The VRAM columns are empty: there is no GPU here (NOT VERIFIED). The same comman
    - Runner-up: plain DQN, which is nearly identical and slightly faster.
    - **Keep the Forecast heuristic** as a fallback and as a safety reference: it is within 0.6 return and needs no training.
 2. **Best Agent F: TinyBERT-4L fine-tuned, 14.4M parameters** (TRAINED, BENCHMARKED, simulated data only).
-   - TEST MAE 0.35, F1 0.85.
+   - TEST MAE 0.373 ± 0.014 and F1 0.835 ± 0.022 (3 seeds).
    - 5 ms per prediction on CPU, 58 MB.
    - Beat DistilBERT (66M, MAE 0.405) at a fraction of the size.
    - Cheap option if a transformer is not wanted: TF-IDF + Ridge (MAE 0.64, under 1 ms, 0.2 MB).
@@ -388,8 +392,8 @@ The VRAM columns are empty: there is no GPU here (NOT VERIFIED). The same comman
 
 **Measurement**
 - No GPU measurements; CPU timings come from a shared 4-core sandbox.
-- Agent F uses one seed per model.
-- Fine-tuned F weights are not saved.
+- Agent F: TinyBERT has 3 seeds; the other F models have 1.
+- F checkpoints were saved outside git, in the sandbox. That folder is temporary; re-run locally to keep one.
 
 **Scope and process**
 - E and F are outside the prototype scope in CLAUDE.md. No task file exists for them, so this is research only.
@@ -406,7 +410,8 @@ The VRAM columns are empty: there is no GPU here (NOT VERIFIED). The same comman
    - arrival logs, to fit the simulator rates;
    - labelled satisfaction, for F.
 4. Run `bench/measure_local.py` on the RTX 4050 (VRAM, latency) and fill section 5/7 GPU columns.
-5. Agent F: 3 seeds per model; save the chosen TinyBERT checkpoint outside git.
+5. Agent F: 3 seeds for the other F models. Done for TinyBERT.
+6. Real-data validation: blocked on data access (section 13).
 
 ---
 
@@ -459,3 +464,97 @@ python -m agent_f.benchmark --model tinybert_ft --threads 8     # CPU path; GPU 
   - They are untracked from the next commit on.
   - They stay in history, because rewriting pushed history is forbidden.
 - Re-running `rl.train` recreates them in about 3–4 minutes each.
+
+---
+
+## 13. Real CallVerse data validation (2026-10-23)
+
+### 13.1 Step 1: finding the real datasets. Result: **not available in this environment**
+
+You described a collection of about 144,794 customer-support messages and an authorised subset of 8,000 (5,600 EN / 2,400 FR). It was searched for in:
+
+| Place searched | What was found |
+|---|---|
+| `yassinemaazaoui114-git/CallVerse`, all 17 branches (file names and contents) | No dataset. The only message data is about 120 **AI-generated** messages: `callverse/intake/data/reason_examples.json` (60, build set), `tests/data/intake_test_messages.json` (20), `tests/data/live_typing_test_messages.json` (20), `tests/dev/live_dev_messages.json` (24). Each file says in its `_note` that it is AI-generated. |
+| Google Drive (connected account) | No CallVerse, ShopNova or support-message dataset. Only unrelated personal files. |
+| Your other GitHub repositories (`list_repos`) | No CallVerse dataset repository. DenTech and HireSignal are excluded by your rules. |
+| Sandbox disk, Claude project memory, earlier session transcripts | The number 144,794 appears only in your message. |
+
+**Consequences**
+- The real-data **results** asked for in steps 2–5 were **not produced**. No number in this report comes from real customer data.
+- The ~120 AI-generated messages were **not** used as "real" data: they are not authentic, and some are held-out test sets for other tasks.
+- A public dataset was **not** substituted. It would not be "our CallVerse data", and its permissions differ from your authorised subset.
+
+### 13.2 What was built so it runs as soon as the data is reachable (IMPLEMENTED, TESTED on a fake fixture)
+
+**`real_data/prepare_subset.py`**
+- Takes a file (CSV / JSONL / JSON, or Parquet if pyarrow is installed) and the column names.
+- Builds about 800 messages:
+  1. exact dedup on normalised text (order numbers masked);
+  2. stratified sampling by language × intent, with a floor of 6 per stratum;
+  3. a **group-aware** 60/20/20 split, so a conversation never crosses splits;
+  4. **removal** of val/test messages that near-duplicate a train message (TF-IDF char n-gram cosine ≥ 0.9);
+  5. a leakage report;
+  6. `profile.json`: aggregates only, no text — language / intent distribution, imbalance ratio, words per message, label presence;
+  7. `e_calibration.json`.
+- Satisfaction labels are used **only** from a genuine rating column (1–5 or 0–10). Intents and sentiment are never converted into satisfaction.
+
+**`real_data/calibration.py` and `--calibration` on `rl.train` and `bench.benchmark_e`**
+- Agent E's simulator takes the **queue mix** from real intents, through the editable `real_data/intent_to_queue.json`. That mapping is an **assumption to review**.
+- The total load stays the same.
+- The hourly arrival shape and service times are used **only if** timestamps or handle times exist. Otherwise the file says "NOT AVAILABLE" and the simulator keeps its assumptions.
+- Patience and abandonment are never inferred from messages.
+
+**`real_data/ANNOTATION_PROTOCOL.md`**
+- A 300-conversation human labelling plan (210 EN / 90 FR).
+- Two annotators, with a kappa target of at least 0.6.
+- Metrics broken down per language and per intent, compared with the human ceiling and with baselines.
+- A French caveat: TinyBERT-General is English-only. That is RESEARCHED; a multilingual MiniLM is the fallback to test.
+
+**Tests:** 6 tests in `tests/test_real_data.py` use a made-up EN/FR fixture with imbalanced intents and templated duplicates. They check:
+- no shared conversation or text across splits;
+- rare strata still present in TEST;
+- intents never become ratings;
+- real ratings are used when present;
+- the simulator changes only what the data supports.
+
+Research suite: **47 / 47 passed**.
+
+### 13.3 Agent F: 3 seeds and saved checkpoint (TRAINED, BENCHMARKED; simulated data)
+
+`python -m agent_f.benchmark --model tinybert_ft --seed S --save-dir <outside git>`, with S = 0, 1, 2 (`results/agent_f_seeds/`).
+
+| Seed | Epochs (best on VAL) | VAL MAE | TEST MAE | TEST F1 (3 classes) | Spearman | Training time |
+|---|---|---|---|---|---|---|
+| 0 | 2 | **0.386** | 0.354 | 0.864 | 0.716 | 265 s |
+| 1 | 3 | 0.410 | 0.385 | 0.829 | 0.701 | 217 s |
+| 2 | 1 | 0.471 | 0.381 | 0.811 | 0.713 | 216 s |
+| **Mean ± std** | | | **0.373 ± 0.014** | **0.835 ± 0.022** | 0.710 ± 0.006 | |
+
+**Best checkpoint**
+- Seed 0, chosen on **VAL**, not TEST.
+- Saved outside git as `model.pt` + `meta.json` (55 MB each).
+- Location: the session scratchpad `checkpoints/agent_f/tinybert_ft_s0`. That sandbox folder is **temporary**.
+- To keep a copy, re-run the same command on your laptop with `--save-dir D:\callverse_ckpt` or similar.
+- `*.pt` stays git-ignored.
+
+### 13.4 Steps 2–5 status
+
+| Step | Status | What unblocks it |
+|---|---|---|
+| 2. Stratified subset, 500–1,000 messages | Code ready; NOT VERIFIED on real data | The data file path and its column names |
+| 3. TinyBERT on authentic text | NOT VERIFIED | Data. If no rating column exists: run the annotation protocol first |
+| 4. Agent E with the real queue / language mix | Code ready (`--calibration`); NOT VERIFIED | Data, plus review of `intent_to_queue.json` |
+| 5. Synthetic vs real comparison | NOT VERIFIED | Steps 2–4 |
+
+**Commands once the data is reachable.** Keep `--out` outside the repository:
+
+```bash
+cd experiments/agents_ef
+python -m real_data.prepare_subset --input <path> --text <col> --intent <col> --lang <col> \
+    --conv-id <col> [--rating <col>] [--timestamp <col>] --n 800 --out $CALLVERSE_DATA_DIR/subset
+python -m rl.train --algo dueling_double_dqn --seed 0 --calibration $CALLVERSE_DATA_DIR/subset/e_calibration.json --tag _real
+python -m bench.benchmark_e --filter _real --calibration $CALLVERSE_DATA_DIR/subset/e_calibration.json --out results/agent_e_real
+```
+
+The F evaluation on real text needs a small loader for the subset format. It is not written yet, because the label column (or the annotation output) does not exist yet.
