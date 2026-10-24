@@ -30,6 +30,14 @@ models:
     # 3rd backup (T07): other provider, other rate limits. Checked on 2026-10-20 with one Agent B call:
     # gemini-3.5-flash 4.4 s; gemini-3.8-flash 47-76 s and gemini-flash-latest 53 s (too slow, 60 s timeout).
     - {provider: google,     model: "gemini-3.5-flash"}
+  # T13: LOCAL test models for the agents (daily tests: no API, no quota, repeatable). Test stand-in only, NOT M2.
+  # Used only with env CALLVERSE_AGENTS_SET=local (then every "agents" call, Intake LLM fallback included,
+  # uses this list). Force one with CALLVERSE_FORCE_AGENTS_MODEL=<model>. Without the env var: not used.
+  # The cv-* names are Ollama copies with a context of 8,192 tokens (Modelfile `PARAMETER num_ctx 8192`):
+  # one agent turn is ~6,000 tokens and Ollama's default context cuts the prompt silently.
+  agents_local:
+    - {provider: ollama,     model: "cv-qwen3.5-4b", temperature: 0, seed: 42, options: {reasoning_effort: none}}
+    - {provider: ollama,     model: "cv-phi4-mini",  temperature: 0, seed: 42}
   simulator: # M1, different family (used in task 4)
     # T08 (approved 2026-10-21): gemini-3.5-flash, the Flash model this key accepts that answers fast
     # (gemini-3.8-flash took 47-76 s per call in T07).
