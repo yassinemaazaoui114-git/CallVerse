@@ -75,6 +75,8 @@ stopped here as agreed with Yassine, so the one allowed held-out run is still un
 - **Held-out run: NOT RUN** (kept for one clean run).
   - T10b (2026-10-21 ~09:55): the run started and was **ABORTED, NOT SCORED** at message L16 (gpt-oss-120b
     daily limit). It does not count as the one run. Numbers still pending: see `tasks/T10b_report.md`.
+  - **Done in T12 (2026-10-24 10:19–10:25), the one official run:** 20/20 passed · crashes 0 · leaks 0 ·
+    wrong writes 0 · avg 16.4 s · max 51.3 s. Pass rule (0 · 0 · 0 · ≥ 18/20) met. Details: `tasks/T12_report.md`.
 
 ## 4. Problems
 - **Daily quotas are the demo's biggest risk.** The traces show 429 "tokens per day":
