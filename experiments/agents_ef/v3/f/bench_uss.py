@@ -271,6 +271,10 @@ def main(argv=None):
     ap.add_argument("--max-len", type=int, default=256)
     ap.add_argument("--layers", type=int, default=0, help="keep only the first N transformer layers (0 = all)")
     ap.add_argument("--threads", type=int, default=2)
+    ap.add_argument("--tail-tokens", type=int, default=0,
+                    help="diagnostic for classic models: keep only about the last N e5 tokens of each dialogue "
+                         "(what a left-truncated transformer sees), using chars/token measured on VAL: "
+                         "EN 3.97, ZH 1.39; 0 = full text")
     ap.add_argument("--train-frac", type=float, default=0,
                     help="CPU budget: keep this fraction of the TRAIN dialogues of every sub-dataset (seed 13); 0 = all")
     ap.add_argument("--train-langs", nargs="*", default=None, help="train AND evaluate on these languages only")
@@ -282,7 +286,8 @@ def main(argv=None):
     torch.set_num_threads(a.threads)
     os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
     a.tag = a.model + (f"_L{a.layers}" if a.layers else "") + ("_" + "".join(a.train_langs) if a.train_langs else "") \
-        + (f"_frac{a.train_frac:g}" if a.train_frac else "") + (f"_len{a.max_len}" if a.model in FT else "")
+        + (f"_frac{a.train_frac:g}" if a.train_frac else "") \
+        + (f"_tail{a.tail_tokens}tok" if a.tail_tokens else "") + (f"_len{a.max_len}" if a.model in FT else "")
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     if (out / f"{a.tag}.json").exists():
@@ -291,6 +296,10 @@ def main(argv=None):
     tr, va, te = (load(a.data, s, a.train_langs) for s in ("train", "val", "test"))
     if a.train_frac:
         tr = subsample(tr, a.train_frac)
+    if a.tail_tokens:
+        cpt = {"en": 3.97, "zh": 1.39}          # e5 tokenizer, measured on VAL (2026-10-25)
+        cut = lambda r: {**r, "text": r["text"][-int(a.tail_tokens * cpt[r["lang"]]):]}
+        tr, va, te = ([cut(r) for r in rows] for rows in (tr, va, te))
     runs = []
     for seed in (a.seeds if a.model in FT else [0]):
         t0 = time.perf_counter()

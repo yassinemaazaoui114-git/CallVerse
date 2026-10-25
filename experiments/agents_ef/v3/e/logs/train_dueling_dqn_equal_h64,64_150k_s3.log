@@ -1,0 +1,4 @@
+/home/user/CallVerse-research/experiments/agents_ef/rl/agents.py:162: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  self.losses.append(float(loss))
+{"run_id": "dueling_dqn_equal_h64x64_150k_s3", "status": "done", "best_val_return": -183.10082065035976, "train_wall_s": 518.7, "n_params": 8146}

@@ -74,12 +74,21 @@ def main(argv=None):
                            "file_mb": round((Path(a.ckpt) / "model_int8.pt").stat().st_size / 1e6, 1)
                            if (Path(a.ckpt) / "model_int8.pt").exists() else None,
                            "note": "nn.Linear weights int8; embeddings stay fp32", **measure(int8, te)}
+    # int8 can shift every prediction by a constant. Re-centre with ONE offset fitted on VAL (never TEST):
+    # offset = mean(VAL label - int8 VAL prediction).
+    if (Path(a.data) / "val.jsonl").exists():
+        va = load(a.data, "val", a.langs)
+        off = float(np.mean([r["rating"] for r in va]) - np.mean(int8.scores([r["text"] for r in va])))
+        pt = np.clip(np.array(res["int8_dynamic"]["test_pred"]) + off, 1, 5)
+        res["int8_dynamic_val_recentred"] = {"offset_from_val": round(off, 4), "test": grouped(te, pt),
+                                             "test_pred": [round(float(x), 4) for x in pt]}
     d = np.abs(np.array(res["fp32"]["test_pred"]) - np.array(res["int8_dynamic"]["test_pred"]))
     res["fp32_vs_int8_abs_pred_diff"] = {"mean": float(d.mean()), "max": float(d.max())}
     Path(a.out).write_text(json.dumps(res, indent=1))
-    for k in ("fp32", "int8_dynamic"):
-        print(k, res[k]["state_dict_mb"], "MB", res[k]["latency_ms_cpu_batch1"], "MAE",
-              round(res[k]["test"]["all"]["mae"], 4))
+    for k in ("fp32", "int8_dynamic", "int8_dynamic_val_recentred"):
+        if k in res:
+            print(k, res[k].get("state_dict_mb"), "MB", res[k].get("latency_ms_cpu_batch1"), "MAE",
+                  round(res[k]["test"]["all"]["mae"], 4))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,41 @@
+{
+  "run_id": "dueling_dqn_equal_h64x64_150k_s2",
+  "algo": "dueling_dqn",
+  "seed": 2,
+  "steps_budget": 150000,
+  "hidden": [
+    64,
+    64
+  ],
+  "weights": "equal",
+  "reward": {
+    "w_sla": 1.0,
+    "w_ab": 1.0,
+    "w_cost": 1.0,
+    "w_csat_synthetic": 0.0
+  },
+  "train_families": [
+    "normal",
+    "morning_peak",
+    "two_peak",
+    "tracking_spike",
+    "volatile",
+    "slowdown",
+    "failure",
+    "high_priority_surge"
+  ],
+  "val_manifest_days": 48,
+  "status": "done",
+  "started": "2026-10-25T16:01:02",
+  "n_params": 8146,
+  "code_revision": "76d8968",
+  "torch": "2.14.1+cpu",
+  "python": "3.13.16",
+  "hardware": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "ended": "2026-10-25T16:10:21",
+  "steps": 150048,
+  "episodes": 1563,
+  "best_val_return": -183.44194895719886,
+  "train_wall_s": 558.5,
+  "peak_rss_mb": 345.5
+}

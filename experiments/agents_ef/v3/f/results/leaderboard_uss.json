@@ -40,6 +40,41 @@
   },
   {
    "group": "all",
+   "model": "e5small_trim_ft_L6_frac0.5_len128",
+   "train_langs": "all",
+   "train_n": 2370,
+   "seeds": 3,
+   "n_params": 17448705,
+   "val_mae": 0.3987684489808787,
+   "test_mae": 0.402701147783251,
+   "test_mae_std": 0.006565943482908444,
+   "test_rmse": 0.5289502493231847,
+   "test_rmse_std": 0.014217174100538216,
+   "test_qwk": 0.379372120397986,
+   "test_qwk_std": 0.00469575859013549,
+   "test_spearman": 0.566821756069858,
+   "test_spearman_std": 0.016160747555524744,
+   "test_exact_acc": 0.6883202099737532,
+   "test_exact_acc_std": 0.004426095001060373,
+   "test_within1_acc": 0.9685039370078741,
+   "test_within1_acc_std": 0.0016072767341097393,
+   "test_f1_macro_3class": 0.4879632212983401,
+   "test_f1_macro_3class_std": 0.0034517553840467253,
+   "disk_mb_fp32": 71.8,
+   "latency_p50_ms_bench": 36.88,
+   "latency_p95_ms_bench": 53.65,
+   "latency_p50_ms_quiet": null,
+   "latency_p95_ms_quiet": null,
+   "train_s_best_seed": 907.2,
+   "peak_rss_mb": 2973.4,
+   "best_epoch": 3,
+   "max_len": 128,
+   "layers": 6,
+   "source": "results/uss/e5small_trim_ft_L6_frac0.5_len128.json",
+   "rank_in_group_by_val": 2
+  },
+  {
+   "group": "all",
    "model": "tfidf_logreg",
    "train_langs": "all",
    "train_n": 4740,
@@ -71,7 +106,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_logreg.json",
-   "rank_in_group_by_val": 2
+   "rank_in_group_by_val": 3
   },
   {
    "group": "all",
@@ -106,7 +141,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/hgb_features.json",
-   "rank_in_group_by_val": 3
+   "rank_in_group_by_val": 4
   },
   {
    "group": "all",
@@ -141,7 +176,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge_frac0.5.json",
-   "rank_in_group_by_val": 4
+   "rank_in_group_by_val": 5
   },
   {
    "group": "all",
@@ -176,7 +211,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean_frac0.5.json",
-   "rank_in_group_by_val": 5
+   "rank_in_group_by_val": 6
   },
   {
    "group": "all",
@@ -211,7 +246,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean.json",
-   "rank_in_group_by_val": 6
+   "rank_in_group_by_val": 7
   },
   {
    "group": "all",
@@ -246,7 +281,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/mean.json",
-   "rank_in_group_by_val": 7
+   "rank_in_group_by_val": 8
   },
   {
    "group": "lang:en",
@@ -287,6 +322,41 @@
   },
   {
    "group": "lang:en",
+   "model": "e5small_trim_ft_L6_frac0.5_len128",
+   "train_langs": "all",
+   "train_n": 2370,
+   "seeds": 3,
+   "n_params": 17448705,
+   "val_mae": 0.30620812280846654,
+   "test_mae": 0.29804911520619876,
+   "test_mae_std": 0.0021306125241669204,
+   "test_rmse": 0.37937931985138323,
+   "test_rmse_std": 0.0019470263818164772,
+   "test_qwk": 0.00472343800720217,
+   "test_qwk_std": 0.01439901291330394,
+   "test_spearman": 0.390577711091554,
+   "test_spearman_std": 0.010527548573354435,
+   "test_exact_acc": 0.713015873015873,
+   "test_exact_acc_std": 0.0008979133729353267,
+   "test_within1_acc": 0.9942857142857143,
+   "test_within1_acc_std": 0.0,
+   "test_f1_macro_3class": 0.2836725124862916,
+   "test_f1_macro_3class_std": 0.008948173438694125,
+   "disk_mb_fp32": 71.8,
+   "latency_p50_ms_bench": 36.88,
+   "latency_p95_ms_bench": 53.65,
+   "latency_p50_ms_quiet": null,
+   "latency_p95_ms_quiet": null,
+   "train_s_best_seed": 907.2,
+   "peak_rss_mb": 2973.4,
+   "best_epoch": 3,
+   "max_len": 128,
+   "layers": 6,
+   "source": "results/uss/e5small_trim_ft_L6_frac0.5_len128.json",
+   "rank_in_group_by_val": 2
+  },
+  {
+   "group": "lang:en",
    "model": "tfidf_ridge",
    "train_langs": "all",
    "train_n": 4740,
@@ -318,7 +388,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge.json",
-   "rank_in_group_by_val": 2
+   "rank_in_group_by_val": 3
   },
   {
    "group": "lang:en",
@@ -355,7 +425,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge_en.json",
-   "rank_in_group_by_val": 3
+   "rank_in_group_by_val": 4
   },
   {
    "group": "lang:en",
@@ -390,7 +460,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/hgb_features.json",
-   "rank_in_group_by_val": 4
+   "rank_in_group_by_val": 5
   },
   {
    "group": "lang:en",
@@ -425,7 +495,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_logreg.json",
-   "rank_in_group_by_val": 5
+   "rank_in_group_by_val": 6
   },
   {
    "group": "lang:en",
@@ -460,7 +530,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge_frac0.5.json",
-   "rank_in_group_by_val": 6
+   "rank_in_group_by_val": 7
   },
   {
    "group": "lang:en",
@@ -495,7 +565,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean_frac0.5.json",
-   "rank_in_group_by_val": 7
+   "rank_in_group_by_val": 8
   },
   {
    "group": "lang:en",
@@ -530,7 +600,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean.json",
-   "rank_in_group_by_val": 8
+   "rank_in_group_by_val": 9
   },
   {
    "group": "lang:en",
@@ -565,7 +635,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/mean.json",
-   "rank_in_group_by_val": 9
+   "rank_in_group_by_val": 10
   },
   {
    "group": "lang:zh",
@@ -709,6 +779,41 @@
   },
   {
    "group": "lang:zh",
+   "model": "e5small_trim_ft_L6_frac0.5_len128",
+   "train_langs": "all",
+   "train_n": 2370,
+   "seeds": 3,
+   "n_params": 17448705,
+   "val_mae": 0.49773824784140097,
+   "test_mae": 0.5145999606202214,
+   "test_mae_std": 0.011319377130585031,
+   "test_rmse": 0.6518816771101033,
+   "test_rmse_std": 0.02281101484234381,
+   "test_qwk": 0.04796123525298224,
+   "test_qwk_std": 0.04004520868929063,
+   "test_spearman": 0.29396318167349916,
+   "test_spearman_std": 0.07177564001401833,
+   "test_exact_acc": 0.6619144602851323,
+   "test_exact_acc_std": 0.008640816063379379,
+   "test_within1_acc": 0.9409368635437882,
+   "test_within1_acc_std": 0.0033258516534734332,
+   "test_f1_macro_3class": 0.31910265073130367,
+   "test_f1_macro_3class_std": 0.034764251047364476,
+   "disk_mb_fp32": 71.8,
+   "latency_p50_ms_bench": 36.88,
+   "latency_p95_ms_bench": 53.65,
+   "latency_p50_ms_quiet": null,
+   "latency_p95_ms_quiet": null,
+   "train_s_best_seed": 907.2,
+   "peak_rss_mb": 2973.4,
+   "best_epoch": 3,
+   "max_len": 128,
+   "layers": 6,
+   "source": "results/uss/e5small_trim_ft_L6_frac0.5_len128.json",
+   "rank_in_group_by_val": 5
+  },
+  {
+   "group": "lang:zh",
    "model": "group_mean_frac0.5",
    "train_langs": "all",
    "train_n": 2370,
@@ -740,7 +845,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean_frac0.5.json",
-   "rank_in_group_by_val": 5
+   "rank_in_group_by_val": 6
   },
   {
    "group": "lang:zh",
@@ -775,7 +880,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean.json",
-   "rank_in_group_by_val": 6
+   "rank_in_group_by_val": 7
   },
   {
    "group": "lang:zh",
@@ -810,7 +915,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/mean.json",
-   "rank_in_group_by_val": 7
+   "rank_in_group_by_val": 8
   },
   {
    "group": "sub:CCPE",
@@ -993,6 +1098,41 @@
   },
   {
    "group": "sub:CCPE",
+   "model": "e5small_trim_ft_L6_frac0.5_len128",
+   "train_langs": "all",
+   "train_n": 2370,
+   "seeds": 3,
+   "n_params": 17448705,
+   "val_mae": 0.28995958095126684,
+   "test_mae": 0.2592437349955241,
+   "test_mae_std": 0.0017410083403558544,
+   "test_rmse": 0.33305795124863763,
+   "test_rmse_std": 0.0027597052660572672,
+   "test_qwk": 0.0,
+   "test_qwk_std": 0.0,
+   "test_spearman": 0.3006167562998469,
+   "test_spearman_std": 0.04177340685980539,
+   "test_exact_acc": 0.8266666666666667,
+   "test_exact_acc_std": 0.0,
+   "test_within1_acc": 1.0,
+   "test_within1_acc_std": 0.0,
+   "test_f1_macro_3class": 0.30170316301703165,
+   "test_f1_macro_3class_std": 0.0,
+   "disk_mb_fp32": 71.8,
+   "latency_p50_ms_bench": 36.88,
+   "latency_p95_ms_bench": 53.65,
+   "latency_p50_ms_quiet": null,
+   "latency_p95_ms_quiet": null,
+   "train_s_best_seed": 907.2,
+   "peak_rss_mb": 2973.4,
+   "best_epoch": 3,
+   "max_len": 128,
+   "layers": 6,
+   "source": "results/uss/e5small_trim_ft_L6_frac0.5_len128.json",
+   "rank_in_group_by_val": 6
+  },
+  {
+   "group": "sub:CCPE",
    "model": "tfidf_ridge_frac0.5",
    "train_langs": "all",
    "train_n": 2370,
@@ -1024,7 +1164,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge_frac0.5.json",
-   "rank_in_group_by_val": 6
+   "rank_in_group_by_val": 7
   },
   {
    "group": "sub:CCPE",
@@ -1059,7 +1199,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_logreg.json",
-   "rank_in_group_by_val": 7
+   "rank_in_group_by_val": 8
   },
   {
    "group": "sub:CCPE",
@@ -1094,7 +1234,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/hgb_features.json",
-   "rank_in_group_by_val": 8
+   "rank_in_group_by_val": 9
   },
   {
    "group": "sub:CCPE",
@@ -1129,7 +1269,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/mean.json",
-   "rank_in_group_by_val": 9
+   "rank_in_group_by_val": 10
   },
   {
    "group": "sub:JDDC",
@@ -1273,6 +1413,41 @@
   },
   {
    "group": "sub:JDDC",
+   "model": "e5small_trim_ft_L6_frac0.5_len128",
+   "train_langs": "all",
+   "train_n": 2370,
+   "seeds": 3,
+   "n_params": 17448705,
+   "val_mae": 0.49773824784140097,
+   "test_mae": 0.5145999606202214,
+   "test_mae_std": 0.011319377130585031,
+   "test_rmse": 0.6518816771101033,
+   "test_rmse_std": 0.02281101484234381,
+   "test_qwk": 0.04796123525298224,
+   "test_qwk_std": 0.04004520868929063,
+   "test_spearman": 0.29396318167349916,
+   "test_spearman_std": 0.07177564001401833,
+   "test_exact_acc": 0.6619144602851323,
+   "test_exact_acc_std": 0.008640816063379379,
+   "test_within1_acc": 0.9409368635437882,
+   "test_within1_acc_std": 0.0033258516534734332,
+   "test_f1_macro_3class": 0.31910265073130367,
+   "test_f1_macro_3class_std": 0.034764251047364476,
+   "disk_mb_fp32": 71.8,
+   "latency_p50_ms_bench": 36.88,
+   "latency_p95_ms_bench": 53.65,
+   "latency_p50_ms_quiet": null,
+   "latency_p95_ms_quiet": null,
+   "train_s_best_seed": 907.2,
+   "peak_rss_mb": 2973.4,
+   "best_epoch": 3,
+   "max_len": 128,
+   "layers": 6,
+   "source": "results/uss/e5small_trim_ft_L6_frac0.5_len128.json",
+   "rank_in_group_by_val": 5
+  },
+  {
+   "group": "sub:JDDC",
    "model": "group_mean_frac0.5",
    "train_langs": "all",
    "train_n": 2370,
@@ -1304,7 +1479,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean_frac0.5.json",
-   "rank_in_group_by_val": 5
+   "rank_in_group_by_val": 6
   },
   {
    "group": "sub:JDDC",
@@ -1339,7 +1514,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean.json",
-   "rank_in_group_by_val": 6
+   "rank_in_group_by_val": 7
   },
   {
    "group": "sub:JDDC",
@@ -1374,7 +1549,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/mean.json",
-   "rank_in_group_by_val": 7
+   "rank_in_group_by_val": 8
   },
   {
    "group": "sub:MWOZ",
@@ -1487,6 +1662,41 @@
   },
   {
    "group": "sub:MWOZ",
+   "model": "e5small_trim_ft_L6_frac0.5_len128",
+   "train_langs": "all",
+   "train_n": 2370,
+   "seeds": 3,
+   "n_params": 17448705,
+   "val_mae": 0.3029534945664583,
+   "test_mae": 0.2735714775721232,
+   "test_mae_std": 0.0009818058023796678,
+   "test_rmse": 0.33257134874536737,
+   "test_rmse_std": 0.0020424489379126565,
+   "test_qwk": 0.0,
+   "test_qwk_std": 0.0,
+   "test_spearman": 0.3643311373591069,
+   "test_spearman_std": 0.024132075015889803,
+   "test_exact_acc": 0.7600000000000001,
+   "test_exact_acc_std": 1.1102230246251565e-16,
+   "test_within1_acc": 1.0,
+   "test_within1_acc_std": 0.0,
+   "test_f1_macro_3class": 0.2878787878787879,
+   "test_f1_macro_3class_std": 0.0,
+   "disk_mb_fp32": 71.8,
+   "latency_p50_ms_bench": 36.88,
+   "latency_p95_ms_bench": 53.65,
+   "latency_p50_ms_quiet": null,
+   "latency_p95_ms_quiet": null,
+   "train_s_best_seed": 907.2,
+   "peak_rss_mb": 2973.4,
+   "best_epoch": 3,
+   "max_len": 128,
+   "layers": 6,
+   "source": "results/uss/e5small_trim_ft_L6_frac0.5_len128.json",
+   "rank_in_group_by_val": 4
+  },
+  {
+   "group": "sub:MWOZ",
    "model": "tfidf_ridge",
    "train_langs": "all",
    "train_n": 4740,
@@ -1518,7 +1728,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge.json",
-   "rank_in_group_by_val": 4
+   "rank_in_group_by_val": 5
   },
   {
    "group": "sub:MWOZ",
@@ -1553,7 +1763,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge_frac0.5.json",
-   "rank_in_group_by_val": 5
+   "rank_in_group_by_val": 6
   },
   {
    "group": "sub:MWOZ",
@@ -1588,7 +1798,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_logreg.json",
-   "rank_in_group_by_val": 6
+   "rank_in_group_by_val": 7
   },
   {
    "group": "sub:MWOZ",
@@ -1623,7 +1833,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean_frac0.5.json",
-   "rank_in_group_by_val": 7
+   "rank_in_group_by_val": 8
   },
   {
    "group": "sub:MWOZ",
@@ -1658,7 +1868,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean.json",
-   "rank_in_group_by_val": 8
+   "rank_in_group_by_val": 9
   },
   {
    "group": "sub:MWOZ",
@@ -1693,7 +1903,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/mean.json",
-   "rank_in_group_by_val": 9
+   "rank_in_group_by_val": 10
   },
   {
    "group": "sub:ReDial",
@@ -1804,6 +2014,41 @@
   },
   {
    "group": "sub:ReDial",
+   "model": "e5small_trim_ft_L6_frac0.5_len128",
+   "train_langs": "all",
+   "train_n": 2370,
+   "seeds": 3,
+   "n_params": 17448705,
+   "val_mae": 0.35311325500629565,
+   "test_mae": 0.34045721244812016,
+   "test_mae_std": 0.0017541856440079157,
+   "test_rmse": 0.4488202331125399,
+   "test_rmse_std": 0.0021541998387733436,
+   "test_qwk": -0.026034467873482587,
+   "test_qwk_std": 0.011907132686622081,
+   "test_spearman": 0.30512239589246315,
+   "test_spearman_std": 0.003084816887586774,
+   "test_exact_acc": 0.6733333333333333,
+   "test_exact_acc_std": 0.009428090415820642,
+   "test_within1_acc": 0.98,
+   "test_within1_acc_std": 0.0,
+   "test_f1_macro_3class": 0.2682475935487984,
+   "test_f1_macro_3class_std": 0.0022537986268456114,
+   "disk_mb_fp32": 71.8,
+   "latency_p50_ms_bench": 36.88,
+   "latency_p95_ms_bench": 53.65,
+   "latency_p50_ms_quiet": null,
+   "latency_p95_ms_quiet": null,
+   "train_s_best_seed": 907.2,
+   "peak_rss_mb": 2973.4,
+   "best_epoch": 3,
+   "max_len": 128,
+   "layers": 6,
+   "source": "results/uss/e5small_trim_ft_L6_frac0.5_len128.json",
+   "rank_in_group_by_val": 4
+  },
+  {
+   "group": "sub:ReDial",
    "model": "tfidf_ridge_en",
    "train_langs": [
     "en"
@@ -1837,7 +2082,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge_en.json",
-   "rank_in_group_by_val": 4
+   "rank_in_group_by_val": 5
   },
   {
    "group": "sub:ReDial",
@@ -1872,7 +2117,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_logreg.json",
-   "rank_in_group_by_val": 5
+   "rank_in_group_by_val": 6
   },
   {
    "group": "sub:ReDial",
@@ -1907,7 +2152,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge_frac0.5.json",
-   "rank_in_group_by_val": 6
+   "rank_in_group_by_val": 7
   },
   {
    "group": "sub:ReDial",
@@ -1942,7 +2187,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean_frac0.5.json",
-   "rank_in_group_by_val": 7
+   "rank_in_group_by_val": 8
   },
   {
    "group": "sub:ReDial",
@@ -1977,7 +2222,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean.json",
-   "rank_in_group_by_val": 8
+   "rank_in_group_by_val": 9
   },
   {
    "group": "sub:ReDial",
@@ -2012,7 +2257,42 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/mean.json",
-   "rank_in_group_by_val": 9
+   "rank_in_group_by_val": 10
+  },
+  {
+   "group": "sub:SGD",
+   "model": "e5small_trim_ft_L6_frac0.5_len128",
+   "train_langs": "all",
+   "train_n": 2370,
+   "seeds": 3,
+   "n_params": 17448705,
+   "val_mae": 0.27068188978124547,
+   "test_mae": 0.2995213457036902,
+   "test_mae_std": 0.007051541963286188,
+   "test_rmse": 0.36905223587375197,
+   "test_rmse_std": 0.006658174083318295,
+   "test_qwk": 0.032708032708032686,
+   "test_qwk_std": 0.04625614345424261,
+   "test_spearman": 0.40176328170133263,
+   "test_spearman_std": 0.027382032550605544,
+   "test_exact_acc": 0.648888888888889,
+   "test_exact_acc_std": 0.012570787221094153,
+   "test_within1_acc": 1.0,
+   "test_within1_acc_std": 0.0,
+   "test_f1_macro_3class": 0.2777576205514121,
+   "test_f1_macro_3class_std": 0.02488311439450612,
+   "disk_mb_fp32": 71.8,
+   "latency_p50_ms_bench": 36.88,
+   "latency_p95_ms_bench": 53.65,
+   "latency_p50_ms_quiet": null,
+   "latency_p95_ms_quiet": null,
+   "train_s_best_seed": 907.2,
+   "peak_rss_mb": 2973.4,
+   "best_epoch": 3,
+   "max_len": 128,
+   "layers": 6,
+   "source": "results/uss/e5small_trim_ft_L6_frac0.5_len128.json",
+   "rank_in_group_by_val": 1
   },
   {
    "group": "sub:SGD",
@@ -2049,7 +2329,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge_en.json",
-   "rank_in_group_by_val": 1
+   "rank_in_group_by_val": 2
   },
   {
    "group": "sub:SGD",
@@ -2084,7 +2364,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge.json",
-   "rank_in_group_by_val": 2
+   "rank_in_group_by_val": 3
   },
   {
    "group": "sub:SGD",
@@ -2121,7 +2401,7 @@
    "max_len": 128,
    "layers": 4,
    "source": "results/uss/tinybert_ft_en_frac0.5_len128.json",
-   "rank_in_group_by_val": 3
+   "rank_in_group_by_val": 4
   },
   {
    "group": "sub:SGD",
@@ -2156,7 +2436,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/hgb_features.json",
-   "rank_in_group_by_val": 4
+   "rank_in_group_by_val": 5
   },
   {
    "group": "sub:SGD",
@@ -2191,7 +2471,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_ridge_frac0.5.json",
-   "rank_in_group_by_val": 5
+   "rank_in_group_by_val": 6
   },
   {
    "group": "sub:SGD",
@@ -2226,7 +2506,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/tfidf_logreg.json",
-   "rank_in_group_by_val": 6
+   "rank_in_group_by_val": 7
   },
   {
    "group": "sub:SGD",
@@ -2261,7 +2541,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean.json",
-   "rank_in_group_by_val": 7
+   "rank_in_group_by_val": 8
   },
   {
    "group": "sub:SGD",
@@ -2296,7 +2576,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/group_mean_frac0.5.json",
-   "rank_in_group_by_val": 8
+   "rank_in_group_by_val": 9
   },
   {
    "group": "sub:SGD",
@@ -2331,7 +2611,7 @@
    "max_len": null,
    "layers": null,
    "source": "results/uss/mean.json",
-   "rank_in_group_by_val": 9
+   "rank_in_group_by_val": 10
   }
  ]
 }

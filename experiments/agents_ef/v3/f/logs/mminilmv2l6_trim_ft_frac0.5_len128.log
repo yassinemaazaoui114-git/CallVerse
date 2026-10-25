@@ -1,0 +1,39 @@
+[transformers] The tokenizer you are loading from 'nreimers/mMiniLMv2-L6-H384-distilled-from-XLMR-Large' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+Loading weights:   0%|          | 0/101 [00:00<?, ?it/s]Loading weights: 100%|██████████| 101/101 [00:00<00:00, 8596.45it/s]
+[transformers] [1mXLMRobertaModel LOAD REPORT[0m from: nreimers/mMiniLMv2-L6-H384-distilled-from-XLMR-Large
+Key                       | Status     | 
+--------------------------+------------+-
+lm_head.bias              | UNEXPECTED | 
+lm_head.dense.bias        | UNEXPECTED | 
+lm_head.layer_norm.weight | UNEXPECTED | 
+lm_head.dense.weight      | UNEXPECTED | 
+lm_head.layer_norm.bias   | UNEXPECTED | 
+pooler.dense.bias         | MISSING    | 
+pooler.dense.weight       | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (794 > 512). Running this sequence through the model will result in indexing errors
+  mminilmv2l6_trim_ft seed 0 epoch 1: VAL MAE 0.4266 (506.4 s)
+  mminilmv2l6_trim_ft seed 0 epoch 2: VAL MAE 0.4179 (329.3 s)
+  mminilmv2l6_trim_ft seed 0 epoch 3: VAL MAE 0.4100 (274.4 s)
+[transformers] The tokenizer you are loading from 'nreimers/mMiniLMv2-L6-H384-distilled-from-XLMR-Large' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+Loading weights:   0%|          | 0/101 [00:00<?, ?it/s]Loading weights: 100%|██████████| 101/101 [00:00<00:00, 9119.62it/s]
+[transformers] [1mXLMRobertaModel LOAD REPORT[0m from: nreimers/mMiniLMv2-L6-H384-distilled-from-XLMR-Large
+Key                       | Status     | 
+--------------------------+------------+-
+lm_head.bias              | UNEXPECTED | 
+lm_head.dense.bias        | UNEXPECTED | 
+lm_head.layer_norm.weight | UNEXPECTED | 
+lm_head.dense.weight      | UNEXPECTED | 
+lm_head.layer_norm.bias   | UNEXPECTED | 
+pooler.dense.bias         | MISSING    | 
+pooler.dense.weight       | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (794 > 512). Running this sequence through the model will result in indexing errors
+  mminilmv2l6_trim_ft seed 1 epoch 1: VAL MAE 0.4131 (267.3 s)
+  mminilmv2l6_trim_ft seed 1 epoch 2: VAL MAE 0.4075 (277.7 s)
