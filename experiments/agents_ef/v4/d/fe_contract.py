@@ -55,3 +55,12 @@ def aggregate(records: list[dict], step_min: int = 5) -> dict:
         cell["shortfall_sum"] = round(cell["shortfall_sum"] + (5 - min(max(s, 1), 5)) / 4, 6)
     out["reward"], out["kpi_only"] = dict(out["reward"]), dict(out["kpi_only"])
     return out
+
+
+def from_agent_f(out: dict, card: dict | None) -> dict:
+    """Agent F's process() output -> contract record (field names of v4/f/agent_f.py)."""
+    e = out.get("e_reward_eligible") or {}
+    return {"conversation_id": out.get("conversation_id"), "closed_at": out.get("closed_at"),
+            "main_reason": out.get("main_reason"), "predicted_satisfaction": out.get("predicted_satisfaction"),
+            "e_reward_eligible": e.get("eligible") is True, "eligibility_reasons": e.get("reasons") or [],
+            "validation_card": card}
