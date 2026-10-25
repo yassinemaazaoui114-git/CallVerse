@@ -1,43 +1,31 @@
 {
- "updated_utc": "2026-10-25T20:26Z",
+ "updated_utc": "2026-10-25T22:00Z",
+ "state": "COMPLETED (CPU scope)",
  "completed": [
-  "1 dataset discovery (USS verified; DCH-2 blocked by agreement; Amazon reused; Saif7800 synthetic-rejected; search done)",
-  "2 PROTOCOL.md",
-  "USS baselines: mean, group_mean, hgb_features, tfidf_ridge, tfidf_logreg",
-  "Amazon leaderboard re-used from v2 files",
-  "DATASETS.md, data_provenance.json",
-  "Amazon checkpoint re-score + int8 (results/amazon_rescore_e5small_trim_ft.json; SHA 6bae1f48 confirmed, MAE 0.6309)",
-  "scripts: f_predictor, quantize_f, latency_bench, error_analysis, make_leaderboard, make_figures, make_manifest, infer_example, RUN_AND_RESUME_F.md",
-  "tinybert_ft_en_frac0.5_len128 (3 seeds)",
-  "e5small_trim_ft_L6_frac0.5_len128 (3 seeds)",
-  "int8 quantization of e5small_trim_ft_L6_frac0.5_len128 (+ VAL re-centring) -> results/quant_*.json",
-  "truncation diagnostic: tfidf_ridge_tail128tok / tail256tok",
-  "noise floor (results/noise_floor.json)",
-  "mminilmv2l6_trim_ft_frac0.5_len128 (3 seeds; collapsed on ZH)",
-  "e5small_trim_ft_L6_frac0.5_len256 (3 seeds) = selected neural checkpoint",
-  "quant of selected (results/quant_e5small_trim_ft_L6_frac0.5_len256.json, model_int8.pt saved)",
-  "checkpoints_manifest.json",
-  "infer_example.py tested (fp32 + int8)",
-  "ERROR_ANALYSIS.md",
-  "F_RESULTS.md draft",
-  "figures (5 PNG)"
+  "1 dataset discovery + provenance (DATASETS.md, data_provenance.json)",
+  "2 PROTOCOL.md (+ deviations section)",
+  "3 USS benchmark: mean, group_mean, hgb_features, tfidf_ridge (+EN only, +50% TRAIN, +tail128/256 diagnostic), tfidf_logreg; fine-tuned x3 seeds: tinybert_ft_en_frac0.5_len128, e5small_trim_ft_L6_frac0.5_len128, e5small_trim_ft_L6_frac0.5_len256, e5small_trim_ft_frac0.5_len128 (12L), mminilmv2l6_trim_ft_frac0.5_len128",
+  "int8 dynamic quantization (2 USS checkpoints + validated Amazon checkpoint), VAL re-centring",
+  "latency_cpu.json (per-process, load avg 1.2-1.4)",
+  "noise floor",
+  "4 ERROR_ANALYSIS.md",
+  "5 figures (5 PNG)",
+  "6 leaderboard_uss.json/csv, leaderboard_amazon.json, F_RESULTS.md, checkpoints_manifest.json, RUN_AND_RESUME_F.md",
+  "7 infer_example.py (tested fp32 + int8)"
  ],
- "running": [
-  "run_queue2.sh: e5small_trim_ft_frac0.5_len128 (12 layers, 3 seeds) started 20:14Z, ETA ~3-4 h on shared CPU"
- ],
+ "running": [],
  "blocked": [
   "local CallVerse datasets (no access to user's PC)",
   "DialEval-2/DCH-2 (user agreement required)",
-  "GPU VRAM numbers (no GPU)"
+  "Kaggle datasets (login)",
+  "GPU VRAM/latency/fp16 (no GPU)"
  ],
- "todo": [
-  "add e5 12L row to F_RESULTS/leaderboard/figures when done",
-  "latency_bench.py (per-process latency/RAM) at the end"
+ "not_done_cpu_budget": [
+  "full-protocol fine-tuning (full TRAIN, 5 epochs, 256-512 tokens)",
+  "mminilm_trim_ft (L12) on USS",
+  "e5 12L at 256 tokens",
+  "5 seeds"
  ],
- "notes": [
-  "first attempt (256 tokens, full TRAIN, 5 epochs) stopped: >23 min without finishing epoch 1 of e5-small 12L on shared CPU",
-  "mminilm_trim_ft (L12) dropped from the CPU queue (v2: ~= e5-small on Amazon; same cost as e5 12L)",
-  "queue re-ordered after finding: 100% of TEST dialogues exceed 128 tokens; TF-IDF on last 128 tokens loses 0.018 MAE on JDDC"
- ],
- "selected_checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1"
+ "selected_checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1",
+ "kept_checkpoints_note": "best-by-VAL seed of every fine-tuned model kept in f_v3/ckpt (445 MB); none of them should be pruned while M7 uses them"
 }

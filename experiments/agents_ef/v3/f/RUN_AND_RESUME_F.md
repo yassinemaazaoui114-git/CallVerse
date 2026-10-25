@@ -54,6 +54,9 @@ for m in mean group_mean hgb_features tfidf_ridge tfidf_logreg; do
 $PY v3/f/bench_uss.py --data $FV3/data_uss --model tfidf_ridge --train-frac 0.5 --out v3/f/results/uss
 $PY v3/f/bench_uss.py --data $FV3/data_uss --model group_mean  --train-frac 0.5 --out v3/f/results/uss
 $PY v3/f/bench_uss.py --data $FV3/data_uss --model tfidf_ridge --train-langs en --out v3/f/results/uss
+for t in 128 256; do   # truncation diagnostic: TF-IDF on about the last t tokens only
+  $PY v3/f/bench_uss.py --data $FV3/data_uss --model tfidf_ridge --tail-tokens $t --out v3/f/results/uss; done
+$PY v3/f/noise_floor.py --data $FV3/data_uss --out v3/f/results/noise_floor.json
 ```
 
 ## 3. Fine-tuned models
@@ -65,7 +68,11 @@ Runs one job at a time in the background and keeps only the best seed's checkpoi
 ```bash
 setsid nohup bash v3/f/run_queue.sh > v3/f/logs/queue.log 2>&1 &
 tail -f v3/f/logs/queue.log
+# afterwards (or instead of its last job): L6 at 256 tokens and the 12-layer reference
+setsid nohup bash v3/f/run_queue2.sh 0 > v3/f/logs/queue2.log 2>&1 &
 ```
+
+Note: `run_queue.sh` still lists `e5small_trim_ft_frac0.5_len128` as its last job. In the sandbox run that job was taken over by `run_queue2.sh`; the result is the same file, so whichever queue runs second skips it.
 
 The CPU settings are 128 tokens, 3 epochs, 50% of TRAIN (stratified) and seeds 0 1 2. They were chosen only for the CPU budget.
 
@@ -85,7 +92,7 @@ python v3/f/prune_ckpt.py --result v3/f/results/uss_gpu/e5small_trim_ft_L6_len25
 
 ## 4. Quantization, latency, error analysis, figures, leaderboard
 
-`<BEST>` = the selected tag in `checkpoints_manifest.json`.
+`<BEST>` = the selected tag in `checkpoints_manifest.json` (`e5small_trim_ft_L6_frac0.5_len256`, seed 1).
 
 ```bash
 $PY v3/f/quantize_f.py --ckpt $FV3/ckpt/<BEST>_s<seed> --data $FV3/data_uss --out v3/f/results/quant_<BEST>.json --save-int8

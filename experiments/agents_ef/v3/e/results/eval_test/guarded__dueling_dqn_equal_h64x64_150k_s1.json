@@ -1,0 +1,11 @@
+{
+  "n_params": 8146,
+  "ckpt_kb": 34.9,
+  "guard_forecast_z": 0.25,
+  "policy": "guarded:dueling_dqn_equal_h64x64_150k_s1",
+  "split": "test",
+  "n_days": 650,
+  "eval_s": 125.6,
+  "decision_ms_p50": 0.3294,
+  "decision_ms_p95": 0.7623
+}

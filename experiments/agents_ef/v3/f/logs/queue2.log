@@ -7,3 +7,8 @@ deleted non-best /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/s
 deleted non-best /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s2
 kept /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1
 === 2026-10-25T20:14:20Z start e5small_trim_ft_frac0.5_len128
+=== 2026-10-25T21:56:24Z end e5small_trim_ft_frac0.5_len128 (exit 0)
+deleted non-best /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_frac0.5_len128_s1
+deleted non-best /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_frac0.5_len128_s2
+kept /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_frac0.5_len128_s0
+=== 2026-10-25T21:56:24Z queue2 done

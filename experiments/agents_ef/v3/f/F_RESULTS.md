@@ -44,85 +44,84 @@ All numbers come from files in `v3/f/results/`. CPU only, 2 threads, shared with
 
 Source: `results/leaderboard_uss.csv` / `.json`. Rows are ranked by VAL MAE within each group. TEST is shown as mean ± std over seeds.
 
-### All (EN + ZH)
+### All (EN + ZH, 1,016 TEST dialogues)
 
-| VAL rank | Model | Params | TEST MAE | Spearman | QWK | 3-class F1 |
-|---|---|---|---|---|---|---|
-| 1 | TF-IDF+Ridge, last 256 tokens | 0.19M | **0.392** | **0.596** | 0.439 | 0.491 |
-| 2 | TF-IDF (word+char) + Ridge | 0.30M | 0.393 | 0.592 | 0.407 | 0.487 |
-| 3 | **e5-small vocab-trimmed, 6 layers, 256 tokens** (fine-tuned) | 17.4M | 0.399 ± 0.006 | 0.589 | 0.375 | 0.483 |
-| 4 | e5-small trimmed, 6 layers, 128 tokens | 17.4M | 0.403 ± 0.007 | 0.567 | 0.379 | 0.488 |
-| 5 | TF-IDF+Ridge, last 128 tokens (diagnostic) | 0.11M | 0.403 | 0.581 | 0.420 | 0.495 |
-| 6 | TF-IDF + logistic regression (expected value) | 1.5M | 0.407 | 0.576 | 0.411 | 0.491 |
-| 7 | HistGradientBoosting on 17 dialogue features | 200 trees | 0.404 | 0.572 | 0.421 | 0.487 |
-| 8 | TF-IDF+Ridge on 50% TRAIN | 0.17M | 0.401 | 0.570 | 0.398 | 0.486 |
-| 9 | mMiniLMv2-L6 vocab-trimmed, 128 tokens | 17.4M | 0.420 ± 0.006 | 0.518 | 0.371 | 0.486 |
-| — | e5-small trimmed, **12 layers**, 128 tokens | (pending) | see §3.4 | | | |
-| floor | per-corpus TRAIN mean | 5 | 0.423 | 0.497 | 0.379 | 0.491 |
-| floor | global TRAIN mean | 1 | 0.510 | — | 0 | 0.214 |
+| VAL rank | Model | Params | VAL MAE | TEST MAE | Spearman | QWK | 3-class F1 |
+|---|---|---|---|---|---|---|---|
+| 1 | TF-IDF+Ridge, last 256 tokens | 0.19M | 0.395 | **0.392** | **0.596** | 0.439 | 0.491 |
+| 2 | TF-IDF (word+char) + Ridge | 0.30M | 0.396 | 0.393 | 0.592 | 0.407 | 0.487 |
+| 3 | e5-small vocab-trimmed, 12 layers, 128 tokens | 28.1M | 0.397 | 0.405 ± 0.003 | 0.570 | 0.379 | 0.488 |
+| 4 | **e5-small vocab-trimmed, 6 layers, 256 tokens** | 17.4M | 0.398 | 0.399 ± 0.006 | 0.589 | 0.375 | 0.483 |
+| 5 | e5-small trimmed, 6 layers, 128 tokens | 17.4M | 0.399 | 0.403 ± 0.007 | 0.567 | 0.379 | 0.488 |
+| 6 | TF-IDF+Ridge, last 128 tokens (diagnostic) | 0.11M | 0.399 | 0.403 | 0.581 | 0.420 | 0.495 |
+| 7 | TF-IDF + logistic regression (expected value) | 1.5M | 0.401 | 0.407 | 0.576 | 0.411 | 0.491 |
+| 8 | HistGradientBoosting on 17 dialogue features | 200 trees | 0.401 | 0.404 | 0.572 | 0.421 | 0.487 |
+| 9 | TF-IDF+Ridge on the same 50% TRAIN as the transformers | 0.17M | 0.403 | 0.401 | 0.570 | 0.398 | 0.486 |
+| 10 | mMiniLMv2-L6 vocab-trimmed, 128 tokens | 17.4M | 0.408 | 0.420 ± 0.006 | 0.518 | 0.371 | 0.486 |
+| floor | per-corpus TRAIN mean | 5 | 0.414 | 0.423 | 0.497 | 0.379 | 0.491 |
+| floor | global TRAIN mean | 1 | 0.500 | 0.510 | — | 0 | 0.214 |
 
 ### EN (SGD+MWOZ+ReDial+CCPE, 525 TEST dialogues)
 
-| VAL rank | Model | Params | TEST MAE | Spearman |
-|---|---|---|---|---|
-| 1 | TinyBERT-4L, trained on EN only, 128 tokens | 14.4M | 0.305 ± 0.001 | 0.370 |
-| 2 | e5-small trim L6, 128 tokens | 17.4M | 0.298 ± 0.002 | 0.391 |
-| 3 | TF-IDF+Ridge, last 256 tokens | 0.19M | 0.301 | 0.383 |
-| 4 | TF-IDF+Ridge | 0.30M | 0.300 | 0.378 |
-| 5 | TF-IDF+Ridge, trained on EN only | 0.10M | 0.302 | 0.365 |
-| 7 | **e5-small trim L6, 256 tokens** | 17.4M | **0.296 ± 0.001** | **0.408** |
-| 9 | mMiniLMv2-L6 trim, 128 tokens | 17.4M | 0.312 ± 0.011 | 0.363 |
-| floor | per-corpus mean | 5 | 0.318 | 0.186 |
+| VAL rank | Model | Params | VAL MAE | TEST MAE | Spearman |
+|---|---|---|---|---|---|
+| 1 | TinyBERT-4L, trained on EN only, 128 tokens | 14.4M | 0.305 | 0.305 ± 0.001 | 0.370 |
+| 2 | e5-small trim L6, 128 tokens | 17.4M | 0.306 | 0.298 ± 0.002 | 0.391 |
+| 3 | TF-IDF+Ridge, last 256 tokens | 0.19M | 0.307 | 0.301 | 0.383 |
+| 4 | TF-IDF+Ridge | 0.30M | 0.307 | 0.300 | 0.378 |
+| 5 | TF-IDF+Ridge, trained on EN only | 0.10M | 0.307 | 0.302 | 0.365 |
+| 7 | **e5-small trim L6, 256 tokens** | 17.4M | 0.309 | **0.296 ± 0.001** | **0.408** |
+| 9 | e5-small trim L12, 128 tokens | 28.1M | 0.311 | 0.311 ± 0.004 | 0.341 |
+| 10 | mMiniLMv2-L6 trim, 128 tokens | 17.4M | 0.313 | 0.312 ± 0.011 | 0.363 |
+| floor | per-corpus mean | 5 | 0.323 | 0.318 | 0.186 |
 
 **Reading the EN table**
 - Every EN model lies between 0.296 and 0.312.
-- VAL MAE differences are at most 0.008, which is within seed noise.
+- VAL differences between ranks 1 and 9 are at most 0.006, which is within seed noise.
 - The noise limit is 0.234 and the floor is 0.318.
 
 ### ZH (JDDC, real e-commerce customer service, 491 TEST dialogues)
 
-| VAL rank | Model | TEST MAE | Spearman | QWK |
-|---|---|---|---|---|
-| 1 | TF-IDF+Ridge, last 256 tokens | **0.489** | **0.407** | 0.252 |
-| 2 | TF-IDF+Ridge | 0.493 | 0.392 | 0.150 |
-| 4 | e5-small trim L6, 256 tokens | 0.509 ± 0.012 | 0.378 | 0.060 |
-| 7 | HGB dialogue features | 0.506 | 0.352 | 0.209 |
-| 8 | e5-small trim L6, 128 tokens | 0.515 ± 0.011 | 0.294 | 0.048 |
-| 9 | mMiniLMv2-L6 trim, 128 tokens | 0.535 ± 0.000 | 0.093 | 0 (**collapsed to a constant**) |
-| floor | per-corpus mean | 0.535 | — | 0 |
+| VAL rank | Model | VAL MAE | TEST MAE | Spearman | QWK |
+|---|---|---|---|---|---|
+| 1 | e5-small trim L12, 128 tokens | 0.489 | 0.505 ± 0.003 | 0.343 | 0.029 |
+| 2 | TF-IDF+Ridge, last 256 tokens | 0.490 | **0.489** | **0.407** | 0.252 |
+| 3 | TF-IDF+Ridge | 0.490 | 0.493 | 0.392 | 0.150 |
+| 5 | e5-small trim L6, 256 tokens | 0.494 | 0.509 ± 0.012 | 0.378 | 0.060 |
+| 8 | HGB dialogue features | 0.497 | 0.506 | 0.352 | 0.209 |
+| 9 | e5-small trim L6, 128 tokens | 0.498 | 0.515 ± 0.011 | 0.294 | 0.048 |
+| 10 | mMiniLMv2-L6 trim, 128 tokens | 0.510 | 0.535 ± 0.000 | 0.093 | 0 (**collapsed to a constant**) |
+| floor | per-corpus mean | 0.510 | 0.535 | — | 0 |
 
-### 3.4 Pending
-
-- e5-small trimmed with all **12 layers** (128 tokens) is still training (`logs/e5small_trim_ft_frac0.5_len128.log`).
-- It is not in these tables yet. See `STATUS.json`.
+**Reading the ZH table**
+- **VAL and TEST disagree for the 12-layer model**: it is best on VAL (0.489) but only 0.505 on TEST.
+- This shows that VAL differences below about 0.01 are not meaningful at this data size.
+- The fine-tuned transformers are weak in QWK on ZH (≤ 0.06 vs 0.25 for TF-IDF). Their predictions are too compressed to cross the rounding thresholds.
 
 ## 4. Cost
 
-Sources: `results/quant_*.json`, `results/uss/*.json`, `results/latency_cpu.json` (when present).
+Sources:
+- Latency, load time and RAM: `results/latency_cpu.json`. Each model was measured in its own process at 21:57Z, CPU load average 1.2–1.4.
+- Accuracy: `results/quant_*.json`, `results/uss/*.json`.
 
-| Model | Params | Disk fp32 | Disk int8 | TEST MAE (best seed) fp32 → int8 → int8 + VAL offset | Train time / seed (CPU) | Peak RAM (train) |
-|---|---|---|---|---|---|---|
-| e5 trim L6, 256 tokens | 17.4M | 71.8 MB | 39.5 MB | 0.391 → 0.407 → **0.397** | 3,007 s | 4.1 GB |
-| e5 trim L6, 128 tokens | 17.4M | 71.8 MB | 39.5 MB | 0.397 → 0.417 → 0.404 | 907 s | 3.0 GB |
-| TinyBERT-4L EN | 14.4M | 57.5 MB | — | (EN 0.305 mean) | 588 s | 1.3 GB |
-| TF-IDF+Ridge | 0.30M | not measured | — | 0.393 | 44 s | 0.7 GB |
+| Model | Params | Disk fp32 | Disk int8 | CPU p50 / p95 batch 1, 2 threads | Load time | Peak RSS (inference process) | TEST MAE (best seed) fp32 → int8 → int8 + VAL offset | Train time / seed | Peak RSS (train) |
+|---|---|---|---|---|---|---|---|---|---|
+| **e5 trim L6, 256 tokens** | 17.4M | 71.8 MB | 39.5 MB | 58 / 79 ms (int8: 41 / 52 ms) | 10.6 s | 0.91 GB | 0.391 → 0.407 → **0.397** | 3,007 s | 4.1 GB |
+| e5 trim L6, 128 tokens | 17.4M | 71.8 MB | 39.5 MB | 34 / 46 ms (int8: 26 / 31 ms) | 10.8 s | 0.91 GB | 0.397 → 0.417 → 0.404 | 907 s | 3.0 GB |
+| e5 trim L12, 128 tokens | 28.1M | 114.4 MB | — | 62 / 82 ms | 10.7 s | 0.99 GB | (mean 0.405) | 2,871 s | 3.9 GB |
+| mMiniLMv2-L6 trim, 128 tokens | 17.4M | 71.8 MB | — | 34 / 42 ms | 9.8 s | 0.91 GB | (mean 0.420) | 854 s | 2.3 GB |
+| TinyBERT-4L EN, 128 tokens | 14.4M | 57.5 MB | — | 17 / 20 ms | 5.6 s | 0.52 GB | (EN mean 0.305) | 588 s | 1.3 GB |
+| TF-IDF+Ridge | 0.30M | not measured | — | 6.5 / 10.2 ms (inside the benchmark, shared CPU) | — | — | 0.393 | 44 s (fit) | 0.7 GB |
 
-**What int8 does**
-- **Method**: dynamic int8 quantization of every `nn.Linear` layer (embeddings stay fp32).
-- **Size**: the model shrinks by 45%.
-- **Systematic shift**: on USS it moves every prediction up by about 0.1. The mean absolute difference from fp32 is 0.111 (L6/256).
-- **Fix**: subtracting one offset fitted on VAL (+0.08) recovers most of the loss: +0.005 MAE instead of +0.016 compared with fp32.
-- **Amazon**
-  - int8 costs more on the validated Amazon checkpoint: 0.631 → 0.676; with the VAL offset, 0.673.
-  - Spearman drops 0.829 → 0.809, so ranking quality is lost, not only calibration.
-
-**Latency**
-- Latency at batch 1 (2 threads) was measured while 4–6 processes shared 4 cores (load average 4.5–7). The numbers are **upper bounds**.
-  - e5 L6/128: 37 ms p50 inside the benchmark.
-  - Same checkpoint: 75 ms (fp32) and 58 ms (int8) in `quant_*.json`.
-  - L6/256: 220 ms inside the benchmark, but 980 ms under load 6.4.
-  - TF-IDF: 6 ms.
-- `results/latency_cpu.json` re-measures every checkpoint in its own process at the end of the run.
+**Notes on the cost table**
+- **Training times**: CPU, 50% of TRAIN, 3 epochs, the CPU shared with another worker. They are upper bounds.
+- **Peak RSS**: includes the PyTorch and transformers runtime (about 0.5 GB on its own).
+- **What int8 does**
+  - Method: dynamic int8 quantization of every `nn.Linear` layer (embeddings stay fp32).
+  - It shrinks the model by 45% and cuts latency by 24–29% (`latency_cpu.json`).
+  - **Systematic shift**: on USS it moves every prediction up by about 0.1. The mean absolute difference from fp32 is 0.111 (L6/256).
+  - **Fix**: one offset fitted on VAL (+0.08) recovers most of the loss: +0.005 MAE instead of +0.016 compared with fp32. Spearman is unchanged (0.592 → 0.590).
+  - **Amazon**: int8 costs more on the validated Amazon checkpoint: 0.631 → 0.676; with the VAL offset, 0.673. Spearman drops 0.829 → 0.809, so ranking quality is lost there, not only calibration.
 - **GPU VRAM and latency: NOT VERIFIED.**
 
 ## 5. Auxiliary benchmark: Amazon EN/FR (product stars)
@@ -146,30 +145,40 @@ Sources:
 
 ## 6. Selection
 
-**On USS, TF-IDF competes closely and wins on VAL.**
-- TF-IDF+Ridge (last 256 tokens) has the best VAL MAE (0.395), the best TEST MAE (0.392) and the best Spearman.
-- It has 0.19M parameters and runs in milliseconds.
-- The CPU-budget fine-tuned models are statistically tied with it on EN and worse on ZH (0.509 vs 0.489).
-- The honest reading: on dialogue-level satisfaction with noisy labels, about 2,400 training dialogues, 3 epochs and CPU only, **fine-tuning does not yet beat a well-tuned TF-IDF**.
+**Rule, written before looking at TEST**
+- Among the models whose VAL MAE (all) is within one seed-std (about 0.006) of the best fine-tuned VAL MAE, take the smallest and fastest.
+- VAL only; TEST is shown for information.
 
-**Selected neural checkpoint**: `e5small_trim_ft_L6_frac0.5_len256`, seed 1.
-- Path: `/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1`.
-- int8 copy: `model_int8.pt` in the same folder.
+**On USS, TF-IDF competes closely and is in fact first on VAL.**
+- TF-IDF+Ridge on the last 256 tokens has VAL 0.395 and TEST 0.392, with the best Spearman (0.596).
+- It has 0.19M parameters and runs in milliseconds.
+- The CPU-budget fine-tuned models are statistically tied with it on EN and worse on ZH: 0.505–0.515 vs 0.489 TEST.
+- The honest reading: on noisy dialogue-level labels, with about 2,400 training dialogues, 3 epochs and CPU only, **fine-tuning does not beat a well-tuned TF-IDF**.
+
+**Selected neural checkpoint: `e5small_trim_ft_L6_frac0.5_len256`, seed 1 (best seed by VAL).**
+- Path (outside git, not durable): `/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1/`
+  - `model.pt`: fp32
+  - `model_int8.pt`: dynamic int8
+  - `meta.json`
 - SHA256 values: `checkpoints_manifest.json`.
+- Load it with `f_predictor.SatisfactionPredictor.load(<path>)` (add `int8=True` for the int8 copy).
 
 **Why this checkpoint**
-- It is the smallest *reliable* transformer: 17.4M parameters, 71.8 MB fp32, 39.5 MB int8. It is lighter than the v2 Agent F (27.8M).
-- It has the best fine-tuned VAL MAE on USS and the best EN TEST (0.296, Spearman 0.408).
-- It is multilingual (trained on EN+ZH). TF-IDF cannot transfer to unseen vocabulary or languages; on Amazon EN/FR the e5-trimmed family beats TF-IDF by 0.2 MAE.
-- Layer truncation (12 → 6 layers) halves the encoder cost.
+- **It ties the best fine-tuned model on VAL**: 0.398 vs 0.397 for the 12-layer model, a 0.001 difference against a seed std of 0.003–0.007.
+- **It is much cheaper than the 12-layer model**: 17.4M vs 28.1M parameters, 71.8 vs 114.4 MB, 58 vs 62 ms (41 ms int8).
+- **It is lighter than the v2 Agent F** (27.8M).
+- **It is multilingual** (trained on EN+ZH). TF-IDF cannot transfer to unseen vocabulary or languages, and on Amazon EN/FR the e5-trimmed family beats TF-IDF by 0.2 MAE.
+- **Longer context helps**: 256 tokens beats 128 tokens, consistent with the truncation diagnostic.
 
 **Why not the other candidates**
-- **mMiniLMv2-L6**: collapsed on ZH.
+- **mMiniLMv2-L6** (same size): it collapsed to a constant on ZH.
 - **TinyBERT**: English vocabulary only.
+- **12-layer e5**: no measurable gain for 1.6× the parameters.
 
 **Practical recommendation**
-- Run **TF-IDF+Ridge as the default Agent F scorer on USS-like text** (cheap, best measured).
-- Keep e5-L6/256 as the multilingual neural model and re-train it on the RTX 4050 with the full protocol: 256–512 tokens, full TRAIN, 5 epochs. That is where the headroom is (ZH is 0.49 vs a noise limit of 0.25).
+- Use **TF-IDF+Ridge (last 256 tokens) as the default Agent F scorer on USS-like text** (cheapest, best measured).
+- Keep the selected e5-L6/256 checkpoint as the multilingual neural model, and re-train it on the RTX 4050 with the full protocol: 256–512 tokens, full TRAIN, 5 epochs.
+- The headroom is on ZH (0.49 vs a noise limit of 0.25). On EN (0.296 vs 0.234) little is left.
 - **This is a decision for the Brain.**
 
 **Limits that apply to any choice**
@@ -184,6 +193,7 @@ Sources:
   - GPU VRAM, GPU latency, fp16 training: no GPU in this sandbox.
   - Full-protocol fine-tuning (full TRAIN, 5 epochs, 256+ tokens): CPU budget.
   - mMiniLM-L12 trimmed on USS: dropped for CPU budget. In v2 it was ≈ e5 on Amazon.
+  - e5 L12 at 256 tokens: not run (CPU budget).
   - French dialogues: no labelled French support dialogue data; FR is validated only on product reviews.
   - Rows of the HF parquet mirror of USS: not parsed. The original GitHub TXT files were used instead.
 - **Blocked**

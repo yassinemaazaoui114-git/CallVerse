@@ -24,7 +24,7 @@
    }
   },
   "tag": "e5small_trim_ft_L6_frac0.5_len256",
-  "reason": "best fine-tuned model by USS VAL MAE (all groups); 17.4M params, multilingual (EN+ZH trained); TF-IDF+Ridge is equally accurate on USS (see F_RESULTS.md)"
+  "reason": "VAL rule: within one seed-std of the best fine-tuned VAL MAE (0.398 vs 0.397 for e5 12L), smallest/fastest (17.4M, 71.8 MB fp32 / 39.5 MB int8, 58 ms p50 CPU); multilingual. TF-IDF+Ridge (last 256 tokens) is equally accurate on USS (F_RESULTS.md section 6)."
  },
  "checkpoints": [
   {
@@ -72,6 +72,26 @@
     "model_int8.pt": {
      "sha256": "78908a2b61fc9a279b7523c9e0eaf101fb1a47d3bda4cdfd07787c0edcfc7e06",
      "mb": 39.5
+    }
+   }
+  },
+  {
+   "folder": "e5small_trim_ft_frac0.5_len128_s0",
+   "path": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_frac0.5_len128_s0",
+   "base_model": "intfloat/multilingual-e5-small",
+   "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+   "seed": 0,
+   "val_mae": 0.3944283127784729,
+   "layers": 12,
+   "max_length": 128,
+   "files": {
+    "meta.json": {
+     "sha256": "a3535b987fdd4261f44e859666e6fa230db435e3762b5ad135873e493afd87a1",
+     "mb": 0.0
+    },
+    "model.pt": {
+     "sha256": "d68a8eeff0e77df7fac847968d9b74e68e20372614dff4944bdf0d02d4cb9272",
+     "mb": 114.4
     }
    }
   },

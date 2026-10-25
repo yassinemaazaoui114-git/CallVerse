@@ -133,6 +133,11 @@ The dev run found two wiring faults in the checks, both fixed before the code wa
 - On ShopNova conversations its predictions are almost constant: mean 3.11–3.12, **SD 0.07**. They show no difference between failed and ok conversations (3.15 vs 3.10 on test).
 - Domain transfer from multi-turn USS dialogues to single-turn ShopNova template replies does **not** work.
 - **Gate verdict: blocked (KPI only)** on label type, domain and Spearman CI.
+- **Re-run with Worker F's final selection** (`e5small_trim_ft_L6_frac0.5_len256`, seed 1, 17.4M params; chosen on VAL by Worker F; `m7/results/test_finalF/`). Defect detection is unchanged (deterministic).
+  - Validation card: USS TEST n = 1,016; MAE 0.391 vs 0.51 for the pooled train-mean baseline. The per-corpus mean floor is 0.423 (Worker F). Spearman 0.592, 95% CI [0.545, 0.635].
+  - The gate now **passes** test size, Spearman CI, baseline and coverage. It **fails only on label type** (annotator judgements, not customer ratings) **and domain** (task dialogues + JDDC e-commerce service, not ShopNova).
+  - On ShopNova conversations it is still flat: mean 3.25, SD 0.04.
+  - Verdict unchanged: KPI only. The missing piece is data (real ShopNova reviews or DCH-2), not a bigger model.
 - So E's main results use **no F reward**, which matches the E protocol. The E+F experiment uses only the synthetic SIM-CSAT term.
 
 ## 4. Tests

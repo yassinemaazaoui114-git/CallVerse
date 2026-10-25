@@ -88,3 +88,13 @@ reporting). Agent F never acts.
   - They come from annotators, not from the customers themselves.
   - English agreement is low (Krippendorff α ≈ 0.2–0.28).
   - This limits what any model can reach.
+
+## 7. Deviations actually applied (CPU budget), and the selection rule
+
+- **CPU settings for the fine-tuned models**
+  - The first full-protocol run (full TRAIN, 256 tokens, 5 epochs) was stopped. e5-small 12 layers did not finish one epoch in 23 minutes on the shared CPU (15 s per batch of 16 measured).
+  - All fine-tuned models were then trained on a **stratified 50% of TRAIN** (`--train-frac 0.5`, the same dialogues for every model), with **3 epochs** and **128 or 256 tokens**.
+  - Classic models use the full TRAIN. `tfidf_ridge_frac0.5` is the matched comparison.
+- **Truncation diagnostic**: `--tail-tokens N` keeps about the last N e5 tokens for classic models, using chars/token measured on VAL (EN 3.97, ZH 1.39).
+- **Selection rule (VAL only)**: among models whose VAL MAE (all) is within about one seed-std of the best fine-tuned VAL MAE, take the smallest and fastest.
+- **int8**: the optional offset is one number fitted on VAL (mean label − mean int8 prediction), never on TEST.

@@ -1,0 +1,84 @@
+{
+ "threads": 2,
+ "batch": 1,
+ "device": "cpu",
+ "rows": [
+  {
+   "model": "tinybert_ft_en_frac0.5_len128",
+   "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tinybert_ft_en_frac0.5_len128_s1",
+   "load_s": 5.57,
+   "p50": 17.23,
+   "p95": 20.25,
+   "n": 100,
+   "peak_rss_mb": 515.3,
+   "load_avg_1min": 1.25,
+   "file_mb": 57.5
+  },
+  {
+   "model": "e5small_trim_ft_L6_frac0.5_len128",
+   "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len128_s1",
+   "load_s": 10.77,
+   "p50": 34.21,
+   "p95": 46.44,
+   "n": 100,
+   "peak_rss_mb": 907.2,
+   "load_avg_1min": 1.34,
+   "file_mb": 71.8
+  },
+  {
+   "model": "e5small_trim_ft_L6_frac0.5_len256",
+   "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1",
+   "load_s": 10.61,
+   "p50": 58.45,
+   "p95": 78.93,
+   "n": 100,
+   "peak_rss_mb": 906.8,
+   "load_avg_1min": 1.39,
+   "file_mb": 71.8
+  },
+  {
+   "model": "mminilmv2l6_trim_ft_frac0.5_len128",
+   "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/mminilmv2l6_trim_ft_frac0.5_len128_s1",
+   "load_s": 9.77,
+   "p50": 33.55,
+   "p95": 42.13,
+   "n": 100,
+   "peak_rss_mb": 906.7,
+   "load_avg_1min": 1.31,
+   "file_mb": 71.8
+  },
+  {
+   "model": "e5small_trim_ft_frac0.5_len128",
+   "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_frac0.5_len128_s0",
+   "load_s": 10.69,
+   "p50": 62.01,
+   "p95": 82.42,
+   "n": 100,
+   "peak_rss_mb": 988.1,
+   "load_avg_1min": 1.36,
+   "file_mb": 114.4
+  },
+  {
+   "model": "e5small_trim_ft_L6_frac0.5_len256_int8",
+   "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1",
+   "load_s": 10.92,
+   "p50": 40.92,
+   "p95": 51.98,
+   "n": 100,
+   "peak_rss_mb": 906.8,
+   "load_avg_1min": 1.28,
+   "file_mb": 39.5
+  },
+  {
+   "model": "e5small_trim_ft_L6_frac0.5_len128_int8",
+   "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len128_s1",
+   "load_s": 11.01,
+   "p50": 25.5,
+   "p95": 30.94,
+   "n": 100,
+   "peak_rss_mb": 906.8,
+   "load_avg_1min": 1.2,
+   "file_mb": 39.5
+  }
+ ]
+}
