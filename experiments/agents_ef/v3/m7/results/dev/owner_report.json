@@ -1,0 +1,1681 @@
+{
+ "created": "2026-10-25T15:53:55",
+ "corpus": "dev (scripted agents, real pipeline)",
+ "period": {
+  "from": "2026-10-25T15:50:13.585",
+  "to": "2026-10-25T15:51:25.429"
+ },
+ "kpis": {
+  "n": 120,
+  "resolution": {
+   "resolved": 99,
+   "escalated": 9,
+   "waiting_on_client": 12
+  },
+  "resolved_pct": 82.5,
+  "grades": {
+   "review": 32,
+   "ok_minor": 77,
+   "fail": 11
+  },
+  "reply_source": {
+   "template": 120
+  },
+  "outcomes": {
+   "approve": 33,
+   "info": 66,
+   "escalate": 9,
+   "ask_proof": 10,
+   "ask_user": 2
+  },
+  "median_seconds": 0.447
+ },
+ "satisfaction": {
+  "model": "f:/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tinybert_ft_en_frac0.5_len128_s1",
+  "n_scored": 120,
+  "mean": 3.1188000000000002,
+  "share_low": 0.0,
+  "std": 0.06950079136240106,
+  "by_grade": {
+   "fail": 3.105181818181818,
+   "ok_minor": 3.1037532467532474,
+   "review": 3.1596875
+  },
+  "by_resolution": {
+   "escalated": 3.1198888888888887,
+   "resolved": 3.1233939393939387,
+   "waiting_on_client": 3.080083333333333
+  },
+  "card": {
+   "model": "tinybert_ft_en_frac0.5_len128 (seed 1)",
+   "label_type": "human_annotation",
+   "domain": "task_oriented_dialogue",
+   "test_n": 525,
+   "mae": 0.3048,
+   "mae_mean_baseline": 0.3332,
+   "spearman": 0.3686,
+   "spearman_ci_low": 0.2906,
+   "spearman_ci_high": 0.444,
+   "source": "tinybert_ft_en_frac0.5_len128.json",
+   "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tinybert_ft_en_frac0.5_len128_s1"
+  },
+  "card_text": "tinybert_ft_en_frac0.5_len128 (seed 1) on human_annotation (task_oriented_dialogue), test n=525: MAE 0.3048 vs mean baseline 0.3332, Spearman 0.3686 [95% CI 0.2906, 0.444]"
+ },
+ "flag_counts": {
+  "slm_fallback_template": [
+   "low",
+   120
+  ],
+  "reply_language_mismatch": [
+   "medium",
+   29
+  ],
+  "claim_contradicts_data": [
+   "high",
+   7
+  ],
+  "sent_back": [
+   "high",
+   7
+  ],
+  "escalated": [
+   "medium",
+   9
+  ],
+  "missed_entitlement": [
+   "high",
+   2
+  ],
+  "pipeline_error": [
+   "high",
+   5
+  ],
+  "rule_not_searched": [
+   "low",
+   1
+  ],
+  "agent_answered_without_tools": [
+   "low",
+   5
+  ],
+  "cited_missing_rule": [
+   "medium",
+   1
+  ],
+  "proposal_malformed": [
+   "medium",
+   1
+  ]
+ },
+ "worst": [
+  {
+   "conversation_id": "dev-0005",
+   "file": "dev-0005.jsonl",
+   "ticket_id": "T-7e46d57c",
+   "order_id": 5089,
+   "main_reason": "refund_request",
+   "priority": "medium",
+   "route": "B",
+   "outcome": "escalate",
+   "rule_id": "R-REF-03",
+   "resolution": "escalated",
+   "reply_source": "template",
+   "seconds": 0.724,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "claim_contradicts_data",
+     "severity": "high",
+     "what": "agent claimed days_late=8, the data says 0",
+     "evidence": {
+      "claim_ref": "dev-0005.jsonl:27",
+      "data_ref": "dev-0005.jsonl:5",
+      "fact": "days_late",
+      "claimed": 8,
+      "data": 0
+     }
+    },
+    {
+     "code": "claim_contradicts_data",
+     "severity": "high",
+     "what": "agent claimed delivered=False, the data says True",
+     "evidence": {
+      "claim_ref": "dev-0005.jsonl:27",
+      "data_ref": "dev-0005.jsonl:5",
+      "fact": "delivered",
+      "claimed": false,
+      "data": true
+     }
+    },
+    {
+     "code": "sent_back",
+     "severity": "high",
+     "what": "the Coordinator sent the proposal back 2 time(s)",
+     "evidence": {
+      "reasons": [
+       "R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 0, delivered True)",
+       "R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 0, delivered True)"
+      ],
+      "refs": [
+       "dev-0005.jsonl:40",
+       "dev-0005.jsonl:69"
+      ]
+     }
+    },
+    {
+     "code": "escalated",
+     "severity": "medium",
+     "what": "case escalated to a human",
+     "evidence": {
+      "reason": "too many send-backs (2); last reason: R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 0, delivered True)",
+      "ref": "dev-0005.jsonl:104"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0005.jsonl:104"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0013",
+   "file": "dev-0013.jsonl",
+   "ticket_id": "T-4be427f0",
+   "order_id": 5110,
+   "main_reason": "refund_request",
+   "priority": "high",
+   "route": "B",
+   "outcome": "ask_user",
+   "rule_id": "R-REF-03",
+   "resolution": "waiting_on_client",
+   "reply_source": "template",
+   "seconds": 0.393,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "missed_entitlement",
+     "severity": "high",
+     "what": "client asked for a refund the data show is due (R-REF-03), but none was approved",
+     "evidence": {
+      "facts": {
+       "paid": 128.9,
+       "status": "stuck_at_depot",
+       "days_late": 8,
+       "delivered": false,
+       "days_since_delivery": null,
+       "refunded_total": 0
+      },
+      "outcome": "ask_user",
+      "ref": "dev-0013.jsonl:49"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0013.jsonl:49"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0015",
+   "file": "dev-0015.jsonl",
+   "ticket_id": "T-dac15508",
+   "order_id": 5057,
+   "main_reason": "order_status",
+   "priority": "low",
+   "route": "A",
+   "outcome": "escalate",
+   "rule_id": null,
+   "resolution": "escalated",
+   "reply_source": "template",
+   "seconds": 0.366,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "pipeline_error",
+     "severity": "high",
+     "what": "the agents failed; the client was told the case needs an extra check",
+     "evidence": {
+      "error": "RuntimeError: provider returned 503 (scripted)",
+      "ref": "dev-0015.jsonl:12"
+     }
+    },
+    {
+     "code": "escalated",
+     "severity": "medium",
+     "what": "case escalated to a human",
+     "evidence": {
+      "reason": "error in the agents: RuntimeError",
+      "ref": "dev-0015.jsonl:20"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0015.jsonl:20"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0022",
+   "file": "dev-0022.jsonl",
+   "ticket_id": "T-e1981c5b",
+   "order_id": 5095,
+   "main_reason": "refund_request",
+   "priority": "high",
+   "route": "B",
+   "outcome": "escalate",
+   "rule_id": null,
+   "resolution": "escalated",
+   "reply_source": "template",
+   "seconds": 0.33,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "pipeline_error",
+     "severity": "high",
+     "what": "the agents failed; the client was told the case needs an extra check",
+     "evidence": {
+      "error": "RuntimeError: provider returned 503 (scripted)",
+      "ref": "dev-0022.jsonl:13"
+     }
+    },
+    {
+     "code": "escalated",
+     "severity": "medium",
+     "what": "case escalated to a human",
+     "evidence": {
+      "reason": "error in the agents: RuntimeError",
+      "ref": "dev-0022.jsonl:21"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0022.jsonl:21"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0042",
+   "file": "dev-0042.jsonl",
+   "ticket_id": "T-c3a472f3",
+   "order_id": 4512,
+   "main_reason": "refund_request",
+   "priority": "high",
+   "route": "B",
+   "outcome": "escalate",
+   "rule_id": null,
+   "resolution": "escalated",
+   "reply_source": "template",
+   "seconds": 0.471,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "pipeline_error",
+     "severity": "high",
+     "what": "the agents failed; the client was told the case needs an extra check",
+     "evidence": {
+      "error": "RuntimeError: provider returned 503 (scripted)",
+      "ref": "dev-0042.jsonl:13"
+     }
+    },
+    {
+     "code": "escalated",
+     "severity": "medium",
+     "what": "case escalated to a human",
+     "evidence": {
+      "reason": "error in the agents: RuntimeError",
+      "ref": "dev-0042.jsonl:21"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0042.jsonl:21"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0050",
+   "file": "dev-0050.jsonl",
+   "ticket_id": "T-8b01020d",
+   "order_id": 5018,
+   "main_reason": "late_delivery",
+   "priority": "high",
+   "route": "A",
+   "outcome": "escalate",
+   "rule_id": null,
+   "resolution": "escalated",
+   "reply_source": "template",
+   "seconds": 0.364,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "pipeline_error",
+     "severity": "high",
+     "what": "the agents failed; the client was told the case needs an extra check",
+     "evidence": {
+      "error": "RuntimeError: provider returned 503 (scripted)",
+      "ref": "dev-0050.jsonl:12"
+     }
+    },
+    {
+     "code": "escalated",
+     "severity": "medium",
+     "what": "case escalated to a human",
+     "evidence": {
+      "reason": "error in the agents: RuntimeError",
+      "ref": "dev-0050.jsonl:20"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0050.jsonl:20"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0055",
+   "file": "dev-0055.jsonl",
+   "ticket_id": "T-a6a7db2e",
+   "order_id": 5116,
+   "main_reason": "refund_request",
+   "priority": "medium",
+   "route": "B",
+   "outcome": "escalate",
+   "rule_id": "R-REF-03",
+   "resolution": "escalated",
+   "reply_source": "template",
+   "seconds": 1.026,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "claim_contradicts_data",
+     "severity": "high",
+     "what": "agent claimed days_late=8, the data says 0",
+     "evidence": {
+      "claim_ref": "dev-0055.jsonl:27",
+      "data_ref": "dev-0055.jsonl:5",
+      "fact": "days_late",
+      "claimed": 8,
+      "data": 0
+     }
+    },
+    {
+     "code": "claim_contradicts_data",
+     "severity": "high",
+     "what": "agent claimed delivered=False, the data says True",
+     "evidence": {
+      "claim_ref": "dev-0055.jsonl:27",
+      "data_ref": "dev-0055.jsonl:5",
+      "fact": "delivered",
+      "claimed": false,
+      "data": true
+     }
+    },
+    {
+     "code": "sent_back",
+     "severity": "high",
+     "what": "the Coordinator sent the proposal back 2 time(s)",
+     "evidence": {
+      "reasons": [
+       "R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 0, delivered True)",
+       "R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 0, delivered True)"
+      ],
+      "refs": [
+       "dev-0055.jsonl:40",
+       "dev-0055.jsonl:69"
+      ]
+     }
+    },
+    {
+     "code": "escalated",
+     "severity": "medium",
+     "what": "case escalated to a human",
+     "evidence": {
+      "reason": "too many send-backs (2); last reason: R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 0, delivered True)",
+      "ref": "dev-0055.jsonl:104"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0055.jsonl:104"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0062",
+   "file": "dev-0062.jsonl",
+   "ticket_id": "T-9428bc75",
+   "order_id": 5034,
+   "main_reason": "refund_request",
+   "priority": "medium",
+   "route": "B",
+   "outcome": "escalate",
+   "rule_id": "R-REF-03",
+   "resolution": "escalated",
+   "reply_source": "template",
+   "seconds": 0.579,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "claim_contradicts_data",
+     "severity": "high",
+     "what": "agent claimed days_late=8, the data says 2",
+     "evidence": {
+      "claim_ref": "dev-0062.jsonl:27",
+      "data_ref": "dev-0062.jsonl:5",
+      "fact": "days_late",
+      "claimed": 8,
+      "data": 2
+     }
+    },
+    {
+     "code": "claim_contradicts_data",
+     "severity": "high",
+     "what": "agent claimed delivered=False, the data says True",
+     "evidence": {
+      "claim_ref": "dev-0062.jsonl:27",
+      "data_ref": "dev-0062.jsonl:5",
+      "fact": "delivered",
+      "claimed": false,
+      "data": true
+     }
+    },
+    {
+     "code": "sent_back",
+     "severity": "high",
+     "what": "the Coordinator sent the proposal back 2 time(s)",
+     "evidence": {
+      "reasons": [
+       "R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 2, delivered True)",
+       "R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 2, delivered True)"
+      ],
+      "refs": [
+       "dev-0062.jsonl:40",
+       "dev-0062.jsonl:69"
+      ]
+     }
+    },
+    {
+     "code": "escalated",
+     "severity": "medium",
+     "what": "case escalated to a human",
+     "evidence": {
+      "reason": "too many send-backs (2); last reason: R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 2, delivered True)",
+      "ref": "dev-0062.jsonl:104"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0062.jsonl:104"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0080",
+   "file": "dev-0080.jsonl",
+   "ticket_id": "T-1419a2f4",
+   "order_id": 5094,
+   "main_reason": "order_status",
+   "priority": "low",
+   "route": "A",
+   "outcome": "escalate",
+   "rule_id": null,
+   "resolution": "escalated",
+   "reply_source": "template",
+   "seconds": 0.225,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "pipeline_error",
+     "severity": "high",
+     "what": "the agents failed; the client was told the case needs an extra check",
+     "evidence": {
+      "error": "RuntimeError: provider returned 503 (scripted)",
+      "ref": "dev-0080.jsonl:12"
+     }
+    },
+    {
+     "code": "escalated",
+     "severity": "medium",
+     "what": "case escalated to a human",
+     "evidence": {
+      "reason": "error in the agents: RuntimeError",
+      "ref": "dev-0080.jsonl:20"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0080.jsonl:20"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0102",
+   "file": "dev-0102.jsonl",
+   "ticket_id": "T-79dc0508",
+   "order_id": 4515,
+   "main_reason": "refund_request",
+   "priority": "high",
+   "route": "B",
+   "outcome": "ask_user",
+   "rule_id": "R-REF-03",
+   "resolution": "waiting_on_client",
+   "reply_source": "template",
+   "seconds": 0.401,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "missed_entitlement",
+     "severity": "high",
+     "what": "client asked for a refund the data show is due (R-REF-03), but none was approved",
+     "evidence": {
+      "facts": {
+       "paid": 378.0,
+       "status": "stuck_at_depot",
+       "days_late": 8,
+       "delivered": false,
+       "days_since_delivery": null,
+       "refunded_total": 0
+      },
+      "outcome": "ask_user",
+      "ref": "dev-0102.jsonl:49"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0102.jsonl:49"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0112",
+   "file": "dev-0112.jsonl",
+   "ticket_id": "T-6bce217c",
+   "order_id": 4511,
+   "main_reason": "refund_request",
+   "priority": "medium",
+   "route": "B",
+   "outcome": "escalate",
+   "rule_id": "R-REF-03",
+   "resolution": "escalated",
+   "reply_source": "template",
+   "seconds": 0.639,
+   "grade": "fail",
+   "flags": [
+    {
+     "code": "claim_contradicts_data",
+     "severity": "high",
+     "what": "agent claimed days_late=8, the data says 0",
+     "evidence": {
+      "claim_ref": "dev-0112.jsonl:27",
+      "data_ref": "dev-0112.jsonl:5",
+      "fact": "days_late",
+      "claimed": 8,
+      "data": 0
+     }
+    },
+    {
+     "code": "sent_back",
+     "severity": "high",
+     "what": "the Coordinator sent the proposal back 2 time(s)",
+     "evidence": {
+      "reasons": [
+       "R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 0, delivered False)",
+       "R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 0, delivered False)"
+      ],
+      "refs": [
+       "dev-0112.jsonl:40",
+       "dev-0112.jsonl:69"
+      ]
+     }
+    },
+    {
+     "code": "escalated",
+     "severity": "medium",
+     "what": "case escalated to a human",
+     "evidence": {
+      "reason": "too many send-backs (2); last reason: R-REF-03 does not apply: its condition 'days_late > 5 and not delivered' is false for the order data (days_late 0, delivered False)",
+      "ref": "dev-0112.jsonl:104"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0112.jsonl:104"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0000",
+   "file": "dev-0000.jsonl",
+   "ticket_id": "T-9e05e6d1",
+   "order_id": 5069,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "approve",
+   "rule_id": "R-NOT-01",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 12.57,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0000.jsonl:39"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0000.jsonl:39"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0001",
+   "file": "dev-0001.jsonl",
+   "ticket_id": "T-07864781",
+   "order_id": 5020,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "approve",
+   "rule_id": "R-NOT-01",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.825,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0001.jsonl:39"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0001.jsonl:39"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0004",
+   "file": "dev-0004.jsonl",
+   "ticket_id": "T-08788da7",
+   "order_id": 5100,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "approve",
+   "rule_id": "R-NOT-01",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.683,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0004.jsonl:39"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0004.jsonl:39"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0009",
+   "file": "dev-0009.jsonl",
+   "ticket_id": "T-fec33b6d",
+   "order_id": 5094,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "approve",
+   "rule_id": "R-NOT-01",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 1.153,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0009.jsonl:39"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0009.jsonl:39"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0010",
+   "file": "dev-0010.jsonl",
+   "ticket_id": "T-16b41ab8",
+   "order_id": 5033,
+   "main_reason": "other",
+   "priority": "medium",
+   "route": "A",
+   "outcome": "approve",
+   "rule_id": "R-REF-03",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 2.221,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0010.jsonl:55"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 5,
+      "ref": "dev-0010.jsonl:55"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0016",
+   "file": "dev-0016.jsonl",
+   "ticket_id": "T-f6b1e7b0",
+   "order_id": 5046,
+   "main_reason": "refund_request",
+   "priority": "high",
+   "route": "B",
+   "outcome": "approve",
+   "rule_id": "R-REF-03",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.674,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "sent_back",
+     "severity": "medium",
+     "what": "the Coordinator sent the proposal back 1 time(s)",
+     "evidence": {
+      "reasons": [
+       "R-REF-05: amount 417.9 TND is more than paid 397.9 - already refunded 0 = 397.9 TND"
+      ],
+      "refs": [
+       "dev-0016.jsonl:42"
+      ]
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0016.jsonl:84"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0017",
+   "file": "dev-0017.jsonl",
+   "ticket_id": "T-a2bdf361",
+   "order_id": 5094,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "info",
+   "rule_id": "R-DEL-02",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.496,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0017.jsonl:22"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0017.jsonl:22"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0029",
+   "file": "dev-0029.jsonl",
+   "ticket_id": "T-48be14bc",
+   "order_id": 5088,
+   "main_reason": "refund_request",
+   "priority": "high",
+   "route": "B",
+   "outcome": "approve",
+   "rule_id": "R-REF-03",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 1.407,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "sent_back",
+     "severity": "medium",
+     "what": "the Coordinator sent the proposal back 1 time(s)",
+     "evidence": {
+      "reasons": [
+       "R-REF-05: amount 209.0 TND is more than paid 189.0 - already refunded 0 = 189.0 TND"
+      ],
+      "refs": [
+       "dev-0029.jsonl:42"
+      ]
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0029.jsonl:82"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0039",
+   "file": "dev-0039.jsonl",
+   "ticket_id": "T-b8d4843e",
+   "order_id": 5099,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "approve",
+   "rule_id": "R-NOT-01",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.458,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "agent_answered_without_tools",
+     "severity": "low",
+     "what": "agent answered without using a tool; the pipeline re-ran it",
+     "evidence": {
+      "first_answer": "Could you give me your order number?",
+      "ref": "dev-0039.jsonl:13"
+     }
+    },
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0039.jsonl:42"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0039.jsonl:42"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0043",
+   "file": "dev-0043.jsonl",
+   "ticket_id": "T-93a41d0a",
+   "order_id": 5111,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "info",
+   "rule_id": null,
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.376,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0043.jsonl:22"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0043.jsonl:22"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0045",
+   "file": "dev-0045.jsonl",
+   "ticket_id": "T-337b5896",
+   "order_id": 5114,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "approve",
+   "rule_id": "R-NOT-01",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.465,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0045.jsonl:39"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0045.jsonl:39"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0047",
+   "file": "dev-0047.jsonl",
+   "ticket_id": "T-849f226b",
+   "order_id": 5074,
+   "main_reason": "other",
+   "priority": "medium",
+   "route": "A",
+   "outcome": "info",
+   "rule_id": null,
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.443,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0047.jsonl:22"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0047.jsonl:22"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0049",
+   "file": "dev-0049.jsonl",
+   "ticket_id": "T-2b8602e1",
+   "order_id": 5113,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "info",
+   "rule_id": null,
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.531,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0049.jsonl:22"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0049.jsonl:22"
+     }
+    }
+   ]
+  },
+  {
+   "conversation_id": "dev-0051",
+   "file": "dev-0051.jsonl",
+   "ticket_id": "T-92af507d",
+   "order_id": 5087,
+   "main_reason": "other",
+   "priority": "low",
+   "route": "A",
+   "outcome": "approve",
+   "rule_id": "R-NOT-01",
+   "resolution": "resolved",
+   "reply_source": "template",
+   "seconds": 0.574,
+   "grade": "review",
+   "flags": [
+    {
+     "code": "slm_fallback_template",
+     "severity": "low",
+     "what": "the SLM gave no passing reply; the fixed template was sent",
+     "evidence": {
+      "slm_problems": [
+       [
+        "the reply is empty"
+       ],
+       [
+        "the reply is empty"
+       ]
+      ],
+      "ref": "dev-0051.jsonl:39"
+     }
+    },
+    {
+     "code": "reply_language_mismatch",
+     "severity": "medium",
+     "what": "client wrote in French, the reply is not in French",
+     "evidence": {
+      "client_fr_words": 4,
+      "ref": "dev-0051.jsonl:39"
+     }
+    }
+   ]
+  }
+ ],
+ "rule_flags": [
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-DEL-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "evidence": {
+    "ai_generated": true,
+    "missing_fields": [
+     "reviewed_by",
+     "version",
+     "valid_from",
+     "last_reviewed"
+    ]
+   },
+   "owner_action": "review the wording; add version and last_reviewed"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-DEL-02",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "evidence": {
+    "ai_generated": true,
+    "missing_fields": [
+     "reviewed_by",
+     "version",
+     "valid_from",
+     "last_reviewed"
+    ]
+   },
+   "owner_action": "review the wording; add version and last_reviewed"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-REF-03",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "evidence": {
+    "ai_generated": true,
+    "missing_fields": [
+     "reviewed_by",
+     "version",
+     "valid_from",
+     "last_reviewed"
+    ]
+   },
+   "owner_action": "review the wording; add version and last_reviewed"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-REF-05",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "evidence": {
+    "ai_generated": true,
+    "missing_fields": [
+     "reviewed_by",
+     "version",
+     "valid_from",
+     "last_reviewed"
+    ]
+   },
+   "owner_action": "review the wording; add version and last_reviewed"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-RET-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "evidence": {
+    "ai_generated": true,
+    "missing_fields": [
+     "reviewed_by",
+     "version",
+     "valid_from",
+     "last_reviewed"
+    ]
+   },
+   "owner_action": "review the wording; add version and last_reviewed"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-DMG-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "evidence": {
+    "ai_generated": true,
+    "missing_fields": [
+     "reviewed_by",
+     "version",
+     "valid_from",
+     "last_reviewed"
+    ]
+   },
+   "owner_action": "review the wording; add version and last_reviewed"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-ESC-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "evidence": {
+    "ai_generated": true,
+    "missing_fields": [
+     "reviewed_by",
+     "version",
+     "valid_from",
+     "last_reviewed"
+    ]
+   },
+   "owner_action": "review the wording; add version and last_reviewed"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-NOT-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "evidence": {
+    "ai_generated": true,
+    "missing_fields": [
+     "reviewed_by",
+     "version",
+     "valid_from",
+     "last_reviewed"
+    ]
+   },
+   "owner_action": "review the wording; add version and last_reviewed"
+  },
+  {
+   "kind": "knowledge_gap",
+   "rule_id": null,
+   "severity": "low",
+   "what": "no conditional rule covers: delivered, on time",
+   "evidence": {
+    "n_cases": 3,
+    "examples": [
+     {
+      "days_late": 0,
+      "delivered": true,
+      "days_since_delivery": 15
+     },
+     {
+      "days_late": 0,
+      "delivered": true,
+      "days_since_delivery": 30
+     },
+     {
+      "days_late": 0,
+      "delivered": true,
+      "days_since_delivery": 60
+     }
+    ],
+    "rules_checked": [
+     "R-DEL-02",
+     "R-REF-03",
+     "R-RET-01"
+    ]
+   },
+   "owner_action": "decide what clients in this situation are owed and write it as a rule"
+  },
+  {
+   "kind": "knowledge_gap",
+   "rule_id": null,
+   "severity": "medium",
+   "what": "no conditional rule covers: delivered, late",
+   "evidence": {
+    "n_cases": 90,
+    "examples": [
+     {
+      "days_late": 1,
+      "delivered": true,
+      "days_since_delivery": 15
+     },
+     {
+      "days_late": 1,
+      "delivered": true,
+      "days_since_delivery": 30
+     },
+     {
+      "days_late": 1,
+      "delivered": true,
+      "days_since_delivery": 60
+     }
+    ],
+    "rules_checked": [
+     "R-DEL-02",
+     "R-REF-03",
+     "R-RET-01"
+    ]
+   },
+   "owner_action": "decide what clients in this situation are owed and write it as a rule"
+  },
+  {
+   "kind": "stale_reference",
+   "rule_id": "R-REF-02",
+   "severity": "medium",
+   "what": "agents cited R-REF-02 1 time(s); it is not in the policy file",
+   "evidence": {
+    "conversations": [
+     "dev-0095 (dev-0095.jsonl:31)"
+    ],
+    "n": 1
+   },
+   "owner_action": "check the agents' prompts / knowledge for an old rule id"
+  },
+  {
+   "kind": "usage_signal",
+   "rule_id": "R-REF-03",
+   "severity": "medium",
+   "what": "condition false in 12/27 checks: agents often apply it where it does not hold",
+   "evidence": {
+    "examples": [
+     "dev-0005 (dev-0005.jsonl:37)",
+     "dev-0005 (dev-0005.jsonl:66)",
+     "dev-0005 (dev-0005.jsonl:95)",
+     "dev-0055 (dev-0055.jsonl:37)",
+     "dev-0055 (dev-0055.jsonl:66)"
+    ],
+    "rate": 0.444
+   },
+   "owner_action": "check whether the wording still matches how cases look"
+  },
+  {
+   "kind": "usage_signal",
+   "rule_id": "R-DEL-01",
+   "severity": "low",
+   "what": "never cited or retrieved in 120 conversations",
+   "evidence": {
+    "n_conversations": 120
+   },
+   "owner_action": "check whether the rule is still needed"
+  },
+  {
+   "kind": "usage_signal",
+   "rule_id": "R-RET-01",
+   "severity": "low",
+   "what": "never cited or retrieved in 120 conversations",
+   "evidence": {
+    "n_conversations": 120
+   },
+   "owner_action": "check whether the rule is still needed"
+  }
+ ],
+ "e_feedback": {
+  "gate": {
+   "usable_for_reward": false,
+   "checks": [
+    {
+     "check": "label_type",
+     "pass": false,
+     "value": "human_annotation",
+     "need": "genuine_customer_rating"
+    },
+    {
+     "check": "domain",
+     "pass": false,
+     "value": "task_oriented_dialogue",
+     "need": "support_conversation"
+    },
+    {
+     "check": "test_n",
+     "pass": true,
+     "value": 525,
+     "need": ">= 300"
+    },
+    {
+     "check": "spearman_ci_low",
+     "pass": false,
+     "value": 0.2906,
+     "need": ">= 0.3"
+    },
+    {
+     "check": "beats_mean_baseline",
+     "pass": true,
+     "value": [
+      0.3048,
+      0.3332
+     ],
+     "need": "mae < mean-baseline mae"
+    },
+    {
+     "check": "coverage",
+     "pass": true,
+     "value": 1.0,
+     "need": ">= 0.95"
+    }
+   ]
+  },
+  "n_records": 120,
+  "n_steps": 2
+ },
+ "timings_s": {
+  "parse_and_review": 0.098,
+  "satisfaction_scoring": 10.688,
+  "per_conversation_review_ms": 0.813
+ }
+}

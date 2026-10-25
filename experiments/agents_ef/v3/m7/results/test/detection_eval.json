@@ -1,0 +1,49 @@
+{
+ "per_defect": {
+  "agent_claim_contradicts_data": {
+   "n": 4,
+   "caught": 4,
+   "expected_flag": "claim_contradicts_data",
+   "recall": 1.0
+  },
+  "agent_answered_without_tools": {
+   "n": 6,
+   "caught": 6,
+   "expected_flag": "agent_answered_without_tools",
+   "recall": 1.0
+  },
+  "rule_not_searched": {
+   "n": 2,
+   "caught": 2,
+   "expected_flag": "rule_not_searched",
+   "recall": 1.0
+  },
+  "user_not_confirmed": {
+   "n": 1,
+   "caught": 1,
+   "expected_flag": "outcome ask_user",
+   "recall": 1.0
+  },
+  "agent_cites_missing_rule": {
+   "n": 1,
+   "caught": 1,
+   "expected_flag": "cited_missing_rule",
+   "recall": 1.0
+  },
+  "pipeline_error": {
+   "n": 2,
+   "caught": 2,
+   "expected_flag": "pipeline_error",
+   "recall": 1.0
+  }
+ },
+ "planted_not_manifested": {
+  "agent_cites_missing_rule": 4,
+  "user_not_confirmed": 2,
+  "rule_not_searched": 3,
+  "agent_wrong_amount": 4
+ },
+ "n_clean": 91,
+ "flags_on_clean": {},
+ "note": "SCRIPTED corpus: defects are visible in the trace by design; this checks the wiring of the checks, it is not an estimate of real-world performance"
+}

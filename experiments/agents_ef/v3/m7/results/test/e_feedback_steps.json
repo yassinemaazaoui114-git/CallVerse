@@ -1,0 +1,16 @@
+[
+ {
+  "step_start": "2026-10-25T15:50:00",
+  "route": "A",
+  "n": 70,
+  "shortfall_sum": 32.3752,
+  "use": "kpi_only"
+ },
+ {
+  "step_start": "2026-10-25T15:50:00",
+  "route": "B",
+  "n": 50,
+  "shortfall_sum": 24.2402,
+  "use": "kpi_only"
+ }
+]

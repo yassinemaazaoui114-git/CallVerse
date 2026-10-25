@@ -48,6 +48,16 @@ $PY -m v3.e.infer_example --run dueling_double_dqn_equal_h64x64_150k_s0 --mode g
 
 See `v3/f/RUN_AND_RESUME_F.md`. It covers the USS download and SHA256 check, splits, baselines, the fine-tune queue (`v3/f/run_queue.sh`), quantization, latency, error analysis, figures and the manifest. Raw data and checkpoints stay outside git, in `$FV3`.
 
+## 2b. Agent F as M7: quality review, rule audit, owner report, E feedback
+
+See `10_AGENT_F_M7_SCOPE.md` §6. Short form:
+
+```bash
+$PY -m pytest v3/m7/tests -q
+$PY -m v3.m7.report --traces <folder of prototype traces> --out <out> --scorer f:<F checkpoint folder> \
+    --card-result v3/f/results/uss/<model>.json --card-data $FV3/data_uss/test.jsonl
+```
+
 ## 3. Combined status (built from files only)
 
 ```bash

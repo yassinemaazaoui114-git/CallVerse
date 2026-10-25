@@ -1,0 +1,244 @@
+[
+ {
+  "kind": "unreviewed",
+  "rule_id": "R-DEL-01",
+  "severity": "low",
+  "what": "AI-written wording with no review, version or validity date",
+  "evidence": {
+   "ai_generated": true,
+   "missing_fields": [
+    "reviewed_by",
+    "version",
+    "valid_from",
+    "last_reviewed"
+   ]
+  },
+  "owner_action": "review the wording; add version and last_reviewed"
+ },
+ {
+  "kind": "unreviewed",
+  "rule_id": "R-DEL-02",
+  "severity": "low",
+  "what": "AI-written wording with no review, version or validity date",
+  "evidence": {
+   "ai_generated": true,
+   "missing_fields": [
+    "reviewed_by",
+    "version",
+    "valid_from",
+    "last_reviewed"
+   ]
+  },
+  "owner_action": "review the wording; add version and last_reviewed"
+ },
+ {
+  "kind": "unreviewed",
+  "rule_id": "R-REF-03",
+  "severity": "low",
+  "what": "AI-written wording with no review, version or validity date",
+  "evidence": {
+   "ai_generated": true,
+   "missing_fields": [
+    "reviewed_by",
+    "version",
+    "valid_from",
+    "last_reviewed"
+   ]
+  },
+  "owner_action": "review the wording; add version and last_reviewed"
+ },
+ {
+  "kind": "unreviewed",
+  "rule_id": "R-REF-05",
+  "severity": "low",
+  "what": "AI-written wording with no review, version or validity date",
+  "evidence": {
+   "ai_generated": true,
+   "missing_fields": [
+    "reviewed_by",
+    "version",
+    "valid_from",
+    "last_reviewed"
+   ]
+  },
+  "owner_action": "review the wording; add version and last_reviewed"
+ },
+ {
+  "kind": "unreviewed",
+  "rule_id": "R-RET-01",
+  "severity": "low",
+  "what": "AI-written wording with no review, version or validity date",
+  "evidence": {
+   "ai_generated": true,
+   "missing_fields": [
+    "reviewed_by",
+    "version",
+    "valid_from",
+    "last_reviewed"
+   ]
+  },
+  "owner_action": "review the wording; add version and last_reviewed"
+ },
+ {
+  "kind": "unreviewed",
+  "rule_id": "R-DMG-01",
+  "severity": "low",
+  "what": "AI-written wording with no review, version or validity date",
+  "evidence": {
+   "ai_generated": true,
+   "missing_fields": [
+    "reviewed_by",
+    "version",
+    "valid_from",
+    "last_reviewed"
+   ]
+  },
+  "owner_action": "review the wording; add version and last_reviewed"
+ },
+ {
+  "kind": "unreviewed",
+  "rule_id": "R-ESC-01",
+  "severity": "low",
+  "what": "AI-written wording with no review, version or validity date",
+  "evidence": {
+   "ai_generated": true,
+   "missing_fields": [
+    "reviewed_by",
+    "version",
+    "valid_from",
+    "last_reviewed"
+   ]
+  },
+  "owner_action": "review the wording; add version and last_reviewed"
+ },
+ {
+  "kind": "unreviewed",
+  "rule_id": "R-NOT-01",
+  "severity": "low",
+  "what": "AI-written wording with no review, version or validity date",
+  "evidence": {
+   "ai_generated": true,
+   "missing_fields": [
+    "reviewed_by",
+    "version",
+    "valid_from",
+    "last_reviewed"
+   ]
+  },
+  "owner_action": "review the wording; add version and last_reviewed"
+ },
+ {
+  "kind": "knowledge_gap",
+  "rule_id": null,
+  "severity": "low",
+  "what": "no conditional rule covers: delivered, on time",
+  "evidence": {
+   "n_cases": 3,
+   "examples": [
+    {
+     "days_late": 0,
+     "delivered": true,
+     "days_since_delivery": 15
+    },
+    {
+     "days_late": 0,
+     "delivered": true,
+     "days_since_delivery": 30
+    },
+    {
+     "days_late": 0,
+     "delivered": true,
+     "days_since_delivery": 60
+    }
+   ],
+   "rules_checked": [
+    "R-DEL-02",
+    "R-REF-03",
+    "R-RET-01"
+   ]
+  },
+  "owner_action": "decide what clients in this situation are owed and write it as a rule"
+ },
+ {
+  "kind": "knowledge_gap",
+  "rule_id": null,
+  "severity": "medium",
+  "what": "no conditional rule covers: delivered, late",
+  "evidence": {
+   "n_cases": 90,
+   "examples": [
+    {
+     "days_late": 1,
+     "delivered": true,
+     "days_since_delivery": 15
+    },
+    {
+     "days_late": 1,
+     "delivered": true,
+     "days_since_delivery": 30
+    },
+    {
+     "days_late": 1,
+     "delivered": true,
+     "days_since_delivery": 60
+    }
+   ],
+   "rules_checked": [
+    "R-DEL-02",
+    "R-REF-03",
+    "R-RET-01"
+   ]
+  },
+  "owner_action": "decide what clients in this situation are owed and write it as a rule"
+ },
+ {
+  "kind": "stale_reference",
+  "rule_id": "R-REF-02",
+  "severity": "medium",
+  "what": "agents cited R-REF-02 1 time(s); it is not in the policy file",
+  "evidence": {
+   "conversations": [
+    "test-0031 (test-0031.jsonl:27)"
+   ],
+   "n": 1
+  },
+  "owner_action": "check the agents' prompts / knowledge for an old rule id"
+ },
+ {
+  "kind": "usage_signal",
+  "rule_id": "R-REF-03",
+  "severity": "medium",
+  "what": "condition false in 12/23 checks: agents often apply it where it does not hold",
+  "evidence": {
+   "examples": [
+    "test-0008 (test-0008.jsonl:41)",
+    "test-0008 (test-0008.jsonl:70)",
+    "test-0008 (test-0008.jsonl:99)",
+    "test-0052 (test-0052.jsonl:41)",
+    "test-0052 (test-0052.jsonl:70)"
+   ],
+   "rate": 0.522
+  },
+  "owner_action": "check whether the wording still matches how cases look"
+ },
+ {
+  "kind": "usage_signal",
+  "rule_id": "R-DEL-01",
+  "severity": "low",
+  "what": "never cited or retrieved in 120 conversations",
+  "evidence": {
+   "n_conversations": 120
+  },
+  "owner_action": "check whether the rule is still needed"
+ },
+ {
+  "kind": "usage_signal",
+  "rule_id": "R-RET-01",
+  "severity": "low",
+  "what": "never cited or retrieved in 120 conversations",
+  "evidence": {
+   "n_conversations": 120
+  },
+  "owner_action": "check whether the rule is still needed"
+ }
+]

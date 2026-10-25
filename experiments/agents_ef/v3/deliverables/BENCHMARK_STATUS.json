@@ -1,29 +1,36 @@
 {
-  "updated": "2026-10-25T14:44:48",
+  "updated": "2026-10-25T15:55:58",
   "worker_E": {
     "gate_A_simulator_validation": "PASSED (v3/e/tests: tape CRN, conservation, mask, budget, reward decomposition, no future info, determinism)",
-    "train_runs_done": 0,
+    "train_runs_done": 12,
     "train_runs_running": [
-      "dueling_double_dqn_equal_h64x64_150k_s0",
-      "ppo_equal_h64x64_150k_s0"
+      "double_dqn_equal_h64x64_150k_s2",
+      "dqn_equal_h64x64_150k_s2"
     ],
     "train_runs_failed": [],
-    "val_evaluations": 18,
-    "test_evaluations": 0,
+    "val_evaluations": 24,
+    "test_evaluations": 23,
     "test_manifest_sha256": "673373a71aae4e69345e7cb8fc346842f06e805ca668cdd27621b6c77761c15b",
     "analysis": false,
-    "queue_log_tail": []
+    "queue_log_tail": [
+      "15:38 dueling_dqn s1 150000 equal 64,64 exit=0",
+      "15:49 dueling_double_dqn s2 150000 equal 64,64 exit=0",
+      "15:49 ppo s2 150000 equal 64,64 exit=0"
+    ]
   },
   "worker_F": {
-    "updated_utc": "2026-10-25T14:41Z",
+    "updated_utc": "2026-10-25T15:13Z",
     "completed": [
       "1 dataset discovery (USS verified; DCH-2 blocked by agreement; Amazon reused; Saif7800 synthetic-rejected; search done)",
       "2 PROTOCOL.md",
       "USS baselines: mean, group_mean, hgb_features, tfidf_ridge, tfidf_logreg",
-      "Amazon leaderboard re-used from v2 files"
+      "Amazon leaderboard re-used from v2 files",
+      "DATASETS.md, data_provenance.json",
+      "Amazon checkpoint re-score + int8 (results/amazon_rescore_e5small_trim_ft.json; SHA 6bae1f48 confirmed, MAE 0.6309)",
+      "scripts: f_predictor, quantize_f, latency_bench, error_analysis, make_leaderboard, make_figures, make_manifest, infer_example, RUN_AND_RESUME_F.md"
     ],
     "running": [
-      "fine-tune queue (run_queue.sh): e5small_trim_ft -> e5small_trim_ft_L6 -> tinybert_ft_en -> mminilmv2l6_trim_ft -> mminilm_trim_ft"
+      "run_queue.sh (CPU budget: 128 tokens, 3 epochs, 50% TRAIN stratified, seeds 0 1 2): tinybert_ft_en -> e5small_trim_ft_L6 -> mminilmv2l6_trim_ft -> e5small_trim_ft (12L)"
     ],
     "blocked": [
       "local CallVerse datasets (no access to user's PC)",
@@ -31,19 +38,108 @@
       "GPU VRAM numbers (no GPU)"
     ],
     "todo": [
-      "int8 quantization",
+      "quantization of selected USS model",
+      "quiet latency bench",
       "error analysis",
-      "figures",
-      "final docs",
-      "infer_example.py"
+      "final figures",
+      "F_RESULTS.md",
+      "manifest"
+    ],
+    "notes": [
+      "first attempt (256 tokens, full TRAIN, 5 epochs) stopped: >23 min without finishing epoch 1 of e5-small 12L on shared CPU",
+      "mminilm_trim_ft (L12) dropped from the CPU queue (v2: ~= e5-small on Amazon; same cost as e5 12L)"
     ]
   },
+  "worker_F_M7": {
+    "dev": {
+      "agent_claim_contradicts_data": {
+        "n": 4,
+        "caught": 4,
+        "expected_flag": "claim_contradicts_data",
+        "recall": 1.0
+      },
+      "user_not_confirmed": {
+        "n": 2,
+        "caught": 2,
+        "expected_flag": "outcome ask_user",
+        "recall": 1.0
+      },
+      "pipeline_error": {
+        "n": 5,
+        "caught": 5,
+        "expected_flag": "pipeline_error",
+        "recall": 1.0
+      },
+      "agent_wrong_amount": {
+        "n": 3,
+        "caught": 3,
+        "expected_flag": "sent_back",
+        "recall": 1.0
+      },
+      "rule_not_searched": {
+        "n": 1,
+        "caught": 1,
+        "expected_flag": "rule_not_searched",
+        "recall": 1.0
+      },
+      "agent_answered_without_tools": {
+        "n": 5,
+        "caught": 5,
+        "expected_flag": "agent_answered_without_tools",
+        "recall": 1.0
+      },
+      "agent_cites_missing_rule": {
+        "n": 1,
+        "caught": 1,
+        "expected_flag": "cited_missing_rule",
+        "recall": 1.0
+      }
+    },
+    "test": {
+      "agent_claim_contradicts_data": {
+        "n": 4,
+        "caught": 4,
+        "expected_flag": "claim_contradicts_data",
+        "recall": 1.0
+      },
+      "agent_answered_without_tools": {
+        "n": 6,
+        "caught": 6,
+        "expected_flag": "agent_answered_without_tools",
+        "recall": 1.0
+      },
+      "rule_not_searched": {
+        "n": 2,
+        "caught": 2,
+        "expected_flag": "rule_not_searched",
+        "recall": 1.0
+      },
+      "user_not_confirmed": {
+        "n": 1,
+        "caught": 1,
+        "expected_flag": "outcome ask_user",
+        "recall": 1.0
+      },
+      "agent_cites_missing_rule": {
+        "n": 1,
+        "caught": 1,
+        "expected_flag": "cited_missing_rule",
+        "recall": 1.0
+      },
+      "pipeline_error": {
+        "n": 2,
+        "caught": 2,
+        "expected_flag": "pipeline_error",
+        "recall": 1.0
+      }
+    }
+  },
   "resources": {
-    "disk_free_gb": 6.95,
+    "disk_free_gb": 6.9,
     "load_avg": [
-      5.2470703125,
-      4.0107421875,
-      2.30029296875
+      5.5302734375,
+      5.70654296875,
+      5.47900390625
     ],
     "gpu": "none in this sandbox (RTX 4050 laptop not reachable): GPU work NOT VERIFIED"
   },
@@ -52,5 +148,5 @@
     "RTX 4050 measurements: no access",
     "DCH-2 dataset: requires a user agreement (not accepted)"
   ],
-  "git": "50acb04 research(E,F): Agent E scientific justification + paired stats + failure diagnosis; reproducible Agent F pipeline"
+  "git": "e9367c5 research(F/M7): closed-conversation quality review, outdated-rule audit, owner report, gated satisfaction feedback to E; corpus builder on the real pipeline; 17 tests"
 }

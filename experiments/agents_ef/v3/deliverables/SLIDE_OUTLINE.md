@@ -50,23 +50,26 @@ Which tiny models (or rules) should run Agent E (capacity) and Agent F (satisfac
 - Leaderboard figure (`v3/e/figures/e_leaderboard.png`), Pareto figure, per-family figure.
 - Verdict: does RL beat the best classical rule? Answer from `06_STATISTICAL_ANALYSIS.md`.
 
-## 7. Agent F: vertical architecture
+## 7. Agent F (M7, Quality & Knowledge): vertical architecture
 
 ```
- Conversation text (customer + agent turns, up to the prediction time)
+ Closed conversation (prototype trace: ticket, tool results, proposals, Coordinator checks, reply)
                 │
                 ▼
- Tokenizer (vocabulary trimmed to the corpus)
+ Parser (trace → record, every item keeps its file:line)
+                │
+     ┌──────────┼──────────────────┬──────────────────────┐
+     ▼          ▼                  ▼                      ▼
+ Quality     Satisfaction       Rule / knowledge       Feedback to E
+ checks      tiny model         audit (rules:          gate: real ratings? support domain?
+ (rules,     (14.4M params,     text vs condition,     CI ok? → reward, else KPI only
+ no model)   CPU) + isotonic    code refs, fact grid,
+             calibration from   usage evidence)
+             real reviews
+     └──────────┴──────────────────┴──────────────────────┘
                 │
                 ▼
- Tiny encoder (< 30M params: TinyBERT / trimmed MiniLM / trimmed e5-small)
-   or TF-IDF + linear model (baseline)
-                │
-                ▼
- Regression head → satisfaction score 1–5 (+ 3-class view)
-                │
-                ▼
- KPI only: dashboards and human review; it never rewards Agent E directly
+ Owner report (JSON + Markdown). F only reports: it never edits a rule or acts.
 ```
 
 ## 8. Agent F data and labels
@@ -79,6 +82,10 @@ Which tiny models (or rules) should run Agent E (capacity) and Agent F (satisfac
 ## 9. Agent F results
 - Leaderboard: MAE, QWK, Spearman, size, latency.
 - Verdict: transformer vs simple baseline.
+- M7, on 120 held-out conversations through the real pipeline:
+  - 16/16 planted defects that occurred were caught; 0 false flags on 91 clean conversations;
+  - prototype findings: French clients get English template replies, and a knowledge gap for delivered-late orders;
+  - the satisfaction model does not transfer (SD 0.07), so the gate keeps it out of E's reward.
 
 ## 10. E × F
 - The F model is not a valid reward: its domain does not match, and the simulator has no text.
