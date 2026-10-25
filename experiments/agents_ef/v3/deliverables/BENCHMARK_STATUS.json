@@ -1,0 +1,56 @@
+{
+  "updated": "2026-10-25T14:44:48",
+  "worker_E": {
+    "gate_A_simulator_validation": "PASSED (v3/e/tests: tape CRN, conservation, mask, budget, reward decomposition, no future info, determinism)",
+    "train_runs_done": 0,
+    "train_runs_running": [
+      "dueling_double_dqn_equal_h64x64_150k_s0",
+      "ppo_equal_h64x64_150k_s0"
+    ],
+    "train_runs_failed": [],
+    "val_evaluations": 18,
+    "test_evaluations": 0,
+    "test_manifest_sha256": "673373a71aae4e69345e7cb8fc346842f06e805ca668cdd27621b6c77761c15b",
+    "analysis": false,
+    "queue_log_tail": []
+  },
+  "worker_F": {
+    "updated_utc": "2026-10-25T14:41Z",
+    "completed": [
+      "1 dataset discovery (USS verified; DCH-2 blocked by agreement; Amazon reused; Saif7800 synthetic-rejected; search done)",
+      "2 PROTOCOL.md",
+      "USS baselines: mean, group_mean, hgb_features, tfidf_ridge, tfidf_logreg",
+      "Amazon leaderboard re-used from v2 files"
+    ],
+    "running": [
+      "fine-tune queue (run_queue.sh): e5small_trim_ft -> e5small_trim_ft_L6 -> tinybert_ft_en -> mminilmv2l6_trim_ft -> mminilm_trim_ft"
+    ],
+    "blocked": [
+      "local CallVerse datasets (no access to user's PC)",
+      "DialEval-2/DCH-2 (user agreement required)",
+      "GPU VRAM numbers (no GPU)"
+    ],
+    "todo": [
+      "int8 quantization",
+      "error analysis",
+      "figures",
+      "final docs",
+      "infer_example.py"
+    ]
+  },
+  "resources": {
+    "disk_free_gb": 6.95,
+    "load_avg": [
+      5.2470703125,
+      4.0107421875,
+      2.30029296875
+    ],
+    "gpu": "none in this sandbox (RTX 4050 laptop not reachable): GPU work NOT VERIFIED"
+  },
+  "blocked": [
+    "Windows PC / local CallVerse datasets: no remote connection available to this session",
+    "RTX 4050 measurements: no access",
+    "DCH-2 dataset: requires a user agreement (not accepted)"
+  ],
+  "git": "50acb04 research(E,F): Agent E scientific justification + paired stats + failure diagnosis; reproducible Agent F pipeline"
+}

@@ -272,6 +272,8 @@ def make_agent(algo, obs_dim, n_actions, seed, hidden=(64, 64), **kw):
         return DQN(obs_dim, n_actions, hidden, seed=seed, **kw)
     if algo == "double_dqn":
         return DQN(obs_dim, n_actions, hidden, double=True, seed=seed, **kw)
+    if algo == "dueling_dqn":                         # dueling head, plain (max) target: isolates the Double part
+        return DQN(obs_dim, n_actions, hidden, dueling=True, seed=seed, **kw)
     if algo == "dueling_double_dqn":
         return DQN(obs_dim, n_actions, hidden, double=True, dueling=True, seed=seed, **kw)
     if algo == "ppo":

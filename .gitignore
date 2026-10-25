@@ -21,3 +21,5 @@ __pycache__/
 experiments/agents_ef/results/agent_f_data/*.jsonl
 experiments/agents_ef/results/**/*.pt
 experiments/agents_ef/results/real_data/
+experiments/agents_ef/v3/**/*.pt
+experiments/agents_ef/v3/**/*.pt.tmp

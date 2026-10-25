@@ -1,0 +1,9 @@
+{
+  "source": "Fixed planned staffing (16 sessions) on 200 random TRAIN days (seeds from rng 424242, TRAIN range); no VAL/TEST data",
+  "ref_miss_per_step": 0.2909895833333333,
+  "ref_lost_per_step": 1.6559895833333333,
+  "ref_cost_per_step": 16.0,
+  "ref_miss_share": 0.018910137079031986,
+  "ref_lost_share": 0.10761550177695041,
+  "ref_arrivals_per_day": 1477.25
+}
