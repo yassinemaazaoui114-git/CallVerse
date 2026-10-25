@@ -1,5 +1,5 @@
 {
- "updated_utc": "2026-10-25T16:47Z",
+ "updated_utc": "2026-10-25T20:26Z",
  "completed": [
   "1 dataset discovery (USS verified; DCH-2 blocked by agreement; Amazon reused; Saif7800 synthetic-rejected; search done)",
   "2 PROTOCOL.md",
@@ -12,11 +12,18 @@
   "e5small_trim_ft_L6_frac0.5_len128 (3 seeds)",
   "int8 quantization of e5small_trim_ft_L6_frac0.5_len128 (+ VAL re-centring) -> results/quant_*.json",
   "truncation diagnostic: tfidf_ridge_tail128tok / tail256tok",
-  "noise floor (results/noise_floor.json)"
+  "noise floor (results/noise_floor.json)",
+  "mminilmv2l6_trim_ft_frac0.5_len128 (3 seeds; collapsed on ZH)",
+  "e5small_trim_ft_L6_frac0.5_len256 (3 seeds) = selected neural checkpoint",
+  "quant of selected (results/quant_e5small_trim_ft_L6_frac0.5_len256.json, model_int8.pt saved)",
+  "checkpoints_manifest.json",
+  "infer_example.py tested (fp32 + int8)",
+  "ERROR_ANALYSIS.md",
+  "F_RESULTS.md draft",
+  "figures (5 PNG)"
  ],
  "running": [
-  "mminilmv2l6_trim_ft_frac0.5_len128 (run_queue.sh job, queue shell stopped)",
-  "run_queue2.sh: then e5small_trim_ft_L6_frac0.5_len256 -> e5small_trim_ft_frac0.5_len128 (12 layers)"
+  "run_queue2.sh: e5small_trim_ft_frac0.5_len128 (12 layers, 3 seeds) started 20:14Z, ETA ~3-4 h on shared CPU"
  ],
  "blocked": [
   "local CallVerse datasets (no access to user's PC)",
@@ -24,16 +31,13 @@
   "GPU VRAM numbers (no GPU)"
  ],
  "todo": [
-  "quantization of selected USS model",
-  "quiet latency bench",
-  "error analysis",
-  "final figures",
-  "F_RESULTS.md",
-  "manifest"
+  "add e5 12L row to F_RESULTS/leaderboard/figures when done",
+  "latency_bench.py (per-process latency/RAM) at the end"
  ],
  "notes": [
   "first attempt (256 tokens, full TRAIN, 5 epochs) stopped: >23 min without finishing epoch 1 of e5-small 12L on shared CPU",
   "mminilm_trim_ft (L12) dropped from the CPU queue (v2: ~= e5-small on Amazon; same cost as e5 12L)",
   "queue re-ordered after finding: 100% of TEST dialogues exceed 128 tokens; TF-IDF on last 128 tokens loses 0.018 MAE on JDDC"
- ]
+ ],
+ "selected_checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1"
 }

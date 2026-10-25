@@ -1,0 +1,119 @@
+{
+ "note": "checkpoints live OUTSIDE git (sandbox scratchpad, not durable); reproduce with RUN_AND_RESUME_F.md",
+ "selected": {
+  "folder": "e5small_trim_ft_L6_frac0.5_len256_s1",
+  "path": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1",
+  "base_model": "intfloat/multilingual-e5-small",
+  "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+  "seed": 1,
+  "val_mae": 0.3901752233505249,
+  "layers": 6,
+  "max_length": 256,
+  "files": {
+   "meta.json": {
+    "sha256": "c98ecf9a5a0c8a83a177b89abdb0fdfc91961eaded3fbeadd8374d9fb05ea21d",
+    "mb": 0.0
+   },
+   "model.pt": {
+    "sha256": "466c0cc832dc0993c1ba33457d64ee96c70600063b0195885999993b29442009",
+    "mb": 71.8
+   },
+   "model_int8.pt": {
+    "sha256": "78908a2b61fc9a279b7523c9e0eaf101fb1a47d3bda4cdfd07787c0edcfc7e06",
+    "mb": 39.5
+   }
+  },
+  "tag": "e5small_trim_ft_L6_frac0.5_len256",
+  "reason": "best fine-tuned model by USS VAL MAE (all groups); 17.4M params, multilingual (EN+ZH trained); TF-IDF+Ridge is equally accurate on USS (see F_RESULTS.md)"
+ },
+ "checkpoints": [
+  {
+   "folder": "e5small_trim_ft_L6_frac0.5_len128_s1",
+   "path": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len128_s1",
+   "base_model": "intfloat/multilingual-e5-small",
+   "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+   "seed": 1,
+   "val_mae": 0.3937378525733948,
+   "layers": 6,
+   "max_length": 128,
+   "files": {
+    "meta.json": {
+     "sha256": "886c61f39256467b0ef63f7e2b9903d24374efffea83457a7924273335781018",
+     "mb": 0.0
+    },
+    "model.pt": {
+     "sha256": "215677d11366d1f7dedd8d20d3e87e7508d4933c3e87f3478ff2e365594daa7f",
+     "mb": 71.8
+    },
+    "model_int8.pt": {
+     "sha256": "145f25c9da221d0e69c161c8b508c37bf09c49f039eff53f362de7557c79f470",
+     "mb": 39.5
+    }
+   }
+  },
+  {
+   "folder": "e5small_trim_ft_L6_frac0.5_len256_s1",
+   "path": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1",
+   "base_model": "intfloat/multilingual-e5-small",
+   "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+   "seed": 1,
+   "val_mae": 0.3901752233505249,
+   "layers": 6,
+   "max_length": 256,
+   "files": {
+    "meta.json": {
+     "sha256": "c98ecf9a5a0c8a83a177b89abdb0fdfc91961eaded3fbeadd8374d9fb05ea21d",
+     "mb": 0.0
+    },
+    "model.pt": {
+     "sha256": "466c0cc832dc0993c1ba33457d64ee96c70600063b0195885999993b29442009",
+     "mb": 71.8
+    },
+    "model_int8.pt": {
+     "sha256": "78908a2b61fc9a279b7523c9e0eaf101fb1a47d3bda4cdfd07787c0edcfc7e06",
+     "mb": 39.5
+    }
+   }
+  },
+  {
+   "folder": "mminilmv2l6_trim_ft_frac0.5_len128_s1",
+   "path": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/mminilmv2l6_trim_ft_frac0.5_len128_s1",
+   "base_model": "nreimers/mMiniLMv2-L6-H384-distilled-from-XLMR-Large",
+   "revision": null,
+   "seed": 1,
+   "val_mae": 0.40185919404029846,
+   "layers": 6,
+   "max_length": 128,
+   "files": {
+    "meta.json": {
+     "sha256": "7d932edf399469edb813e8fe26c957040b98b866e9948b0d7daba9b1aa11da87",
+     "mb": 0.0
+    },
+    "model.pt": {
+     "sha256": "bbe3169d058d6460df35c2d7c95c54eb6491425aa43b536c8e6bf3e012bcf18e",
+     "mb": 71.8
+    }
+   }
+  },
+  {
+   "folder": "tinybert_ft_en_frac0.5_len128_s1",
+   "path": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tinybert_ft_en_frac0.5_len128_s1",
+   "base_model": "huawei-noah/TinyBERT_General_4L_312D",
+   "revision": null,
+   "seed": 1,
+   "val_mae": 0.30443626642227173,
+   "layers": 4,
+   "max_length": 128,
+   "files": {
+    "meta.json": {
+     "sha256": "f38fc50268836909e7507224c0a9ba17674e264ec38402f765b57b5cb855e257",
+     "mb": 0.0
+    },
+    "model.pt": {
+     "sha256": "88e8c7dbfce6b265376afaefcfdcafa39eb79617a2ab1826f136de8c3e8e8796",
+     "mb": 57.5
+    }
+   }
+  }
+ ]
+}

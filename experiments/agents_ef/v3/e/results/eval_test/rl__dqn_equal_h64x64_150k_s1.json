@@ -1,0 +1,10 @@
+{
+  "n_params": 8081,
+  "ckpt_kb": 34.3,
+  "policy": "rl:dqn_equal_h64x64_150k_s1",
+  "split": "test",
+  "n_days": 650,
+  "eval_s": 130.5,
+  "decision_ms_p50": 0.1589,
+  "decision_ms_p95": 0.304
+}

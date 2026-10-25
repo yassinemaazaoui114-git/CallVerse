@@ -7,3 +7,10 @@
 [transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (797 > 512). Running this sequence through the model will result in indexing errors
   e5small_trim_ft seed 1 epoch 1: VAL MAE 0.4127 (849.0 s)
   e5small_trim_ft seed 1 epoch 2: VAL MAE 0.4072 (858.0 s)
+  e5small_trim_ft seed 1 epoch 3: VAL MAE 0.3902 (1288.7 s)
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 5076.89it/s]
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (797 > 512). Running this sequence through the model will result in indexing errors
+  e5small_trim_ft seed 2 epoch 1: VAL MAE 0.4090 (1412.2 s)
+  e5small_trim_ft seed 2 epoch 2: VAL MAE 0.4061 (1383.0 s)
+  e5small_trim_ft seed 2 epoch 3: VAL MAE 0.4053 (1424.9 s)
+e5small_trim_ft_L6_frac0.5_len256 {'all': 'MAE 0.399±0.006 QWK 0.375', 'lang:en': 'MAE 0.296±0.001 QWK 0.077', 'lang:zh': 'MAE 0.509±0.012 QWK 0.060'} params 17448705

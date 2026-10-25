@@ -48,3 +48,20 @@
 18:28 dueling_double_dqn s2 150000 sla_heavy 64,64 exit=0
 18:34 dueling_double_dqn s0 150000 abandon_heavy 64,64 exit=0
 18:37 dueling_double_dqn s1 150000 abandon_heavy 64,64 exit=0
+18:44 dueling_double_dqn s2 150000 abandon_heavy 64,64 exit=0
+18:48 dueling_double_dqn s0 150000 cost_heavy 64,64 exit=0
+18:55 dueling_double_dqn s1 150000 cost_heavy 64,64 exit=0
+18:58 dueling_double_dqn s2 150000 cost_heavy 64,64 exit=0
+19:05 dueling_double_dqn s0 150000 equal 32,32 exit=0
+19:09 dueling_double_dqn s1 150000 equal 32,32 exit=0
+19:15 dueling_double_dqn s2 150000 equal 32,32 exit=0
+19:19 dueling_double_dqn s0 150000 equal 128,128 exit=0
+19:26 dueling_double_dqn s1 150000 equal 128,128 exit=0
+19:30 dueling_double_dqn s2 150000 equal 128,128 exit=0
+19:49 dueling_double_dqn s0 400000 equal 64,64 exit=0
+19:53 dueling_double_dqn s1 400000 equal 64,64 exit=0
+20:14 dueling_double_dqn s2 400000 equal 64,64 exit=0
+20:17 ppo s0 400000 equal 64,64 exit=0
+20:41 ppo s1 400000 equal 64,64 exit=0
+20:42 ppo s2 400000 equal 64,64 exit=0
+ALLDONE 20:42

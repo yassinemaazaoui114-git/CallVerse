@@ -1,0 +1,10 @@
+{
+  "n_params": 1224,
+  "ckpt_kb": 15.2,
+  "policy": "rl:tabular_q_equal_h64x64_150k_s2",
+  "split": "test",
+  "n_days": 650,
+  "eval_s": 111.0,
+  "decision_ms_p50": 0.0212,
+  "decision_ms_p95": 0.0289
+}

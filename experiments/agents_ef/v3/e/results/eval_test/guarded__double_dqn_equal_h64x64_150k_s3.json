@@ -1,0 +1,11 @@
+{
+  "n_params": 8081,
+  "ckpt_kb": 34.3,
+  "guard_forecast_z": 0.25,
+  "policy": "guarded:double_dqn_equal_h64x64_150k_s3",
+  "split": "test",
+  "n_days": 650,
+  "eval_s": 125.0,
+  "decision_ms_p50": 0.2187,
+  "decision_ms_p95": 0.3605
+}
