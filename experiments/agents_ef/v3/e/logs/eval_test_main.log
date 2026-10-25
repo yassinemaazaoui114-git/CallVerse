@@ -56,3 +56,6 @@ guarded:dqn_equal_h64x64_150k_s4 done 121.2s
 guarded:dqn_equal_h64x64_150k_s5 done 122.3s
 guarded:dqn_equal_h64x64_150k_s6 done 121.0s
 guarded:dqn_equal_h64x64_150k_s7 done 122.7s
+guarded:dqn_equal_h64x64_150k_s8 done 118.5s
+guarded:dqn_equal_h64x64_150k_s9 done 122.0s
+guarded:dueling_double_dqn_equal_h64x64_150k_s0 done 118.4s

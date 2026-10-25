@@ -32,7 +32,7 @@ $PY -m v3.e.evaluate_v3 --split val --workers 2 --policies rule:fixed rule:thres
     rule:forecast:0.25 rule:erlang:0.4 rule:mpc:0.5          # the full sweep is listed in 03_BENCHMARK_PROTOCOL.md
 $PY -m v3.e.analyze_v3 val
 
-# Gate C: RL training queue (70 runs, about 7-9 h on 4 shared cores)
+# Gate C: RL training queue (66 runs, about 6 h on 4 shared cores)
 PY=$PY PAR=2 sh v3/e/run_queue_e.sh          # log: v3/e/logs/queue_e.log, ends with ALLDONE
 PY=$PY sh v3/e/run_queue_e2.sh               # E+F experiment (synthetic SIM-CSAT term), starts after ALLDONE
 

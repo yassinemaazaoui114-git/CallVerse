@@ -1,0 +1,2 @@
+2026-10-25T20:48:08
+Candidate set frozen: all 66 Gate C runs (status done) + 3 csat runs (queue_e2, E+F experiment, reported separately). Selection rules fixed in 03_BENCHMARK_PROTOCOL.md; no TEST row inspected before this time.
