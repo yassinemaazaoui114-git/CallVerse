@@ -17,6 +17,7 @@ Updated 2026-10-25 by Worker D. Checkpoints are git-ignored on purpose, and noth
 |---|---|---|---|
 | `agentE_v3_best_checkpoints` (2.6 MB) | All 69 Agent E v3 runs: `best.pt` + `run.json`; `CHECKPOINT_MANIFEST_E.json`; `val_choice.json`; VAL/TEST manifests | `07d4718ff598a0a5183e03858bca172f851e21ab5c308d80436510a7dcca4acb` | **Full round trip**: downloaded from the vault, decoded, extracted; 69/69 `best.pt` match the manifest hashes |
 | `agentF_v3_e5L6_256_selected` (70 MB, 8 parts) | Selected Agent F model: `model.pt` fp32 (SHA256 `466c0cc8…`) + `meta.json`; base tokenizer and config at revision `614241f6`; `SHA256SUMS`; F checkpoint manifest | `ed664a746a6be52f3ce37243816bcf7d98571c418f9480077c1b2560fc613483` | Server SHA256 of all 8 parts = local parts; local concatenation decodes to the archive hash |
+| `agentF_v4_tfidf_ridge_tail256` (2.9 MB) | **Recommended Agent F scorer**: TF-IDF+Ridge on the last 256 tokens (`model.joblib` SHA256 `1c2018532cf6b506…`, 193,429 params) + `meta.json`. Deterministic re-fit: `python -m v4.f.tfidf_predictor` (26 s) | `7ecabe027d56320a5ed80187c0da23529e9fd90597bc06e23f688a5ef1f0a17d` | Server SHA256 = local |
 | `m7_corpus_v3_traces` (0.28 MB) | M7 dev and held-out corpora: 240 traces plus `ground_truth.json`. Not bit-reproducible (ticket ids are random UUIDs) | `52e0b9d2958b6657421f4f9299b8bc6d2886fee109824e41defb0466d0176db4` | Server SHA256 = local |
 
 ## Not backed up (at risk; regenerable)
@@ -31,4 +32,4 @@ Updated 2026-10-25 by Worker D. Checkpoints are git-ignored on purpose, and noth
 
 ## Pending
 
-New post-V3 artifacts (Worker E's final RL policy, Worker F's TF-IDF predictor) will be added to the vault when they exist; their rows are below.
+Worker E's final v4 RL policy is added when it exists. Not backed up (regenerable, not recommended): `tfidf_roles_tail256` (SHA256 `318bbbf2…`).

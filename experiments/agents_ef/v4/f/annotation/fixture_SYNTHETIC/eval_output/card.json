@@ -1,0 +1,16 @@
+{
+ "model": "synthetic_model",
+ "label_type": "synthetic_fixture",
+ "domain": "support_conversation",
+ "corpus": "callverse",
+ "test_n": 40,
+ "test_n_scored": 30,
+ "mae": 0.4114,
+ "mae_mean_baseline": 0.9,
+ "spearman": 0.7963,
+ "spearman_ci_low": 0.6127,
+ "spearman_ci_high": 0.8867,
+ "agreement_alpha_ordinal": 0.6831,
+ "human_loo_mae": 0.6278,
+ "SYNTHETIC": true
+}

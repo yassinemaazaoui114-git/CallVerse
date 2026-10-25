@@ -1,0 +1,4 @@
+rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s0 done 21.9s ret -230.47
+rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1 done 21.7s ret -220.10
+rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s2 done 20.5s ret -219.13
+rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s3 done 21.1s ret -228.27

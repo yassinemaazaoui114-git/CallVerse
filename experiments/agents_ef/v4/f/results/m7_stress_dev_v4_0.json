@@ -1,0 +1,296 @@
+{
+ "n_conversations": 120,
+ "split": "dev",
+ "mutations": {
+  "numeric_strings": {
+   "n_changed": 16,
+   "changed": [
+    {
+     "conversation": "dev-0005",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0010",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0013",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0016",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0026",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0029",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0030",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0033",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0036",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0055",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0062",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0091",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0098",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0102",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    },
+    {
+     "conversation": "dev-0109",
+     "added": [
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ],
+      [
+       "claim_false",
+       "high"
+      ]
+     ],
+     "removed": []
+    }
+   ],
+   "n_refs": 284,
+   "refs_not_ok": 0
+  },
+  "float_noise": {
+   "n_changed": 0,
+   "changed": [],
+   "n_refs": 196,
+   "refs_not_ok": 0
+  },
+  "noise_lines": {
+   "n_changed": 0,
+   "changed": [],
+   "n_refs": 196,
+   "refs_not_ok": 0
+  },
+  "garbled_line": {
+   "n_changed": 0,
+   "changed": [],
+   "n_refs": 196,
+   "refs_not_ok": 0
+  },
+  "batch_file": {
+   "n_changed": 0,
+   "changed": [],
+   "n_refs": 196,
+   "refs_not_ok": 0
+  }
+ },
+ "code_version": "v4.0 comparison (before string normalisation), re-created by monkeypatching quality_v4.same = v3 _same"
+}

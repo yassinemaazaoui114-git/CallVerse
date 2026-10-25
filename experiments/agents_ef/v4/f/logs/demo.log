@@ -1,0 +1,11 @@
+Agent F loaded (tfidf:/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tfidf_ridge_tail256) and processed 6 closed conversations in 3.33 s
+
+- dev-0000: outcome approve, grade review; satisfaction no score [fr, withheld_language_not_validated]; flags: slm_fallback_template(low), reply_language_mismatch(medium); evidence refs ok 2/2; E reward eligible: False
+- dev-0002: outcome info, grade ok_minor; satisfaction 3.29 [en, indicative_out_of_domain]; flags: slm_fallback_template(low); evidence refs ok 1/1; E reward eligible: False
+- dev-0005: outcome escalate, grade fail; satisfaction 3.32 [en, indicative_out_of_domain]; flags: sent_back(high), escalated(medium), slm_fallback_template(low), claim_false(high), claim_false(high); evidence refs ok 8/8; E reward eligible: False
+- dev-0013: outcome ask_user, grade ok_minor; satisfaction 3.27 [en, indicative_out_of_domain]; flags: slm_fallback_template(low); evidence refs ok 1/1; E reward eligible: False
+- dev-0015: outcome escalate, grade fail; satisfaction 3.25 [en, indicative_out_of_domain]; flags: pipeline_error(high), escalated(medium), slm_fallback_template(low); evidence refs ok 3/3; E reward eligible: False
+- dev-0095: outcome info, grade review; satisfaction no score [fr, withheld_language_not_validated]; flags: cited_missing_rule(medium), proposal_malformed(medium), slm_fallback_template(low), reply_language_mismatch(medium); evidence refs ok 4/4; E reward eligible: False
+
+e_reward_allowed = False: label_type: value human_annotation, needed genuine_customer_rating; domain: value task_oriented_dialogue, needed support_conversation; coverage: value 0.0, needed >= 0.95
+Owner report: /home/user/CallVerse-research/experiments/agents_ef/v4/f/results/demo/owner_report.md

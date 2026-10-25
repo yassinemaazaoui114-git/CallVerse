@@ -1,0 +1,299 @@
+{
+ "wiring_recall": {
+  "agent_claim_contradicts_data": {
+   "n": 4,
+   "caught": 4,
+   "expected_flag": "claim_false",
+   "recall": 1.0
+  },
+  "agent_answered_without_tools": {
+   "n": 6,
+   "caught": 6,
+   "expected_flag": "agent_answered_without_tools",
+   "recall": 1.0
+  },
+  "rule_not_searched": {
+   "n": 2,
+   "caught": 2,
+   "expected_flag": "rule_not_searched",
+   "recall": 1.0
+  },
+  "user_not_confirmed": {
+   "n": 1,
+   "caught": 1,
+   "expected_flag": "outcome ask_user",
+   "recall": 1.0
+  },
+  "agent_cites_missing_rule": {
+   "n": 1,
+   "caught": 1,
+   "expected_flag": "cited_missing_rule",
+   "recall": 1.0
+  },
+  "pipeline_error": {
+   "n": 2,
+   "caught": 2,
+   "expected_flag": "pipeline_error",
+   "recall": 1.0
+  }
+ },
+ "planted_not_manifested": {
+  "agent_cites_missing_rule": 4,
+  "user_not_confirmed": 2,
+  "rule_not_searched": 3,
+  "agent_wrong_amount": 4
+ },
+ "n_clean": 91,
+ "false_positives_on_clean": {},
+ "false_positive_examples": {},
+ "verified_observations_on_clean": {
+  "slm_fallback_template": 91,
+  "reply_language_mismatch": 16
+ },
+ "extra_flags_on_planted": [
+  {
+   "conversation_id": "test-0008",
+   "planted": "agent_claim_contradicts_data",
+   "other_flags": [
+    "escalated",
+    "sent_back"
+   ]
+  },
+  {
+   "conversation_id": "test-0031",
+   "planted": "agent_cites_missing_rule",
+   "other_flags": [
+    "missed_entitlement",
+    "proposal_malformed"
+   ]
+  },
+  {
+   "conversation_id": "test-0052",
+   "planted": "agent_claim_contradicts_data",
+   "other_flags": [
+    "escalated",
+    "sent_back"
+   ]
+  },
+  {
+   "conversation_id": "test-0073",
+   "planted": "pipeline_error",
+   "other_flags": [
+    "escalated"
+   ]
+  },
+  {
+   "conversation_id": "test-0095",
+   "planted": "pipeline_error",
+   "other_flags": [
+    "escalated"
+   ]
+  },
+  {
+   "conversation_id": "test-0100",
+   "planted": "agent_claim_contradicts_data",
+   "other_flags": [
+    "escalated",
+    "sent_back"
+   ]
+  },
+  {
+   "conversation_id": "test-0114",
+   "planted": "agent_claim_contradicts_data",
+   "other_flags": [
+    "escalated",
+    "sent_back"
+   ]
+  }
+ ],
+ "language_mismatch_vs_corpus_lang": {
+  "not_flagged|en": 97,
+  "flagged|fr": 23
+ },
+ "note": "SCRIPTED corpus: recall is a wiring check, not an estimate of real-world accuracy",
+ "v3_vs_v4": {
+  "v3": {
+   "slm_fallback_template": 120,
+   "reply_language_mismatch": 23,
+   "claim_contradicts_data": 7,
+   "sent_back": 4,
+   "escalated": 6,
+   "agent_answered_without_tools": 6,
+   "rule_not_searched": 2,
+   "missed_entitlement": 2,
+   "cited_missing_rule": 1,
+   "proposal_malformed": 1,
+   "pipeline_error": 2
+  },
+  "v4": {
+   "slm_fallback_template": 120,
+   "reply_language_mismatch": 23,
+   "sent_back": 4,
+   "escalated": 6,
+   "claim_false": 7,
+   "agent_answered_without_tools": 6,
+   "rule_not_searched": 2,
+   "cited_missing_rule": 1,
+   "proposal_malformed": 1,
+   "missed_entitlement": 1,
+   "pipeline_error": 2
+  }
+ },
+ "evidence_integrity": {
+  "n_refs": 184,
+  "n_ok": 184,
+  "failed": []
+ },
+ "language_detector": {
+  "detected en|corpus en": 97,
+  "detected fr|corpus fr": 23
+ },
+ "satisfaction_validity": {
+  "indicative_out_of_domain": 97,
+  "withheld_language_not_validated": 23
+ },
+ "e_reward_allowed": false,
+ "e_reward_reasons": [
+  "label_type: value human_annotation, needed genuine_customer_rating",
+  "domain: value task_oriented_dialogue, needed support_conversation",
+  "coverage: value 0.0, needed >= 0.95"
+ ],
+ "rule_flag_counts": {
+  "internal_consistency": 1,
+  "coverage": 2,
+  "governance": 8,
+  "usage": 3
+ },
+ "rule_flags": [
+  {
+   "category": "internal_consistency",
+   "kind": "stale_reference",
+   "rule_id": "R-REF-02",
+   "severity": "medium",
+   "what": "agents cited R-REF-02 1 time(s); it is not in the policy file"
+  },
+  {
+   "category": "coverage",
+   "kind": "knowledge_gap",
+   "rule_id": null,
+   "severity": "low",
+   "what": "no conditional rule covers: delivered, on time"
+  },
+  {
+   "category": "coverage",
+   "kind": "knowledge_gap",
+   "rule_id": null,
+   "severity": "medium",
+   "what": "no conditional rule covers: delivered, late"
+  },
+  {
+   "category": "governance",
+   "kind": "unreviewed",
+   "rule_id": "R-DEL-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date"
+  },
+  {
+   "category": "governance",
+   "kind": "unreviewed",
+   "rule_id": "R-DEL-02",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date"
+  },
+  {
+   "category": "governance",
+   "kind": "unreviewed",
+   "rule_id": "R-REF-03",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date"
+  },
+  {
+   "category": "governance",
+   "kind": "unreviewed",
+   "rule_id": "R-REF-05",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date"
+  },
+  {
+   "category": "governance",
+   "kind": "unreviewed",
+   "rule_id": "R-RET-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date"
+  },
+  {
+   "category": "governance",
+   "kind": "unreviewed",
+   "rule_id": "R-DMG-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date"
+  },
+  {
+   "category": "governance",
+   "kind": "unreviewed",
+   "rule_id": "R-ESC-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date"
+  },
+  {
+   "category": "governance",
+   "kind": "unreviewed",
+   "rule_id": "R-NOT-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date"
+  },
+  {
+   "category": "usage",
+   "kind": "usage_signal",
+   "rule_id": "R-REF-03",
+   "severity": "medium",
+   "what": "condition false in 12/23 checks: agents often apply it where it does not hold"
+  },
+  {
+   "category": "usage",
+   "kind": "usage_signal",
+   "rule_id": "R-DEL-01",
+   "severity": "low",
+   "what": "never cited or retrieved in 120 conversations"
+  },
+  {
+   "category": "usage",
+   "kind": "usage_signal",
+   "rule_id": "R-RET-01",
+   "severity": "low",
+   "what": "never cited or retrieved in 120 conversations"
+  }
+ ],
+ "per_conversation_rule_warnings": {
+  "knowledge_gap|None": 31,
+  "stale_reference|R-REF-02": 1
+ },
+ "timings_s": {
+  "load": 3.16,
+  "process_all": 0.48,
+  "per_conversation_ms": 4.04
+ },
+ "n_conversations": 120,
+ "scorer": "tfidf:/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tfidf_ridge_tail256",
+ "code_sha256": {
+  "agent_f.py": "553fb9801a85240ce0da1b042849b7e1b579ee34a673a8ee4321cc0bd40b0706",
+  "m7/conversations_v4.py": "ff18d7efde6b599badfb4f10258d3597d869e42b1823c2fcf158f8b1c9fafd4b",
+  "m7/quality_v4.py": "002a3e70dd5f6074dc2620eed74f5d13335f310c81e5ba38a1be83477dcc5eea",
+  "m7/rule_audit_v4.py": "3be8bab266c82efbe82c9c37d0b55a97fe44fd0c5c2f0b8587b335c009ea4925",
+  "m7/satisfaction_v4.py": "10b217887802269291e53bb2f186d85455cc13fc2823c054c978478e6d841751",
+  "m7/feedback_v4.py": "8e0b27ce33c6b969fbf45b9ddf7e017569c0b526c8b806e38c062d34c7954c3e",
+  "m7/report_v4.py": "29e7725971536117d8442c4c1ad4b184649d6a4a649be0a7d975c9ea88b6d8f0",
+  "tfidf_predictor.py": "467a9a03211811d235bf5591008c014e1b09f9a54e2fad8eb881dd387e770247",
+  "eval_m7_v4.py": "7999e57a9964e61ea24ce48fa99087b89cc4ed3ffbabd277b6dfcd3526ba6c19"
+ },
+ "post_freeze": {
+  "tag": "v4_1",
+  "reason": "string-number normalisation in claim comparison (DEV stress test: 16/120 false claim_false); eval script gained this mode",
+  "files_changed_since_freeze": [
+   "m7/quality_v4.py",
+   "eval_m7_v4.py"
+  ],
+  "first_heldout_run_kept_in": "results/m7/test/"
+ },
+ "created": "2026-10-25T23:34:20Z"
+}

@@ -1,0 +1,20 @@
+{
+ "model": "tfidf_ridge_tail256tok (seed None)",
+ "label_type": "human_annotation",
+ "domain": "task_oriented_dialogue",
+ "test_n": 1016,
+ "mae": 0.3919,
+ "mae_mean_baseline": 0.51,
+ "spearman": 0.596,
+ "spearman_ci_low": 0.55,
+ "spearman_ci_high": 0.6381,
+ "source": "tfidf_ridge_tail256tok.json",
+ "checkpoint": null,
+ "corpus": "uss",
+ "model_key": "tfidf_ridge_tail256",
+ "languages_validated": [
+  "en",
+  "zh"
+ ],
+ "note": "USS = third-party annotator judgements of task-oriented dialogues (EN) and JDDC e-commerce service (ZH); not customer ratings, not CallVerse conversations"
+}

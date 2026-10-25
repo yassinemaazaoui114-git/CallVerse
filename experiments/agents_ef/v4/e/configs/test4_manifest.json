@@ -1,0 +1,5239 @@
+{
+ "split": "test4",
+ "days_per_family": 50,
+ "families": [
+  "normal",
+  "morning_peak",
+  "two_peak",
+  "tracking_spike",
+  "volatile",
+  "slowdown",
+  "failure",
+  "high_priority_surge",
+  "evening_peak",
+  "refund_surge",
+  "combined_shock",
+  "severe_overload",
+  "random_shape"
+ ],
+ "train_families": [
+  "normal",
+  "morning_peak",
+  "two_peak",
+  "tracking_spike",
+  "volatile",
+  "slowdown",
+  "failure",
+  "high_priority_surge"
+ ],
+ "heldout_families": [
+  "evening_peak",
+  "refund_surge",
+  "combined_shock",
+  "severe_overload",
+  "random_shape"
+ ],
+ "seed_rule": "seed = 1300000 + 1000*family_index + i",
+ "days": [
+  {
+   "day_id": "test4-normal-000",
+   "family": "normal",
+   "seed": 1300000,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1473
+  },
+  {
+   "day_id": "test4-normal-001",
+   "family": "normal",
+   "seed": 1300001,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1560
+  },
+  {
+   "day_id": "test4-normal-002",
+   "family": "normal",
+   "seed": 1300002,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1563
+  },
+  {
+   "day_id": "test4-normal-003",
+   "family": "normal",
+   "seed": 1300003,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1500
+  },
+  {
+   "day_id": "test4-normal-004",
+   "family": "normal",
+   "seed": 1300004,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1742
+  },
+  {
+   "day_id": "test4-normal-005",
+   "family": "normal",
+   "seed": 1300005,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1012
+  },
+  {
+   "day_id": "test4-normal-006",
+   "family": "normal",
+   "seed": 1300006,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1496
+  },
+  {
+   "day_id": "test4-normal-007",
+   "family": "normal",
+   "seed": 1300007,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1047
+  },
+  {
+   "day_id": "test4-normal-008",
+   "family": "normal",
+   "seed": 1300008,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1300
+  },
+  {
+   "day_id": "test4-normal-009",
+   "family": "normal",
+   "seed": 1300009,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1017
+  },
+  {
+   "day_id": "test4-normal-010",
+   "family": "normal",
+   "seed": 1300010,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1345
+  },
+  {
+   "day_id": "test4-normal-011",
+   "family": "normal",
+   "seed": 1300011,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1004
+  },
+  {
+   "day_id": "test4-normal-012",
+   "family": "normal",
+   "seed": 1300012,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1669
+  },
+  {
+   "day_id": "test4-normal-013",
+   "family": "normal",
+   "seed": 1300013,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1891
+  },
+  {
+   "day_id": "test4-normal-014",
+   "family": "normal",
+   "seed": 1300014,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1437
+  },
+  {
+   "day_id": "test4-normal-015",
+   "family": "normal",
+   "seed": 1300015,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1346
+  },
+  {
+   "day_id": "test4-normal-016",
+   "family": "normal",
+   "seed": 1300016,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1873
+  },
+  {
+   "day_id": "test4-normal-017",
+   "family": "normal",
+   "seed": 1300017,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1592
+  },
+  {
+   "day_id": "test4-normal-018",
+   "family": "normal",
+   "seed": 1300018,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1008
+  },
+  {
+   "day_id": "test4-normal-019",
+   "family": "normal",
+   "seed": 1300019,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1706
+  },
+  {
+   "day_id": "test4-normal-020",
+   "family": "normal",
+   "seed": 1300020,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 979
+  },
+  {
+   "day_id": "test4-normal-021",
+   "family": "normal",
+   "seed": 1300021,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1517
+  },
+  {
+   "day_id": "test4-normal-022",
+   "family": "normal",
+   "seed": 1300022,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1733
+  },
+  {
+   "day_id": "test4-normal-023",
+   "family": "normal",
+   "seed": 1300023,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1645
+  },
+  {
+   "day_id": "test4-normal-024",
+   "family": "normal",
+   "seed": 1300024,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1035
+  },
+  {
+   "day_id": "test4-normal-025",
+   "family": "normal",
+   "seed": 1300025,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1497
+  },
+  {
+   "day_id": "test4-normal-026",
+   "family": "normal",
+   "seed": 1300026,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1015
+  },
+  {
+   "day_id": "test4-normal-027",
+   "family": "normal",
+   "seed": 1300027,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1601
+  },
+  {
+   "day_id": "test4-normal-028",
+   "family": "normal",
+   "seed": 1300028,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1695
+  },
+  {
+   "day_id": "test4-normal-029",
+   "family": "normal",
+   "seed": 1300029,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 992
+  },
+  {
+   "day_id": "test4-normal-030",
+   "family": "normal",
+   "seed": 1300030,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1605
+  },
+  {
+   "day_id": "test4-normal-031",
+   "family": "normal",
+   "seed": 1300031,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1862
+  },
+  {
+   "day_id": "test4-normal-032",
+   "family": "normal",
+   "seed": 1300032,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1906
+  },
+  {
+   "day_id": "test4-normal-033",
+   "family": "normal",
+   "seed": 1300033,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1004
+  },
+  {
+   "day_id": "test4-normal-034",
+   "family": "normal",
+   "seed": 1300034,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1045
+  },
+  {
+   "day_id": "test4-normal-035",
+   "family": "normal",
+   "seed": 1300035,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 940
+  },
+  {
+   "day_id": "test4-normal-036",
+   "family": "normal",
+   "seed": 1300036,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1096
+  },
+  {
+   "day_id": "test4-normal-037",
+   "family": "normal",
+   "seed": 1300037,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1867
+  },
+  {
+   "day_id": "test4-normal-038",
+   "family": "normal",
+   "seed": 1300038,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1320
+  },
+  {
+   "day_id": "test4-normal-039",
+   "family": "normal",
+   "seed": 1300039,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1762
+  },
+  {
+   "day_id": "test4-normal-040",
+   "family": "normal",
+   "seed": 1300040,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1703
+  },
+  {
+   "day_id": "test4-normal-041",
+   "family": "normal",
+   "seed": 1300041,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1388
+  },
+  {
+   "day_id": "test4-normal-042",
+   "family": "normal",
+   "seed": 1300042,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1748
+  },
+  {
+   "day_id": "test4-normal-043",
+   "family": "normal",
+   "seed": 1300043,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1694
+  },
+  {
+   "day_id": "test4-normal-044",
+   "family": "normal",
+   "seed": 1300044,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1365
+  },
+  {
+   "day_id": "test4-normal-045",
+   "family": "normal",
+   "seed": 1300045,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1465
+  },
+  {
+   "day_id": "test4-normal-046",
+   "family": "normal",
+   "seed": 1300046,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1891
+  },
+  {
+   "day_id": "test4-normal-047",
+   "family": "normal",
+   "seed": 1300047,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1875
+  },
+  {
+   "day_id": "test4-normal-048",
+   "family": "normal",
+   "seed": 1300048,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1311
+  },
+  {
+   "day_id": "test4-normal-049",
+   "family": "normal",
+   "seed": 1300049,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 971
+  },
+  {
+   "day_id": "test4-morning_peak-000",
+   "family": "morning_peak",
+   "seed": 1301000,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1358
+  },
+  {
+   "day_id": "test4-morning_peak-001",
+   "family": "morning_peak",
+   "seed": 1301001,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1878
+  },
+  {
+   "day_id": "test4-morning_peak-002",
+   "family": "morning_peak",
+   "seed": 1301002,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1697
+  },
+  {
+   "day_id": "test4-morning_peak-003",
+   "family": "morning_peak",
+   "seed": 1301003,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1745
+  },
+  {
+   "day_id": "test4-morning_peak-004",
+   "family": "morning_peak",
+   "seed": 1301004,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1352
+  },
+  {
+   "day_id": "test4-morning_peak-005",
+   "family": "morning_peak",
+   "seed": 1301005,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1631
+  },
+  {
+   "day_id": "test4-morning_peak-006",
+   "family": "morning_peak",
+   "seed": 1301006,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1856
+  },
+  {
+   "day_id": "test4-morning_peak-007",
+   "family": "morning_peak",
+   "seed": 1301007,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 980
+  },
+  {
+   "day_id": "test4-morning_peak-008",
+   "family": "morning_peak",
+   "seed": 1301008,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 994
+  },
+  {
+   "day_id": "test4-morning_peak-009",
+   "family": "morning_peak",
+   "seed": 1301009,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1626
+  },
+  {
+   "day_id": "test4-morning_peak-010",
+   "family": "morning_peak",
+   "seed": 1301010,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1384
+  },
+  {
+   "day_id": "test4-morning_peak-011",
+   "family": "morning_peak",
+   "seed": 1301011,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 988
+  },
+  {
+   "day_id": "test4-morning_peak-012",
+   "family": "morning_peak",
+   "seed": 1301012,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1526
+  },
+  {
+   "day_id": "test4-morning_peak-013",
+   "family": "morning_peak",
+   "seed": 1301013,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1503
+  },
+  {
+   "day_id": "test4-morning_peak-014",
+   "family": "morning_peak",
+   "seed": 1301014,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 997
+  },
+  {
+   "day_id": "test4-morning_peak-015",
+   "family": "morning_peak",
+   "seed": 1301015,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1672
+  },
+  {
+   "day_id": "test4-morning_peak-016",
+   "family": "morning_peak",
+   "seed": 1301016,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 985
+  },
+  {
+   "day_id": "test4-morning_peak-017",
+   "family": "morning_peak",
+   "seed": 1301017,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1375
+  },
+  {
+   "day_id": "test4-morning_peak-018",
+   "family": "morning_peak",
+   "seed": 1301018,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1565
+  },
+  {
+   "day_id": "test4-morning_peak-019",
+   "family": "morning_peak",
+   "seed": 1301019,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1818
+  },
+  {
+   "day_id": "test4-morning_peak-020",
+   "family": "morning_peak",
+   "seed": 1301020,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1539
+  },
+  {
+   "day_id": "test4-morning_peak-021",
+   "family": "morning_peak",
+   "seed": 1301021,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1691
+  },
+  {
+   "day_id": "test4-morning_peak-022",
+   "family": "morning_peak",
+   "seed": 1301022,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1017
+  },
+  {
+   "day_id": "test4-morning_peak-023",
+   "family": "morning_peak",
+   "seed": 1301023,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1867
+  },
+  {
+   "day_id": "test4-morning_peak-024",
+   "family": "morning_peak",
+   "seed": 1301024,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1528
+  },
+  {
+   "day_id": "test4-morning_peak-025",
+   "family": "morning_peak",
+   "seed": 1301025,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1779
+  },
+  {
+   "day_id": "test4-morning_peak-026",
+   "family": "morning_peak",
+   "seed": 1301026,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1692
+  },
+  {
+   "day_id": "test4-morning_peak-027",
+   "family": "morning_peak",
+   "seed": 1301027,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1701
+  },
+  {
+   "day_id": "test4-morning_peak-028",
+   "family": "morning_peak",
+   "seed": 1301028,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1339
+  },
+  {
+   "day_id": "test4-morning_peak-029",
+   "family": "morning_peak",
+   "seed": 1301029,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1832
+  },
+  {
+   "day_id": "test4-morning_peak-030",
+   "family": "morning_peak",
+   "seed": 1301030,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1485
+  },
+  {
+   "day_id": "test4-morning_peak-031",
+   "family": "morning_peak",
+   "seed": 1301031,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1371
+  },
+  {
+   "day_id": "test4-morning_peak-032",
+   "family": "morning_peak",
+   "seed": 1301032,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1527
+  },
+  {
+   "day_id": "test4-morning_peak-033",
+   "family": "morning_peak",
+   "seed": 1301033,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1629
+  },
+  {
+   "day_id": "test4-morning_peak-034",
+   "family": "morning_peak",
+   "seed": 1301034,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1385
+  },
+  {
+   "day_id": "test4-morning_peak-035",
+   "family": "morning_peak",
+   "seed": 1301035,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1668
+  },
+  {
+   "day_id": "test4-morning_peak-036",
+   "family": "morning_peak",
+   "seed": 1301036,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1024
+  },
+  {
+   "day_id": "test4-morning_peak-037",
+   "family": "morning_peak",
+   "seed": 1301037,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1679
+  },
+  {
+   "day_id": "test4-morning_peak-038",
+   "family": "morning_peak",
+   "seed": 1301038,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1707
+  },
+  {
+   "day_id": "test4-morning_peak-039",
+   "family": "morning_peak",
+   "seed": 1301039,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1052
+  },
+  {
+   "day_id": "test4-morning_peak-040",
+   "family": "morning_peak",
+   "seed": 1301040,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1666
+  },
+  {
+   "day_id": "test4-morning_peak-041",
+   "family": "morning_peak",
+   "seed": 1301041,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1524
+  },
+  {
+   "day_id": "test4-morning_peak-042",
+   "family": "morning_peak",
+   "seed": 1301042,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 979
+  },
+  {
+   "day_id": "test4-morning_peak-043",
+   "family": "morning_peak",
+   "seed": 1301043,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1337
+  },
+  {
+   "day_id": "test4-morning_peak-044",
+   "family": "morning_peak",
+   "seed": 1301044,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1373
+  },
+  {
+   "day_id": "test4-morning_peak-045",
+   "family": "morning_peak",
+   "seed": 1301045,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1010
+  },
+  {
+   "day_id": "test4-morning_peak-046",
+   "family": "morning_peak",
+   "seed": 1301046,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1013
+  },
+  {
+   "day_id": "test4-morning_peak-047",
+   "family": "morning_peak",
+   "seed": 1301047,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 975
+  },
+  {
+   "day_id": "test4-morning_peak-048",
+   "family": "morning_peak",
+   "seed": 1301048,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1018
+  },
+  {
+   "day_id": "test4-morning_peak-049",
+   "family": "morning_peak",
+   "seed": 1301049,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1693
+  },
+  {
+   "day_id": "test4-two_peak-000",
+   "family": "two_peak",
+   "seed": 1302000,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1658
+  },
+  {
+   "day_id": "test4-two_peak-001",
+   "family": "two_peak",
+   "seed": 1302001,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1598
+  },
+  {
+   "day_id": "test4-two_peak-002",
+   "family": "two_peak",
+   "seed": 1302002,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1656
+  },
+  {
+   "day_id": "test4-two_peak-003",
+   "family": "two_peak",
+   "seed": 1302003,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1905
+  },
+  {
+   "day_id": "test4-two_peak-004",
+   "family": "two_peak",
+   "seed": 1302004,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1872
+  },
+  {
+   "day_id": "test4-two_peak-005",
+   "family": "two_peak",
+   "seed": 1302005,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 971
+  },
+  {
+   "day_id": "test4-two_peak-006",
+   "family": "two_peak",
+   "seed": 1302006,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1707
+  },
+  {
+   "day_id": "test4-two_peak-007",
+   "family": "two_peak",
+   "seed": 1302007,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1655
+  },
+  {
+   "day_id": "test4-two_peak-008",
+   "family": "two_peak",
+   "seed": 1302008,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1349
+  },
+  {
+   "day_id": "test4-two_peak-009",
+   "family": "two_peak",
+   "seed": 1302009,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1711
+  },
+  {
+   "day_id": "test4-two_peak-010",
+   "family": "two_peak",
+   "seed": 1302010,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1331
+  },
+  {
+   "day_id": "test4-two_peak-011",
+   "family": "two_peak",
+   "seed": 1302011,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 982
+  },
+  {
+   "day_id": "test4-two_peak-012",
+   "family": "two_peak",
+   "seed": 1302012,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1348
+  },
+  {
+   "day_id": "test4-two_peak-013",
+   "family": "two_peak",
+   "seed": 1302013,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1704
+  },
+  {
+   "day_id": "test4-two_peak-014",
+   "family": "two_peak",
+   "seed": 1302014,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1528
+  },
+  {
+   "day_id": "test4-two_peak-015",
+   "family": "two_peak",
+   "seed": 1302015,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1019
+  },
+  {
+   "day_id": "test4-two_peak-016",
+   "family": "two_peak",
+   "seed": 1302016,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1823
+  },
+  {
+   "day_id": "test4-two_peak-017",
+   "family": "two_peak",
+   "seed": 1302017,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1393
+  },
+  {
+   "day_id": "test4-two_peak-018",
+   "family": "two_peak",
+   "seed": 1302018,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1690
+  },
+  {
+   "day_id": "test4-two_peak-019",
+   "family": "two_peak",
+   "seed": 1302019,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1036
+  },
+  {
+   "day_id": "test4-two_peak-020",
+   "family": "two_peak",
+   "seed": 1302020,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1657
+  },
+  {
+   "day_id": "test4-two_peak-021",
+   "family": "two_peak",
+   "seed": 1302021,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1481
+  },
+  {
+   "day_id": "test4-two_peak-022",
+   "family": "two_peak",
+   "seed": 1302022,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1706
+  },
+  {
+   "day_id": "test4-two_peak-023",
+   "family": "two_peak",
+   "seed": 1302023,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1019
+  },
+  {
+   "day_id": "test4-two_peak-024",
+   "family": "two_peak",
+   "seed": 1302024,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1680
+  },
+  {
+   "day_id": "test4-two_peak-025",
+   "family": "two_peak",
+   "seed": 1302025,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1543
+  },
+  {
+   "day_id": "test4-two_peak-026",
+   "family": "two_peak",
+   "seed": 1302026,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1578
+  },
+  {
+   "day_id": "test4-two_peak-027",
+   "family": "two_peak",
+   "seed": 1302027,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1046
+  },
+  {
+   "day_id": "test4-two_peak-028",
+   "family": "two_peak",
+   "seed": 1302028,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1869
+  },
+  {
+   "day_id": "test4-two_peak-029",
+   "family": "two_peak",
+   "seed": 1302029,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1766
+  },
+  {
+   "day_id": "test4-two_peak-030",
+   "family": "two_peak",
+   "seed": 1302030,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1547
+  },
+  {
+   "day_id": "test4-two_peak-031",
+   "family": "two_peak",
+   "seed": 1302031,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1381
+  },
+  {
+   "day_id": "test4-two_peak-032",
+   "family": "two_peak",
+   "seed": 1302032,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1852
+  },
+  {
+   "day_id": "test4-two_peak-033",
+   "family": "two_peak",
+   "seed": 1302033,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 993
+  },
+  {
+   "day_id": "test4-two_peak-034",
+   "family": "two_peak",
+   "seed": 1302034,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1856
+  },
+  {
+   "day_id": "test4-two_peak-035",
+   "family": "two_peak",
+   "seed": 1302035,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1700
+  },
+  {
+   "day_id": "test4-two_peak-036",
+   "family": "two_peak",
+   "seed": 1302036,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1293
+  },
+  {
+   "day_id": "test4-two_peak-037",
+   "family": "two_peak",
+   "seed": 1302037,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1589
+  },
+  {
+   "day_id": "test4-two_peak-038",
+   "family": "two_peak",
+   "seed": 1302038,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1961
+  },
+  {
+   "day_id": "test4-two_peak-039",
+   "family": "two_peak",
+   "seed": 1302039,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1661
+  },
+  {
+   "day_id": "test4-two_peak-040",
+   "family": "two_peak",
+   "seed": 1302040,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1357
+  },
+  {
+   "day_id": "test4-two_peak-041",
+   "family": "two_peak",
+   "seed": 1302041,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1353
+  },
+  {
+   "day_id": "test4-two_peak-042",
+   "family": "two_peak",
+   "seed": 1302042,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1758
+  },
+  {
+   "day_id": "test4-two_peak-043",
+   "family": "two_peak",
+   "seed": 1302043,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1346
+  },
+  {
+   "day_id": "test4-two_peak-044",
+   "family": "two_peak",
+   "seed": 1302044,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1048
+  },
+  {
+   "day_id": "test4-two_peak-045",
+   "family": "two_peak",
+   "seed": 1302045,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1619
+  },
+  {
+   "day_id": "test4-two_peak-046",
+   "family": "two_peak",
+   "seed": 1302046,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1534
+  },
+  {
+   "day_id": "test4-two_peak-047",
+   "family": "two_peak",
+   "seed": 1302047,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1600
+  },
+  {
+   "day_id": "test4-two_peak-048",
+   "family": "two_peak",
+   "seed": 1302048,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1703
+  },
+  {
+   "day_id": "test4-two_peak-049",
+   "family": "two_peak",
+   "seed": 1302049,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1366
+  },
+  {
+   "day_id": "test4-tracking_spike-000",
+   "family": "tracking_spike",
+   "seed": 1303000,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1069
+  },
+  {
+   "day_id": "test4-tracking_spike-001",
+   "family": "tracking_spike",
+   "seed": 1303001,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1698
+  },
+  {
+   "day_id": "test4-tracking_spike-002",
+   "family": "tracking_spike",
+   "seed": 1303002,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1078
+  },
+  {
+   "day_id": "test4-tracking_spike-003",
+   "family": "tracking_spike",
+   "seed": 1303003,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1984
+  },
+  {
+   "day_id": "test4-tracking_spike-004",
+   "family": "tracking_spike",
+   "seed": 1303004,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1134
+  },
+  {
+   "day_id": "test4-tracking_spike-005",
+   "family": "tracking_spike",
+   "seed": 1303005,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1141
+  },
+  {
+   "day_id": "test4-tracking_spike-006",
+   "family": "tracking_spike",
+   "seed": 1303006,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1934
+  },
+  {
+   "day_id": "test4-tracking_spike-007",
+   "family": "tracking_spike",
+   "seed": 1303007,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1061
+  },
+  {
+   "day_id": "test4-tracking_spike-008",
+   "family": "tracking_spike",
+   "seed": 1303008,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1620
+  },
+  {
+   "day_id": "test4-tracking_spike-009",
+   "family": "tracking_spike",
+   "seed": 1303009,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1697
+  },
+  {
+   "day_id": "test4-tracking_spike-010",
+   "family": "tracking_spike",
+   "seed": 1303010,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1649
+  },
+  {
+   "day_id": "test4-tracking_spike-011",
+   "family": "tracking_spike",
+   "seed": 1303011,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1819
+  },
+  {
+   "day_id": "test4-tracking_spike-012",
+   "family": "tracking_spike",
+   "seed": 1303012,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1772
+  },
+  {
+   "day_id": "test4-tracking_spike-013",
+   "family": "tracking_spike",
+   "seed": 1303013,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1605
+  },
+  {
+   "day_id": "test4-tracking_spike-014",
+   "family": "tracking_spike",
+   "seed": 1303014,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1545
+  },
+  {
+   "day_id": "test4-tracking_spike-015",
+   "family": "tracking_spike",
+   "seed": 1303015,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1118
+  },
+  {
+   "day_id": "test4-tracking_spike-016",
+   "family": "tracking_spike",
+   "seed": 1303016,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1049
+  },
+  {
+   "day_id": "test4-tracking_spike-017",
+   "family": "tracking_spike",
+   "seed": 1303017,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1871
+  },
+  {
+   "day_id": "test4-tracking_spike-018",
+   "family": "tracking_spike",
+   "seed": 1303018,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1775
+  },
+  {
+   "day_id": "test4-tracking_spike-019",
+   "family": "tracking_spike",
+   "seed": 1303019,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1060
+  },
+  {
+   "day_id": "test4-tracking_spike-020",
+   "family": "tracking_spike",
+   "seed": 1303020,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1160
+  },
+  {
+   "day_id": "test4-tracking_spike-021",
+   "family": "tracking_spike",
+   "seed": 1303021,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1996
+  },
+  {
+   "day_id": "test4-tracking_spike-022",
+   "family": "tracking_spike",
+   "seed": 1303022,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1003
+  },
+  {
+   "day_id": "test4-tracking_spike-023",
+   "family": "tracking_spike",
+   "seed": 1303023,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1218
+  },
+  {
+   "day_id": "test4-tracking_spike-024",
+   "family": "tracking_spike",
+   "seed": 1303024,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1933
+  },
+  {
+   "day_id": "test4-tracking_spike-025",
+   "family": "tracking_spike",
+   "seed": 1303025,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1038
+  },
+  {
+   "day_id": "test4-tracking_spike-026",
+   "family": "tracking_spike",
+   "seed": 1303026,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1864
+  },
+  {
+   "day_id": "test4-tracking_spike-027",
+   "family": "tracking_spike",
+   "seed": 1303027,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1117
+  },
+  {
+   "day_id": "test4-tracking_spike-028",
+   "family": "tracking_spike",
+   "seed": 1303028,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1039
+  },
+  {
+   "day_id": "test4-tracking_spike-029",
+   "family": "tracking_spike",
+   "seed": 1303029,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1656
+  },
+  {
+   "day_id": "test4-tracking_spike-030",
+   "family": "tracking_spike",
+   "seed": 1303030,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1051
+  },
+  {
+   "day_id": "test4-tracking_spike-031",
+   "family": "tracking_spike",
+   "seed": 1303031,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1474
+  },
+  {
+   "day_id": "test4-tracking_spike-032",
+   "family": "tracking_spike",
+   "seed": 1303032,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1403
+  },
+  {
+   "day_id": "test4-tracking_spike-033",
+   "family": "tracking_spike",
+   "seed": 1303033,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1120
+  },
+  {
+   "day_id": "test4-tracking_spike-034",
+   "family": "tracking_spike",
+   "seed": 1303034,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1837
+  },
+  {
+   "day_id": "test4-tracking_spike-035",
+   "family": "tracking_spike",
+   "seed": 1303035,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1386
+  },
+  {
+   "day_id": "test4-tracking_spike-036",
+   "family": "tracking_spike",
+   "seed": 1303036,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1791
+  },
+  {
+   "day_id": "test4-tracking_spike-037",
+   "family": "tracking_spike",
+   "seed": 1303037,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1905
+  },
+  {
+   "day_id": "test4-tracking_spike-038",
+   "family": "tracking_spike",
+   "seed": 1303038,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1412
+  },
+  {
+   "day_id": "test4-tracking_spike-039",
+   "family": "tracking_spike",
+   "seed": 1303039,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 2042
+  },
+  {
+   "day_id": "test4-tracking_spike-040",
+   "family": "tracking_spike",
+   "seed": 1303040,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1145
+  },
+  {
+   "day_id": "test4-tracking_spike-041",
+   "family": "tracking_spike",
+   "seed": 1303041,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1475
+  },
+  {
+   "day_id": "test4-tracking_spike-042",
+   "family": "tracking_spike",
+   "seed": 1303042,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1616
+  },
+  {
+   "day_id": "test4-tracking_spike-043",
+   "family": "tracking_spike",
+   "seed": 1303043,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 2023
+  },
+  {
+   "day_id": "test4-tracking_spike-044",
+   "family": "tracking_spike",
+   "seed": 1303044,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1076
+  },
+  {
+   "day_id": "test4-tracking_spike-045",
+   "family": "tracking_spike",
+   "seed": 1303045,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1877
+  },
+  {
+   "day_id": "test4-tracking_spike-046",
+   "family": "tracking_spike",
+   "seed": 1303046,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1847
+  },
+  {
+   "day_id": "test4-tracking_spike-047",
+   "family": "tracking_spike",
+   "seed": 1303047,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1933
+  },
+  {
+   "day_id": "test4-tracking_spike-048",
+   "family": "tracking_spike",
+   "seed": 1303048,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1056
+  },
+  {
+   "day_id": "test4-tracking_spike-049",
+   "family": "tracking_spike",
+   "seed": 1303049,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1201
+  },
+  {
+   "day_id": "test4-volatile-000",
+   "family": "volatile",
+   "seed": 1304000,
+   "heldout_family": false,
+   "rho": 0.7747913666520495,
+   "arrivals": 1314
+  },
+  {
+   "day_id": "test4-volatile-001",
+   "family": "volatile",
+   "seed": 1304001,
+   "heldout_family": false,
+   "rho": 0.7281544419315259,
+   "arrivals": 1222
+  },
+  {
+   "day_id": "test4-volatile-002",
+   "family": "volatile",
+   "seed": 1304002,
+   "heldout_family": false,
+   "rho": 0.601946618357281,
+   "arrivals": 1033
+  },
+  {
+   "day_id": "test4-volatile-003",
+   "family": "volatile",
+   "seed": 1304003,
+   "heldout_family": false,
+   "rho": 1.1747552523613298,
+   "arrivals": 1971
+  },
+  {
+   "day_id": "test4-volatile-004",
+   "family": "volatile",
+   "seed": 1304004,
+   "heldout_family": false,
+   "rho": 1.3275004595788034,
+   "arrivals": 2186
+  },
+  {
+   "day_id": "test4-volatile-005",
+   "family": "volatile",
+   "seed": 1304005,
+   "heldout_family": false,
+   "rho": 0.5446785868545477,
+   "arrivals": 936
+  },
+  {
+   "day_id": "test4-volatile-006",
+   "family": "volatile",
+   "seed": 1304006,
+   "heldout_family": false,
+   "rho": 0.5281224721732396,
+   "arrivals": 890
+  },
+  {
+   "day_id": "test4-volatile-007",
+   "family": "volatile",
+   "seed": 1304007,
+   "heldout_family": false,
+   "rho": 1.0968358756087562,
+   "arrivals": 1925
+  },
+  {
+   "day_id": "test4-volatile-008",
+   "family": "volatile",
+   "seed": 1304008,
+   "heldout_family": false,
+   "rho": 1.0825300536002394,
+   "arrivals": 1853
+  },
+  {
+   "day_id": "test4-volatile-009",
+   "family": "volatile",
+   "seed": 1304009,
+   "heldout_family": false,
+   "rho": 0.7091008850920556,
+   "arrivals": 1250
+  },
+  {
+   "day_id": "test4-volatile-010",
+   "family": "volatile",
+   "seed": 1304010,
+   "heldout_family": false,
+   "rho": 0.5171455462062977,
+   "arrivals": 881
+  },
+  {
+   "day_id": "test4-volatile-011",
+   "family": "volatile",
+   "seed": 1304011,
+   "heldout_family": false,
+   "rho": 1.6,
+   "arrivals": 2693
+  },
+  {
+   "day_id": "test4-volatile-012",
+   "family": "volatile",
+   "seed": 1304012,
+   "heldout_family": false,
+   "rho": 1.1254513213959518,
+   "arrivals": 1915
+  },
+  {
+   "day_id": "test4-volatile-013",
+   "family": "volatile",
+   "seed": 1304013,
+   "heldout_family": false,
+   "rho": 1.2600373163414298,
+   "arrivals": 2103
+  },
+  {
+   "day_id": "test4-volatile-014",
+   "family": "volatile",
+   "seed": 1304014,
+   "heldout_family": false,
+   "rho": 1.466367080540274,
+   "arrivals": 2383
+  },
+  {
+   "day_id": "test4-volatile-015",
+   "family": "volatile",
+   "seed": 1304015,
+   "heldout_family": false,
+   "rho": 1.6,
+   "arrivals": 2742
+  },
+  {
+   "day_id": "test4-volatile-016",
+   "family": "volatile",
+   "seed": 1304016,
+   "heldout_family": false,
+   "rho": 0.6469292588931965,
+   "arrivals": 1103
+  },
+  {
+   "day_id": "test4-volatile-017",
+   "family": "volatile",
+   "seed": 1304017,
+   "heldout_family": false,
+   "rho": 0.8467049687597256,
+   "arrivals": 1442
+  },
+  {
+   "day_id": "test4-volatile-018",
+   "family": "volatile",
+   "seed": 1304018,
+   "heldout_family": false,
+   "rho": 0.7405383688965482,
+   "arrivals": 1280
+  },
+  {
+   "day_id": "test4-volatile-019",
+   "family": "volatile",
+   "seed": 1304019,
+   "heldout_family": false,
+   "rho": 1.442391038057565,
+   "arrivals": 2462
+  },
+  {
+   "day_id": "test4-volatile-020",
+   "family": "volatile",
+   "seed": 1304020,
+   "heldout_family": false,
+   "rho": 1.6,
+   "arrivals": 2673
+  },
+  {
+   "day_id": "test4-volatile-021",
+   "family": "volatile",
+   "seed": 1304021,
+   "heldout_family": false,
+   "rho": 0.5934271948362204,
+   "arrivals": 967
+  },
+  {
+   "day_id": "test4-volatile-022",
+   "family": "volatile",
+   "seed": 1304022,
+   "heldout_family": false,
+   "rho": 1.6,
+   "arrivals": 2652
+  },
+  {
+   "day_id": "test4-volatile-023",
+   "family": "volatile",
+   "seed": 1304023,
+   "heldout_family": false,
+   "rho": 0.7445261274554973,
+   "arrivals": 1210
+  },
+  {
+   "day_id": "test4-volatile-024",
+   "family": "volatile",
+   "seed": 1304024,
+   "heldout_family": false,
+   "rho": 0.9254657509417225,
+   "arrivals": 1491
+  },
+  {
+   "day_id": "test4-volatile-025",
+   "family": "volatile",
+   "seed": 1304025,
+   "heldout_family": false,
+   "rho": 0.7294170985931803,
+   "arrivals": 1230
+  },
+  {
+   "day_id": "test4-volatile-026",
+   "family": "volatile",
+   "seed": 1304026,
+   "heldout_family": false,
+   "rho": 0.785024520797312,
+   "arrivals": 1350
+  },
+  {
+   "day_id": "test4-volatile-027",
+   "family": "volatile",
+   "seed": 1304027,
+   "heldout_family": false,
+   "rho": 1.4684974378227078,
+   "arrivals": 2468
+  },
+  {
+   "day_id": "test4-volatile-028",
+   "family": "volatile",
+   "seed": 1304028,
+   "heldout_family": false,
+   "rho": 0.4,
+   "arrivals": 655
+  },
+  {
+   "day_id": "test4-volatile-029",
+   "family": "volatile",
+   "seed": 1304029,
+   "heldout_family": false,
+   "rho": 1.234376882438067,
+   "arrivals": 2051
+  },
+  {
+   "day_id": "test4-volatile-030",
+   "family": "volatile",
+   "seed": 1304030,
+   "heldout_family": false,
+   "rho": 0.5702464338448863,
+   "arrivals": 927
+  },
+  {
+   "day_id": "test4-volatile-031",
+   "family": "volatile",
+   "seed": 1304031,
+   "heldout_family": false,
+   "rho": 0.8422194044838197,
+   "arrivals": 1345
+  },
+  {
+   "day_id": "test4-volatile-032",
+   "family": "volatile",
+   "seed": 1304032,
+   "heldout_family": false,
+   "rho": 1.1313503945045529,
+   "arrivals": 1874
+  },
+  {
+   "day_id": "test4-volatile-033",
+   "family": "volatile",
+   "seed": 1304033,
+   "heldout_family": false,
+   "rho": 0.8189128964388577,
+   "arrivals": 1365
+  },
+  {
+   "day_id": "test4-volatile-034",
+   "family": "volatile",
+   "seed": 1304034,
+   "heldout_family": false,
+   "rho": 0.8496379015822012,
+   "arrivals": 1374
+  },
+  {
+   "day_id": "test4-volatile-035",
+   "family": "volatile",
+   "seed": 1304035,
+   "heldout_family": false,
+   "rho": 0.8766340559872021,
+   "arrivals": 1480
+  },
+  {
+   "day_id": "test4-volatile-036",
+   "family": "volatile",
+   "seed": 1304036,
+   "heldout_family": false,
+   "rho": 0.8009228401835777,
+   "arrivals": 1357
+  },
+  {
+   "day_id": "test4-volatile-037",
+   "family": "volatile",
+   "seed": 1304037,
+   "heldout_family": false,
+   "rho": 0.8504490570813865,
+   "arrivals": 1389
+  },
+  {
+   "day_id": "test4-volatile-038",
+   "family": "volatile",
+   "seed": 1304038,
+   "heldout_family": false,
+   "rho": 0.4620630594894162,
+   "arrivals": 792
+  },
+  {
+   "day_id": "test4-volatile-039",
+   "family": "volatile",
+   "seed": 1304039,
+   "heldout_family": false,
+   "rho": 0.4466824685352271,
+   "arrivals": 757
+  },
+  {
+   "day_id": "test4-volatile-040",
+   "family": "volatile",
+   "seed": 1304040,
+   "heldout_family": false,
+   "rho": 0.7435686368079412,
+   "arrivals": 1230
+  },
+  {
+   "day_id": "test4-volatile-041",
+   "family": "volatile",
+   "seed": 1304041,
+   "heldout_family": false,
+   "rho": 0.6998444314163644,
+   "arrivals": 1238
+  },
+  {
+   "day_id": "test4-volatile-042",
+   "family": "volatile",
+   "seed": 1304042,
+   "heldout_family": false,
+   "rho": 0.4,
+   "arrivals": 624
+  },
+  {
+   "day_id": "test4-volatile-043",
+   "family": "volatile",
+   "seed": 1304043,
+   "heldout_family": false,
+   "rho": 0.4,
+   "arrivals": 691
+  },
+  {
+   "day_id": "test4-volatile-044",
+   "family": "volatile",
+   "seed": 1304044,
+   "heldout_family": false,
+   "rho": 1.3424888216824964,
+   "arrivals": 2227
+  },
+  {
+   "day_id": "test4-volatile-045",
+   "family": "volatile",
+   "seed": 1304045,
+   "heldout_family": false,
+   "rho": 1.0700331658248534,
+   "arrivals": 1847
+  },
+  {
+   "day_id": "test4-volatile-046",
+   "family": "volatile",
+   "seed": 1304046,
+   "heldout_family": false,
+   "rho": 1.3698696607802043,
+   "arrivals": 2456
+  },
+  {
+   "day_id": "test4-volatile-047",
+   "family": "volatile",
+   "seed": 1304047,
+   "heldout_family": false,
+   "rho": 0.597245067177394,
+   "arrivals": 995
+  },
+  {
+   "day_id": "test4-volatile-048",
+   "family": "volatile",
+   "seed": 1304048,
+   "heldout_family": false,
+   "rho": 1.0219994457637618,
+   "arrivals": 1709
+  },
+  {
+   "day_id": "test4-volatile-049",
+   "family": "volatile",
+   "seed": 1304049,
+   "heldout_family": false,
+   "rho": 1.1196929420534587,
+   "arrivals": 1903
+  },
+  {
+   "day_id": "test4-slowdown-000",
+   "family": "slowdown",
+   "seed": 1305000,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1854
+  },
+  {
+   "day_id": "test4-slowdown-001",
+   "family": "slowdown",
+   "seed": 1305001,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1653
+  },
+  {
+   "day_id": "test4-slowdown-002",
+   "family": "slowdown",
+   "seed": 1305002,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1088
+  },
+  {
+   "day_id": "test4-slowdown-003",
+   "family": "slowdown",
+   "seed": 1305003,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1443
+  },
+  {
+   "day_id": "test4-slowdown-004",
+   "family": "slowdown",
+   "seed": 1305004,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1454
+  },
+  {
+   "day_id": "test4-slowdown-005",
+   "family": "slowdown",
+   "seed": 1305005,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1354
+  },
+  {
+   "day_id": "test4-slowdown-006",
+   "family": "slowdown",
+   "seed": 1305006,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1012
+  },
+  {
+   "day_id": "test4-slowdown-007",
+   "family": "slowdown",
+   "seed": 1305007,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1849
+  },
+  {
+   "day_id": "test4-slowdown-008",
+   "family": "slowdown",
+   "seed": 1305008,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1502
+  },
+  {
+   "day_id": "test4-slowdown-009",
+   "family": "slowdown",
+   "seed": 1305009,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 997
+  },
+  {
+   "day_id": "test4-slowdown-010",
+   "family": "slowdown",
+   "seed": 1305010,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1811
+  },
+  {
+   "day_id": "test4-slowdown-011",
+   "family": "slowdown",
+   "seed": 1305011,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 962
+  },
+  {
+   "day_id": "test4-slowdown-012",
+   "family": "slowdown",
+   "seed": 1305012,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1484
+  },
+  {
+   "day_id": "test4-slowdown-013",
+   "family": "slowdown",
+   "seed": 1305013,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1028
+  },
+  {
+   "day_id": "test4-slowdown-014",
+   "family": "slowdown",
+   "seed": 1305014,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1824
+  },
+  {
+   "day_id": "test4-slowdown-015",
+   "family": "slowdown",
+   "seed": 1305015,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1344
+  },
+  {
+   "day_id": "test4-slowdown-016",
+   "family": "slowdown",
+   "seed": 1305016,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1682
+  },
+  {
+   "day_id": "test4-slowdown-017",
+   "family": "slowdown",
+   "seed": 1305017,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1045
+  },
+  {
+   "day_id": "test4-slowdown-018",
+   "family": "slowdown",
+   "seed": 1305018,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 962
+  },
+  {
+   "day_id": "test4-slowdown-019",
+   "family": "slowdown",
+   "seed": 1305019,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1862
+  },
+  {
+   "day_id": "test4-slowdown-020",
+   "family": "slowdown",
+   "seed": 1305020,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1314
+  },
+  {
+   "day_id": "test4-slowdown-021",
+   "family": "slowdown",
+   "seed": 1305021,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1528
+  },
+  {
+   "day_id": "test4-slowdown-022",
+   "family": "slowdown",
+   "seed": 1305022,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1323
+  },
+  {
+   "day_id": "test4-slowdown-023",
+   "family": "slowdown",
+   "seed": 1305023,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1034
+  },
+  {
+   "day_id": "test4-slowdown-024",
+   "family": "slowdown",
+   "seed": 1305024,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1562
+  },
+  {
+   "day_id": "test4-slowdown-025",
+   "family": "slowdown",
+   "seed": 1305025,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1530
+  },
+  {
+   "day_id": "test4-slowdown-026",
+   "family": "slowdown",
+   "seed": 1305026,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1715
+  },
+  {
+   "day_id": "test4-slowdown-027",
+   "family": "slowdown",
+   "seed": 1305027,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1856
+  },
+  {
+   "day_id": "test4-slowdown-028",
+   "family": "slowdown",
+   "seed": 1305028,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1501
+  },
+  {
+   "day_id": "test4-slowdown-029",
+   "family": "slowdown",
+   "seed": 1305029,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1696
+  },
+  {
+   "day_id": "test4-slowdown-030",
+   "family": "slowdown",
+   "seed": 1305030,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1327
+  },
+  {
+   "day_id": "test4-slowdown-031",
+   "family": "slowdown",
+   "seed": 1305031,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1539
+  },
+  {
+   "day_id": "test4-slowdown-032",
+   "family": "slowdown",
+   "seed": 1305032,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1624
+  },
+  {
+   "day_id": "test4-slowdown-033",
+   "family": "slowdown",
+   "seed": 1305033,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1664
+  },
+  {
+   "day_id": "test4-slowdown-034",
+   "family": "slowdown",
+   "seed": 1305034,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 973
+  },
+  {
+   "day_id": "test4-slowdown-035",
+   "family": "slowdown",
+   "seed": 1305035,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1528
+  },
+  {
+   "day_id": "test4-slowdown-036",
+   "family": "slowdown",
+   "seed": 1305036,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1845
+  },
+  {
+   "day_id": "test4-slowdown-037",
+   "family": "slowdown",
+   "seed": 1305037,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1537
+  },
+  {
+   "day_id": "test4-slowdown-038",
+   "family": "slowdown",
+   "seed": 1305038,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1307
+  },
+  {
+   "day_id": "test4-slowdown-039",
+   "family": "slowdown",
+   "seed": 1305039,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 988
+  },
+  {
+   "day_id": "test4-slowdown-040",
+   "family": "slowdown",
+   "seed": 1305040,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1491
+  },
+  {
+   "day_id": "test4-slowdown-041",
+   "family": "slowdown",
+   "seed": 1305041,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1351
+  },
+  {
+   "day_id": "test4-slowdown-042",
+   "family": "slowdown",
+   "seed": 1305042,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1457
+  },
+  {
+   "day_id": "test4-slowdown-043",
+   "family": "slowdown",
+   "seed": 1305043,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1562
+  },
+  {
+   "day_id": "test4-slowdown-044",
+   "family": "slowdown",
+   "seed": 1305044,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1623
+  },
+  {
+   "day_id": "test4-slowdown-045",
+   "family": "slowdown",
+   "seed": 1305045,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1852
+  },
+  {
+   "day_id": "test4-slowdown-046",
+   "family": "slowdown",
+   "seed": 1305046,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1003
+  },
+  {
+   "day_id": "test4-slowdown-047",
+   "family": "slowdown",
+   "seed": 1305047,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1886
+  },
+  {
+   "day_id": "test4-slowdown-048",
+   "family": "slowdown",
+   "seed": 1305048,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1520
+  },
+  {
+   "day_id": "test4-slowdown-049",
+   "family": "slowdown",
+   "seed": 1305049,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1675
+  },
+  {
+   "day_id": "test4-failure-000",
+   "family": "failure",
+   "seed": 1306000,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1011
+  },
+  {
+   "day_id": "test4-failure-001",
+   "family": "failure",
+   "seed": 1306001,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1689
+  },
+  {
+   "day_id": "test4-failure-002",
+   "family": "failure",
+   "seed": 1306002,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 954
+  },
+  {
+   "day_id": "test4-failure-003",
+   "family": "failure",
+   "seed": 1306003,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1651
+  },
+  {
+   "day_id": "test4-failure-004",
+   "family": "failure",
+   "seed": 1306004,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1357
+  },
+  {
+   "day_id": "test4-failure-005",
+   "family": "failure",
+   "seed": 1306005,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1378
+  },
+  {
+   "day_id": "test4-failure-006",
+   "family": "failure",
+   "seed": 1306006,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1475
+  },
+  {
+   "day_id": "test4-failure-007",
+   "family": "failure",
+   "seed": 1306007,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1473
+  },
+  {
+   "day_id": "test4-failure-008",
+   "family": "failure",
+   "seed": 1306008,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1699
+  },
+  {
+   "day_id": "test4-failure-009",
+   "family": "failure",
+   "seed": 1306009,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1488
+  },
+  {
+   "day_id": "test4-failure-010",
+   "family": "failure",
+   "seed": 1306010,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1535
+  },
+  {
+   "day_id": "test4-failure-011",
+   "family": "failure",
+   "seed": 1306011,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1902
+  },
+  {
+   "day_id": "test4-failure-012",
+   "family": "failure",
+   "seed": 1306012,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1949
+  },
+  {
+   "day_id": "test4-failure-013",
+   "family": "failure",
+   "seed": 1306013,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1064
+  },
+  {
+   "day_id": "test4-failure-014",
+   "family": "failure",
+   "seed": 1306014,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1310
+  },
+  {
+   "day_id": "test4-failure-015",
+   "family": "failure",
+   "seed": 1306015,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1873
+  },
+  {
+   "day_id": "test4-failure-016",
+   "family": "failure",
+   "seed": 1306016,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1374
+  },
+  {
+   "day_id": "test4-failure-017",
+   "family": "failure",
+   "seed": 1306017,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1702
+  },
+  {
+   "day_id": "test4-failure-018",
+   "family": "failure",
+   "seed": 1306018,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1328
+  },
+  {
+   "day_id": "test4-failure-019",
+   "family": "failure",
+   "seed": 1306019,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1685
+  },
+  {
+   "day_id": "test4-failure-020",
+   "family": "failure",
+   "seed": 1306020,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1403
+  },
+  {
+   "day_id": "test4-failure-021",
+   "family": "failure",
+   "seed": 1306021,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1885
+  },
+  {
+   "day_id": "test4-failure-022",
+   "family": "failure",
+   "seed": 1306022,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1843
+  },
+  {
+   "day_id": "test4-failure-023",
+   "family": "failure",
+   "seed": 1306023,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1362
+  },
+  {
+   "day_id": "test4-failure-024",
+   "family": "failure",
+   "seed": 1306024,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1022
+  },
+  {
+   "day_id": "test4-failure-025",
+   "family": "failure",
+   "seed": 1306025,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 996
+  },
+  {
+   "day_id": "test4-failure-026",
+   "family": "failure",
+   "seed": 1306026,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1025
+  },
+  {
+   "day_id": "test4-failure-027",
+   "family": "failure",
+   "seed": 1306027,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1712
+  },
+  {
+   "day_id": "test4-failure-028",
+   "family": "failure",
+   "seed": 1306028,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1345
+  },
+  {
+   "day_id": "test4-failure-029",
+   "family": "failure",
+   "seed": 1306029,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1281
+  },
+  {
+   "day_id": "test4-failure-030",
+   "family": "failure",
+   "seed": 1306030,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 977
+  },
+  {
+   "day_id": "test4-failure-031",
+   "family": "failure",
+   "seed": 1306031,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1388
+  },
+  {
+   "day_id": "test4-failure-032",
+   "family": "failure",
+   "seed": 1306032,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1823
+  },
+  {
+   "day_id": "test4-failure-033",
+   "family": "failure",
+   "seed": 1306033,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1026
+  },
+  {
+   "day_id": "test4-failure-034",
+   "family": "failure",
+   "seed": 1306034,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1471
+  },
+  {
+   "day_id": "test4-failure-035",
+   "family": "failure",
+   "seed": 1306035,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1448
+  },
+  {
+   "day_id": "test4-failure-036",
+   "family": "failure",
+   "seed": 1306036,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 920
+  },
+  {
+   "day_id": "test4-failure-037",
+   "family": "failure",
+   "seed": 1306037,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1405
+  },
+  {
+   "day_id": "test4-failure-038",
+   "family": "failure",
+   "seed": 1306038,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1348
+  },
+  {
+   "day_id": "test4-failure-039",
+   "family": "failure",
+   "seed": 1306039,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1698
+  },
+  {
+   "day_id": "test4-failure-040",
+   "family": "failure",
+   "seed": 1306040,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1712
+  },
+  {
+   "day_id": "test4-failure-041",
+   "family": "failure",
+   "seed": 1306041,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1352
+  },
+  {
+   "day_id": "test4-failure-042",
+   "family": "failure",
+   "seed": 1306042,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1523
+  },
+  {
+   "day_id": "test4-failure-043",
+   "family": "failure",
+   "seed": 1306043,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1666
+  },
+  {
+   "day_id": "test4-failure-044",
+   "family": "failure",
+   "seed": 1306044,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1679
+  },
+  {
+   "day_id": "test4-failure-045",
+   "family": "failure",
+   "seed": 1306045,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1926
+  },
+  {
+   "day_id": "test4-failure-046",
+   "family": "failure",
+   "seed": 1306046,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1532
+  },
+  {
+   "day_id": "test4-failure-047",
+   "family": "failure",
+   "seed": 1306047,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1427
+  },
+  {
+   "day_id": "test4-failure-048",
+   "family": "failure",
+   "seed": 1306048,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1038
+  },
+  {
+   "day_id": "test4-failure-049",
+   "family": "failure",
+   "seed": 1306049,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 975
+  },
+  {
+   "day_id": "test4-high_priority_surge-000",
+   "family": "high_priority_surge",
+   "seed": 1307000,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1290
+  },
+  {
+   "day_id": "test4-high_priority_surge-001",
+   "family": "high_priority_surge",
+   "seed": 1307001,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1361
+  },
+  {
+   "day_id": "test4-high_priority_surge-002",
+   "family": "high_priority_surge",
+   "seed": 1307002,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1338
+  },
+  {
+   "day_id": "test4-high_priority_surge-003",
+   "family": "high_priority_surge",
+   "seed": 1307003,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1033
+  },
+  {
+   "day_id": "test4-high_priority_surge-004",
+   "family": "high_priority_surge",
+   "seed": 1307004,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1294
+  },
+  {
+   "day_id": "test4-high_priority_surge-005",
+   "family": "high_priority_surge",
+   "seed": 1307005,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1708
+  },
+  {
+   "day_id": "test4-high_priority_surge-006",
+   "family": "high_priority_surge",
+   "seed": 1307006,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1695
+  },
+  {
+   "day_id": "test4-high_priority_surge-007",
+   "family": "high_priority_surge",
+   "seed": 1307007,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1015
+  },
+  {
+   "day_id": "test4-high_priority_surge-008",
+   "family": "high_priority_surge",
+   "seed": 1307008,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1255
+  },
+  {
+   "day_id": "test4-high_priority_surge-009",
+   "family": "high_priority_surge",
+   "seed": 1307009,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1050
+  },
+  {
+   "day_id": "test4-high_priority_surge-010",
+   "family": "high_priority_surge",
+   "seed": 1307010,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1349
+  },
+  {
+   "day_id": "test4-high_priority_surge-011",
+   "family": "high_priority_surge",
+   "seed": 1307011,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1857
+  },
+  {
+   "day_id": "test4-high_priority_surge-012",
+   "family": "high_priority_surge",
+   "seed": 1307012,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1494
+  },
+  {
+   "day_id": "test4-high_priority_surge-013",
+   "family": "high_priority_surge",
+   "seed": 1307013,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1276
+  },
+  {
+   "day_id": "test4-high_priority_surge-014",
+   "family": "high_priority_surge",
+   "seed": 1307014,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1773
+  },
+  {
+   "day_id": "test4-high_priority_surge-015",
+   "family": "high_priority_surge",
+   "seed": 1307015,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1334
+  },
+  {
+   "day_id": "test4-high_priority_surge-016",
+   "family": "high_priority_surge",
+   "seed": 1307016,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1025
+  },
+  {
+   "day_id": "test4-high_priority_surge-017",
+   "family": "high_priority_surge",
+   "seed": 1307017,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1681
+  },
+  {
+   "day_id": "test4-high_priority_surge-018",
+   "family": "high_priority_surge",
+   "seed": 1307018,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1686
+  },
+  {
+   "day_id": "test4-high_priority_surge-019",
+   "family": "high_priority_surge",
+   "seed": 1307019,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1510
+  },
+  {
+   "day_id": "test4-high_priority_surge-020",
+   "family": "high_priority_surge",
+   "seed": 1307020,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1100
+  },
+  {
+   "day_id": "test4-high_priority_surge-021",
+   "family": "high_priority_surge",
+   "seed": 1307021,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 996
+  },
+  {
+   "day_id": "test4-high_priority_surge-022",
+   "family": "high_priority_surge",
+   "seed": 1307022,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1685
+  },
+  {
+   "day_id": "test4-high_priority_surge-023",
+   "family": "high_priority_surge",
+   "seed": 1307023,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1690
+  },
+  {
+   "day_id": "test4-high_priority_surge-024",
+   "family": "high_priority_surge",
+   "seed": 1307024,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1406
+  },
+  {
+   "day_id": "test4-high_priority_surge-025",
+   "family": "high_priority_surge",
+   "seed": 1307025,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1072
+  },
+  {
+   "day_id": "test4-high_priority_surge-026",
+   "family": "high_priority_surge",
+   "seed": 1307026,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1371
+  },
+  {
+   "day_id": "test4-high_priority_surge-027",
+   "family": "high_priority_surge",
+   "seed": 1307027,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1515
+  },
+  {
+   "day_id": "test4-high_priority_surge-028",
+   "family": "high_priority_surge",
+   "seed": 1307028,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1705
+  },
+  {
+   "day_id": "test4-high_priority_surge-029",
+   "family": "high_priority_surge",
+   "seed": 1307029,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1051
+  },
+  {
+   "day_id": "test4-high_priority_surge-030",
+   "family": "high_priority_surge",
+   "seed": 1307030,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1008
+  },
+  {
+   "day_id": "test4-high_priority_surge-031",
+   "family": "high_priority_surge",
+   "seed": 1307031,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1800
+  },
+  {
+   "day_id": "test4-high_priority_surge-032",
+   "family": "high_priority_surge",
+   "seed": 1307032,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1020
+  },
+  {
+   "day_id": "test4-high_priority_surge-033",
+   "family": "high_priority_surge",
+   "seed": 1307033,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1387
+  },
+  {
+   "day_id": "test4-high_priority_surge-034",
+   "family": "high_priority_surge",
+   "seed": 1307034,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1518
+  },
+  {
+   "day_id": "test4-high_priority_surge-035",
+   "family": "high_priority_surge",
+   "seed": 1307035,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1867
+  },
+  {
+   "day_id": "test4-high_priority_surge-036",
+   "family": "high_priority_surge",
+   "seed": 1307036,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1350
+  },
+  {
+   "day_id": "test4-high_priority_surge-037",
+   "family": "high_priority_surge",
+   "seed": 1307037,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1695
+  },
+  {
+   "day_id": "test4-high_priority_surge-038",
+   "family": "high_priority_surge",
+   "seed": 1307038,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1899
+  },
+  {
+   "day_id": "test4-high_priority_surge-039",
+   "family": "high_priority_surge",
+   "seed": 1307039,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1341
+  },
+  {
+   "day_id": "test4-high_priority_surge-040",
+   "family": "high_priority_surge",
+   "seed": 1307040,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1755
+  },
+  {
+   "day_id": "test4-high_priority_surge-041",
+   "family": "high_priority_surge",
+   "seed": 1307041,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1878
+  },
+  {
+   "day_id": "test4-high_priority_surge-042",
+   "family": "high_priority_surge",
+   "seed": 1307042,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1725
+  },
+  {
+   "day_id": "test4-high_priority_surge-043",
+   "family": "high_priority_surge",
+   "seed": 1307043,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1809
+  },
+  {
+   "day_id": "test4-high_priority_surge-044",
+   "family": "high_priority_surge",
+   "seed": 1307044,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1874
+  },
+  {
+   "day_id": "test4-high_priority_surge-045",
+   "family": "high_priority_surge",
+   "seed": 1307045,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1301
+  },
+  {
+   "day_id": "test4-high_priority_surge-046",
+   "family": "high_priority_surge",
+   "seed": 1307046,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1011
+  },
+  {
+   "day_id": "test4-high_priority_surge-047",
+   "family": "high_priority_surge",
+   "seed": 1307047,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1678
+  },
+  {
+   "day_id": "test4-high_priority_surge-048",
+   "family": "high_priority_surge",
+   "seed": 1307048,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1773
+  },
+  {
+   "day_id": "test4-high_priority_surge-049",
+   "family": "high_priority_surge",
+   "seed": 1307049,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1785
+  },
+  {
+   "day_id": "test4-evening_peak-000",
+   "family": "evening_peak",
+   "seed": 1308000,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1830
+  },
+  {
+   "day_id": "test4-evening_peak-001",
+   "family": "evening_peak",
+   "seed": 1308001,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1848
+  },
+  {
+   "day_id": "test4-evening_peak-002",
+   "family": "evening_peak",
+   "seed": 1308002,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1624
+  },
+  {
+   "day_id": "test4-evening_peak-003",
+   "family": "evening_peak",
+   "seed": 1308003,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1590
+  },
+  {
+   "day_id": "test4-evening_peak-004",
+   "family": "evening_peak",
+   "seed": 1308004,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1328
+  },
+  {
+   "day_id": "test4-evening_peak-005",
+   "family": "evening_peak",
+   "seed": 1308005,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1590
+  },
+  {
+   "day_id": "test4-evening_peak-006",
+   "family": "evening_peak",
+   "seed": 1308006,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1678
+  },
+  {
+   "day_id": "test4-evening_peak-007",
+   "family": "evening_peak",
+   "seed": 1308007,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1681
+  },
+  {
+   "day_id": "test4-evening_peak-008",
+   "family": "evening_peak",
+   "seed": 1308008,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1011
+  },
+  {
+   "day_id": "test4-evening_peak-009",
+   "family": "evening_peak",
+   "seed": 1308009,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1011
+  },
+  {
+   "day_id": "test4-evening_peak-010",
+   "family": "evening_peak",
+   "seed": 1308010,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1811
+  },
+  {
+   "day_id": "test4-evening_peak-011",
+   "family": "evening_peak",
+   "seed": 1308011,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1662
+  },
+  {
+   "day_id": "test4-evening_peak-012",
+   "family": "evening_peak",
+   "seed": 1308012,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1694
+  },
+  {
+   "day_id": "test4-evening_peak-013",
+   "family": "evening_peak",
+   "seed": 1308013,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1848
+  },
+  {
+   "day_id": "test4-evening_peak-014",
+   "family": "evening_peak",
+   "seed": 1308014,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1861
+  },
+  {
+   "day_id": "test4-evening_peak-015",
+   "family": "evening_peak",
+   "seed": 1308015,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1507
+  },
+  {
+   "day_id": "test4-evening_peak-016",
+   "family": "evening_peak",
+   "seed": 1308016,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1749
+  },
+  {
+   "day_id": "test4-evening_peak-017",
+   "family": "evening_peak",
+   "seed": 1308017,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1717
+  },
+  {
+   "day_id": "test4-evening_peak-018",
+   "family": "evening_peak",
+   "seed": 1308018,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1674
+  },
+  {
+   "day_id": "test4-evening_peak-019",
+   "family": "evening_peak",
+   "seed": 1308019,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1856
+  },
+  {
+   "day_id": "test4-evening_peak-020",
+   "family": "evening_peak",
+   "seed": 1308020,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1354
+  },
+  {
+   "day_id": "test4-evening_peak-021",
+   "family": "evening_peak",
+   "seed": 1308021,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1359
+  },
+  {
+   "day_id": "test4-evening_peak-022",
+   "family": "evening_peak",
+   "seed": 1308022,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1313
+  },
+  {
+   "day_id": "test4-evening_peak-023",
+   "family": "evening_peak",
+   "seed": 1308023,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 963
+  },
+  {
+   "day_id": "test4-evening_peak-024",
+   "family": "evening_peak",
+   "seed": 1308024,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1398
+  },
+  {
+   "day_id": "test4-evening_peak-025",
+   "family": "evening_peak",
+   "seed": 1308025,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 958
+  },
+  {
+   "day_id": "test4-evening_peak-026",
+   "family": "evening_peak",
+   "seed": 1308026,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1356
+  },
+  {
+   "day_id": "test4-evening_peak-027",
+   "family": "evening_peak",
+   "seed": 1308027,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1509
+  },
+  {
+   "day_id": "test4-evening_peak-028",
+   "family": "evening_peak",
+   "seed": 1308028,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1716
+  },
+  {
+   "day_id": "test4-evening_peak-029",
+   "family": "evening_peak",
+   "seed": 1308029,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1877
+  },
+  {
+   "day_id": "test4-evening_peak-030",
+   "family": "evening_peak",
+   "seed": 1308030,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1400
+  },
+  {
+   "day_id": "test4-evening_peak-031",
+   "family": "evening_peak",
+   "seed": 1308031,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1462
+  },
+  {
+   "day_id": "test4-evening_peak-032",
+   "family": "evening_peak",
+   "seed": 1308032,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1877
+  },
+  {
+   "day_id": "test4-evening_peak-033",
+   "family": "evening_peak",
+   "seed": 1308033,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1833
+  },
+  {
+   "day_id": "test4-evening_peak-034",
+   "family": "evening_peak",
+   "seed": 1308034,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1576
+  },
+  {
+   "day_id": "test4-evening_peak-035",
+   "family": "evening_peak",
+   "seed": 1308035,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1283
+  },
+  {
+   "day_id": "test4-evening_peak-036",
+   "family": "evening_peak",
+   "seed": 1308036,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1550
+  },
+  {
+   "day_id": "test4-evening_peak-037",
+   "family": "evening_peak",
+   "seed": 1308037,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1400
+  },
+  {
+   "day_id": "test4-evening_peak-038",
+   "family": "evening_peak",
+   "seed": 1308038,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1789
+  },
+  {
+   "day_id": "test4-evening_peak-039",
+   "family": "evening_peak",
+   "seed": 1308039,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1490
+  },
+  {
+   "day_id": "test4-evening_peak-040",
+   "family": "evening_peak",
+   "seed": 1308040,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1603
+  },
+  {
+   "day_id": "test4-evening_peak-041",
+   "family": "evening_peak",
+   "seed": 1308041,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1484
+  },
+  {
+   "day_id": "test4-evening_peak-042",
+   "family": "evening_peak",
+   "seed": 1308042,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1367
+  },
+  {
+   "day_id": "test4-evening_peak-043",
+   "family": "evening_peak",
+   "seed": 1308043,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1301
+  },
+  {
+   "day_id": "test4-evening_peak-044",
+   "family": "evening_peak",
+   "seed": 1308044,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1844
+  },
+  {
+   "day_id": "test4-evening_peak-045",
+   "family": "evening_peak",
+   "seed": 1308045,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 944
+  },
+  {
+   "day_id": "test4-evening_peak-046",
+   "family": "evening_peak",
+   "seed": 1308046,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1645
+  },
+  {
+   "day_id": "test4-evening_peak-047",
+   "family": "evening_peak",
+   "seed": 1308047,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1310
+  },
+  {
+   "day_id": "test4-evening_peak-048",
+   "family": "evening_peak",
+   "seed": 1308048,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1343
+  },
+  {
+   "day_id": "test4-evening_peak-049",
+   "family": "evening_peak",
+   "seed": 1308049,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1335
+  },
+  {
+   "day_id": "test4-refund_surge-000",
+   "family": "refund_surge",
+   "seed": 1309000,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1361
+  },
+  {
+   "day_id": "test4-refund_surge-001",
+   "family": "refund_surge",
+   "seed": 1309001,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1836
+  },
+  {
+   "day_id": "test4-refund_surge-002",
+   "family": "refund_surge",
+   "seed": 1309002,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1054
+  },
+  {
+   "day_id": "test4-refund_surge-003",
+   "family": "refund_surge",
+   "seed": 1309003,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1104
+  },
+  {
+   "day_id": "test4-refund_surge-004",
+   "family": "refund_surge",
+   "seed": 1309004,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1099
+  },
+  {
+   "day_id": "test4-refund_surge-005",
+   "family": "refund_surge",
+   "seed": 1309005,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1424
+  },
+  {
+   "day_id": "test4-refund_surge-006",
+   "family": "refund_surge",
+   "seed": 1309006,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1845
+  },
+  {
+   "day_id": "test4-refund_surge-007",
+   "family": "refund_surge",
+   "seed": 1309007,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1589
+  },
+  {
+   "day_id": "test4-refund_surge-008",
+   "family": "refund_surge",
+   "seed": 1309008,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1798
+  },
+  {
+   "day_id": "test4-refund_surge-009",
+   "family": "refund_surge",
+   "seed": 1309009,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1787
+  },
+  {
+   "day_id": "test4-refund_surge-010",
+   "family": "refund_surge",
+   "seed": 1309010,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 2057
+  },
+  {
+   "day_id": "test4-refund_surge-011",
+   "family": "refund_surge",
+   "seed": 1309011,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1650
+  },
+  {
+   "day_id": "test4-refund_surge-012",
+   "family": "refund_surge",
+   "seed": 1309012,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1405
+  },
+  {
+   "day_id": "test4-refund_surge-013",
+   "family": "refund_surge",
+   "seed": 1309013,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1389
+  },
+  {
+   "day_id": "test4-refund_surge-014",
+   "family": "refund_surge",
+   "seed": 1309014,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1458
+  },
+  {
+   "day_id": "test4-refund_surge-015",
+   "family": "refund_surge",
+   "seed": 1309015,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1405
+  },
+  {
+   "day_id": "test4-refund_surge-016",
+   "family": "refund_surge",
+   "seed": 1309016,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1510
+  },
+  {
+   "day_id": "test4-refund_surge-017",
+   "family": "refund_surge",
+   "seed": 1309017,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1658
+  },
+  {
+   "day_id": "test4-refund_surge-018",
+   "family": "refund_surge",
+   "seed": 1309018,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1625
+  },
+  {
+   "day_id": "test4-refund_surge-019",
+   "family": "refund_surge",
+   "seed": 1309019,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1787
+  },
+  {
+   "day_id": "test4-refund_surge-020",
+   "family": "refund_surge",
+   "seed": 1309020,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1355
+  },
+  {
+   "day_id": "test4-refund_surge-021",
+   "family": "refund_surge",
+   "seed": 1309021,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1637
+  },
+  {
+   "day_id": "test4-refund_surge-022",
+   "family": "refund_surge",
+   "seed": 1309022,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1743
+  },
+  {
+   "day_id": "test4-refund_surge-023",
+   "family": "refund_surge",
+   "seed": 1309023,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1878
+  },
+  {
+   "day_id": "test4-refund_surge-024",
+   "family": "refund_surge",
+   "seed": 1309024,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1652
+  },
+  {
+   "day_id": "test4-refund_surge-025",
+   "family": "refund_surge",
+   "seed": 1309025,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1152
+  },
+  {
+   "day_id": "test4-refund_surge-026",
+   "family": "refund_surge",
+   "seed": 1309026,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1540
+  },
+  {
+   "day_id": "test4-refund_surge-027",
+   "family": "refund_surge",
+   "seed": 1309027,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1621
+  },
+  {
+   "day_id": "test4-refund_surge-028",
+   "family": "refund_surge",
+   "seed": 1309028,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1605
+  },
+  {
+   "day_id": "test4-refund_surge-029",
+   "family": "refund_surge",
+   "seed": 1309029,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1108
+  },
+  {
+   "day_id": "test4-refund_surge-030",
+   "family": "refund_surge",
+   "seed": 1309030,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1982
+  },
+  {
+   "day_id": "test4-refund_surge-031",
+   "family": "refund_surge",
+   "seed": 1309031,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1059
+  },
+  {
+   "day_id": "test4-refund_surge-032",
+   "family": "refund_surge",
+   "seed": 1309032,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1574
+  },
+  {
+   "day_id": "test4-refund_surge-033",
+   "family": "refund_surge",
+   "seed": 1309033,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1068
+  },
+  {
+   "day_id": "test4-refund_surge-034",
+   "family": "refund_surge",
+   "seed": 1309034,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1775
+  },
+  {
+   "day_id": "test4-refund_surge-035",
+   "family": "refund_surge",
+   "seed": 1309035,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1944
+  },
+  {
+   "day_id": "test4-refund_surge-036",
+   "family": "refund_surge",
+   "seed": 1309036,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1987
+  },
+  {
+   "day_id": "test4-refund_surge-037",
+   "family": "refund_surge",
+   "seed": 1309037,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1829
+  },
+  {
+   "day_id": "test4-refund_surge-038",
+   "family": "refund_surge",
+   "seed": 1309038,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1134
+  },
+  {
+   "day_id": "test4-refund_surge-039",
+   "family": "refund_surge",
+   "seed": 1309039,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1925
+  },
+  {
+   "day_id": "test4-refund_surge-040",
+   "family": "refund_surge",
+   "seed": 1309040,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1683
+  },
+  {
+   "day_id": "test4-refund_surge-041",
+   "family": "refund_surge",
+   "seed": 1309041,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1516
+  },
+  {
+   "day_id": "test4-refund_surge-042",
+   "family": "refund_surge",
+   "seed": 1309042,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1787
+  },
+  {
+   "day_id": "test4-refund_surge-043",
+   "family": "refund_surge",
+   "seed": 1309043,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1420
+  },
+  {
+   "day_id": "test4-refund_surge-044",
+   "family": "refund_surge",
+   "seed": 1309044,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1494
+  },
+  {
+   "day_id": "test4-refund_surge-045",
+   "family": "refund_surge",
+   "seed": 1309045,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1940
+  },
+  {
+   "day_id": "test4-refund_surge-046",
+   "family": "refund_surge",
+   "seed": 1309046,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1396
+  },
+  {
+   "day_id": "test4-refund_surge-047",
+   "family": "refund_surge",
+   "seed": 1309047,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1396
+  },
+  {
+   "day_id": "test4-refund_surge-048",
+   "family": "refund_surge",
+   "seed": 1309048,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1453
+  },
+  {
+   "day_id": "test4-refund_surge-049",
+   "family": "refund_surge",
+   "seed": 1309049,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1514
+  },
+  {
+   "day_id": "test4-combined_shock-000",
+   "family": "combined_shock",
+   "seed": 1310000,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1996
+  },
+  {
+   "day_id": "test4-combined_shock-001",
+   "family": "combined_shock",
+   "seed": 1310001,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1970
+  },
+  {
+   "day_id": "test4-combined_shock-002",
+   "family": "combined_shock",
+   "seed": 1310002,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1713
+  },
+  {
+   "day_id": "test4-combined_shock-003",
+   "family": "combined_shock",
+   "seed": 1310003,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1650
+  },
+  {
+   "day_id": "test4-combined_shock-004",
+   "family": "combined_shock",
+   "seed": 1310004,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1659
+  },
+  {
+   "day_id": "test4-combined_shock-005",
+   "family": "combined_shock",
+   "seed": 1310005,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 2003
+  },
+  {
+   "day_id": "test4-combined_shock-006",
+   "family": "combined_shock",
+   "seed": 1310006,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1633
+  },
+  {
+   "day_id": "test4-combined_shock-007",
+   "family": "combined_shock",
+   "seed": 1310007,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1905
+  },
+  {
+   "day_id": "test4-combined_shock-008",
+   "family": "combined_shock",
+   "seed": 1310008,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1681
+  },
+  {
+   "day_id": "test4-combined_shock-009",
+   "family": "combined_shock",
+   "seed": 1310009,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1613
+  },
+  {
+   "day_id": "test4-combined_shock-010",
+   "family": "combined_shock",
+   "seed": 1310010,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1701
+  },
+  {
+   "day_id": "test4-combined_shock-011",
+   "family": "combined_shock",
+   "seed": 1310011,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1502
+  },
+  {
+   "day_id": "test4-combined_shock-012",
+   "family": "combined_shock",
+   "seed": 1310012,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 2086
+  },
+  {
+   "day_id": "test4-combined_shock-013",
+   "family": "combined_shock",
+   "seed": 1310013,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1619
+  },
+  {
+   "day_id": "test4-combined_shock-014",
+   "family": "combined_shock",
+   "seed": 1310014,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1531
+  },
+  {
+   "day_id": "test4-combined_shock-015",
+   "family": "combined_shock",
+   "seed": 1310015,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1711
+  },
+  {
+   "day_id": "test4-combined_shock-016",
+   "family": "combined_shock",
+   "seed": 1310016,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1632
+  },
+  {
+   "day_id": "test4-combined_shock-017",
+   "family": "combined_shock",
+   "seed": 1310017,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1531
+  },
+  {
+   "day_id": "test4-combined_shock-018",
+   "family": "combined_shock",
+   "seed": 1310018,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1589
+  },
+  {
+   "day_id": "test4-combined_shock-019",
+   "family": "combined_shock",
+   "seed": 1310019,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1584
+  },
+  {
+   "day_id": "test4-combined_shock-020",
+   "family": "combined_shock",
+   "seed": 1310020,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1860
+  },
+  {
+   "day_id": "test4-combined_shock-021",
+   "family": "combined_shock",
+   "seed": 1310021,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1547
+  },
+  {
+   "day_id": "test4-combined_shock-022",
+   "family": "combined_shock",
+   "seed": 1310022,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1582
+  },
+  {
+   "day_id": "test4-combined_shock-023",
+   "family": "combined_shock",
+   "seed": 1310023,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1550
+  },
+  {
+   "day_id": "test4-combined_shock-024",
+   "family": "combined_shock",
+   "seed": 1310024,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1744
+  },
+  {
+   "day_id": "test4-combined_shock-025",
+   "family": "combined_shock",
+   "seed": 1310025,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1559
+  },
+  {
+   "day_id": "test4-combined_shock-026",
+   "family": "combined_shock",
+   "seed": 1310026,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1589
+  },
+  {
+   "day_id": "test4-combined_shock-027",
+   "family": "combined_shock",
+   "seed": 1310027,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1578
+  },
+  {
+   "day_id": "test4-combined_shock-028",
+   "family": "combined_shock",
+   "seed": 1310028,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1595
+  },
+  {
+   "day_id": "test4-combined_shock-029",
+   "family": "combined_shock",
+   "seed": 1310029,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1601
+  },
+  {
+   "day_id": "test4-combined_shock-030",
+   "family": "combined_shock",
+   "seed": 1310030,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1832
+  },
+  {
+   "day_id": "test4-combined_shock-031",
+   "family": "combined_shock",
+   "seed": 1310031,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1614
+  },
+  {
+   "day_id": "test4-combined_shock-032",
+   "family": "combined_shock",
+   "seed": 1310032,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1693
+  },
+  {
+   "day_id": "test4-combined_shock-033",
+   "family": "combined_shock",
+   "seed": 1310033,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1787
+  },
+  {
+   "day_id": "test4-combined_shock-034",
+   "family": "combined_shock",
+   "seed": 1310034,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1850
+  },
+  {
+   "day_id": "test4-combined_shock-035",
+   "family": "combined_shock",
+   "seed": 1310035,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1774
+  },
+  {
+   "day_id": "test4-combined_shock-036",
+   "family": "combined_shock",
+   "seed": 1310036,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1588
+  },
+  {
+   "day_id": "test4-combined_shock-037",
+   "family": "combined_shock",
+   "seed": 1310037,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1919
+  },
+  {
+   "day_id": "test4-combined_shock-038",
+   "family": "combined_shock",
+   "seed": 1310038,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1664
+  },
+  {
+   "day_id": "test4-combined_shock-039",
+   "family": "combined_shock",
+   "seed": 1310039,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1669
+  },
+  {
+   "day_id": "test4-combined_shock-040",
+   "family": "combined_shock",
+   "seed": 1310040,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1582
+  },
+  {
+   "day_id": "test4-combined_shock-041",
+   "family": "combined_shock",
+   "seed": 1310041,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1798
+  },
+  {
+   "day_id": "test4-combined_shock-042",
+   "family": "combined_shock",
+   "seed": 1310042,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1576
+  },
+  {
+   "day_id": "test4-combined_shock-043",
+   "family": "combined_shock",
+   "seed": 1310043,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1668
+  },
+  {
+   "day_id": "test4-combined_shock-044",
+   "family": "combined_shock",
+   "seed": 1310044,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1635
+  },
+  {
+   "day_id": "test4-combined_shock-045",
+   "family": "combined_shock",
+   "seed": 1310045,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 2014
+  },
+  {
+   "day_id": "test4-combined_shock-046",
+   "family": "combined_shock",
+   "seed": 1310046,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1590
+  },
+  {
+   "day_id": "test4-combined_shock-047",
+   "family": "combined_shock",
+   "seed": 1310047,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1551
+  },
+  {
+   "day_id": "test4-combined_shock-048",
+   "family": "combined_shock",
+   "seed": 1310048,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1600
+  },
+  {
+   "day_id": "test4-combined_shock-049",
+   "family": "combined_shock",
+   "seed": 1310049,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1705
+  },
+  {
+   "day_id": "test4-severe_overload-000",
+   "family": "severe_overload",
+   "seed": 1311000,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2219
+  },
+  {
+   "day_id": "test4-severe_overload-001",
+   "family": "severe_overload",
+   "seed": 1311001,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2145
+  },
+  {
+   "day_id": "test4-severe_overload-002",
+   "family": "severe_overload",
+   "seed": 1311002,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2153
+  },
+  {
+   "day_id": "test4-severe_overload-003",
+   "family": "severe_overload",
+   "seed": 1311003,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2239
+  },
+  {
+   "day_id": "test4-severe_overload-004",
+   "family": "severe_overload",
+   "seed": 1311004,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2152
+  },
+  {
+   "day_id": "test4-severe_overload-005",
+   "family": "severe_overload",
+   "seed": 1311005,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2169
+  },
+  {
+   "day_id": "test4-severe_overload-006",
+   "family": "severe_overload",
+   "seed": 1311006,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2199
+  },
+  {
+   "day_id": "test4-severe_overload-007",
+   "family": "severe_overload",
+   "seed": 1311007,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2163
+  },
+  {
+   "day_id": "test4-severe_overload-008",
+   "family": "severe_overload",
+   "seed": 1311008,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2172
+  },
+  {
+   "day_id": "test4-severe_overload-009",
+   "family": "severe_overload",
+   "seed": 1311009,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2242
+  },
+  {
+   "day_id": "test4-severe_overload-010",
+   "family": "severe_overload",
+   "seed": 1311010,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2136
+  },
+  {
+   "day_id": "test4-severe_overload-011",
+   "family": "severe_overload",
+   "seed": 1311011,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2254
+  },
+  {
+   "day_id": "test4-severe_overload-012",
+   "family": "severe_overload",
+   "seed": 1311012,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2140
+  },
+  {
+   "day_id": "test4-severe_overload-013",
+   "family": "severe_overload",
+   "seed": 1311013,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2276
+  },
+  {
+   "day_id": "test4-severe_overload-014",
+   "family": "severe_overload",
+   "seed": 1311014,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2131
+  },
+  {
+   "day_id": "test4-severe_overload-015",
+   "family": "severe_overload",
+   "seed": 1311015,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2230
+  },
+  {
+   "day_id": "test4-severe_overload-016",
+   "family": "severe_overload",
+   "seed": 1311016,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2201
+  },
+  {
+   "day_id": "test4-severe_overload-017",
+   "family": "severe_overload",
+   "seed": 1311017,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2122
+  },
+  {
+   "day_id": "test4-severe_overload-018",
+   "family": "severe_overload",
+   "seed": 1311018,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2189
+  },
+  {
+   "day_id": "test4-severe_overload-019",
+   "family": "severe_overload",
+   "seed": 1311019,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2181
+  },
+  {
+   "day_id": "test4-severe_overload-020",
+   "family": "severe_overload",
+   "seed": 1311020,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2138
+  },
+  {
+   "day_id": "test4-severe_overload-021",
+   "family": "severe_overload",
+   "seed": 1311021,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2188
+  },
+  {
+   "day_id": "test4-severe_overload-022",
+   "family": "severe_overload",
+   "seed": 1311022,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2209
+  },
+  {
+   "day_id": "test4-severe_overload-023",
+   "family": "severe_overload",
+   "seed": 1311023,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2196
+  },
+  {
+   "day_id": "test4-severe_overload-024",
+   "family": "severe_overload",
+   "seed": 1311024,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2125
+  },
+  {
+   "day_id": "test4-severe_overload-025",
+   "family": "severe_overload",
+   "seed": 1311025,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2192
+  },
+  {
+   "day_id": "test4-severe_overload-026",
+   "family": "severe_overload",
+   "seed": 1311026,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2200
+  },
+  {
+   "day_id": "test4-severe_overload-027",
+   "family": "severe_overload",
+   "seed": 1311027,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2234
+  },
+  {
+   "day_id": "test4-severe_overload-028",
+   "family": "severe_overload",
+   "seed": 1311028,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2176
+  },
+  {
+   "day_id": "test4-severe_overload-029",
+   "family": "severe_overload",
+   "seed": 1311029,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2128
+  },
+  {
+   "day_id": "test4-severe_overload-030",
+   "family": "severe_overload",
+   "seed": 1311030,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2222
+  },
+  {
+   "day_id": "test4-severe_overload-031",
+   "family": "severe_overload",
+   "seed": 1311031,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2177
+  },
+  {
+   "day_id": "test4-severe_overload-032",
+   "family": "severe_overload",
+   "seed": 1311032,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2121
+  },
+  {
+   "day_id": "test4-severe_overload-033",
+   "family": "severe_overload",
+   "seed": 1311033,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2202
+  },
+  {
+   "day_id": "test4-severe_overload-034",
+   "family": "severe_overload",
+   "seed": 1311034,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2235
+  },
+  {
+   "day_id": "test4-severe_overload-035",
+   "family": "severe_overload",
+   "seed": 1311035,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2181
+  },
+  {
+   "day_id": "test4-severe_overload-036",
+   "family": "severe_overload",
+   "seed": 1311036,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2224
+  },
+  {
+   "day_id": "test4-severe_overload-037",
+   "family": "severe_overload",
+   "seed": 1311037,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2238
+  },
+  {
+   "day_id": "test4-severe_overload-038",
+   "family": "severe_overload",
+   "seed": 1311038,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2093
+  },
+  {
+   "day_id": "test4-severe_overload-039",
+   "family": "severe_overload",
+   "seed": 1311039,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2166
+  },
+  {
+   "day_id": "test4-severe_overload-040",
+   "family": "severe_overload",
+   "seed": 1311040,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2205
+  },
+  {
+   "day_id": "test4-severe_overload-041",
+   "family": "severe_overload",
+   "seed": 1311041,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2211
+  },
+  {
+   "day_id": "test4-severe_overload-042",
+   "family": "severe_overload",
+   "seed": 1311042,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2227
+  },
+  {
+   "day_id": "test4-severe_overload-043",
+   "family": "severe_overload",
+   "seed": 1311043,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2214
+  },
+  {
+   "day_id": "test4-severe_overload-044",
+   "family": "severe_overload",
+   "seed": 1311044,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2187
+  },
+  {
+   "day_id": "test4-severe_overload-045",
+   "family": "severe_overload",
+   "seed": 1311045,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2213
+  },
+  {
+   "day_id": "test4-severe_overload-046",
+   "family": "severe_overload",
+   "seed": 1311046,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2130
+  },
+  {
+   "day_id": "test4-severe_overload-047",
+   "family": "severe_overload",
+   "seed": 1311047,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2215
+  },
+  {
+   "day_id": "test4-severe_overload-048",
+   "family": "severe_overload",
+   "seed": 1311048,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2151
+  },
+  {
+   "day_id": "test4-severe_overload-049",
+   "family": "severe_overload",
+   "seed": 1311049,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2228
+  },
+  {
+   "day_id": "test4-random_shape-000",
+   "family": "random_shape",
+   "seed": 1312000,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1879
+  },
+  {
+   "day_id": "test4-random_shape-001",
+   "family": "random_shape",
+   "seed": 1312001,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1464
+  },
+  {
+   "day_id": "test4-random_shape-002",
+   "family": "random_shape",
+   "seed": 1312002,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1676
+  },
+  {
+   "day_id": "test4-random_shape-003",
+   "family": "random_shape",
+   "seed": 1312003,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1354
+  },
+  {
+   "day_id": "test4-random_shape-004",
+   "family": "random_shape",
+   "seed": 1312004,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1657
+  },
+  {
+   "day_id": "test4-random_shape-005",
+   "family": "random_shape",
+   "seed": 1312005,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1379
+  },
+  {
+   "day_id": "test4-random_shape-006",
+   "family": "random_shape",
+   "seed": 1312006,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1483
+  },
+  {
+   "day_id": "test4-random_shape-007",
+   "family": "random_shape",
+   "seed": 1312007,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1280
+  },
+  {
+   "day_id": "test4-random_shape-008",
+   "family": "random_shape",
+   "seed": 1312008,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1395
+  },
+  {
+   "day_id": "test4-random_shape-009",
+   "family": "random_shape",
+   "seed": 1312009,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1914
+  },
+  {
+   "day_id": "test4-random_shape-010",
+   "family": "random_shape",
+   "seed": 1312010,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1887
+  },
+  {
+   "day_id": "test4-random_shape-011",
+   "family": "random_shape",
+   "seed": 1312011,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1058
+  },
+  {
+   "day_id": "test4-random_shape-012",
+   "family": "random_shape",
+   "seed": 1312012,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1366
+  },
+  {
+   "day_id": "test4-random_shape-013",
+   "family": "random_shape",
+   "seed": 1312013,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1558
+  },
+  {
+   "day_id": "test4-random_shape-014",
+   "family": "random_shape",
+   "seed": 1312014,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1683
+  },
+  {
+   "day_id": "test4-random_shape-015",
+   "family": "random_shape",
+   "seed": 1312015,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1526
+  },
+  {
+   "day_id": "test4-random_shape-016",
+   "family": "random_shape",
+   "seed": 1312016,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1813
+  },
+  {
+   "day_id": "test4-random_shape-017",
+   "family": "random_shape",
+   "seed": 1312017,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1262
+  },
+  {
+   "day_id": "test4-random_shape-018",
+   "family": "random_shape",
+   "seed": 1312018,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 976
+  },
+  {
+   "day_id": "test4-random_shape-019",
+   "family": "random_shape",
+   "seed": 1312019,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1398
+  },
+  {
+   "day_id": "test4-random_shape-020",
+   "family": "random_shape",
+   "seed": 1312020,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 980
+  },
+  {
+   "day_id": "test4-random_shape-021",
+   "family": "random_shape",
+   "seed": 1312021,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1019
+  },
+  {
+   "day_id": "test4-random_shape-022",
+   "family": "random_shape",
+   "seed": 1312022,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 985
+  },
+  {
+   "day_id": "test4-random_shape-023",
+   "family": "random_shape",
+   "seed": 1312023,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1728
+  },
+  {
+   "day_id": "test4-random_shape-024",
+   "family": "random_shape",
+   "seed": 1312024,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1388
+  },
+  {
+   "day_id": "test4-random_shape-025",
+   "family": "random_shape",
+   "seed": 1312025,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1515
+  },
+  {
+   "day_id": "test4-random_shape-026",
+   "family": "random_shape",
+   "seed": 1312026,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1817
+  },
+  {
+   "day_id": "test4-random_shape-027",
+   "family": "random_shape",
+   "seed": 1312027,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1527
+  },
+  {
+   "day_id": "test4-random_shape-028",
+   "family": "random_shape",
+   "seed": 1312028,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1655
+  },
+  {
+   "day_id": "test4-random_shape-029",
+   "family": "random_shape",
+   "seed": 1312029,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1861
+  },
+  {
+   "day_id": "test4-random_shape-030",
+   "family": "random_shape",
+   "seed": 1312030,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1343
+  },
+  {
+   "day_id": "test4-random_shape-031",
+   "family": "random_shape",
+   "seed": 1312031,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1722
+  },
+  {
+   "day_id": "test4-random_shape-032",
+   "family": "random_shape",
+   "seed": 1312032,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1842
+  },
+  {
+   "day_id": "test4-random_shape-033",
+   "family": "random_shape",
+   "seed": 1312033,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1397
+  },
+  {
+   "day_id": "test4-random_shape-034",
+   "family": "random_shape",
+   "seed": 1312034,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1054
+  },
+  {
+   "day_id": "test4-random_shape-035",
+   "family": "random_shape",
+   "seed": 1312035,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1033
+  },
+  {
+   "day_id": "test4-random_shape-036",
+   "family": "random_shape",
+   "seed": 1312036,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1501
+  },
+  {
+   "day_id": "test4-random_shape-037",
+   "family": "random_shape",
+   "seed": 1312037,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1713
+  },
+  {
+   "day_id": "test4-random_shape-038",
+   "family": "random_shape",
+   "seed": 1312038,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1809
+  },
+  {
+   "day_id": "test4-random_shape-039",
+   "family": "random_shape",
+   "seed": 1312039,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1899
+  },
+  {
+   "day_id": "test4-random_shape-040",
+   "family": "random_shape",
+   "seed": 1312040,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1340
+  },
+  {
+   "day_id": "test4-random_shape-041",
+   "family": "random_shape",
+   "seed": 1312041,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1303
+  },
+  {
+   "day_id": "test4-random_shape-042",
+   "family": "random_shape",
+   "seed": 1312042,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1507
+  },
+  {
+   "day_id": "test4-random_shape-043",
+   "family": "random_shape",
+   "seed": 1312043,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1057
+  },
+  {
+   "day_id": "test4-random_shape-044",
+   "family": "random_shape",
+   "seed": 1312044,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1606
+  },
+  {
+   "day_id": "test4-random_shape-045",
+   "family": "random_shape",
+   "seed": 1312045,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1027
+  },
+  {
+   "day_id": "test4-random_shape-046",
+   "family": "random_shape",
+   "seed": 1312046,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1389
+  },
+  {
+   "day_id": "test4-random_shape-047",
+   "family": "random_shape",
+   "seed": 1312047,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1722
+  },
+  {
+   "day_id": "test4-random_shape-048",
+   "family": "random_shape",
+   "seed": 1312048,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1683
+  },
+  {
+   "day_id": "test4-random_shape-049",
+   "family": "random_shape",
+   "seed": 1312049,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1514
+  }
+ ]
+}

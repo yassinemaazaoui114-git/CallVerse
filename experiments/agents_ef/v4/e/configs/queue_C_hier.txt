@@ -1,0 +1,14 @@
+# Arm C: hierarchical training (MPC k=0.5 owns activate/deactivate) + Lagrangian with warm-up (lam0=1, dual from 60k steps).
+--algo dueling_double_dqn --seed 0 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+--algo dueling_double_dqn --seed 1 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+--algo dueling_double_dqn --seed 2 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+--algo dueling_double_dqn --seed 3 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+--algo dueling_double_dqn --seed 4 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+# Arm C0: hierarchical training only (no Lagrangian) - attribution of arm C.
+--algo dueling_double_dqn --seed 0 --owner mpc
+--algo dueling_double_dqn --seed 1 --owner mpc
+--algo dueling_double_dqn --seed 2 --owner mpc
+# Arm D: Lagrangian with warm-up, no hierarchy - attribution of the warm-up fix vs arm B.
+--algo dueling_double_dqn --seed 0 --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+--algo dueling_double_dqn --seed 1 --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+--algo dueling_double_dqn --seed 2 --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000

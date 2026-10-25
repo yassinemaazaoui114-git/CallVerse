@@ -1,0 +1,59 @@
+# Agent F quality report — 2026-10-25T15:51:28.607 to 2026-10-25T15:52:28.307
+
+Prepared by Agent F (M7, checks m7-v4). F only reads traces and reports; it changed nothing. Corpus: scripted M7 corpus, test split (prototype pipeline, scripted agents' LLM, SLM offline). Closed conversations: 120.
+
+Resolution: {'resolved': 105, 'waiting_on_client': 9, 'escalated': 6}. Grades: {'ok_minor': 93, 'review': 20, 'fail': 7}. Reply source: {'template': 120}.
+
+## 1. What to decide (most severe first)
+
+| # | Finding | Severity | Conversations | Evidence (file:line) | Decision for the owner | Does NOT show |
+|---|---|---|---|---|---|---|
+| 1 | `claim_false`: agent B claimed days_late=8, the data say 0 | high | 4 | test-0008.jsonl:31, test-0052.jsonl:31, test-0100.jsonl:27, test-0114.jsonl:31 | read the case; the agent stated a fact that contradicts the platform data (the Coordinator re-reads facts, so check the final decision too) | not whether a wrong refund was paid: see the decision in the trace |
+| 2 | `sent_back`: the Coordinator sent the proposal back 2 time(s) | high | 4 | test-0008.jsonl:44, test-0052.jsonl:44, test-0100.jsonl:40, test-0114.jsonl:44 | the Coordinator had to correct the agent; frequent send-backs mean the agent misreads rules | not a client-facing error (the Coordinator caught it) |
+| 3 | `pipeline_error`: the agents failed; the client was told the case needs an extra check | high | 2 | test-0073.jsonl:12, test-0095.jsonl:12 | check the agents' LLM provider and the error handling; the client got the 'extra check' reply | not why the provider failed |
+| 4 | `missed_entitlement`: client asked for a refund the data show is due (R-REF-03), but none was approved | high | 1 | test-0031.jsonl:38 | a refund the data show is due (R-REF-03) was not given or offered; read the case | not that the client still wants it |
+| 5 | `reply_language_mismatch`: client wrote in French, the reply is not in French | medium | 23 | test-0006.jsonl:22, test-0008.jsonl:108, test-0017.jsonl:25, test-0024.jsonl:22, test-0027.jsonl:39 | French-speaking clients were answered in English; add French reply templates (prototype lane) | not that the client could not read English |
+| 6 | `escalated`: case escalated to a human | medium | 6 | test-0008.jsonl:108, test-0052.jsonl:108, test-0073.jsonl:20, test-0095.jsonl:20, test-0100.jsonl:104 | cases sent to a human; check the human queue capacity | not that escalation was wrong |
+| 7 | `cited_missing_rule`: agent cited rule R-REF-02, which does not exist | medium | 1 | test-0031.jsonl:27 | agents cite a rule id that is not in the policy file; check the prompts for an old id | not which rule was meant |
+| 8 | `proposal_malformed`: the proposal tool refused the agent's proposal | medium | 1 | test-0031.jsonl:27 | the proposal tool refused the agent's proposal; check the agent's prompt | not a client-facing error |
+| 9 | `slm_fallback_template`: the SLM gave no passing reply; the fixed template was sent | low | 120 | test-0000.jsonl:22, test-0001.jsonl:22, test-0002.jsonl:22, test-0003.jsonl:53, test-0004.jsonl:35 | the SLM gave no passing reply, the fixed template was sent; check the SLM service | not that the template reply was bad |
+| 10 | `agent_answered_without_tools`: agent answered without using a tool; the pipeline re-ran it | low | 6 | test-0017.jsonl:13, test-0049.jsonl:13, test-0050.jsonl:13, test-0079.jsonl:13, test-0106.jsonl:13 | agent first answered without tools; the pipeline re-ran it | not a client-facing error |
+| 11 | `rule_not_searched`: agent cited R-REF-03 without searching the policies | low | 2 | test-0023.jsonl:34, test-0071.jsonl:34 | agent cited a rule without looking it up | not that the rule was wrong |
+
+Evidence check: 184 of 184 evidence refs were re-read from the traces and matched (right file, right step, right value).
+
+## 2. Rules and knowledge
+
+**Internal consistency (checkable)**: 1 flag(s)
+- stale_reference R-REF-02: agents cited R-REF-02 1 time(s); it is not in the policy file. Decision: check the agents' prompts / knowledge for an old rule id. False-positive risk: low for code/config refs (exact id match); for agent citations, one LLM slip can repeat in a batch — the support count is shown.
+
+**Coverage: situations no rule covers (questions, not errors)**: 2 flag(s)
+- knowledge_gap : no conditional rule covers: delivered, on time. Decision: decide what clients in this situation are owed and write it as a rule. False-positive risk: high: 'no rule' may be the intended policy (nothing is owed); it is a question, not a defect.
+- knowledge_gap : no conditional rule covers: delivered, late. Decision: decide what clients in this situation are owed and write it as a rule. False-positive risk: high: 'no rule' may be the intended policy (nothing is owed); it is a question, not a defect.
+
+**Governance**: 8 flag(s)
+- 8 rules are AI-written with no review, version or date (R-DEL-01, R-DEL-02, R-REF-03, R-REF-05, R-RET-01, R-DMG-01, R-ESC-01, R-NOT-01). Decision: review them and add version + last_reviewed.
+
+**Usage in these conversations**: 3 flag(s)
+- usage_signal R-REF-03: condition false in 12/23 checks: agents often apply it where it does not hold. Decision: check whether the wording still matches how cases look. False-positive risk: medium/high: depends on the period's case mix (e.g. 'never used' when no client asked); minimum support of 5 conversations applies.
+- usage_signal R-DEL-01: never cited or retrieved in 120 conversations. Decision: check whether the rule is still needed. False-positive risk: medium/high: depends on the period's case mix (e.g. 'never used' when no client asked); minimum support of 5 conversations applies.
+- usage_signal R-RET-01: never cited or retrieved in 120 conversations. Decision: check whether the rule is still needed. False-positive risk: medium/high: depends on the period's case mix (e.g. 'never used' when no client asked); minimum support of 5 conversations applies.
+
+**Freshness (is each rule still true today?)**: NOT_CHECKABLE — no dated, authoritative source (law, carrier contract, signed company decision) exists for any rule, and the policy file has no version or date fields; 'outdated' cannot be shown. Needed: valid_from / valid_until / last_reviewed / owner fields per rule; a dated source reference per rule (document id + date); a change log of the policy file.
+
+Predicted-satisfaction-per-rule check: SKIPPED: satisfaction score not validated for this domain; it must not create rule flags.
+
+## 3. Satisfaction (predicted by a model, NOT reported by clients)
+
+- Model: tfidf_ridge_tail256. Validity per conversation: {'indicative_out_of_domain': 97, 'withheld_language_not_validated': 23}. Languages: {'en': 97, 'fr': 23}.
+- Scored 97 of 120; conversations in a language the model was never validated on get no score.
+- Indicative mean 3.304 (SD 0.044) — scores are model predictions, not client ratings; not validated on CallVerse conversations.
+- Comparisons by grade, rule or resolution: NOT SHOWN: the score is not validated on CallVerse conversations.
+- What the model was measured on: USS = third-party annotator judgements of task-oriented dialogues (EN) and JDDC e-commerce service (ZH); not customer ratings, not CallVerse conversations; TEST n=1016, MAE 0.3919 (mean baseline 0.51), Spearman 0.596 [95% CI 0.55, 0.6381].
+
+## 4. Feedback to Agent E
+
+- **e_reward_allowed = false**; eligible conversations 0 / 120.
+- Reasons: label_type: value human_annotation, needed genuine_customer_rating; domain: value task_oriented_dialogue, needed support_conversation; coverage: value 0.0, needed >= 0.95.
+- E's safety rules (mask, budget, fallback cap, HIGH protections) never depend on this score.
+

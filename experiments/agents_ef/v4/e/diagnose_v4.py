@@ -295,4 +295,48 @@ def qgap():
 
 
 if __name__ == "__main__":
-    {"traces": traces, "analyse": analyse, "tfrac": tfrac, "qgap": qgap}[sys.argv[1]]()
+    if sys.argv[1] != "figs2":
+        {"traces": traces, "analyse": analyse, "tfrac": tfrac, "qgap": qgap}[sys.argv[1]]()
+
+
+def figs2():
+    """Figures from diagnosis.json, diag_tfrac.json, diag_qgap.json (real data only)."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    d = json.loads((RES / "diagnosis.json").read_text())
+    show = ["rule:mpc:0.5", "rule:erlang:0.4", "rule:forecast:0.25", "rl:dueling_double_dqn_equal_h64x64_150k",
+            "rl:dueling_dqn_equal_h64x64_150k", "guarded:dueling_double_dqn_equal_h64x64_150k"]
+    fig, axes = plt.subplots(1, 3, figsize=(16, 4.5))
+    w = 0.8 / len(show)
+    for i, g in enumerate(show):
+        f = d["val_per_queue"][g]["fail_per_day"]
+        axes[0].bar(np.arange(4) + i * w, [f[q] for q in Q_NAMES], w, label=g.replace("_equal_h64x64_150k", ""))
+    axes[0].set_xticks(np.arange(4) + 0.4, ["queue A", "queue B", "queue C (urgent)", "queue D"])
+    axes[0].set_ylabel("failed tickets per day (SLA miss + lost)")
+    axes[0].set_title("V3 VAL: where each policy fails")
+    axes[0].legend(fontsize=7)
+    tf = json.loads((RES / "diag_tfrac.json").read_text())
+    names = list(next(iter(tf.values())))
+    for run, v in tf.items():
+        axes[1].plot(names, [v[n]["val_return"] - v["none"]["val_return"] for n in names], "o-", label=run.replace("_equal_h64x64_150k", ""))
+    axes[1].set_ylabel("VAL return change vs unperturbed")
+    axes[1].set_title("time-of-day input perturbed (obs[28], obs[27])")
+    axes[1].tick_params(axis="x", rotation=20)
+    axes[1].legend(fontsize=6)
+    qg = json.loads((RES / "diag_qgap.json").read_text())
+    runs = list(qg)
+    axes[2].bar(np.arange(len(runs)) - 0.2, [qg[r]["share_gap_below_one_session_step"] for r in runs], 0.4,
+                label="share of decisions with Q-gap < 1 session-step")
+    axes[2].bar(np.arange(len(runs)) + 0.2, [qg[r]["median_q_loss_move_into_C_when_C_backlog>=3"] for r in runs], 0.4,
+                label="median Q-value penalty of moving into C when >=3 C tickets wait")
+    axes[2].set_xticks(range(len(runs)), [r.replace("_equal_h64x64_150k", "") for r in runs], rotation=30, ha="right", fontsize=7)
+    axes[2].set_title("RL value estimates: indifference and C under-valuation")
+    axes[2].legend(fontsize=6)
+    fig.tight_layout()
+    fig.savefig(FIG / "e1_queue_fail_tfrac_qgap.png", dpi=110)
+    plt.close(fig)
+
+
+if __name__ == "__main__" and sys.argv[1] == "figs2":
+    figs2()

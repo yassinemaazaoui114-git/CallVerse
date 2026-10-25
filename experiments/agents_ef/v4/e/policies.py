@@ -5,7 +5,11 @@ Spec grammar (composable, written in result file names with ':' -> '__' and '|' 
   rl:<run_id>          greedy RL (best.pt of v4/e/runs/<id> or v3/e/runs/<id>)
   guarded:<run_id>     V3 hybrid: Forecast(z=0.25, the V3 VAL choice) owns activate/deactivate, RL the rest
   mpcguard:<run_id>    hierarchical: Fluid MPC (k=0.5) owns activate/deactivate (capacity envelope), RL allocates
+                       (V3 guarded semantics: if RL picks activate/deactivate, the rule's action is used)
+  hier:<owner>:<run>   hierarchical as TRAINED by train_v4 --owner: owner (mpc|forecast) owns activate/deactivate,
+                       RL chooses among the remaining actions only (its mask never contains activate/deactivate)
   shield@<t>|<inner>   urgent-capacity shield (common.UrgentShield, Erlang-C target t) around any inner policy
+  floor@<k>|<inner>    static stronger mask: queue C never below k sessions (k=2 is the V3 mask)
 Each policy object exposes .stats (counters of shield vetoes) so the evaluator can report safety interventions.
 """
 
@@ -80,11 +84,11 @@ def _default_in_mask(env, m):
 
 
 def make_policy(spec: str) -> Policy:
-    if spec.startswith("shield@"):
+    if spec.startswith("shield@") or spec.startswith("floor@"):
         head, _, inner_spec = spec.partition("|")
         target = float(head.split("@")[1])
         inner = make_policy(inner_spec)
-        sh = UrgentShield(target)
+        sh = UrgentShield(target) if spec.startswith("shield@") else UrgentShield(static=int(target))
         pol = Policy(None, {**inner.meta, "shield_target": target}, inner.agent)
 
         pol.stats.update(shield_active=0, shield_forced=0)
@@ -107,6 +111,21 @@ def make_policy(spec: str) -> Policy:
         pol.inner = inner
         return pol
     kind, _, arg = spec.partition(":")
+    if kind == "hier":
+        owner_name, _, run_id = arg.partition(":")
+        agent, info, run = load_agent(run_id)
+        owner = FluidMPC(6, MPC_K_V3) if owner_name == "mpc" else Forecast(FORECAST_Z_V3)
+        rl = _rl_fn(agent)
+
+        def fn(env, obs, mask):
+            a_rule = owner.act(env, obs, mask)
+            if a_rule in (A_ACT, A_DEACT) and mask[a_rule]:
+                return a_rule
+            m2 = mask.copy()
+            m2[A_ACT] = m2[A_DEACT] = False
+            return rl(env, obs, m2)
+        return Policy(fn, {"n_params": info["n_params"], "algo": info["algo"], "run_dir": str(run), "owner": owner_name,
+                           "ckpt_kb": round((run / "best.pt").stat().st_size / 1024, 1)}, agent)
     if kind == "rule":
         r = make_rule(arg)
         return Policy(lambda e, o, m: r.act(e, o, m), {"n_params": 0})

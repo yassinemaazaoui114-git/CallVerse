@@ -1,0 +1,92 @@
+{
+ "wiring_recall": {
+  "agent_claim_contradicts_data": {
+   "n": 4,
+   "caught": 4,
+   "expected_flag": "claim_false",
+   "recall": 1.0
+  },
+  "agent_answered_without_tools": {
+   "n": 6,
+   "caught": 6,
+   "expected_flag": "agent_answered_without_tools",
+   "recall": 1.0
+  },
+  "rule_not_searched": {
+   "n": 2,
+   "caught": 2,
+   "expected_flag": "rule_not_searched",
+   "recall": 1.0
+  },
+  "user_not_confirmed": {
+   "n": 1,
+   "caught": 1,
+   "expected_flag": "outcome ask_user",
+   "recall": 1.0
+  },
+  "agent_cites_missing_rule": {
+   "n": 1,
+   "caught": 1,
+   "expected_flag": "cited_missing_rule",
+   "recall": 1.0
+  },
+  "pipeline_error": {
+   "n": 2,
+   "caught": 2,
+   "expected_flag": "pipeline_error",
+   "recall": 1.0
+  }
+ },
+ "false_positives_on_clean": {},
+ "verified_observations_on_clean": {
+  "slm_fallback_template": 91,
+  "reply_language_mismatch": 16
+ },
+ "evidence_integrity": {
+  "n_refs": 184,
+  "n_ok": 184,
+  "failed": []
+ },
+ "v3_vs_v4": {
+  "v3": {
+   "slm_fallback_template": 120,
+   "reply_language_mismatch": 23,
+   "claim_contradicts_data": 7,
+   "sent_back": 4,
+   "escalated": 6,
+   "agent_answered_without_tools": 6,
+   "rule_not_searched": 2,
+   "missed_entitlement": 2,
+   "cited_missing_rule": 1,
+   "proposal_malformed": 1,
+   "pipeline_error": 2
+  },
+  "v4": {
+   "slm_fallback_template": 120,
+   "reply_language_mismatch": 23,
+   "sent_back": 4,
+   "escalated": 6,
+   "claim_false": 7,
+   "agent_answered_without_tools": 6,
+   "rule_not_searched": 2,
+   "cited_missing_rule": 1,
+   "proposal_malformed": 1,
+   "missed_entitlement": 1,
+   "pipeline_error": 2
+  }
+ },
+ "language_detector": {
+  "detected en|corpus en": 97,
+  "detected fr|corpus fr": 23
+ },
+ "satisfaction_validity": {
+  "indicative_out_of_domain": 97,
+  "withheld_language_not_validated": 23
+ },
+ "e_reward_allowed": false,
+ "timings_s": {
+  "load": 3.16,
+  "process_all": 0.48,
+  "per_conversation_ms": 4.04
+ }
+}

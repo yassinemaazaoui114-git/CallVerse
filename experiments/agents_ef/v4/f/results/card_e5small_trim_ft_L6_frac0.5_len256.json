@@ -1,0 +1,20 @@
+{
+ "model": "e5small_trim_ft_L6_frac0.5_len256 (seed 1)",
+ "label_type": "human_annotation",
+ "domain": "task_oriented_dialogue",
+ "test_n": 1016,
+ "mae": 0.3912,
+ "mae_mean_baseline": 0.51,
+ "spearman": 0.5922,
+ "spearman_ci_low": 0.5453,
+ "spearman_ci_high": 0.6353,
+ "source": "e5small_trim_ft_L6_frac0.5_len256.json",
+ "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1",
+ "corpus": "uss",
+ "model_key": "e5small_trim_ft_L6_frac0.5_len256",
+ "languages_validated": [
+  "en",
+  "zh"
+ ],
+ "note": "USS = third-party annotator judgements of task-oriented dialogues (EN) and JDDC e-commerce service (ZH); not customer ratings, not CallVerse conversations"
+}

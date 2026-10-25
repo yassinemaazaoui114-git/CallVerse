@@ -1,1 +1,5 @@
-{"worker": "E", "updated": "2026-10-25T23:06", "phase": "setup", "done": ["dev manifest", "common/policies/evaluate_v4"], "running": [], "next": ["DEV eval of baselines + V3 checkpoints", "VAL diagnosis traces"]}
+{"worker": "E", "updated": "2026-10-25T23:40", "phase": "E1 diagnosis done (draft), E4 training arms running",
+ "done": ["dev manifest (sha d54493d2...)", "test4 manifest (sha cedc50af..., not evaluated)", "DEV eval of 51 V3 policies",
+          "VAL traces + diagnosis figures", "t_frac ablation", "adapter + 10 tests passing", "arm B seeds 0-3"],
+ "running": ["arm B seed 4", "DEV runtime shield sweep", "DEV floor/hier sweep (queued)", "Q-gap diagnosis", "queue C/C0/D (waits for arm B)"],
+ "next": ["DEV eval arm B", "choose candidates", "pre-registration", "TEST4", "reports"]}

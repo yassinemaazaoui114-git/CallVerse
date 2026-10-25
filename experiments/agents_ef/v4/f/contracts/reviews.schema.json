@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "callverse/reviews_contract/v0.1-proposal",
+  "title": "CallVerse satisfaction record (PROPOSAL, not adopted)",
+  "description": "One satisfaction record about one closed conversation. A MEASURED rating (customer_submitted or annotator) and an AI-PREDICTED score are different record kinds and are never stored in the same field. See reviews_contract.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["record_id", "conversation_id", "rating_source", "submitted_at", "channel", "language",
+               "consent", "pii_redaction", "data_quality", "schema_version"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "record_id": {"type": "string", "minLength": 1},
+    "conversation_id": {"type": "string", "minLength": 1,
+                        "description": "id of the closed conversation (trace run id or #n inside a batch file)"},
+    "ticket_id": {"type": ["string", "null"], "description": "Intake ticket id (T-...), when known"},
+    "order_id": {"type": ["integer", "null"]},
+    "rating_source": {"enum": ["customer_submitted", "annotator", "ai_predicted"]},
+    "rating": {"type": ["integer", "null"], "minimum": 1, "maximum": 5,
+               "description": "MEASURED rating 1-5. Only for customer_submitted and annotator records; must be null for ai_predicted"},
+    "predicted_score": {"type": ["number", "null"], "minimum": 1, "maximum": 5,
+                        "description": "AI-predicted score 1-5. Only for ai_predicted records; must be null otherwise"},
+    "prediction": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "description": "Required for ai_predicted records: which model, and how far it can be trusted",
+      "required": ["model_id", "model_sha256", "label_type_trained_on", "validity"],
+      "properties": {
+        "model_id": {"type": "string"},
+        "model_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "label_type_trained_on": {"type": "string"},
+        "validity": {"enum": ["validated", "indicative_out_of_domain", "withheld_language_not_validated",
+                              "unvalidated_language_scored_on_request", "no_score"]}
+      }
+    },
+    "annotator_id": {"type": ["string", "null"],
+                     "description": "Pseudonymous annotator id; required for annotator records"},
+    "feedback_text": {"type": ["string", "null"], "maxLength": 2000,
+                      "description": "Optional free text, stored ONLY after PII redaction (pii_redaction.status = redacted or none_found)"},
+    "submitted_at": {"type": "string", "format": "date-time",
+                     "description": "When the rating was given (or the prediction made); ISO 8601"},
+    "conversation_closed_at": {"type": ["string", "null"], "format": "date-time"},
+    "channel": {"enum": ["chat", "email", "phone", "voice", "annotation_tool", "agent_f"]},
+    "language": {"enum": ["fr", "ar", "en", "other", "unknown"]},
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["given", "scope"],
+      "properties": {
+        "given": {"type": "boolean"},
+        "scope": {"type": "array", "items": {"enum": ["quality_reporting", "model_validation", "model_training"]},
+                  "uniqueItems": true},
+        "recorded_at": {"type": ["string", "null"], "format": "date-time"},
+        "consent_text_version": {"type": ["string", "null"]}
+      }
+    },
+    "pii_redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {"enum": ["redacted", "none_found", "not_done"]},
+        "method": {"type": ["string", "null"]},
+        "checked_by": {"type": ["string", "null"], "description": "human / tool that checked the redaction"}
+      }
+    },
+    "data_quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["is_duplicate", "is_test_or_synthetic"],
+      "properties": {
+        "is_duplicate": {"type": "boolean"},
+        "is_test_or_synthetic": {"type": "boolean"},
+        "rating_delay_hours": {"type": ["number", "null"], "minimum": 0,
+                               "description": "submitted_at - conversation_closed_at"},
+        "conversation_found_in_traces": {"type": ["boolean", "null"]},
+        "flags": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

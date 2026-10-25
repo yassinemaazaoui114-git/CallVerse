@@ -1,0 +1,4 @@
+23:24:16 finished: --algo dueling_double_dqn --seed 0 --dual-lr 2 --dual-target 0.90
+23:24:29 finished: --algo dueling_double_dqn --seed 1 --dual-lr 2 --dual-target 0.90
+23:35:54 finished: --algo dueling_double_dqn --seed 2 --dual-lr 2 --dual-target 0.90
+23:36:20 finished: --algo dueling_double_dqn --seed 3 --dual-lr 2 --dual-target 0.90

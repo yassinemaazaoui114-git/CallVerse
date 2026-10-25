@@ -1,0 +1,1 @@
+{"run_id": "dueling_double_dqn_h64x64_150k_lag0d2t0.9_s3", "status": "done", "best_val_return": -189.70194027654335, "best_val_c_sla": 91.64595905809963, "final_lam": 1.3333438653509686, "train_wall_s": 706.6}

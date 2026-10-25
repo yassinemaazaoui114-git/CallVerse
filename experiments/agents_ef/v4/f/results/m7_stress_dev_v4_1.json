@@ -1,0 +1,37 @@
+{
+ "n_conversations": 120,
+ "split": "dev",
+ "mutations": {
+  "numeric_strings": {
+   "n_changed": 0,
+   "changed": [],
+   "n_refs": 196,
+   "refs_not_ok": 0
+  },
+  "float_noise": {
+   "n_changed": 0,
+   "changed": [],
+   "n_refs": 196,
+   "refs_not_ok": 0
+  },
+  "noise_lines": {
+   "n_changed": 0,
+   "changed": [],
+   "n_refs": 196,
+   "refs_not_ok": 0
+  },
+  "garbled_line": {
+   "n_changed": 0,
+   "changed": [],
+   "n_refs": 196,
+   "refs_not_ok": 0
+  },
+  "batch_file": {
+   "n_changed": 0,
+   "changed": [],
+   "n_refs": 196,
+   "refs_not_ok": 0
+  }
+ },
+ "code_version": "v4.1 (string normalisation)"
+}

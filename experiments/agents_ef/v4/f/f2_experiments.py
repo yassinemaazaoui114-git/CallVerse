@@ -93,7 +93,7 @@ def run_variant(name, tr, va, te=None):
     groups = sorted({r["lang"] for r in tr}) if split else ["all"]
     sel = lambda rows, g: [r for r in rows if g == "all" or r["lang"] == g]
     out = {"variant": name, "views": views, "lang_split": split, "groups": {}}
-    pv_all, yv_all, pt_all, yt_all, nparams = [], [], [], [], 0
+    pv_all, yv_all, pt_all, yt_all, nparams, models = [], [], [], [], 0, {}
     for g in groups:
         gtr, gva = sel(tr, g), sel(va, g)
         bm = BlockModel(views).fit_vec(gtr)
@@ -106,6 +106,7 @@ def run_variant(name, tr, va, te=None):
         pv = np.clip(m.predict(Fva), 1, 5)
         nparams += int(m.coef_.size + 1)
         out["groups"][g] = {"alpha": best[1], "val_mae_grid": {str(a): round(e, 5) for e, a in grid}}
+        models[g] = (bm, m)
         pv_all += list(pv)
         yv_all += list(yva)
         if te is not None:
@@ -116,7 +117,43 @@ def run_variant(name, tr, va, te=None):
     out["val"] = metrics(np.array(yv_all), np.array(pv_all), [r["lang"] for g in groups for r in sel(va, g)])
     if te is not None:
         out["test"] = metrics(np.array(yt_all), np.array(pt_all), [r["lang"] for g in groups for r in sel(te, g)])
+    out["_models"] = models
     return out
+
+
+class BlockSatisfactionPredictor:
+    """Saved F2 variant, same interface as SatisfactionPredictor (.scores / .predict). One model per language
+    group when lang_split (group 'all' otherwise). Language of new text: tfidf_predictor.guess_lang."""
+
+    def __init__(self, models, meta):
+        self.models, self.meta = models, meta
+
+    def scores(self, texts, langs=None):
+        from v4.f.tfidf_predictor import guess_lang
+        langs = langs or [guess_lang(t) for t in texts]
+        out = np.zeros(len(texts))
+        for i, (t, lg) in enumerate(zip(texts, langs)):
+            g = "all" if "all" in self.models else ("zh" if lg == "zh" else "en")
+            parts = self.models[g]
+            bm = BlockModel(parts["views"])
+            bm.vecs = parts["vecs"]
+            out[i] = parts["ridge"].predict(bm.X([{"text": t, "lang": lg}]))[0]
+        return np.clip(out, 1, 5)
+
+    def predict(self, texts, langs=None):
+        from v4.f.tfidf_predictor import label
+        return [{"score": round(float(s), 3), "label": label(float(s))} for s in self.scores(texts, langs)]
+
+    @classmethod
+    def load(cls, ckpt_dir, verify=True):
+        import joblib
+        from v4.f.tfidf_predictor import sha256
+        ckpt_dir = Path(ckpt_dir)
+        meta = json.loads((ckpt_dir / "meta.json").read_text())
+        path = ckpt_dir / meta["model_file"]
+        if verify and sha256(path) != meta["sha256"]:
+            raise ValueError(f"SHA256 mismatch for {path}: refusing to unpickle")
+        return cls(joblib.load(path), meta)
 
 
 def metrics(y, p, langs):
@@ -137,6 +174,7 @@ def main(argv=None):
     ap.add_argument("--data", required=True)
     ap.add_argument("--variants", nargs="*", default=list(VARIANTS))
     ap.add_argument("--test", default=None, help="score TEST once for this (VAL-selected) variant")
+    ap.add_argument("--save", default=None, help="with --test: save the fitted variant here (joblib + meta + SHA256)")
     a = ap.parse_args(argv)
     load = lambda s: [json.loads(l) for l in open(Path(a.data) / f"{s}.jsonl", encoding="utf-8")]
     tr, va = load("train"), load("val")
@@ -147,6 +185,26 @@ def main(argv=None):
         t0 = time.perf_counter()
         r = run_variant(a.test, tr, va, te)
         r["seconds"] = round(time.perf_counter() - t0, 1)
+        models = r.pop("_models")
+        if a.save:
+            import joblib
+            from v4.f.tfidf_predictor import sha256
+            out = Path(a.save)
+            out.mkdir(parents=True, exist_ok=True)
+            mf = out / "model.joblib"
+            # plain parts only (no class from this module inside the pickle: it may run as __main__)
+            joblib.dump({g: {"views": bm.views, "vecs": bm.vecs, "ridge": m} for g, (bm, m) in models.items()},
+                        mf, compress=3)
+            meta = {"model": f"tfidf_{a.test}_tail256", "model_file": mf.name, "sha256": sha256(mf),
+                    "size_bytes": mf.stat().st_size, "class": "v4.f.f2_experiments.BlockSatisfactionPredictor",
+                    "variant": a.test, "views": r["views"], "lang_split": r["lang_split"], "n_params": r["n_params"],
+                    "alphas": {g: v["alpha"] for g, v in r["groups"].items()},
+                    "label_type": "human_annotation (third-party annotators, mean of 3-7)",
+                    "domain": "task_oriented_dialogue + JDDC e-commerce service (zh)",
+                    "languages_validated": ["en", "zh"], "val": r["val"], "test": r["test"],
+                    "trained_on": "USS train.jsonl (4,740 dialogues, EN+ZH)"}
+            (out / "meta.json").write_text(json.dumps(meta, indent=2))
+            r["checkpoint"], r["sha256"], r["size_bytes"] = str(out), meta["sha256"], meta["size_bytes"]
         (HERE / "results" / f"f2_test_{a.test}.json").write_text(json.dumps(r, indent=1))
         print(json.dumps(r, indent=1))
         return
@@ -157,6 +215,7 @@ def main(argv=None):
         t0 = time.perf_counter()
         r = run_variant(name, tr, va)
         r["seconds"] = round(time.perf_counter() - t0, 1)
+        r.pop("_models")
         res["variants"][name] = r
         res_p.write_text(json.dumps(res, indent=1))                 # resumable: one variant at a time
         print(name, r["val"], r["n_params"], r["seconds"], "s", flush=True)

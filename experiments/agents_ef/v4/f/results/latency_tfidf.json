@@ -1,0 +1,15 @@
+{
+ "load_s_incl_imports": 2.895,
+ "shopnova_dev": {
+  "n": 115,
+  "p50_ms": 2.63,
+  "p95_ms": 4.43
+ },
+ "uss_val_first100": {
+  "n": 95,
+  "p50_ms": 4.12,
+  "p95_ms": 6.04
+ },
+ "peak_rss_mb": 236.0,
+ "note": "CPU shared with other workers (load average printed by the caller)"
+}

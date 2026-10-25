@@ -1,0 +1,74 @@
+{
+ "variant": "roles",
+ "roundtrip_test_mae": 0.39063,
+ "stored_test_mae": 0.39063,
+ "baseline_test_mae": 0.39187,
+ "paired_mae_diff_all": {
+  "diff": -0.00123,
+  "ci95": [
+   -0.00804,
+   0.00632
+  ],
+  "n": 1016
+ },
+ "paired_mae_diff_en": {
+  "diff": -0.00016,
+  "ci95": [
+   -0.00772,
+   0.00772
+  ],
+  "n": 525
+ },
+ "paired_mae_diff_zh": {
+  "diff": -0.00238,
+  "ci95": [
+   -0.01359,
+   0.00937
+  ],
+  "n": 491
+ },
+ "shopnova_sd": {
+  "variant": 0.0836,
+  "baseline": 0.0498,
+  "variant_mean": 3.1655,
+  "baseline_mean": 3.3169,
+  "corr_variant_baseline": 0.4916,
+  "n": 240
+ },
+ "probes": {
+  "tone_lang/refund": {
+   "calm": 3.3409,
+   "angry": 3.2429,
+   "fr": 3.3824
+  },
+  "tone_lang/status": {
+   "calm": 3.0463,
+   "angry": 3.2163,
+   "fr": 3.1483
+  },
+  "outcome/calm": {
+   "resolved": 3.3409,
+   "escalated": 3.2247,
+   "refused": 3.131
+  },
+  "outcome/angry": {
+   "resolved": 3.2429,
+   "escalated": 3.1326,
+   "refused": 3.053
+  },
+  "closing_turn/refund_ok": {
+   "no_close": 3.3409,
+   "close_thanks": 3.6562,
+   "close_complaint": 3.3669
+  },
+  "closing_turn/escalated": {
+   "no_close": 3.2247,
+   "close_thanks": 3.5642,
+   "close_complaint": 3.2605
+  },
+  "uss_format_control": {
+   "positive": 3.4762,
+   "negative": 2.979
+  }
+ }
+}

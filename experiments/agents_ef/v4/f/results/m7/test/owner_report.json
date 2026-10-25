@@ -1,0 +1,606 @@
+{
+ "created": "2026-10-25T23:25:04Z",
+ "corpus": "scripted M7 corpus, test split (prototype pipeline, scripted agents' LLM, SLM offline)",
+ "period": {
+  "from": "2026-10-25T15:51:28.607",
+  "to": "2026-10-25T15:52:28.307"
+ },
+ "n_conversations": 120,
+ "checks_version": "m7-v4",
+ "flag_codes_checked": [
+  "pipeline_error",
+  "claim_false",
+  "claim_unsupported",
+  "cited_missing_rule",
+  "sent_back",
+  "escalated",
+  "rule_not_searched",
+  "agent_answered_without_tools",
+  "proposal_malformed",
+  "missed_entitlement",
+  "reply_leak",
+  "slm_fallback_template",
+  "reply_language_mismatch",
+  "handover_ignored"
+ ],
+ "kpis": {
+  "resolution": {
+   "resolved": 105,
+   "waiting_on_client": 9,
+   "escalated": 6
+  },
+  "grade": {
+   "ok_minor": 93,
+   "review": 20,
+   "fail": 7
+  },
+  "outcome": {
+   "info": 75,
+   "approve": 30,
+   "ask_proof": 8,
+   "escalate": 6,
+   "ask_user": 1
+  },
+  "reply_source": {
+   "template": 120
+  }
+ },
+ "actions": [
+  {
+   "code": "claim_false",
+   "severity": "high",
+   "n_flags": 7,
+   "n_conversations": 4,
+   "example_refs": [
+    "test-0008.jsonl:31",
+    "test-0052.jsonl:31",
+    "test-0100.jsonl:27",
+    "test-0114.jsonl:31"
+   ],
+   "example_what": "agent B claimed days_late=8, the data say 0",
+   "owner_decision": "read the case; the agent stated a fact that contradicts the platform data (the Coordinator re-reads facts, so check the final decision too)",
+   "does_not_show": "not whether a wrong refund was paid: see the decision in the trace"
+  },
+  {
+   "code": "sent_back",
+   "severity": "high",
+   "n_flags": 4,
+   "n_conversations": 4,
+   "example_refs": [
+    "test-0008.jsonl:44",
+    "test-0052.jsonl:44",
+    "test-0100.jsonl:40",
+    "test-0114.jsonl:44"
+   ],
+   "example_what": "the Coordinator sent the proposal back 2 time(s)",
+   "owner_decision": "the Coordinator had to correct the agent; frequent send-backs mean the agent misreads rules",
+   "does_not_show": "not a client-facing error (the Coordinator caught it)"
+  },
+  {
+   "code": "pipeline_error",
+   "severity": "high",
+   "n_flags": 2,
+   "n_conversations": 2,
+   "example_refs": [
+    "test-0073.jsonl:12",
+    "test-0095.jsonl:12"
+   ],
+   "example_what": "the agents failed; the client was told the case needs an extra check",
+   "owner_decision": "check the agents' LLM provider and the error handling; the client got the 'extra check' reply",
+   "does_not_show": "not why the provider failed"
+  },
+  {
+   "code": "missed_entitlement",
+   "severity": "high",
+   "n_flags": 1,
+   "n_conversations": 1,
+   "example_refs": [
+    "test-0031.jsonl:38"
+   ],
+   "example_what": "client asked for a refund the data show is due (R-REF-03), but none was approved",
+   "owner_decision": "a refund the data show is due (R-REF-03) was not given or offered; read the case",
+   "does_not_show": "not that the client still wants it"
+  },
+  {
+   "code": "reply_language_mismatch",
+   "severity": "medium",
+   "n_flags": 23,
+   "n_conversations": 23,
+   "example_refs": [
+    "test-0006.jsonl:22",
+    "test-0008.jsonl:108",
+    "test-0017.jsonl:25",
+    "test-0024.jsonl:22",
+    "test-0027.jsonl:39"
+   ],
+   "example_what": "client wrote in French, the reply is not in French",
+   "owner_decision": "French-speaking clients were answered in English; add French reply templates (prototype lane)",
+   "does_not_show": "not that the client could not read English"
+  },
+  {
+   "code": "escalated",
+   "severity": "medium",
+   "n_flags": 6,
+   "n_conversations": 6,
+   "example_refs": [
+    "test-0008.jsonl:108",
+    "test-0052.jsonl:108",
+    "test-0073.jsonl:20",
+    "test-0095.jsonl:20",
+    "test-0100.jsonl:104"
+   ],
+   "example_what": "case escalated to a human",
+   "owner_decision": "cases sent to a human; check the human queue capacity",
+   "does_not_show": "not that escalation was wrong"
+  },
+  {
+   "code": "cited_missing_rule",
+   "severity": "medium",
+   "n_flags": 1,
+   "n_conversations": 1,
+   "example_refs": [
+    "test-0031.jsonl:27"
+   ],
+   "example_what": "agent cited rule R-REF-02, which does not exist",
+   "owner_decision": "agents cite a rule id that is not in the policy file; check the prompts for an old id",
+   "does_not_show": "not which rule was meant"
+  },
+  {
+   "code": "proposal_malformed",
+   "severity": "medium",
+   "n_flags": 1,
+   "n_conversations": 1,
+   "example_refs": [
+    "test-0031.jsonl:27"
+   ],
+   "example_what": "the proposal tool refused the agent's proposal",
+   "owner_decision": "the proposal tool refused the agent's proposal; check the agent's prompt",
+   "does_not_show": "not a client-facing error"
+  },
+  {
+   "code": "slm_fallback_template",
+   "severity": "low",
+   "n_flags": 120,
+   "n_conversations": 120,
+   "example_refs": [
+    "test-0000.jsonl:22",
+    "test-0001.jsonl:22",
+    "test-0002.jsonl:22",
+    "test-0003.jsonl:53",
+    "test-0004.jsonl:35"
+   ],
+   "example_what": "the SLM gave no passing reply; the fixed template was sent",
+   "owner_decision": "the SLM gave no passing reply, the fixed template was sent; check the SLM service",
+   "does_not_show": "not that the template reply was bad"
+  },
+  {
+   "code": "agent_answered_without_tools",
+   "severity": "low",
+   "n_flags": 6,
+   "n_conversations": 6,
+   "example_refs": [
+    "test-0017.jsonl:13",
+    "test-0049.jsonl:13",
+    "test-0050.jsonl:13",
+    "test-0079.jsonl:13",
+    "test-0106.jsonl:13"
+   ],
+   "example_what": "agent answered without using a tool; the pipeline re-ran it",
+   "owner_decision": "agent first answered without tools; the pipeline re-ran it",
+   "does_not_show": "not a client-facing error"
+  },
+  {
+   "code": "rule_not_searched",
+   "severity": "low",
+   "n_flags": 2,
+   "n_conversations": 2,
+   "example_refs": [
+    "test-0023.jsonl:34",
+    "test-0071.jsonl:34"
+   ],
+   "example_what": "agent cited R-REF-03 without searching the policies",
+   "owner_decision": "agent cited a rule without looking it up",
+   "does_not_show": "not that the rule was wrong"
+  }
+ ],
+ "evidence_integrity": {
+  "n_refs": 184,
+  "n_ok": 184,
+  "failed": []
+ },
+ "rules_and_knowledge": {
+  "internal_consistency": [
+   {
+    "kind": "stale_reference",
+    "rule_id": "R-REF-02",
+    "severity": "medium",
+    "what": "agents cited R-REF-02 1 time(s); it is not in the policy file",
+    "evidence": {
+     "conversations": [
+      "test-0031 (test-0031.jsonl:27)"
+     ],
+     "n": 1
+    },
+    "owner_action": "check the agents' prompts / knowledge for an old rule id",
+    "category": "internal_consistency",
+    "false_positive_risk": "low for code/config refs (exact id match); for agent citations, one LLM slip can repeat in a batch \u2014 the support count is shown"
+   }
+  ],
+  "coverage": [
+   {
+    "kind": "knowledge_gap",
+    "rule_id": null,
+    "severity": "low",
+    "what": "no conditional rule covers: delivered, on time",
+    "evidence": {
+     "n_cases": 3,
+     "examples": [
+      {
+       "days_late": 0,
+       "delivered": true,
+       "days_since_delivery": 15
+      },
+      {
+       "days_late": 0,
+       "delivered": true,
+       "days_since_delivery": 30
+      },
+      {
+       "days_late": 0,
+       "delivered": true,
+       "days_since_delivery": 60
+      }
+     ],
+     "rules_checked": [
+      "R-DEL-02",
+      "R-REF-03",
+      "R-RET-01"
+     ]
+    },
+    "owner_action": "decide what clients in this situation are owed and write it as a rule",
+    "category": "coverage",
+    "false_positive_risk": "high: 'no rule' may be the intended policy (nothing is owed); it is a question, not a defect"
+   },
+   {
+    "kind": "knowledge_gap",
+    "rule_id": null,
+    "severity": "medium",
+    "what": "no conditional rule covers: delivered, late",
+    "evidence": {
+     "n_cases": 90,
+     "examples": [
+      {
+       "days_late": 1,
+       "delivered": true,
+       "days_since_delivery": 15
+      },
+      {
+       "days_late": 1,
+       "delivered": true,
+       "days_since_delivery": 30
+      },
+      {
+       "days_late": 1,
+       "delivered": true,
+       "days_since_delivery": 60
+      }
+     ],
+     "rules_checked": [
+      "R-DEL-02",
+      "R-REF-03",
+      "R-RET-01"
+     ]
+    },
+    "owner_action": "decide what clients in this situation are owed and write it as a rule",
+    "category": "coverage",
+    "false_positive_risk": "high: 'no rule' may be the intended policy (nothing is owed); it is a question, not a defect"
+   }
+  ],
+  "governance": [
+   {
+    "kind": "unreviewed",
+    "rule_id": "R-DEL-01",
+    "severity": "low",
+    "what": "AI-written wording with no review, version or validity date",
+    "evidence": {
+     "ai_generated": true,
+     "missing_fields": [
+      "reviewed_by",
+      "version",
+      "valid_from",
+      "last_reviewed"
+     ]
+    },
+    "owner_action": "review the wording; add version and last_reviewed",
+    "category": "governance",
+    "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+   },
+   {
+    "kind": "unreviewed",
+    "rule_id": "R-DEL-02",
+    "severity": "low",
+    "what": "AI-written wording with no review, version or validity date",
+    "evidence": {
+     "ai_generated": true,
+     "missing_fields": [
+      "reviewed_by",
+      "version",
+      "valid_from",
+      "last_reviewed"
+     ]
+    },
+    "owner_action": "review the wording; add version and last_reviewed",
+    "category": "governance",
+    "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+   },
+   {
+    "kind": "unreviewed",
+    "rule_id": "R-REF-03",
+    "severity": "low",
+    "what": "AI-written wording with no review, version or validity date",
+    "evidence": {
+     "ai_generated": true,
+     "missing_fields": [
+      "reviewed_by",
+      "version",
+      "valid_from",
+      "last_reviewed"
+     ]
+    },
+    "owner_action": "review the wording; add version and last_reviewed",
+    "category": "governance",
+    "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+   },
+   {
+    "kind": "unreviewed",
+    "rule_id": "R-REF-05",
+    "severity": "low",
+    "what": "AI-written wording with no review, version or validity date",
+    "evidence": {
+     "ai_generated": true,
+     "missing_fields": [
+      "reviewed_by",
+      "version",
+      "valid_from",
+      "last_reviewed"
+     ]
+    },
+    "owner_action": "review the wording; add version and last_reviewed",
+    "category": "governance",
+    "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+   },
+   {
+    "kind": "unreviewed",
+    "rule_id": "R-RET-01",
+    "severity": "low",
+    "what": "AI-written wording with no review, version or validity date",
+    "evidence": {
+     "ai_generated": true,
+     "missing_fields": [
+      "reviewed_by",
+      "version",
+      "valid_from",
+      "last_reviewed"
+     ]
+    },
+    "owner_action": "review the wording; add version and last_reviewed",
+    "category": "governance",
+    "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+   },
+   {
+    "kind": "unreviewed",
+    "rule_id": "R-DMG-01",
+    "severity": "low",
+    "what": "AI-written wording with no review, version or validity date",
+    "evidence": {
+     "ai_generated": true,
+     "missing_fields": [
+      "reviewed_by",
+      "version",
+      "valid_from",
+      "last_reviewed"
+     ]
+    },
+    "owner_action": "review the wording; add version and last_reviewed",
+    "category": "governance",
+    "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+   },
+   {
+    "kind": "unreviewed",
+    "rule_id": "R-ESC-01",
+    "severity": "low",
+    "what": "AI-written wording with no review, version or validity date",
+    "evidence": {
+     "ai_generated": true,
+     "missing_fields": [
+      "reviewed_by",
+      "version",
+      "valid_from",
+      "last_reviewed"
+     ]
+    },
+    "owner_action": "review the wording; add version and last_reviewed",
+    "category": "governance",
+    "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+   },
+   {
+    "kind": "unreviewed",
+    "rule_id": "R-NOT-01",
+    "severity": "low",
+    "what": "AI-written wording with no review, version or validity date",
+    "evidence": {
+     "ai_generated": true,
+     "missing_fields": [
+      "reviewed_by",
+      "version",
+      "valid_from",
+      "last_reviewed"
+     ]
+    },
+    "owner_action": "review the wording; add version and last_reviewed",
+    "category": "governance",
+    "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+   }
+  ],
+  "usage": [
+   {
+    "kind": "usage_signal",
+    "rule_id": "R-REF-03",
+    "severity": "medium",
+    "what": "condition false in 12/23 checks: agents often apply it where it does not hold",
+    "evidence": {
+     "examples": [
+      "test-0008 (test-0008.jsonl:41)",
+      "test-0008 (test-0008.jsonl:70)",
+      "test-0008 (test-0008.jsonl:99)",
+      "test-0052 (test-0052.jsonl:41)",
+      "test-0052 (test-0052.jsonl:70)"
+     ],
+     "rate": 0.522
+    },
+    "owner_action": "check whether the wording still matches how cases look",
+    "category": "usage",
+    "false_positive_risk": "medium/high: depends on the period's case mix (e.g. 'never used' when no client asked); minimum support of 5 conversations applies"
+   },
+   {
+    "kind": "usage_signal",
+    "rule_id": "R-DEL-01",
+    "severity": "low",
+    "what": "never cited or retrieved in 120 conversations",
+    "evidence": {
+     "n_conversations": 120
+    },
+    "owner_action": "check whether the rule is still needed",
+    "category": "usage",
+    "false_positive_risk": "medium/high: depends on the period's case mix (e.g. 'never used' when no client asked); minimum support of 5 conversations applies"
+   },
+   {
+    "kind": "usage_signal",
+    "rule_id": "R-RET-01",
+    "severity": "low",
+    "what": "never cited or retrieved in 120 conversations",
+    "evidence": {
+     "n_conversations": 120
+    },
+    "owner_action": "check whether the rule is still needed",
+    "category": "usage",
+    "false_positive_risk": "medium/high: depends on the period's case mix (e.g. 'never used' when no client asked); minimum support of 5 conversations applies"
+   }
+  ],
+  "freshness": {
+   "status": "NOT_CHECKABLE",
+   "why": "no dated, authoritative source (law, carrier contract, signed company decision) exists for any rule, and the policy file has no version or date fields; 'outdated' cannot be shown",
+   "what_would_make_it_checkable": [
+    "valid_from / valid_until / last_reviewed / owner fields per rule",
+    "a dated source reference per rule (document id + date)",
+    "a change log of the policy file"
+   ],
+   "per_rule": [
+    {
+     "rule_id": "R-DEL-01",
+     "status": "NOT_CHECKABLE",
+     "dated_sources": 0,
+     "has_dates_in_policy_file": false
+    },
+    {
+     "rule_id": "R-DEL-02",
+     "status": "NOT_CHECKABLE",
+     "dated_sources": 0,
+     "has_dates_in_policy_file": false
+    },
+    {
+     "rule_id": "R-REF-03",
+     "status": "NOT_CHECKABLE",
+     "dated_sources": 0,
+     "has_dates_in_policy_file": false
+    },
+    {
+     "rule_id": "R-REF-05",
+     "status": "NOT_CHECKABLE",
+     "dated_sources": 0,
+     "has_dates_in_policy_file": false
+    },
+    {
+     "rule_id": "R-RET-01",
+     "status": "NOT_CHECKABLE",
+     "dated_sources": 0,
+     "has_dates_in_policy_file": false
+    },
+    {
+     "rule_id": "R-DMG-01",
+     "status": "NOT_CHECKABLE",
+     "dated_sources": 0,
+     "has_dates_in_policy_file": false
+    },
+    {
+     "rule_id": "R-ESC-01",
+     "status": "NOT_CHECKABLE",
+     "dated_sources": 0,
+     "has_dates_in_policy_file": false
+    },
+    {
+     "rule_id": "R-NOT-01",
+     "status": "NOT_CHECKABLE",
+     "dated_sources": 0,
+     "has_dates_in_policy_file": false
+    }
+   ]
+  },
+  "u5_predicted_satisfaction_per_rule": "SKIPPED: satisfaction score not validated for this domain; it must not create rule flags",
+  "n_rules": 8,
+  "sim_today": "2026-10-09",
+  "note": "F reports only; it never changes a rule. 'Outdated' is never claimed: see freshness."
+ },
+ "per_conversation_rule_warnings": {
+  "knowledge_gap|None": 31,
+  "stale_reference|R-REF-02": 1
+ },
+ "satisfaction": {
+  "n": 120,
+  "n_scored": 97,
+  "validity": {
+   "indicative_out_of_domain": 97,
+   "withheld_language_not_validated": 23
+  },
+  "language": {
+   "en": 97,
+   "fr": 23
+  },
+  "mean_indicative": 3.304,
+  "sd_indicative": 0.044,
+  "note": "scores are model predictions, not client ratings; not validated on CallVerse conversations",
+  "model_id": "tfidf_ridge_tail256",
+  "card": {
+   "model": "tfidf_ridge_tail256tok (seed None)",
+   "label_type": "human_annotation",
+   "domain": "task_oriented_dialogue",
+   "test_n": 1016,
+   "mae": 0.3919,
+   "mae_mean_baseline": 0.51,
+   "spearman": 0.596,
+   "spearman_ci_low": 0.55,
+   "spearman_ci_high": 0.6381,
+   "source": "tfidf_ridge_tail256tok.json",
+   "checkpoint": null,
+   "corpus": "uss",
+   "model_key": "tfidf_ridge_tail256",
+   "languages_validated": [
+    "en",
+    "zh"
+   ],
+   "note": "USS = third-party annotator judgements of task-oriented dialogues (EN) and JDDC e-commerce service (ZH); not customer ratings, not CallVerse conversations"
+  },
+  "comparisons_by_grade_rule_resolution": "NOT SHOWN: the score is not validated on CallVerse conversations"
+ },
+ "e_feedback": {
+  "e_reward_allowed": false,
+  "reasons": [
+   "label_type: value human_annotation, needed genuine_customer_rating",
+   "domain: value task_oriented_dialogue, needed support_conversation",
+   "coverage: value 0.0, needed >= 0.95"
+  ],
+  "n_rows": 120,
+  "n_eligible": 0,
+  "n_steps": 2
+ }
+}

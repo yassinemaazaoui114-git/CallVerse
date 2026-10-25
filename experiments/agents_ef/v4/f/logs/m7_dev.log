@@ -1,0 +1,97 @@
+{
+ "wiring_recall": {
+  "agent_claim_contradicts_data": {
+   "n": 4,
+   "caught": 4,
+   "expected_flag": "claim_false",
+   "recall": 1.0
+  },
+  "user_not_confirmed": {
+   "n": 2,
+   "caught": 2,
+   "expected_flag": "outcome ask_user",
+   "recall": 1.0
+  },
+  "pipeline_error": {
+   "n": 5,
+   "caught": 5,
+   "expected_flag": "pipeline_error",
+   "recall": 1.0
+  },
+  "agent_wrong_amount": {
+   "n": 3,
+   "caught": 3,
+   "expected_flag": "sent_back",
+   "recall": 1.0
+  },
+  "rule_not_searched": {
+   "n": 1,
+   "caught": 1,
+   "expected_flag": "rule_not_searched",
+   "recall": 1.0
+  },
+  "agent_answered_without_tools": {
+   "n": 5,
+   "caught": 5,
+   "expected_flag": "agent_answered_without_tools",
+   "recall": 1.0
+  },
+  "agent_cites_missing_rule": {
+   "n": 1,
+   "caught": 1,
+   "expected_flag": "cited_missing_rule",
+   "recall": 1.0
+  }
+ },
+ "false_positives_on_clean": {},
+ "verified_observations_on_clean": {
+  "slm_fallback_template": 90,
+  "reply_language_mismatch": 26
+ },
+ "evidence_integrity": {
+  "n_refs": 196,
+  "n_ok": 196,
+  "failed": []
+ },
+ "v3_vs_v4": {
+  "v3": {
+   "slm_fallback_template": 120,
+   "reply_language_mismatch": 29,
+   "claim_contradicts_data": 7,
+   "sent_back": 7,
+   "escalated": 9,
+   "missed_entitlement": 2,
+   "pipeline_error": 5,
+   "rule_not_searched": 1,
+   "agent_answered_without_tools": 5,
+   "cited_missing_rule": 1,
+   "proposal_malformed": 1
+  },
+  "v4": {
+   "slm_fallback_template": 120,
+   "reply_language_mismatch": 29,
+   "sent_back": 7,
+   "escalated": 9,
+   "claim_false": 7,
+   "pipeline_error": 5,
+   "rule_not_searched": 1,
+   "agent_answered_without_tools": 5,
+   "cited_missing_rule": 1,
+   "proposal_malformed": 1
+  }
+ },
+ "language_detector": {
+  "detected fr|corpus fr": 29,
+  "detected en|corpus en": 91
+ },
+ "satisfaction_validity": {
+  "withheld_language_not_validated": 29,
+  "indicative_out_of_domain": 91
+ },
+ "e_reward_allowed": false,
+ "timings_s": {
+  "load": 2.68,
+  "process_all": 0.49,
+  "per_conversation_ms": 4.09
+ }
+}

@@ -1,0 +1,6 @@
+# Arm B: constrained objective (Lagrangian, dual ascent on queue-C SLA, target 0.90), no shield. Base = dueling DDQN 64x64 150k.
+--algo dueling_double_dqn --seed 0 --dual-lr 2 --dual-target 0.90
+--algo dueling_double_dqn --seed 1 --dual-lr 2 --dual-target 0.90
+--algo dueling_double_dqn --seed 2 --dual-lr 2 --dual-target 0.90
+--algo dueling_double_dqn --seed 3 --dual-lr 2 --dual-target 0.90
+--algo dueling_double_dqn --seed 4 --dual-lr 2 --dual-target 0.90

@@ -149,11 +149,14 @@ class UrgentShield:
     `target` = allowed probability of waiting longer than the queue-C SLA (lower = more protective).
     """
 
-    def __init__(self, target: float = 0.2, max_floor: int = 8, sla_min: float | None = None):
+    def __init__(self, target: float = 0.2, max_floor: int = 8, sla_min: float | None = None, static: int | None = None):
         self.target, self.max_floor, self.sla_min = target, max_floor, sla_min
+        self.static = static                         # static=k -> plain "stronger mask": queue C always >= k
 
     def floor(self, env) -> int:
         c = env.cfg
+        if self.static is not None:
+            return int(self.static)
         backlog_c = len(env.queue[QC]) if hasattr(env, "queue") else len(env.waiting[QC])
         lam = (float(env.ewma[QC]) + backlog_c / 3.0) / c.step_min
         sla = self.sla_min if self.sla_min is not None else float(env.sla[QC])

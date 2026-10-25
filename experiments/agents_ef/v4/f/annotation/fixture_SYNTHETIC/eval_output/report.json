@@ -1,0 +1,114 @@
+{
+ "n_records_in": 180,
+ "dropped": {},
+ "n_conversations_labelled": 60,
+ "sources": [
+  "annotator"
+ ],
+ "agreement": {
+  "n_units_multi_rated": 60,
+  "ratings_per_unit": {
+   "3": 60
+  },
+  "krippendorff_alpha_interval": 0.6625,
+  "krippendorff_alpha_ordinal": 0.6831,
+  "mean_pairwise_abs_diff": 0.6556,
+  "share_all_agree": 0.2,
+  "human_loo_mae": 0.6278
+ },
+ "split": {
+  "dev": 20,
+  "test": 40
+ },
+ "test_coverage": 0.75,
+ "test_not_scored": 10,
+ "test_not_scored_by_language": {
+  "en": 0,
+  "fr": 10
+ },
+ "dev_mean_baseline": 2.5833,
+ "model_test": {
+  "n": 30,
+  "mae": 0.4114,
+  "rmse": 0.5112,
+  "spearman": 0.7963,
+  "spearman_ci95": [
+   0.6127,
+   0.8867
+  ],
+  "mae_dev_mean_baseline": 0.9
+ },
+ "model_test_by_language": {
+  "en": {
+   "n": 30,
+   "mae": 0.4114,
+   "rmse": 0.5112,
+   "spearman": 0.7963,
+   "spearman_ci95": [
+    0.6127,
+    0.8867
+   ]
+  }
+ },
+ "gate": {
+  "e_reward_allowed": false,
+  "reasons": [
+   "label_type: value synthetic_fixture, needed genuine_customer_rating",
+   "test_n: value 40, needed >= 300",
+   "coverage: value 0.75, needed >= 0.95"
+  ],
+  "gate": {
+   "usable_for_reward": false,
+   "checks": [
+    {
+     "check": "label_type",
+     "pass": false,
+     "value": "synthetic_fixture",
+     "need": "genuine_customer_rating"
+    },
+    {
+     "check": "domain",
+     "pass": true,
+     "value": "support_conversation",
+     "need": "support_conversation"
+    },
+    {
+     "check": "test_n",
+     "pass": false,
+     "value": 40,
+     "need": ">= 300"
+    },
+    {
+     "check": "spearman_ci_low",
+     "pass": true,
+     "value": 0.6127,
+     "need": ">= 0.3"
+    },
+    {
+     "check": "beats_mean_baseline",
+     "pass": true,
+     "value": [
+      0.4114,
+      0.9
+     ],
+     "need": "mae < mean-baseline mae"
+    },
+    {
+     "check": "coverage",
+     "pass": false,
+     "value": 0.75,
+     "need": ">= 0.95"
+    }
+   ]
+  },
+  "validated_coverage": 0.75,
+  "thresholds": {
+   "label_type": "genuine_customer_rating",
+   "domain": "support_conversation",
+   "min_test_n": 300,
+   "min_spearman_ci_low": 0.3,
+   "must_beat_mean_baseline": true,
+   "min_coverage": 0.95
+  }
+ }
+}

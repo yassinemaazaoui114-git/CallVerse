@@ -12,6 +12,11 @@ Options (each answers one question from the V3 failure analysis, see NOTEBOOK.md
                     i.e. lam grows while queue C misses its pre-declared SLA target and shrinks when it is met.
                     The replay buffer stores the env reward and the C-failure count SEPARATELY, so every update
                     uses the CURRENT lam (no stale penalties). dual_lr = 0 gives a fixed-penalty run.
+  --owner mpc|forecast  HIERARCHICAL TRAINING: a classical rule owns the capacity LEVEL (activate/deactivate),
+                    the RL agent learns only allocation moves, keep and the capped fallback (its mask never contains
+                    activate/deactivate). When the rule activates/deactivates, that transition is still stored (valid
+                    off-policy data). Answers diagnosis H2 (RL dithers with activate/deactivate pairs).
+  --dual-start N    no dual update before step N (lets epsilon-exploration finish; diagnosis of arm B).
 Checkpoint selection on V3 VAL (48 days, never TEST): the env return is the unchanged v3 reward. To respect the
 constraint, best.pt = highest VAL return among evaluations whose VAL queue-C SLA >= --sel-c-min (feasible first);
 if no evaluation is feasible yet, the one with the highest queue-C SLA. Both criteria are logged.
@@ -110,7 +115,28 @@ class LagrangianDQN:
         return self.b.n_params()
 
 
-def evaluate(agent, env, days, shield):
+def make_owner(name):
+    if not name:
+        return None
+    from baselines.heuristics import Forecast
+    from v3.e.baselines_v3 import FluidMPC
+    return {"mpc": FluidMPC(6, 0.5), "forecast": Forecast(0.25)}[name]
+
+
+def decide(agent, env, obs, m, owner, explore):
+    """Returns (action executed, mask the agent saw)."""
+    if owner is not None:
+        from env.callcenter_env import A_ACT, A_DEACT
+        a_rule = owner.act(env, obs, m)
+        m_rl = m.copy()
+        m_rl[A_ACT] = m_rl[A_DEACT] = False
+        if a_rule in (A_ACT, A_DEACT) and m[a_rule]:
+            return a_rule, m_rl
+        return agent.act(obs, m_rl, explore=explore), m_rl
+    return agent.act(obs, m, explore=explore), m
+
+
+def evaluate(agent, env, days, shield, owner=None):
     rets, c_ok, c_n, high_ok, high_n = [], 0, 0, 0, 0
     for d in days:
         obs, info = env.reset(seed=d["seed"], family=d["family"])
@@ -118,7 +144,7 @@ def evaluate(agent, env, days, shield):
         done, R = False, 0.0
         while not done:
             m = shield.mask(env, mask)[0] if shield else mask
-            obs, r, done, _, info = env.step(agent.act(obs, m, explore=False))
+            obs, r, done, _, info = env.step(decide(agent, env, obs, m, owner, False)[0])
             mask = info["action_mask"]
             R += info["reward_env"]
         rets.append(R)
@@ -143,6 +169,8 @@ def main(argv=None):
     p.add_argument("--dual-lr", type=float, default=0.0)
     p.add_argument("--lam-max", type=float, default=10.0)
     p.add_argument("--sel-c-min", type=float, default=91.3, help="VAL queue-C SLA for feasibility (MPC VAL 92.28 - 1)")
+    p.add_argument("--owner", default="", choices=["", "mpc", "forecast"])
+    p.add_argument("--dual-start", type=int, default=0)
     p.add_argument("--tag", default="")
     a = p.parse_args(argv)
     torch.set_num_threads(1)
@@ -150,8 +178,11 @@ def main(argv=None):
     parts = [a.algo, f"h{a.hidden.replace(',', 'x')}", f"{a.steps // 1000}k"]
     if a.shield is not None:
         parts.append(f"sh{a.shield:g}")
+    if a.owner:
+        parts.append(f"own{a.owner}")
     if a.lam0 or a.dual_lr:
-        parts.append(f"lag{a.lam0:g}" + (f"d{a.dual_lr:g}t{a.dual_target:g}" if a.dual_lr else ""))
+        parts.append(f"lag{a.lam0:g}" + (f"d{a.dual_lr:g}t{a.dual_target:g}" if a.dual_lr else "")
+                     + (f"w{a.dual_start // 1000}k" if a.dual_start else ""))
     run_id = "_".join(parts) + f"_s{a.seed}" + a.tag
     out = RUNS / run_id
     if (out / "run.json").exists() and json.loads((out / "run.json").read_text()).get("status") == "done":
@@ -160,6 +191,7 @@ def main(argv=None):
     out.mkdir(parents=True, exist_ok=True)
     env, val_env = EnvV4(None, TRAIN_FAMILIES), EnvV4(None, TRAIN_FAMILIES)
     shield = UrgentShield(a.shield) if a.shield is not None else None
+    owner = make_owner(a.owner)
     val_days = load_manifest("val")
     base = make_agent(a.algo, env.obs_dim, env.n_actions, a.seed, hidden=hidden)
     agent = LagrangianDQN(base)
@@ -167,7 +199,7 @@ def main(argv=None):
     rng = np.random.default_rng(1_000_000 + a.seed)          # SAME training-day stream as V3 for the same seed
     meta = {"run_id": run_id, "algo": a.algo, "seed": a.seed, "steps_budget": a.steps, "hidden": list(hidden),
             "weights": "equal", "shield_target": a.shield, "lam0": a.lam0, "dual_lr": a.dual_lr,
-            "dual_target": a.dual_target, "lam_max": a.lam_max, "sel_c_min": a.sel_c_min,
+            "dual_target": a.dual_target, "lam_max": a.lam_max, "owner": a.owner, "dual_start": a.dual_start, "sel_c_min": a.sel_c_min,
             "train_families": TRAIN_FAMILIES, "val_manifest_days": len(val_days), "status": "running",
             "started": time.strftime("%Y-%m-%dT%H:%M:%S"), "n_params": agent.n_params(),
             "torch": torch.__version__, "python": sys.version.split()[0], "hardware": platform.platform()}
@@ -181,16 +213,20 @@ def main(argv=None):
             m = shield.mask(env, mask)[0] if shield else mask
             done, R = False, 0.0
             while not done:
-                act = agent.act(obs, m, explore=True)
+                act, _ = decide(agent, env, obs, m, owner, True)
                 obs2, r_env, done, _, info = env.step(act)
                 mask2 = info["action_mask"]
                 m2 = shield.mask(env, mask2)[0] if shield else mask2
+                if owner is not None:                    # the agent never chooses the capacity level itself
+                    from env.callcenter_env import A_ACT, A_DEACT
+                    m2 = m2.copy()
+                    m2[A_ACT] = m2[A_DEACT] = False
                 c_cost = float(info["queue_fail"][QC]) / env.cfg.ref_fail_per_step
                 agent.observe(obs, act, info["reward_env"], obs2, done, m2, c_cost)
                 obs, m, R = obs2, m2, R + info["reward_env"]
                 steps += 1
                 if steps % a.eval_every == 0:
-                    v, c_sla, hi = evaluate(agent, val_env, val_days, shield)
+                    v, c_sla, hi = evaluate(agent, val_env, val_days, shield, owner)
                     feas = c_sla >= a.sel_c_min
                     key = (1, v) if feas else (0, c_sla)
                     val_log.append({"step": steps, "val_return": round(v, 4), "val_c_sla": round(c_sla, 3),
@@ -202,7 +238,7 @@ def main(argv=None):
                         meta.update(best_step=steps, best_val_return=v, best_val_c_sla=c_sla, best_feasible=bool(feas))
             c_n = int((env.tape["q"] == QC).sum())
             c_sla_ep = 1.0 - env.c_fail_day / max(c_n, 1)
-            if a.dual_lr:
+            if a.dual_lr and steps >= a.dual_start:
                 agent.lam = float(np.clip(agent.lam + a.dual_lr * (a.dual_target - c_sla_ep), 0.0, a.lam_max))
             ep += 1
             train_log.append({"episode": ep, "step": steps, "return": round(R, 4), "c_sla": round(c_sla_ep, 4),

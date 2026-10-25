@@ -1,0 +1,50 @@
+{
+ "variant": "roles",
+ "views": [
+  "full",
+  "customer_only",
+  "last_customer"
+ ],
+ "lang_split": false,
+ "groups": {
+  "all": {
+   "alpha": 3,
+   "val_mae_grid": {
+    "0.3": 0.3987,
+    "1": 0.39243,
+    "3": 0.38795,
+    "10": 0.38934,
+    "30": 0.39572
+   }
+  }
+ },
+ "n_params": 324887,
+ "val": {
+  "n": 1016,
+  "mae": 0.38795,
+  "spearman": 0.5882,
+  "pred_sd": 0.3803,
+  "mae_en": 0.29572,
+  "spearman_en": 0.386,
+  "pred_sd_en": 0.1812,
+  "mae_zh": 0.48657,
+  "spearman_zh": 0.3004,
+  "pred_sd_zh": 0.2594
+ },
+ "test": {
+  "n": 1016,
+  "mae": 0.39063,
+  "spearman": 0.5974,
+  "pred_sd": 0.3749,
+  "mae_en": 0.30108,
+  "spearman_en": 0.3822,
+  "pred_sd_en": 0.1739,
+  "mae_zh": 0.48639,
+  "spearman_zh": 0.387,
+  "pred_sd_zh": 0.264
+ },
+ "seconds": 63.0,
+ "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tfidf_roles_tail256",
+ "sha256": "f98ddf2d3c6d7e33912c40b201338fa6666067f27e4dd4516f078c071cfa4a49",
+ "size_bytes": 5149399
+}

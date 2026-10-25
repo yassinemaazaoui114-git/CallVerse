@@ -1,0 +1,31 @@
+{
+  "worker": "F (Agent F = M7 Quality & Knowledge)",
+  "session": "v4, 2026-10-25/26 overnight",
+  "tasks": {
+    "F1_domain_shift_diagnosis": "DONE: results/f1_diagnosis.json, figures/f1_*.png",
+    "F2_tfidf_saved_and_experiments": "DONE: TF-IDF tail-256 reproduced exactly and saved; 6 variants on VAL; roles selected, TEST once, not significant; recommendation unchanged",
+    "F3_datasets_annotation": "DONE: DATASETS_RECHECK.md, ANNOTATION_PROTOCOL.md, annotation/eval_labels.py (tested on SYNTHETIC fixture only); DCH-2 BLOCKED (agreement not accepted)",
+    "F4_m7_v4": "DONE: m7/ (quality, rule audit, satisfaction validity, feedback, report), dev + held-out eval, stress test",
+    "F5_reviews_contract": "DONE: contracts/reviews_contract.md, reviews.schema.json, validate_reviews.py (proposal only)",
+    "F6_agent_f_interface": "DONE: agent_f.py, demo_agent_f.py, tests"
+  },
+  "tests": "v4/f/tests: 62 passed; v3/m7/tests: 17 passed (python -m pytest v4/f/tests v3/m7/tests -q)",
+  "recommended_scorer": {
+    "path": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tfidf_ridge_tail256/model.joblib",
+    "sha256": "1c2018532cf6b50631eca9e150e66b94f2ac8c1cdfead1d620e44b7088a75261",
+    "n_params": 193429,
+    "uss_test_mae": 0.39187,
+    "uss_test_spearman": 0.596,
+    "durable": false,
+    "note": "outside git; re-create with python -m v4.f.tfidf_predictor (deterministic, verified identical)"
+  },
+  "blocked_or_not_verified": [
+    "satisfaction accuracy on ShopNova / CallVerse conversations: NO ground truth",
+    "French satisfaction: not validated, scores withheld",
+    "DCH-2: user agreement not accepted",
+    "claim_unsupported: never occurred in the corpus, unit tests only",
+    "rule freshness: NOT CHECKABLE (no dated sources)",
+    "F -> E reward: gate closed (label type, domain, coverage)"
+  ],
+  "git": "no git commands run (Worker D commits)"
+}

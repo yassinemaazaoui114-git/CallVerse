@@ -1,0 +1,19 @@
+{
+ "model": "tinybert_ft_en_frac0.5_len128 (seed 1)",
+ "label_type": "human_annotation",
+ "domain": "task_oriented_dialogue",
+ "test_n": 525,
+ "mae": 0.3048,
+ "mae_mean_baseline": 0.3332,
+ "spearman": 0.3686,
+ "spearman_ci_low": 0.2906,
+ "spearman_ci_high": 0.444,
+ "source": "tinybert_ft_en_frac0.5_len128.json",
+ "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tinybert_ft_en_frac0.5_len128_s1",
+ "corpus": "uss",
+ "model_key": "tinybert_ft_en_frac0.5_len128",
+ "languages_validated": [
+  "en"
+ ],
+ "note": "USS = third-party annotator judgements of task-oriented dialogues (EN) and JDDC e-commerce service (ZH); not customer ratings, not CallVerse conversations"
+}
