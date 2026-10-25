@@ -32,3 +32,10 @@ shield@0.2|guarded:dueling_double_dqn_equal_h64x64_150k_s3 done 21.6s ret -261.8
 mpcguard:dueling_double_dqn_equal_h64x64_150k_s3 done 44.9s ret -225.20
 shield@0.1|guarded:dueling_double_dqn_equal_h64x64_150k_s4 done 20.8s ret -243.83
 shield@0.2|guarded:dueling_double_dqn_equal_h64x64_150k_s4 done 21.0s ret -232.87
+mpcguard:dueling_double_dqn_equal_h64x64_150k_s4 done 45.2s ret -211.52
+shield@0.1|rule:mpc:0.5 done 35.4s ret -243.16
+shield@0.1|rule:forecast:0.25 done 19.9s ret -255.73
+shield@0.1|rule:erlang:0.4 done 19.3s ret -250.47
+shield@0.2|rule:mpc:0.5 done 35.1s ret -232.08
+shield@0.2|rule:forecast:0.25 done 18.1s ret -240.70
+shield@0.2|rule:erlang:0.4 done 19.6s ret -236.60

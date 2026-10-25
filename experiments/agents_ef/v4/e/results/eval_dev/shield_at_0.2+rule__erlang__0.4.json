@@ -1,0 +1,10 @@
+{
+  "n_params": 0,
+  "shield_target": 0.2,
+  "policy": "shield@0.2|rule:erlang:0.4",
+  "split": "dev",
+  "n_days": 104,
+  "eval_s": 19.6,
+  "decision_ms_p50": 0.1448,
+  "decision_ms_p95": 0.2175
+}

@@ -1,0 +1,35 @@
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s0: command not found
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s2: command not found
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s2: command not found
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s3: command not found
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s3: command not found
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s0: command not found
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s4: command not found
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s4: command not found
+bash: line 1: rule:mpc:0.5: command not found
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s1: command not found
+bash: line 1: rl:dueling_double_dqn_equal_h64x64_150k_s1: command not found
+bash: line 1: rule:forecast:0.25: command not found
+bash: line 1: rule:erlang:0.4: command not found
+bash: line 1: rule:forecast:0.25: command not found
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/evaluate_v4.py", line 142, in <module>
+    main()
+    ~~~~^^
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/evaluate_v4.py", line 138, in main
+    print(*eval_policy(j), flush=True)
+           ~~~~~~~~~~~^^^
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/evaluate_v4.py", line 97, in eval_policy
+    pol = make_policy(spec)
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/policies.py", line 90, in make_policy
+    inner = make_policy(inner_spec)
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/policies.py", line 132, in make_policy
+    agent, info, run = load_agent(arg)
+                       ~~~~~~~~~~^^^^^
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/common.py", line 198, in load_agent
+    run = find_run(run_id)
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/common.py", line 191, in find_run
+    raise FileNotFoundError(run_id)
+FileNotFoundError
