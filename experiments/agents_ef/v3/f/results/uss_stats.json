@@ -1,0 +1,256 @@
+{
+  "files": {
+    "SGD": {
+      "sha256": "f417e17e39221a396a041bd10bee4f3e221a5834d2e32dcc7f813adb25d3bf39",
+      "lang": "en",
+      "dialogues": 1000,
+      "dialogues_with_overall": 1000,
+      "utterances_excl_overall": 25666,
+      "user_turns_rated": 12833,
+      "avg_turns": 25.7,
+      "annotators_per_dialogue": {
+        "3": 540,
+        "4": 386,
+        "5": 69,
+        "6": 4,
+        "7": 1
+      },
+      "overall_rating_counts_all_annotations": {
+        "1": 5,
+        "2": 257,
+        "3": 2273,
+        "4": 966,
+        "5": 39
+      },
+      "overall_mean_rounded_counts": {
+        "2": 23,
+        "3": 678,
+        "4": 299
+      },
+      "overall_mean": 3.214,
+      "overall_std": 0.387,
+      "turn_rating_counts_all_annotations": {
+        "1": 94,
+        "2": 3610,
+        "3": 33306,
+        "4": 7791,
+        "5": 885
+      },
+      "overall_all_annotators_agree": 0.258,
+      "overall_mean_pairwise_abs_diff": 0.485,
+      "overall_krippendorff_alpha_interval": 0.225,
+      "turn_krippendorff_alpha_interval": 0.249,
+      "human_loo_mae_vs_other_annotators_mean": 0.474,
+      "duplicate_dialogue_texts": 0,
+      "has_dialogue_explanations": false
+    },
+    "MWOZ": {
+      "sha256": "32b654c702828bbcef0d9b7b63c096c1b464037a2c4f957cf3d7ec620c6170c8",
+      "lang": "en",
+      "dialogues": 1000,
+      "dialogues_with_overall": 1000,
+      "utterances_excl_overall": 22108,
+      "user_turns_rated": 11553,
+      "avg_turns": 22.1,
+      "annotators_per_dialogue": {
+        "3": 575,
+        "4": 369,
+        "5": 49,
+        "6": 7
+      },
+      "overall_rating_counts_all_annotations": {
+        "1": 18,
+        "2": 309,
+        "3": 2423,
+        "4": 710,
+        "5": 28
+      },
+      "overall_mean_rounded_counts": {
+        "1": 2,
+        "2": 29,
+        "3": 780,
+        "4": 188,
+        "5": 1
+      },
+      "overall_mean": 3.122,
+      "overall_std": 0.366,
+      "turn_rating_counts_all_annotations": {
+        "1": 160,
+        "2": 3843,
+        "3": 31631,
+        "4": 4251,
+        "5": 549
+      },
+      "overall_all_annotators_agree": 0.297,
+      "overall_mean_pairwise_abs_diff": 0.471,
+      "overall_krippendorff_alpha_interval": 0.199,
+      "turn_krippendorff_alpha_interval": 0.189,
+      "human_loo_mae_vs_other_annotators_mean": 0.456,
+      "duplicate_dialogue_texts": 0,
+      "has_dialogue_explanations": false
+    },
+    "ReDial": {
+      "sha256": "b875bc656ed2e7ca12dfd966e026b2393f86e6915e8fdaf1e287ac2eb1c1b0f2",
+      "lang": "en",
+      "dialogues": 1000,
+      "dialogues_with_overall": 1000,
+      "utterances_excl_overall": 21458,
+      "user_turns_rated": 10806,
+      "avg_turns": 21.5,
+      "annotators_per_dialogue": {
+        "3": 532,
+        "4": 397,
+        "5": 64,
+        "6": 6,
+        "7": 1
+      },
+      "overall_rating_counts_all_annotations": {
+        "1": 16,
+        "2": 355,
+        "3": 2044,
+        "4": 1076,
+        "5": 56
+      },
+      "overall_mean_rounded_counts": {
+        "1": 1,
+        "2": 40,
+        "3": 640,
+        "4": 314,
+        "5": 5
+      },
+      "overall_mean": 3.225,
+      "overall_std": 0.451,
+      "turn_rating_counts_all_annotations": {
+        "1": 168,
+        "2": 3236,
+        "3": 27668,
+        "4": 6938,
+        "5": 680
+      },
+      "overall_all_annotators_agree": 0.211,
+      "overall_mean_pairwise_abs_diff": 0.527,
+      "overall_krippendorff_alpha_interval": 0.28,
+      "turn_krippendorff_alpha_interval": 0.233,
+      "human_loo_mae_vs_other_annotators_mean": 0.519,
+      "duplicate_dialogue_texts": 0,
+      "has_dialogue_explanations": false
+    },
+    "CCPE": {
+      "sha256": "ee6e268f85a7fd25acfa97cf1c5bb9b8c8e86f20dff096535dd46296a036bba9",
+      "lang": "en",
+      "dialogues": 500,
+      "dialogues_with_overall": 500,
+      "utterances_excl_overall": 11936,
+      "user_turns_rated": 6360,
+      "avg_turns": 23.9,
+      "annotators_per_dialogue": {
+        "3": 281,
+        "4": 190,
+        "5": 29
+      },
+      "overall_rating_counts_all_annotations": {
+        "1": 5,
+        "2": 226,
+        "3": 1249,
+        "4": 262,
+        "5": 6
+      },
+      "overall_mean_rounded_counts": {
+        "2": 22,
+        "3": 422,
+        "4": 56
+      },
+      "overall_mean": 3.02,
+      "overall_std": 0.352,
+      "turn_rating_counts_all_annotations": {
+        "1": 99,
+        "2": 2233,
+        "3": 16891,
+        "4": 3034,
+        "5": 209
+      },
+      "overall_all_annotators_agree": 0.322,
+      "overall_mean_pairwise_abs_diff": 0.45,
+      "overall_krippendorff_alpha_interval": 0.202,
+      "turn_krippendorff_alpha_interval": 0.197,
+      "human_loo_mae_vs_other_annotators_mean": 0.432,
+      "duplicate_dialogue_texts": 0,
+      "has_dialogue_explanations": false
+    },
+    "JDDC": {
+      "sha256": "4ad61eb3b1e333c09575503dcdc03417f558b07baea7d40c4cf384765f7ff846",
+      "lang": "zh",
+      "dialogues": 3300,
+      "dialogues_with_overall": 3300,
+      "utterances_excl_overall": 106508,
+      "user_turns_rated": 54517,
+      "avg_turns": 32.3,
+      "annotators_per_dialogue": {
+        "3": 3300
+      },
+      "overall_rating_counts_all_annotations": {
+        "1": 15,
+        "2": 521,
+        "3": 2769,
+        "4": 5151,
+        "5": 1444
+      },
+      "overall_mean_rounded_counts": {
+        "1": 2,
+        "2": 135,
+        "3": 746,
+        "4": 2276,
+        "5": 141
+      },
+      "overall_mean": 3.756,
+      "overall_std": 0.635,
+      "turn_rating_counts_all_annotations": {
+        "1": 430,
+        "2": 22180,
+        "3": 121774,
+        "4": 18109,
+        "5": 1058
+      },
+      "overall_all_annotators_agree": 0.297,
+      "overall_mean_pairwise_abs_diff": 0.506,
+      "overall_krippendorff_alpha_interval": 0.524,
+      "turn_krippendorff_alpha_interval": 0.686,
+      "human_loo_mae_vs_other_annotators_mean": 0.494,
+      "duplicate_dialogue_texts": 28,
+      "has_dialogue_explanations": true
+    }
+  },
+  "split_rule": "70/15/15 by dialogue, stratified per sub-dataset, seed 13",
+  "split_counts": {
+    "SGD": {
+      "train": 700,
+      "val": 150,
+      "test": 150
+    },
+    "MWOZ": {
+      "train": 700,
+      "val": 150,
+      "test": 150
+    },
+    "ReDial": {
+      "train": 700,
+      "val": 150,
+      "test": 150
+    },
+    "CCPE": {
+      "train": 350,
+      "val": 75,
+      "test": 75
+    },
+    "JDDC": {
+      "train": 2290,
+      "val": 491,
+      "test": 491
+    }
+  },
+  "split_sha256": {
+    "train": "305287942b44225a8b314d56f20349b4d9e39702776c9feca06947cabc17923e",
+    "val": "3cff97a21630c027688c2aa0eaa4c109d4023faf1ae6633df43f450f78d01a46",
+    "test": "36bdb7b6548e0d27dbee4c02835baf72f02a90c793724eab592478e2fb061090"
+  }
+}

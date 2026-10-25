@@ -1,0 +1,25 @@
+rule:fixed done 8.1s
+rule:threshold done 8.1s
+rule:priority done 7.7s
+rule:random_valid done 7.6s
+rule:forecast:-0.5 done 8.3s
+rule:forecast:-0.25 done 8.2s
+rule:forecast:0 done 9.8s
+rule:forecast:0.25 done 9.3s
+rule:forecast:0.5 done 8.2s
+rule:forecast:0.75 done 8.9s
+rule:forecast:1 done 8.0s
+rule:erlang:0.95 done 8.1s
+rule:erlang:0.8 done 7.5s
+rule:erlang:0.6 done 7.2s
+rule:erlang:0.4 done 7.5s
+rule:erlang:0.2 done 9.2s
+rule:erlang:0.1 done 8.4s
+rule:erlang:0.05 done 7.5s
+rule:mpc:0 done 20.7s
+rule:mpc:0.5 done 21.2s
+rule:mpc:1 done 21.4s
+rule:mpc:1.5 done 22.3s
+rule:mpc:2 done 19.7s
+rule:mpc:3 done 19.9s
+EVDONE

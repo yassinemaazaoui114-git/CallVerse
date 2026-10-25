@@ -1,0 +1,32 @@
+{
+ "updated_utc": "2026-10-25T15:13Z",
+ "completed": [
+  "1 dataset discovery (USS verified; DCH-2 blocked by agreement; Amazon reused; Saif7800 synthetic-rejected; search done)",
+  "2 PROTOCOL.md",
+  "USS baselines: mean, group_mean, hgb_features, tfidf_ridge, tfidf_logreg",
+  "Amazon leaderboard re-used from v2 files",
+  "DATASETS.md, data_provenance.json",
+  "Amazon checkpoint re-score + int8 (results/amazon_rescore_e5small_trim_ft.json; SHA 6bae1f48 confirmed, MAE 0.6309)",
+  "scripts: f_predictor, quantize_f, latency_bench, error_analysis, make_leaderboard, make_figures, make_manifest, infer_example, RUN_AND_RESUME_F.md"
+ ],
+ "running": [
+  "run_queue.sh (CPU budget: 128 tokens, 3 epochs, 50% TRAIN stratified, seeds 0 1 2): tinybert_ft_en -> e5small_trim_ft_L6 -> mminilmv2l6_trim_ft -> e5small_trim_ft (12L)"
+ ],
+ "blocked": [
+  "local CallVerse datasets (no access to user's PC)",
+  "DialEval-2/DCH-2 (user agreement required)",
+  "GPU VRAM numbers (no GPU)"
+ ],
+ "todo": [
+  "quantization of selected USS model",
+  "quiet latency bench",
+  "error analysis",
+  "final figures",
+  "F_RESULTS.md",
+  "manifest"
+ ],
+ "notes": [
+  "first attempt (256 tokens, full TRAIN, 5 epochs) stopped: >23 min without finishing epoch 1 of e5-small 12L on shared CPU",
+  "mminilm_trim_ft (L12) dropped from the CPU queue (v2: ~= e5-small on Amazon; same cost as e5 12L)"
+ ]
+}

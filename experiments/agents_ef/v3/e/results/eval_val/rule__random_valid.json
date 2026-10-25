@@ -1,0 +1,9 @@
+{
+  "n_params": 0,
+  "policy": "rule:random_valid",
+  "split": "val",
+  "n_days": 48,
+  "eval_s": 7.6,
+  "decision_ms_p50": 0.0345,
+  "decision_ms_p95": 0.0713
+}

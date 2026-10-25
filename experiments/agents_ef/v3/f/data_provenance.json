@@ -1,0 +1,385 @@
+{
+ "checked_on": "2026-10-25",
+ "checked_by": "Worker F (Claude Code, cloud sandbox, CPU only)",
+ "local_callverse_datasets": "BLOCKED: no access to local CallVerse datasets (user's Windows PC not reachable from this sandbox; paths like C:\\Users\\semah\\... not accessible)",
+ "datasets": {
+  "A_USS": {
+   "name": "USS - User Satisfaction Simulation (Sun et al., SIGIR 2021, arXiv 2105.03748)",
+   "urls": {
+    "original_used": "https://github.com/sunnweiwei/user-satisfaction-simulation (dataset/*.txt, branch master, raw files)",
+    "hf_mirror": "https://huggingface.co/datasets/akomma/uss-ratings-dataset (sha 0d89e2f93b93c57564269a69c53d34143dfe4ea4)"
+   },
+   "licence": "GitHub repo: NO LICENSE file found (raw LICENSE -> 404). HF mirror card declares MIT (stated by the mirror uploader, not by the authors). Underlying corpora have their own terms (SGD CC-BY-SA-4.0, MultiWOZ MIT, ReDial CC-BY-4.0, CCPE CC-BY-SA-4.0, JDDC research-only per JD.com). Verdict: academic research use with citation; do not redistribute raw text.",
+   "why_original_not_mirror": "the HF mirror is parquet (no parquet reader in the venv) and has only 4 EN sub-datasets; the original TXT has per-annotator ratings for all 5 sub-datasets incl. JDDC. The mirror parquet was downloaded (sha256 b1337c9c00617e7df4f72cad1f3e99573badf5bea30e18a560fdfbe6b58c2b00, 2.3 MB) but its rows were NOT VERIFIED (not parsed); its card reports 3,500 dialogs / 34,358 turns.",
+   "size_bytes_raw": "SGD 1,838,324; MWOZ 2,106,294; ReDial 1,123,392; CCPE 1,182,562; JDDC 6,568,777",
+   "schema": "TXT, one utterance per line: ROLE \\t text \\t action \\t ratings 'a,b,c' (USER lines) [\\t explanation]; dialogues separated by blank lines; last line 'USER \\t OVERALL \\t \\t r1,r2,..' = dialogue-level rating.",
+   "label_semantics": "1-5 user satisfaction judged by crowd/expert annotators reading the dialogue (third-party judgement, NOT self-reported by the real user). Turn level: satisfaction at each user turn (with the preceding system response). Dialogue level (OVERALL): satisfaction with the whole dialogue.",
+   "agent_f_target": "mean of the annotators' OVERALL ratings; predicted after the dialogue ends from the full dialogue text",
+   "languages": {
+    "en": [
+     "SGD",
+     "MWOZ",
+     "ReDial",
+     "CCPE"
+    ],
+    "zh": [
+     "JDDC"
+    ]
+   },
+   "domain": "SGD/MWOZ: task-oriented assistants (booking, travel, weather...); ReDial: movie recommendation; CCPE: preference elicitation (movies); JDDC: REAL e-commerce customer service chats (JD.com) - closest to ShopNova.",
+   "grouping_key": "(sub-dataset, dialogue index in file); one example = one dialogue, so turns never cross splits",
+   "per_subdataset": {
+    "SGD": {
+     "sha256": "f417e17e39221a396a041bd10bee4f3e221a5834d2e32dcc7f813adb25d3bf39",
+     "lang": "en",
+     "dialogues": 1000,
+     "dialogues_with_overall": 1000,
+     "utterances_excl_overall": 25666,
+     "user_turns_rated": 12833,
+     "avg_turns": 25.7,
+     "annotators_per_dialogue": {
+      "3": 540,
+      "4": 386,
+      "5": 69,
+      "6": 4,
+      "7": 1
+     },
+     "overall_rating_counts_all_annotations": {
+      "1": 5,
+      "2": 257,
+      "3": 2273,
+      "4": 966,
+      "5": 39
+     },
+     "overall_mean_rounded_counts": {
+      "2": 23,
+      "3": 678,
+      "4": 299
+     },
+     "overall_mean": 3.214,
+     "overall_std": 0.387,
+     "turn_rating_counts_all_annotations": {
+      "1": 94,
+      "2": 3610,
+      "3": 33306,
+      "4": 7791,
+      "5": 885
+     },
+     "overall_all_annotators_agree": 0.258,
+     "overall_mean_pairwise_abs_diff": 0.485,
+     "overall_krippendorff_alpha_interval": 0.225,
+     "turn_krippendorff_alpha_interval": 0.249,
+     "human_loo_mae_vs_other_annotators_mean": 0.474,
+     "duplicate_dialogue_texts": 0,
+     "has_dialogue_explanations": false
+    },
+    "MWOZ": {
+     "sha256": "32b654c702828bbcef0d9b7b63c096c1b464037a2c4f957cf3d7ec620c6170c8",
+     "lang": "en",
+     "dialogues": 1000,
+     "dialogues_with_overall": 1000,
+     "utterances_excl_overall": 22108,
+     "user_turns_rated": 11553,
+     "avg_turns": 22.1,
+     "annotators_per_dialogue": {
+      "3": 575,
+      "4": 369,
+      "5": 49,
+      "6": 7
+     },
+     "overall_rating_counts_all_annotations": {
+      "1": 18,
+      "2": 309,
+      "3": 2423,
+      "4": 710,
+      "5": 28
+     },
+     "overall_mean_rounded_counts": {
+      "1": 2,
+      "2": 29,
+      "3": 780,
+      "4": 188,
+      "5": 1
+     },
+     "overall_mean": 3.122,
+     "overall_std": 0.366,
+     "turn_rating_counts_all_annotations": {
+      "1": 160,
+      "2": 3843,
+      "3": 31631,
+      "4": 4251,
+      "5": 549
+     },
+     "overall_all_annotators_agree": 0.297,
+     "overall_mean_pairwise_abs_diff": 0.471,
+     "overall_krippendorff_alpha_interval": 0.199,
+     "turn_krippendorff_alpha_interval": 0.189,
+     "human_loo_mae_vs_other_annotators_mean": 0.456,
+     "duplicate_dialogue_texts": 0,
+     "has_dialogue_explanations": false
+    },
+    "ReDial": {
+     "sha256": "b875bc656ed2e7ca12dfd966e026b2393f86e6915e8fdaf1e287ac2eb1c1b0f2",
+     "lang": "en",
+     "dialogues": 1000,
+     "dialogues_with_overall": 1000,
+     "utterances_excl_overall": 21458,
+     "user_turns_rated": 10806,
+     "avg_turns": 21.5,
+     "annotators_per_dialogue": {
+      "3": 532,
+      "4": 397,
+      "5": 64,
+      "6": 6,
+      "7": 1
+     },
+     "overall_rating_counts_all_annotations": {
+      "1": 16,
+      "2": 355,
+      "3": 2044,
+      "4": 1076,
+      "5": 56
+     },
+     "overall_mean_rounded_counts": {
+      "1": 1,
+      "2": 40,
+      "3": 640,
+      "4": 314,
+      "5": 5
+     },
+     "overall_mean": 3.225,
+     "overall_std": 0.451,
+     "turn_rating_counts_all_annotations": {
+      "1": 168,
+      "2": 3236,
+      "3": 27668,
+      "4": 6938,
+      "5": 680
+     },
+     "overall_all_annotators_agree": 0.211,
+     "overall_mean_pairwise_abs_diff": 0.527,
+     "overall_krippendorff_alpha_interval": 0.28,
+     "turn_krippendorff_alpha_interval": 0.233,
+     "human_loo_mae_vs_other_annotators_mean": 0.519,
+     "duplicate_dialogue_texts": 0,
+     "has_dialogue_explanations": false
+    },
+    "CCPE": {
+     "sha256": "ee6e268f85a7fd25acfa97cf1c5bb9b8c8e86f20dff096535dd46296a036bba9",
+     "lang": "en",
+     "dialogues": 500,
+     "dialogues_with_overall": 500,
+     "utterances_excl_overall": 11936,
+     "user_turns_rated": 6360,
+     "avg_turns": 23.9,
+     "annotators_per_dialogue": {
+      "3": 281,
+      "4": 190,
+      "5": 29
+     },
+     "overall_rating_counts_all_annotations": {
+      "1": 5,
+      "2": 226,
+      "3": 1249,
+      "4": 262,
+      "5": 6
+     },
+     "overall_mean_rounded_counts": {
+      "2": 22,
+      "3": 422,
+      "4": 56
+     },
+     "overall_mean": 3.02,
+     "overall_std": 0.352,
+     "turn_rating_counts_all_annotations": {
+      "1": 99,
+      "2": 2233,
+      "3": 16891,
+      "4": 3034,
+      "5": 209
+     },
+     "overall_all_annotators_agree": 0.322,
+     "overall_mean_pairwise_abs_diff": 0.45,
+     "overall_krippendorff_alpha_interval": 0.202,
+     "turn_krippendorff_alpha_interval": 0.197,
+     "human_loo_mae_vs_other_annotators_mean": 0.432,
+     "duplicate_dialogue_texts": 0,
+     "has_dialogue_explanations": false
+    },
+    "JDDC": {
+     "sha256": "4ad61eb3b1e333c09575503dcdc03417f558b07baea7d40c4cf384765f7ff846",
+     "lang": "zh",
+     "dialogues": 3300,
+     "dialogues_with_overall": 3300,
+     "utterances_excl_overall": 106508,
+     "user_turns_rated": 54517,
+     "avg_turns": 32.3,
+     "annotators_per_dialogue": {
+      "3": 3300
+     },
+     "overall_rating_counts_all_annotations": {
+      "1": 15,
+      "2": 521,
+      "3": 2769,
+      "4": 5151,
+      "5": 1444
+     },
+     "overall_mean_rounded_counts": {
+      "1": 2,
+      "2": 135,
+      "3": 746,
+      "4": 2276,
+      "5": 141
+     },
+     "overall_mean": 3.756,
+     "overall_std": 0.635,
+     "turn_rating_counts_all_annotations": {
+      "1": 430,
+      "2": 22180,
+      "3": 121774,
+      "4": 18109,
+      "5": 1058
+     },
+     "overall_all_annotators_agree": 0.297,
+     "overall_mean_pairwise_abs_diff": 0.506,
+     "overall_krippendorff_alpha_interval": 0.524,
+     "turn_krippendorff_alpha_interval": 0.686,
+     "human_loo_mae_vs_other_annotators_mean": 0.494,
+     "duplicate_dialogue_texts": 28,
+     "has_dialogue_explanations": true
+    }
+   },
+   "split": {
+    "rule": "70/15/15 by dialogue, stratified per sub-dataset, seed 13",
+    "counts": {
+     "SGD": {
+      "train": 700,
+      "val": 150,
+      "test": 150
+     },
+     "MWOZ": {
+      "train": 700,
+      "val": 150,
+      "test": 150
+     },
+     "ReDial": {
+      "train": 700,
+      "val": 150,
+      "test": 150
+     },
+     "CCPE": {
+      "train": 350,
+      "val": 75,
+      "test": 75
+     },
+     "JDDC": {
+      "train": 2290,
+      "val": 491,
+      "test": 491
+     }
+    },
+    "sha256": {
+     "train": "305287942b44225a8b314d56f20349b4d9e39702776c9feca06947cabc17923e",
+     "val": "3cff97a21630c027688c2aa0eaa4c109d4023faf1ae6633df43f450f78d01a46",
+     "test": "36bdb7b6548e0d27dbee4c02835baf72f02a90c793724eab592478e2fb061090"
+    }
+   },
+   "duplicates": "exact duplicate dialogue texts: JDDC 28 (dropped, first kept), others 0",
+   "inter_annotator": "3-7 annotators per dialogue (EN), exactly 3 (JDDC). Krippendorff alpha (interval) on OVERALL: SGD 0.225, MWOZ 0.199, ReDial 0.28, CCPE 0.202, JDDC 0.524 (see per_subdataset). EN labels are concentrated on 3 (std of the mean rating 0.35-0.45) and noisy.",
+   "verdict": "USABLE as the PRIMARY public benchmark for dialogue-level satisfaction (EN and ZH reported separately). Caveats: annotator (not customer) judgements; EN sub-datasets are not customer support; low EN agreement limits achievable accuracy; JDDC is genuine e-commerce support but Chinese (no FR)."
+  },
+  "B_DialEval2_DCH2": {
+   "name": "DialEval-2 / DCH-2 (NTCIR-15 Dialogue Evaluation, Customer Helpdesk dialogues, Chinese + English translation)",
+   "url": "https://dialeval-2.github.io/DCH-2/",
+   "licence": "requires a signed user agreement",
+   "accessed": false,
+   "reason": "agreement required -> NOT accessed (rule: never accept agreements)",
+   "label_semantics_from_public_description": "dialogue-level quality scores (task accomplishment, customer satisfaction, effectiveness) and nugget annotations by multiple annotators - NOT VERIFIED here",
+   "verdict": "HIGH-VALUE FUTURE dataset (real helpdesk dialogues, satisfaction-type labels). Needs Yassine/teacher to sign the agreement."
+  },
+  "C_Amazon_EN_FR": {
+   "name": "Amazon Multilingual Reviews (Keung et al. 2020), MTEB mirror",
+   "url": "https://huggingface.co/datasets/mteb/amazon_reviews_multi",
+   "licence": "Amazon non-commercial research licence (as recorded in v2)",
+   "rows_used": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "languages": [
+    "en",
+    "fr"
+   ],
+   "label_semantics": "star rating 1-5 the customer gave a PRODUCT (self-reported), balanced by the corpus authors",
+   "reuse": "existing subset (scratchpad/data_amazon/subset_enfr) and v2 results (results/f_v2_enfr/*.json); not rebuilt",
+   "verdict": "AUXILIARY only (product satisfaction, single review text, not a support dialogue). Never merged with USS numbers."
+  },
+  "D_Saif7800_customer_qa": {
+   "name": "Saif7800/customer_qa_dataset",
+   "url": "https://huggingface.co/datasets/Saif7800/customer_qa_dataset",
+   "revision": "b2dc281b63c6e6fea10c531cd71680498ca3e7fd",
+   "licence": "CC0-1.0 (card)",
+   "size": "train 1,365,546,421 B (450,724 rows), validation 79,667,470 B (24,988), test 79,653,461 B (24,988) - too big; only the first 3,000,000 bytes of validation_complete.jsonl were fetched (939 rows parsed)",
+   "schema": "29 columns incl. conversation[{role,text}], language, domain, sentiment, resolution, csat (1-5), quality_score",
+   "observations_on_939_rows": {
+    "source": "llm_generated_v6_augmented 932, llm_generated_v6 5, llm_generated_v5 2",
+    "csat_vs_sentiment": "urgent->3 (208/208), confused->3 (208/208), frustrated->2 (109) or 3 (58), neutral->4 (193) or 3 (13), positive->4 (80) or 5 (70): csat is (almost) a deterministic function of the sentiment tag",
+    "csat_counts": {
+     "2": 109,
+     "3": 487,
+     "4": 273,
+     "5": 70
+    },
+    "resolution_counts": {
+     "unresolved": 663,
+     "escalated": 107,
+     "resolved": 83,
+     "follow_up_needed": 47,
+     "refunded": 39
+    },
+    "languages": {
+     "en": 802,
+     "fr": 52,
+     "es": 50,
+     "de": 35
+    }
+   },
+   "verdict": "SYNTHETIC (LLM-generated), labels rule-derived from a sentiment tag; 'unresolved' conversations get csat 4-5 often. NOT USED for training or evaluation. At most a clearly-labelled synthetic smoke test (format checks)."
+  },
+  "E_candidates_searched": [
+   {
+    "name": "sharmila122125/customer-support-csat (Flipkart customer-service CSAT, mirror of a Kaggle dataset)",
+    "url": "https://huggingface.co/datasets/sharmila122125/customer-support-csat",
+    "licence": "apache-2.0 on mirror; upstream Kaggle licence NOT VERIFIED",
+    "rows": 85907,
+    "with_customer_remarks": 28742,
+    "csat_counts": {
+     "1": 11230,
+     "2": 1283,
+     "3": 2558,
+     "4": 11219,
+     "5": 59617
+    },
+    "text": "only a short survey remark (median 19 chars, e.g. 'Good'), written WITH the score; no dialogue transcript; operational metadata (channel, category, response time, agent tenure, shift)",
+    "verdict": "CANDIDATE (real-looking operational CSAT, e-commerce support) for a metadata-based or remark-based auxiliary task; NOT benchmarked (no dialogue text; remark leaks the score; upstream licence unverified)."
+   },
+   {
+    "name": "rootfs/user-satisfaction-dataset",
+    "url": "https://huggingface.co/datasets/rootfs/user-satisfaction-dataset",
+    "verdict": "NOT a satisfaction rating: 4 balanced intent-like classes (SAT / NEED_CLARIFICATION / WRONG_ANSWER / WANT_DIFFERENT) on single follow-up messages; rejected for Agent F."
+   },
+   {
+    "name": "Kaggle 'Customer Support Ticket Dataset' (CSAT column)",
+    "verdict": "NOT ACCESSED (Kaggle needs login); widely reported as synthetic -> would not be used as ground truth"
+   },
+   {
+    "name": "LEGO corpus (Let's Go bus information, interaction quality 1-5 per exchange, Schmitt et al. 2012)",
+    "verdict": "NOT ACCESSED in this round; spoken-dialogue IQ labels by experts; possible future auxiliary set"
+   },
+   {
+    "name": "HF searches 'csat', 'customer satisfaction', 'user satisfaction', 'dialogue quality', 'interaction quality'",
+    "verdict": "no other public dataset with genuine dialogue-level satisfaction labels found (other hits: exam datasets named CSAT, tabular surveys, review sites)"
+   }
+  ]
+ }
+}

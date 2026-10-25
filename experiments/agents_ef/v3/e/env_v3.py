@@ -62,6 +62,9 @@ class ConfigV3:
     w_sla: float = 1.0
     w_ab: float = 1.0
     w_cost: float = 1.0
+    # OPTIONAL synthetic-satisfaction term (E+F experiment only; SIM-CSAT is a formula, NOT real satisfaction)
+    w_csat: float = 0.0
+    ref_csat_shortfall_per_step: float = 2.683860109241513   # reward_reference.json (Fixed, 200 TRAIN days)
 
 
 WEIGHTS = {"equal": (1.0, 1.0, 1.0), "sla_heavy": (2.0, 1.0, 1.0), "abandon_heavy": (1.0, 2.0, 1.0),
@@ -222,6 +225,7 @@ class EnvV3:
         sd = self.spec.slowdown
         slow = sd[2] if sd and sd[0] <= self.t < sd[1] else 1.0
         miss = ab = 0
+        self._shortfall = 0.0
         for q in range(N_Q):
             ids = self.by_q[q]
             while self.next_idx[q] < len(ids) and tp["t_arr"][ids[self.next_idx[q]]] < end:
@@ -250,9 +254,12 @@ class EnvV3:
                 left += len(self.queue[q])
                 self.queue[q] = []
         lost = ab + left
-        parts = {"sla_fail": (miss + lost) / c.ref_fail_per_step, "abandon": lost / c.ref_lost_per_step,
+        self._shortfall += lost                            # a lost ticket = SIM-CSAT 1 = shortfall 1
+        parts_csat = self._shortfall / c.ref_csat_shortfall_per_step
+        parts = {"csat_shortfall": parts_csat, "sla_fail": (miss + lost) / c.ref_fail_per_step, "abandon": lost / c.ref_lost_per_step,
                  "cost": cost / c.ref_cost_per_step, "n_miss": miss, "n_lost": lost}
-        reward = -(c.w_sla * parts["sla_fail"] + c.w_ab * parts["abandon"] + c.w_cost * parts["cost"])
+        reward = -(c.w_sla * parts["sla_fail"] + c.w_ab * parts["abandon"] + c.w_cost * parts["cost"]
+                   + c.w_csat * parts_csat)
         info = {"action_mask": self.action_mask(), "reward_parts": parts, "family": self.spec.family}
         return self._obs(), float(reward), done, False, info
 
@@ -285,6 +292,12 @@ class EnvV3:
             self.wait[i] = tq - tp["t_arr"][i]
             self.fb_used[i] = fb
             resolved = not (fb and tp["u_fb"][i] < c.fallback_fail_p)
+            if resolved:                                    # SIM-CSAT shortfall (5 - csat)/4 of this ticket
+                sl = self.sla_i[i]
+                cs = min(max(5 - 2 * max(0.0, self.wait[i] - sl / 2) / sl - 0.6 * fb - tp["csat_eps"][i], 1), 5)
+                self._shortfall += (5 - cs) / 4
+            else:
+                self._shortfall += 1.0
             if resolved and self.wait[i] <= self.sla_i[i]:
                 self.status[i] = 1
             else:

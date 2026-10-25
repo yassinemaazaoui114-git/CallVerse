@@ -1,0 +1,9 @@
+{
+  "n_params": 0,
+  "policy": "rule:forecast:0.75",
+  "split": "test",
+  "n_days": 650,
+  "eval_s": 124.5,
+  "decision_ms_p50": 0.0604,
+  "decision_ms_p95": 0.1268
+}

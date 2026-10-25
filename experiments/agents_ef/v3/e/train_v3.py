@@ -72,22 +72,25 @@ def main(argv=None):
     p.add_argument("--eval-every", type=int, default=15_000)
     p.add_argument("--val-days", type=int, default=6)
     p.add_argument("--tag", default="")
+    p.add_argument("--w-csat", type=float, default=0.0, help="SYNTHETIC SIM-CSAT shortfall term (E+F experiment)")
     a = p.parse_args(argv)
     torch.set_num_threads(1)
     hidden = tuple(int(h) for h in a.hidden.split(","))
-    run_id = f"{a.algo}_{a.weights}_h{a.hidden.replace(',', 'x')}_{a.steps // 1000}k_s{a.seed}{a.tag}"
+    tag = a.tag + (f"_csat{a.w_csat:g}" if a.w_csat else "")
+    run_id = f"{a.algo}_{a.weights}_h{a.hidden.replace(',', 'x')}_{a.steps // 1000}k_s{a.seed}{tag}"
     out = RUNS / run_id
     if (out / "run.json").exists() and json.loads((out / "run.json").read_text()).get("status") == "done":
         print("skip (done):", run_id)
         return
     out.mkdir(parents=True, exist_ok=True)
-    cfg = make_cfg(a.weights)
+    cfg = make_cfg(a.weights, w_csat=a.w_csat)
     env, val_env = EnvV3(cfg, TRAIN_FAMILIES), EnvV3(cfg, TRAIN_FAMILIES)
     val_days = manifest("val", a.val_days)
     agent = make_agent(a.algo, env.obs_dim, env.n_actions, a.seed, hidden=hidden)
     rng = np.random.default_rng(1_000_000 + a.seed)
     meta = {"run_id": run_id, "algo": a.algo, "seed": a.seed, "steps_budget": a.steps, "hidden": list(hidden),
-            "weights": a.weights, "reward": {"w_sla": cfg.w_sla, "w_ab": cfg.w_ab, "w_cost": cfg.w_cost},
+            "weights": a.weights, "reward": {"w_sla": cfg.w_sla, "w_ab": cfg.w_ab, "w_cost": cfg.w_cost,
+                                                   "w_csat_synthetic": cfg.w_csat},
             "train_families": TRAIN_FAMILIES, "val_manifest_days": len(val_days), "status": "running",
             "started": time.strftime("%Y-%m-%dT%H:%M:%S"), "n_params": agent.n_params(),
             "code_revision": subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=HERE, capture_output=True,

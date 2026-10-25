@@ -1,0 +1,326 @@
+{
+ "dataset": "Amazon Multilingual Reviews EN/FR subset (mteb/amazon_reviews_multi), 1200/400/399",
+ "label": "product-review stars 1-5 (AUXILIARY; not support satisfaction)",
+ "ranking": "by VAL MAE (selection); TEST shown",
+ "rows": [
+  {
+   "model": "e5small_trim_ft",
+   "source_file": "results/f_v2_enfr/e5small_trim_ft.json",
+   "source_sha256": "68dcac32394b82ebb6c656d9ffb29230a207a8aed91f575b4d306960209136c5",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 3,
+   "n_params": 27804417,
+   "val_mae_mean": 0.5851631911595663,
+   "test_mae_mean": {
+    "all": 0.6298768705592718,
+    "en": 0.6379591576258342,
+    "fr": 0.6217539689848371
+   },
+   "test_mae_std": {
+    "all": 0.006709392186382687,
+    "en": 0.014940651988827236,
+    "fr": 0.0016295321378030443
+   },
+   "test_f1_macro_3class": 0.6723215612715906,
+   "test_spearman": 0.8291341160972036,
+   "disk_mb_fp32": 113.2,
+   "latency_ms_p50_cpu_batch1": 36.095,
+   "peak_rss_mb_train": 4251.4,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "mminilm_ft",
+   "source_file": "results/f_v2_enfr/mminilm_ft.json",
+   "source_sha256": "7bbf59d19e47519522075ddd417780fb6b3b34a6f4420f52764580dd99438217",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 3,
+   "n_params": 117678465,
+   "val_mae_mean": 0.6142899982134501,
+   "test_mae_mean": {
+    "all": 0.6418739178824047,
+    "en": 0.6916898063818614,
+    "fr": 0.5918076982849607
+   },
+   "test_mae_std": {
+    "all": 0.015420296459541825,
+    "en": 0.014503754324976121,
+    "fr": 0.018625994859698857
+   },
+   "test_f1_macro_3class": 0.6679611779181743,
+   "test_spearman": 0.8114677627590856,
+   "disk_mb_fp32": 470.7,
+   "latency_ms_p50_cpu_batch1": 32.831,
+   "peak_rss_mb_train": 7006.3,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "mminilm_trim_ft",
+   "source_file": "results/f_v2_enfr/mminilm_trim_ft.json",
+   "source_sha256": "09a6463321e2180a150504011674c21488dde0c72b2d23620555dcada9de593b",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 3,
+   "n_params": 27805185,
+   "val_mae_mean": 0.6142899982134501,
+   "test_mae_mean": {
+    "all": 0.6447872504056645,
+    "en": 0.6906905138492584,
+    "fr": 0.598653317296525
+   },
+   "test_mae_std": {
+    "all": 0.013205873907055908,
+    "en": 0.01249821661516867,
+    "fr": 0.015183693695726436
+   },
+   "test_f1_macro_3class": 0.6644073584885817,
+   "test_spearman": 0.8096053380620987,
+   "disk_mb_fp32": 113.2,
+   "latency_ms_p50_cpu_batch1": 32.844,
+   "peak_rss_mb_train": 4054.3,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "e5small_frozen_ridge",
+   "source_file": "results/f_v2_enfr/e5small_frozen_ridge.json",
+   "source_sha256": "50939d10b6ce6f2de28d0cff3aa69fe01e12a6317ac3fd36d3d54d3d8c8371dc",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 1,
+   "n_params": 117654145,
+   "val_mae_mean": 0.6190272957086563,
+   "test_mae_mean": {
+    "all": 0.7091935556335258,
+    "en": 0.7053578591346741,
+    "fr": 0.7130485269891557
+   },
+   "test_mae_std": {
+    "all": 0.0,
+    "en": 0.0,
+    "fr": 0.0
+   },
+   "test_f1_macro_3class": 0.6563066016192775,
+   "test_spearman": 0.7884164017685714,
+   "disk_mb_fp32": null,
+   "latency_ms_p50_cpu_batch1": 32.95,
+   "peak_rss_mb_train": 1881.8,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "mminilm_frozen_ridge",
+   "source_file": "results/f_v2_enfr/mminilm_frozen_ridge.json",
+   "source_sha256": "14ef9a6e1f070a9d35a1e72b90be5b8d7b80f177aaf11cb5017b90199cc3044b",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 1,
+   "n_params": 117654145,
+   "val_mae_mean": 0.7033520597219467,
+   "test_mae_mean": {
+    "all": 0.7573689559946084,
+    "en": 0.8170473450422286,
+    "fr": 0.6973906755447388
+   },
+   "test_mae_std": {
+    "all": 0.0,
+    "en": 0.0,
+    "fr": 0.0
+   },
+   "test_f1_macro_3class": 0.6238835989181665,
+   "test_spearman": 0.7473131407489856,
+   "disk_mb_fp32": null,
+   "latency_ms_p50_cpu_batch1": 33.422,
+   "peak_rss_mb_train": 1929.5,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "tinybert_ft",
+   "source_file": "results/f_v2_enfr/tinybert_ft.json",
+   "source_sha256": "ac420d8c3c160a7991147d46b2bfad41c6433272bb4556fdbe31343d45c58d22",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 3,
+   "n_params": 14370345,
+   "val_mae_mean": 0.7311493270595868,
+   "test_mae_mean": {
+    "all": 0.7432623243172564,
+    "en": 0.7088184855381647,
+    "fr": 0.7778792477133286
+   },
+   "test_mae_std": {
+    "all": 0.0044107778498607315,
+    "en": 0.018175632424506035,
+    "fr": 0.011082667222650668
+   },
+   "test_f1_macro_3class": 0.6245199107376362,
+   "test_spearman": 0.759996062300223,
+   "disk_mb_fp32": 57.5,
+   "latency_ms_p50_cpu_batch1": 8.086,
+   "peak_rss_mb_train": 1308.2,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "mminilmv2l6_trim_ft",
+   "source_file": "results/f_v2_enfr/mminilmv2l6_trim_ft.json",
+   "source_sha256": "e95b99293dc30200f9774c93f45b410159d897844cf91e67e7c2bc2e9af826be",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 3,
+   "n_params": 17158785,
+   "val_mae_mean": 0.7764833710590998,
+   "test_mae_mean": {
+    "all": 0.8036587715348106,
+    "en": 0.861464477578799,
+    "fr": 0.7455625845559278
+   },
+   "test_mae_std": {
+    "all": 0.009192066232349553,
+    "en": 0.014054885250972442,
+    "fr": 0.010026621751300733
+   },
+   "test_f1_macro_3class": 0.5786762168888259,
+   "test_spearman": 0.7234654276885903,
+   "disk_mb_fp32": 70.6,
+   "latency_ms_p50_cpu_batch1": 14.336,
+   "peak_rss_mb_train": 2429.8,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "tfidf_ridge",
+   "source_file": "results/f_v2_enfr/tfidf_ridge.json",
+   "source_sha256": "bb11fe700a1e08363c25ad3af5727bca7df5f1c745f36060e19dd5997646ff99",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 1,
+   "n_params": 29453,
+   "val_mae_mean": 0.8021977217660441,
+   "test_mae_mean": {
+    "all": 0.8295686799728453,
+    "en": 0.841793614247967,
+    "fr": 0.8172823138671955
+   },
+   "test_mae_std": {
+    "all": 0.0,
+    "en": 0.0,
+    "fr": 0.0
+   },
+   "test_f1_macro_3class": 0.5619805273686046,
+   "test_spearman": 0.7219090713233579,
+   "disk_mb_fp32": null,
+   "latency_ms_p50_cpu_batch1": 2.091,
+   "peak_rss_mb_train": 323.5,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "sentiment_ridge",
+   "source_file": "results/f_v2_enfr/sentiment_ridge.json",
+   "source_sha256": "5080521062ecbba31453b7fbd555bab2ffa16592845f9fdf4091ad94693ae796",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 1,
+   "n_params": 124647943,
+   "val_mae_mean": 0.8786032006267931,
+   "test_mae_mean": {
+    "all": 0.9318075881533667,
+    "en": 0.7185354578336041,
+    "fr": 1.1461514377209674
+   },
+   "test_mae_std": {
+    "all": 0.0,
+    "en": 0.0,
+    "fr": 0.0
+   },
+   "test_f1_macro_3class": 0.4957464491050409,
+   "test_spearman": 0.5958365896942374,
+   "disk_mb_fp32": null,
+   "latency_ms_p50_cpu_batch1": 69.208,
+   "peak_rss_mb_train": 1433.2,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "sentiment_zeroshot",
+   "source_file": "results/f_v2_enfr/sentiment_zeroshot.json",
+   "source_sha256": "467a7abea2cdc042d9d6995507e345a884c054f949d5da80ff90ea8bada685f9",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 1,
+   "n_params": 124647939,
+   "val_mae_mean": 0.8866319376148749,
+   "test_mae_mean": {
+    "all": 0.9346088337873045,
+    "en": 0.7359993021935225,
+    "fr": 1.1342164032282915
+   },
+   "test_mae_std": {
+    "all": 0.0,
+    "en": 0.0,
+    "fr": 0.0
+   },
+   "test_f1_macro_3class": 0.49816226783968726,
+   "test_spearman": 0.5954676482416744,
+   "disk_mb_fp32": null,
+   "latency_ms_p50_cpu_batch1": 66.366,
+   "peak_rss_mb_train": 1372.3,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  },
+  {
+   "model": "mean",
+   "source_file": "results/f_v2_enfr/mean.json",
+   "source_sha256": "6a746e04afcd64da3069c8bacb8d51edc498b524f733dbdcf67043b5a5fd6c45",
+   "n": {
+    "train": 1200,
+    "val": 400,
+    "test": 399
+   },
+   "seeds": 1,
+   "n_params": 1,
+   "val_mae_mean": 1.1699375,
+   "test_mae_mean": {
+    "all": 1.2051524644945697,
+    "en": 1.2021666666666666,
+    "fr": 1.2081532663316583
+   },
+   "test_mae_std": {
+    "all": 0.0,
+    "en": 0.0,
+    "fr": 0.0
+   },
+   "test_f1_macro_3class": 0.1101813110181311,
+   "test_spearman": NaN,
+   "disk_mb_fp32": null,
+   "latency_ms_p50_cpu_batch1": 0.001,
+   "peak_rss_mb_train": 290.4,
+   "qwk": "NOT AVAILABLE in v2 files (no stored predictions); see amazon_rescore_*.json for the saved checkpoint"
+  }
+ ]
+}

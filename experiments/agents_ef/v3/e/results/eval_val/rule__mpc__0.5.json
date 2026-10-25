@@ -1,0 +1,9 @@
+{
+  "n_params": 0,
+  "policy": "rule:mpc:0.5",
+  "split": "val",
+  "n_days": 48,
+  "eval_s": 21.2,
+  "decision_ms_p50": 2.3851,
+  "decision_ms_p95": 4.0236
+}

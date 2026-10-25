@@ -5,5 +5,6 @@
   "ref_cost_per_step": 16.0,
   "ref_miss_share": 0.018910137079031986,
   "ref_lost_share": 0.10761550177695041,
-  "ref_arrivals_per_day": 1477.25
+  "ref_arrivals_per_day": 1477.25,
+  "ref_csat_shortfall_per_step": 2.683860109241513
 }
