@@ -1,54 +1,100 @@
 {
-  "updated": "2026-10-25T15:55:58",
+  "updated": "2026-10-25T22:31:04",
   "worker_E": {
     "gate_A_simulator_validation": "PASSED (v3/e/tests: tape CRN, conservation, mask, budget, reward decomposition, no future info, determinism)",
-    "train_runs_done": 12,
-    "train_runs_running": [
-      "double_dqn_equal_h64x64_150k_s2",
-      "dqn_equal_h64x64_150k_s2"
-    ],
+    "train_runs_done": 69,
+    "train_runs_running": [],
     "train_runs_failed": [],
     "val_evaluations": 24,
-    "test_evaluations": 23,
+    "test_evaluations": 136,
     "test_manifest_sha256": "673373a71aae4e69345e7cb8fc346842f06e805ca668cdd27621b6c77761c15b",
-    "analysis": false,
+    "analysis": true,
     "queue_log_tail": [
-      "15:38 dueling_dqn s1 150000 equal 64,64 exit=0",
-      "15:49 dueling_double_dqn s2 150000 equal 64,64 exit=0",
-      "15:49 ppo s2 150000 equal 64,64 exit=0"
+      "20:41 ppo s1 400000 equal 64,64 exit=0",
+      "20:42 ppo s2 400000 equal 64,64 exit=0",
+      "ALLDONE 20:42"
     ]
   },
   "worker_F": {
-    "updated_utc": "2026-10-25T15:13Z",
+    "updated_utc": "2026-10-25T22:00Z",
+    "state": "COMPLETED (CPU scope)",
     "completed": [
-      "1 dataset discovery (USS verified; DCH-2 blocked by agreement; Amazon reused; Saif7800 synthetic-rejected; search done)",
-      "2 PROTOCOL.md",
-      "USS baselines: mean, group_mean, hgb_features, tfidf_ridge, tfidf_logreg",
-      "Amazon leaderboard re-used from v2 files",
-      "DATASETS.md, data_provenance.json",
-      "Amazon checkpoint re-score + int8 (results/amazon_rescore_e5small_trim_ft.json; SHA 6bae1f48 confirmed, MAE 0.6309)",
-      "scripts: f_predictor, quantize_f, latency_bench, error_analysis, make_leaderboard, make_figures, make_manifest, infer_example, RUN_AND_RESUME_F.md"
+      "1 dataset discovery + provenance (DATASETS.md, data_provenance.json)",
+      "2 PROTOCOL.md (+ deviations section)",
+      "3 USS benchmark: mean, group_mean, hgb_features, tfidf_ridge (+EN only, +50% TRAIN, +tail128/256 diagnostic), tfidf_logreg; fine-tuned x3 seeds: tinybert_ft_en_frac0.5_len128, e5small_trim_ft_L6_frac0.5_len128, e5small_trim_ft_L6_frac0.5_len256, e5small_trim_ft_frac0.5_len128 (12L), mminilmv2l6_trim_ft_frac0.5_len128",
+      "int8 dynamic quantization (2 USS checkpoints + validated Amazon checkpoint), VAL re-centring",
+      "latency_cpu.json (per-process, load avg 1.2-1.4)",
+      "noise floor",
+      "4 ERROR_ANALYSIS.md",
+      "5 figures (5 PNG)",
+      "6 leaderboard_uss.json/csv, leaderboard_amazon.json, F_RESULTS.md, checkpoints_manifest.json, RUN_AND_RESUME_F.md",
+      "7 infer_example.py (tested fp32 + int8)"
     ],
-    "running": [
-      "run_queue.sh (CPU budget: 128 tokens, 3 epochs, 50% TRAIN stratified, seeds 0 1 2): tinybert_ft_en -> e5small_trim_ft_L6 -> mminilmv2l6_trim_ft -> e5small_trim_ft (12L)"
-    ],
+    "running": [],
     "blocked": [
       "local CallVerse datasets (no access to user's PC)",
       "DialEval-2/DCH-2 (user agreement required)",
-      "GPU VRAM numbers (no GPU)"
+      "Kaggle datasets (login)",
+      "GPU VRAM/latency/fp16 (no GPU)"
     ],
-    "todo": [
-      "quantization of selected USS model",
-      "quiet latency bench",
-      "error analysis",
-      "final figures",
-      "F_RESULTS.md",
-      "manifest"
+    "not_done_cpu_budget": [
+      "full-protocol fine-tuning (full TRAIN, 5 epochs, 256-512 tokens)",
+      "mminilm_trim_ft (L12) on USS",
+      "e5 12L at 256 tokens",
+      "5 seeds"
     ],
-    "notes": [
-      "first attempt (256 tokens, full TRAIN, 5 epochs) stopped: >23 min without finishing epoch 1 of e5-small 12L on shared CPU",
-      "mminilm_trim_ft (L12) dropped from the CPU queue (v2: ~= e5-small on Amazon; same cost as e5 12L)"
-    ]
+    "selected_checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/e5small_trim_ft_L6_frac0.5_len256_s1",
+    "kept_checkpoints_note": "best-by-VAL seed of every fine-tuned model kept in f_v3/ckpt (445 MB); none of them should be pruned while M7 uses them"
+  },
+  "candidate_freeze": "2026-10-25T20:48:08\nCandidate set frozen: all 66 Gate C runs (status done) + 3 csat runs (queue_e2, E+F experiment, reported separately). Selection rules fixed in 03_BENCHMARK_PROTOCOL.md; no TEST row inspected before this time.",
+  "verdicts_from_files": {
+    "E_reference": "fluid_mpc*",
+    "E_best_vs_reference": {
+      "guarded:dueling_double_dqn_equal_h64x64_150k": {
+        "diff": 4.083207664958053,
+        "ci95": [
+          -0.8816720874398805,
+          8.232098394565615
+        ],
+        "p_boot": 0.13,
+        "d_z": 0.13631611075627925,
+        "win_rate": 0.40307692307692305,
+        "p_holm": 1.0
+      },
+      "guarded:dueling_double_dqn_equal_h64x64_150k_csat1": {
+        "diff": 5.857182059377266,
+        "ci95": [
+          2.374733003195633,
+          9.165503584833088
+        ],
+        "p_boot": 0.001,
+        "d_z": 0.184904234999071,
+        "win_rate": 0.4123076923076923,
+        "p_holm": 0.02
+      },
+      "rl:dueling_double_dqn_equal_h64x64_150k": {
+        "diff": -3.646143982522858,
+        "ci95": [
+          -8.803637903722015,
+          0.8440738848076604
+        ],
+        "p_boot": 0.13,
+        "d_z": -0.11921190751480126,
+        "win_rate": 0.2907692307692308,
+        "p_holm": 1.0
+      },
+      "rl:dueling_double_dqn_equal_h64x64_150k_csat1": {
+        "diff": -1.9897049043327115,
+        "ci95": [
+          -5.6998135336459175,
+          1.6023230177806305
+        ],
+        "p_boot": 0.298,
+        "d_z": -0.060618404724727695,
+        "win_rate": 0.30615384615384617,
+        "p_holm": 1.0
+      }
+    }
   },
   "worker_F_M7": {
     "dev": {
@@ -135,11 +181,11 @@
     }
   },
   "resources": {
-    "disk_free_gb": 6.9,
+    "disk_free_gb": 6.4,
     "load_avg": [
-      5.5302734375,
-      5.70654296875,
-      5.47900390625
+      0.48193359375,
+      0.8720703125,
+      1.60986328125
     ],
     "gpu": "none in this sandbox (RTX 4050 laptop not reachable): GPU work NOT VERIFIED"
   },
@@ -148,5 +194,5 @@
     "RTX 4050 measurements: no access",
     "DCH-2 dataset: requires a user agreement (not accepted)"
   ],
-  "git": "e9367c5 research(F/M7): closed-conversation quality review, outdated-rule audit, owner report, gated satisfaction feedback to E; corpus builder on the real pipeline; 17 tests"
+  "git": "c933dcb research(F v3): 05 Agent F results deliverable (Worker F leaderboard + M7)"
 }

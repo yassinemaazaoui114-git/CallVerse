@@ -1,0 +1,22 @@
+rl:dueling_double_dqn_abandon_heavy_h64x64_150k_s0 done 122.1s
+rl:dueling_double_dqn_abandon_heavy_h64x64_150k_s1 done 122.5s
+rl:dueling_double_dqn_abandon_heavy_h64x64_150k_s2 done 124.0s
+rl:dueling_double_dqn_cost_heavy_h64x64_150k_s0 done 120.6s
+rl:dueling_double_dqn_cost_heavy_h64x64_150k_s1 done 121.6s
+rl:dueling_double_dqn_cost_heavy_h64x64_150k_s2 done 120.9s
+rl:dueling_double_dqn_equal_h128x128_150k_s0 done 121.1s
+rl:dueling_double_dqn_equal_h128x128_150k_s1 done 121.4s
+rl:dueling_double_dqn_equal_h128x128_150k_s2 done 121.0s
+rl:dueling_double_dqn_equal_h32x32_150k_s0 done 121.5s
+rl:dueling_double_dqn_equal_h32x32_150k_s1 done 122.9s
+rl:dueling_double_dqn_equal_h32x32_150k_s2 done 123.8s
+rl:dueling_double_dqn_equal_h64x64_400k_s0 done 120.7s
+rl:dueling_double_dqn_equal_h64x64_400k_s1 done 120.4s
+rl:dueling_double_dqn_equal_h64x64_400k_s2 done 120.5s
+rl:dueling_double_dqn_sla_heavy_h64x64_150k_s0 done 119.6s
+rl:dueling_double_dqn_sla_heavy_h64x64_150k_s1 done 119.1s
+rl:dueling_double_dqn_sla_heavy_h64x64_150k_s2 done 118.6s
+rl:ppo_equal_h64x64_400k_s0 done 138.0s
+rl:ppo_equal_h64x64_400k_s1 done 140.4s
+rl:ppo_equal_h64x64_400k_s2 done 139.0s
+EVAL_ABL_DONE

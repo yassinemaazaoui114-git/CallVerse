@@ -29,7 +29,7 @@ Each worker has its own code, logs, manifests, checkpoints and resume commands.
 
 **Rule tuning.** Rule parameters are chosen on VAL only (`v3/e/results/val_choice.json`): Forecast z = 0.25, Erlang target = 0.4, MPC k = 0.5.
 
-### Training (`v3/e/train_v3.py`, queue `v3/e/run_queue_e.sh`)
+### Training (`v3/e/train_v3.py`, queue `v3/e/run_queue_e.sh`: 66 runs; E+F queue `run_queue_e2.sh`: 3 runs)
 - TRAIN days: random seeds 0–199,999, a random TRAIN family per day.
 - Shared hyper-parameters: γ = 0.97; DQN family Adam 5e-4, replay buffer 100k, batch 128, target network every 2k steps, ε from 1 to 0.05 over 60k steps; PPO lr 3e-4, rollout 2048, clip 0.2.
 - Checkpoint = best greedy VAL return (48 VAL days), evaluated every 10% of the budget.

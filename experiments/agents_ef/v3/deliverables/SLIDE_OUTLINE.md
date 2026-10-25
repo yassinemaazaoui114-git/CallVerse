@@ -48,7 +48,9 @@ Which tiny models (or rules) should run Agent E (capacity) and Agent F (satisfac
 
 ## 6. Agent E results
 - Leaderboard figure (`v3/e/figures/e_leaderboard.png`), Pareto figure, per-family figure.
-- Verdict: does RL beat the best classical rule? Answer from `06_STATISTICAL_ANALYSIS.md`.
+- Verdict: **no**. Fluid MPC (rule) and the guarded Forecast + DDQN hybrid tie: +4.1 [−0.9, +8.2]. Pure DDQN: −3.7 [−8.8, +0.8]. PPO: −30.6.
+- The hybrid is 4% cheaper and better under severe overload, but worse on queue-C SLA (−9.5 pp).
+- Selected: Fluid MPC (or Forecast as a tie).
 
 ## 7. Agent F (M7, Quality & Knowledge): vertical architecture
 
@@ -81,7 +83,7 @@ Which tiny models (or rules) should run Agent E (capacity) and Agent F (satisfac
 
 ## 9. Agent F results
 - Leaderboard: MAE, QWK, Spearman, size, latency.
-- Verdict: transformer vs simple baseline.
+- Verdict: TF-IDF+Ridge (0.19M) is best on TEST (0.392) and ties or beats the fine-tuned e5-L6/256 (17.4M, 0.399).
 - M7, on 120 held-out conversations through the real pipeline:
   - 16/16 planted defects that occurred were caught; 0 false flags on 91 clean conversations;
   - prototype findings: French clients get English template replies, and a knowledge gap for delivered-late orders;

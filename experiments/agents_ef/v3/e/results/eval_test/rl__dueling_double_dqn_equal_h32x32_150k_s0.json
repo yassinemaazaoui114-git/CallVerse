@@ -1,0 +1,10 @@
+{
+  "n_params": 3058,
+  "ckpt_kb": 15.0,
+  "policy": "rl:dueling_double_dqn_equal_h32x32_150k_s0",
+  "split": "test",
+  "n_days": 650,
+  "eval_s": 121.5,
+  "decision_ms_p50": 0.2161,
+  "decision_ms_p95": 0.355
+}

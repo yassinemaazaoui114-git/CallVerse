@@ -47,6 +47,16 @@ def main():
                        "queue_log_tail": (E / "logs" / "queue_e.log").read_text().splitlines()[-3:]
                        if (E / "logs" / "queue_e.log").exists() else []},
           "worker_F": json.loads((F / "STATUS.json").read_text()) if (F / "STATUS.json").exists() else "no STATUS.json yet",
+          "candidate_freeze": (E / "results" / "CANDIDATE_FREEZE.txt").read_text().strip()
+          if (E / "results" / "CANDIDATE_FREEZE.txt").exists() else None,
+          "verdicts_from_files": {
+              "E_reference": json.loads((E / "results" / "test_analysis.json").read_text())["reference_policy"]
+              if (E / "results" / "test_analysis.json").exists() else None,
+              "E_best_vs_reference": {k: v["return"] for k, v in json.loads((E / "results" / "test_analysis.json")
+                                       .read_text())["comparisons_vs_reference"].items()
+                                       if k.startswith(("guarded:dueling_double_dqn_equal_h64x64_150k",
+                                                        "rl:dueling_double_dqn_equal_h64x64_150k"))}
+              if (E / "results" / "test_analysis.json").exists() else None},
           "worker_F_M7": {k: (json.loads((V3 / "m7" / "results" / k / "detection_eval.json").read_text())["per_defect"]
                               if (V3 / "m7" / "results" / k / "detection_eval.json").exists() else None)
                           for k in ("dev", "test")},
