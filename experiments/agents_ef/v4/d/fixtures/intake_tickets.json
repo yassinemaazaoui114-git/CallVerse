@@ -1,0 +1,371 @@
+{
+ "source": "callverse.intake.intake.process(text, use_llm=False) on a temporary seeded DB",
+ "messages_written_for_fixture": true,
+ "tickets": [
+  {
+   "ticket_id": "T-eece0fc4",
+   "text": "Hi, where is my order 4510?",
+   "order_id": 4510,
+   "main_reason": "order_status",
+   "reasons": [
+    {
+     "reason": "order_status",
+     "score": 0.855,
+     "sentence": "Hi, where is my order 4510?"
+    }
+   ],
+   "priority_label": "low",
+   "priority_score": 0.145,
+   "emotion": {
+    "label": "neutral",
+    "score": 0.636
+   },
+   "sentiment": {
+    "label": "neutral",
+    "score": 0.8
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-9faa7641",
+   "text": "Order 4512 is a week late. I want my money back.",
+   "order_id": 4512,
+   "main_reason": "refund_request",
+   "reasons": [
+    {
+     "reason": "refund_request",
+     "score": 0.827,
+     "sentence": "I want my money back."
+    },
+    {
+     "reason": "late_delivery",
+     "score": 0.802,
+     "sentence": "Order 4512 is a week late."
+    }
+   ],
+   "priority_label": "high",
+   "priority_score": 0.831,
+   "emotion": {
+    "label": "sadness",
+    "score": 0.741
+   },
+   "sentiment": {
+    "label": "negative",
+    "score": 0.909
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-06c81f1f",
+   "text": "My order 4515 arrived broken, the screen is cracked!!",
+   "order_id": 4515,
+   "main_reason": "damaged_item",
+   "reasons": [
+    {
+     "reason": "damaged_item",
+     "score": 0.787,
+     "sentence": "My order 4515 arrived broken, the screen is cracked!!"
+    }
+   ],
+   "priority_label": "high",
+   "priority_score": 0.99,
+   "emotion": {
+    "label": "anger",
+    "score": 0.346
+   },
+   "sentiment": {
+    "label": "negative",
+    "score": 0.931
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": true,
+    "exclamation_count": 2,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-a7290f10",
+   "text": "Order 4513 arrived damaged, what can I do?",
+   "order_id": 4513,
+   "main_reason": "damaged_item",
+   "reasons": [
+    {
+     "reason": "damaged_item",
+     "score": 0.789,
+     "sentence": "Order 4513 arrived damaged, what can I do?"
+    }
+   ],
+   "priority_label": "medium",
+   "priority_score": 0.489,
+   "emotion": {
+    "label": "sadness",
+    "score": 0.509
+   },
+   "sentiment": {
+    "label": "negative",
+    "score": 0.863
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-e8bb1722",
+   "text": "I want to return order 4511, it does not fit.",
+   "order_id": 4511,
+   "main_reason": "refund_request",
+   "reasons": [
+    {
+     "reason": "refund_request",
+     "score": 0.786,
+     "sentence": "I want to return order 4511, it does not fit."
+    }
+   ],
+   "priority_label": "medium",
+   "priority_score": 0.435,
+   "emotion": {
+    "label": "sadness",
+    "score": 0.781
+   },
+   "sentiment": {
+    "label": "negative",
+    "score": 0.902
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-2b46bcee",
+   "text": "Bonjour, où en est ma commande 4514 ?",
+   "order_id": 4514,
+   "main_reason": "other",
+   "reasons": [
+    {
+     "reason": "other",
+     "score": null,
+     "sentence": null
+    }
+   ],
+   "priority_label": "low",
+   "priority_score": 0.134,
+   "emotion": {
+    "label": "neutral",
+    "score": 0.629
+   },
+   "sentiment": {
+    "label": "neutral",
+    "score": 0.868
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-af8866bb",
+   "text": "WHERE IS MY ORDER 4512??? This is ridiculous.",
+   "order_id": 4512,
+   "main_reason": "order_status",
+   "reasons": [
+    {
+     "reason": "order_status",
+     "score": 0.827,
+     "sentence": "WHERE IS MY ORDER 4512???"
+    }
+   ],
+   "priority_label": "high",
+   "priority_score": 0.655,
+   "emotion": {
+    "label": "anger",
+    "score": 0.679
+   },
+   "sentiment": {
+    "label": "negative",
+    "score": 0.941
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": true
+   }
+  },
+  {
+   "ticket_id": "T-5c3bd5e4",
+   "text": "Can you tell me when order 4510 arrives?",
+   "order_id": 4510,
+   "main_reason": "order_status",
+   "reasons": [
+    {
+     "reason": "order_status",
+     "score": 0.851,
+     "sentence": "Can you tell me when order 4510 arrives?"
+    }
+   ],
+   "priority_label": "low",
+   "priority_score": 0.123,
+   "emotion": {
+    "label": "neutral",
+    "score": 0.744
+   },
+   "sentiment": {
+    "label": "neutral",
+    "score": 0.935
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-96417b0a",
+   "text": "Do you sell phone cases for the new model?",
+   "order_id": null,
+   "main_reason": "return_item",
+   "reasons": [
+    {
+     "reason": "return_item",
+     "score": 0.69,
+     "sentence": "Do you sell phone cases for the new model?"
+    }
+   ],
+   "priority_label": "low",
+   "priority_score": 0.181,
+   "emotion": {
+    "label": "neutral",
+    "score": 0.87
+   },
+   "sentiment": {
+    "label": "neutral",
+    "score": 0.917
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-2fcac620",
+   "text": "Order 4515 is very late, I want a full refund.",
+   "order_id": 4515,
+   "main_reason": "refund_request",
+   "reasons": [
+    {
+     "reason": "refund_request",
+     "score": 0.851,
+     "sentence": "Order 4515 is very late, I want a full refund."
+    }
+   ],
+   "priority_label": "high",
+   "priority_score": 0.984,
+   "emotion": {
+    "label": "sadness",
+    "score": 0.761
+   },
+   "sentiment": {
+    "label": "negative",
+    "score": 0.895
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-6a2093fa",
+   "text": "My parcel 4516 never arrived and the tracking has not moved for days.",
+   "order_id": 4516,
+   "main_reason": "late_delivery",
+   "reasons": [
+    {
+     "reason": "late_delivery",
+     "score": 0.794,
+     "sentence": "My parcel 4516 never arrived and the tracking has not moved for days."
+    }
+   ],
+   "priority_label": "medium",
+   "priority_score": 0.43,
+   "emotion": {
+    "label": "sadness",
+    "score": 0.779
+   },
+   "sentiment": {
+    "label": "negative",
+    "score": 0.866
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  },
+  {
+   "ticket_id": "T-c1d9f570",
+   "text": "The charger from order 4517 stopped working after one day, it is broken.",
+   "order_id": 4517,
+   "main_reason": "damaged_item",
+   "reasons": [
+    {
+     "reason": "damaged_item",
+     "score": 0.763,
+     "sentence": "The charger from order 4517 stopped working after one day, it is broken."
+    }
+   ],
+   "priority_label": "medium",
+   "priority_score": 0.494,
+   "emotion": {
+    "label": "sadness",
+    "score": 0.64
+   },
+   "sentiment": {
+    "label": "negative",
+    "score": 0.895
+   },
+   "style": {
+    "formality": "neutral",
+    "length": "short",
+    "exclamation": false,
+    "exclamation_count": 0,
+    "shouting": false
+   }
+  }
+ ]
+}
