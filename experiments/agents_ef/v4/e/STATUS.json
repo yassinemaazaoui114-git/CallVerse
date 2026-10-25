@@ -1,0 +1,1 @@
+{"worker": "E", "updated": "2026-10-25T23:06", "phase": "setup", "done": ["dev manifest", "common/policies/evaluate_v4"], "running": [], "next": ["DEV eval of baselines + V3 checkpoints", "VAL diagnosis traces"]}

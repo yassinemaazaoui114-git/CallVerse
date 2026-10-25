@@ -1,0 +1,2 @@
+baseline {'n': 1016, 'mae': 0.39542, 'spearman': 0.5648, 'pred_sd': 0.3562, 'mae_en': 0.30698, 'spearman_en': 0.3169, 'pred_sd_en': 0.1402, 'mae_zh': 0.48999, 'spearman_zh': 0.2785, 'pred_sd_zh': 0.2205} 193429 30.0 s
+two_turn {'n': 1016, 'mae': 0.41301, 'spearman': 0.5, 'pred_sd': 0.3002, 'mae_en': 0.3174, 'spearman_en': 0.1963, 'pred_sd_en': 0.0972, 'mae_zh': 0.51524, 'spearman_zh': 0.0992, 'pred_sd_zh': 0.1151} 32868 3.2 s

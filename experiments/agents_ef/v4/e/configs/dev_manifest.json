@@ -1,0 +1,871 @@
+{
+ "split": "dev",
+ "days_per_family": 8,
+ "families": [
+  "normal",
+  "morning_peak",
+  "two_peak",
+  "tracking_spike",
+  "volatile",
+  "slowdown",
+  "failure",
+  "high_priority_surge",
+  "evening_peak",
+  "refund_surge",
+  "combined_shock",
+  "severe_overload",
+  "random_shape"
+ ],
+ "train_families": [
+  "normal",
+  "morning_peak",
+  "two_peak",
+  "tracking_spike",
+  "volatile",
+  "slowdown",
+  "failure",
+  "high_priority_surge"
+ ],
+ "heldout_families": [
+  "evening_peak",
+  "refund_surge",
+  "combined_shock",
+  "severe_overload",
+  "random_shape"
+ ],
+ "seed_rule": "seed = 700000 + 1000*family_index + i",
+ "days": [
+  {
+   "day_id": "dev-normal-000",
+   "family": "normal",
+   "seed": 700000,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 983
+  },
+  {
+   "day_id": "dev-normal-001",
+   "family": "normal",
+   "seed": 700001,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1371
+  },
+  {
+   "day_id": "dev-normal-002",
+   "family": "normal",
+   "seed": 700002,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1822
+  },
+  {
+   "day_id": "dev-normal-003",
+   "family": "normal",
+   "seed": 700003,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1352
+  },
+  {
+   "day_id": "dev-normal-004",
+   "family": "normal",
+   "seed": 700004,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1364
+  },
+  {
+   "day_id": "dev-normal-005",
+   "family": "normal",
+   "seed": 700005,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1715
+  },
+  {
+   "day_id": "dev-normal-006",
+   "family": "normal",
+   "seed": 700006,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1468
+  },
+  {
+   "day_id": "dev-normal-007",
+   "family": "normal",
+   "seed": 700007,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1806
+  },
+  {
+   "day_id": "dev-morning_peak-000",
+   "family": "morning_peak",
+   "seed": 701000,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1337
+  },
+  {
+   "day_id": "dev-morning_peak-001",
+   "family": "morning_peak",
+   "seed": 701001,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1768
+  },
+  {
+   "day_id": "dev-morning_peak-002",
+   "family": "morning_peak",
+   "seed": 701002,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1012
+  },
+  {
+   "day_id": "dev-morning_peak-003",
+   "family": "morning_peak",
+   "seed": 701003,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1564
+  },
+  {
+   "day_id": "dev-morning_peak-004",
+   "family": "morning_peak",
+   "seed": 701004,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1867
+  },
+  {
+   "day_id": "dev-morning_peak-005",
+   "family": "morning_peak",
+   "seed": 701005,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1666
+  },
+  {
+   "day_id": "dev-morning_peak-006",
+   "family": "morning_peak",
+   "seed": 701006,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1655
+  },
+  {
+   "day_id": "dev-morning_peak-007",
+   "family": "morning_peak",
+   "seed": 701007,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1830
+  },
+  {
+   "day_id": "dev-two_peak-000",
+   "family": "two_peak",
+   "seed": 702000,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1724
+  },
+  {
+   "day_id": "dev-two_peak-001",
+   "family": "two_peak",
+   "seed": 702001,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1414
+  },
+  {
+   "day_id": "dev-two_peak-002",
+   "family": "two_peak",
+   "seed": 702002,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1513
+  },
+  {
+   "day_id": "dev-two_peak-003",
+   "family": "two_peak",
+   "seed": 702003,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1025
+  },
+  {
+   "day_id": "dev-two_peak-004",
+   "family": "two_peak",
+   "seed": 702004,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1894
+  },
+  {
+   "day_id": "dev-two_peak-005",
+   "family": "two_peak",
+   "seed": 702005,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1541
+  },
+  {
+   "day_id": "dev-two_peak-006",
+   "family": "two_peak",
+   "seed": 702006,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1691
+  },
+  {
+   "day_id": "dev-two_peak-007",
+   "family": "two_peak",
+   "seed": 702007,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 993
+  },
+  {
+   "day_id": "dev-tracking_spike-000",
+   "family": "tracking_spike",
+   "seed": 703000,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1751
+  },
+  {
+   "day_id": "dev-tracking_spike-001",
+   "family": "tracking_spike",
+   "seed": 703001,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1631
+  },
+  {
+   "day_id": "dev-tracking_spike-002",
+   "family": "tracking_spike",
+   "seed": 703002,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 2120
+  },
+  {
+   "day_id": "dev-tracking_spike-003",
+   "family": "tracking_spike",
+   "seed": 703003,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1438
+  },
+  {
+   "day_id": "dev-tracking_spike-004",
+   "family": "tracking_spike",
+   "seed": 703004,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1738
+  },
+  {
+   "day_id": "dev-tracking_spike-005",
+   "family": "tracking_spike",
+   "seed": 703005,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1858
+  },
+  {
+   "day_id": "dev-tracking_spike-006",
+   "family": "tracking_spike",
+   "seed": 703006,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1078
+  },
+  {
+   "day_id": "dev-tracking_spike-007",
+   "family": "tracking_spike",
+   "seed": 703007,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1078
+  },
+  {
+   "day_id": "dev-volatile-000",
+   "family": "volatile",
+   "seed": 704000,
+   "heldout_family": false,
+   "rho": 1.151471354382188,
+   "arrivals": 1947
+  },
+  {
+   "day_id": "dev-volatile-001",
+   "family": "volatile",
+   "seed": 704001,
+   "heldout_family": false,
+   "rho": 0.5774565433209827,
+   "arrivals": 1023
+  },
+  {
+   "day_id": "dev-volatile-002",
+   "family": "volatile",
+   "seed": 704002,
+   "heldout_family": false,
+   "rho": 0.5161010157690338,
+   "arrivals": 850
+  },
+  {
+   "day_id": "dev-volatile-003",
+   "family": "volatile",
+   "seed": 704003,
+   "heldout_family": false,
+   "rho": 0.7609531121474903,
+   "arrivals": 1263
+  },
+  {
+   "day_id": "dev-volatile-004",
+   "family": "volatile",
+   "seed": 704004,
+   "heldout_family": false,
+   "rho": 0.4,
+   "arrivals": 665
+  },
+  {
+   "day_id": "dev-volatile-005",
+   "family": "volatile",
+   "seed": 704005,
+   "heldout_family": false,
+   "rho": 0.6750566372035807,
+   "arrivals": 1096
+  },
+  {
+   "day_id": "dev-volatile-006",
+   "family": "volatile",
+   "seed": 704006,
+   "heldout_family": false,
+   "rho": 0.6697188123939938,
+   "arrivals": 1127
+  },
+  {
+   "day_id": "dev-volatile-007",
+   "family": "volatile",
+   "seed": 704007,
+   "heldout_family": false,
+   "rho": 0.4,
+   "arrivals": 671
+  },
+  {
+   "day_id": "dev-slowdown-000",
+   "family": "slowdown",
+   "seed": 705000,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1706
+  },
+  {
+   "day_id": "dev-slowdown-001",
+   "family": "slowdown",
+   "seed": 705001,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1659
+  },
+  {
+   "day_id": "dev-slowdown-002",
+   "family": "slowdown",
+   "seed": 705002,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1871
+  },
+  {
+   "day_id": "dev-slowdown-003",
+   "family": "slowdown",
+   "seed": 705003,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1706
+  },
+  {
+   "day_id": "dev-slowdown-004",
+   "family": "slowdown",
+   "seed": 705004,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1298
+  },
+  {
+   "day_id": "dev-slowdown-005",
+   "family": "slowdown",
+   "seed": 705005,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1332
+  },
+  {
+   "day_id": "dev-slowdown-006",
+   "family": "slowdown",
+   "seed": 705006,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1830
+  },
+  {
+   "day_id": "dev-slowdown-007",
+   "family": "slowdown",
+   "seed": 705007,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1333
+  },
+  {
+   "day_id": "dev-failure-000",
+   "family": "failure",
+   "seed": 706000,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1687
+  },
+  {
+   "day_id": "dev-failure-001",
+   "family": "failure",
+   "seed": 706001,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1009
+  },
+  {
+   "day_id": "dev-failure-002",
+   "family": "failure",
+   "seed": 706002,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1374
+  },
+  {
+   "day_id": "dev-failure-003",
+   "family": "failure",
+   "seed": 706003,
+   "heldout_family": false,
+   "rho": 1.1,
+   "arrivals": 1839
+  },
+  {
+   "day_id": "dev-failure-004",
+   "family": "failure",
+   "seed": 706004,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1318
+  },
+  {
+   "day_id": "dev-failure-005",
+   "family": "failure",
+   "seed": 706005,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1470
+  },
+  {
+   "day_id": "dev-failure-006",
+   "family": "failure",
+   "seed": 706006,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1596
+  },
+  {
+   "day_id": "dev-failure-007",
+   "family": "failure",
+   "seed": 706007,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1050
+  },
+  {
+   "day_id": "dev-high_priority_surge-000",
+   "family": "high_priority_surge",
+   "seed": 707000,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1698
+  },
+  {
+   "day_id": "dev-high_priority_surge-001",
+   "family": "high_priority_surge",
+   "seed": 707001,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 963
+  },
+  {
+   "day_id": "dev-high_priority_surge-002",
+   "family": "high_priority_surge",
+   "seed": 707002,
+   "heldout_family": false,
+   "rho": 1.0,
+   "arrivals": 1766
+  },
+  {
+   "day_id": "dev-high_priority_surge-003",
+   "family": "high_priority_surge",
+   "seed": 707003,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 1015
+  },
+  {
+   "day_id": "dev-high_priority_surge-004",
+   "family": "high_priority_surge",
+   "seed": 707004,
+   "heldout_family": false,
+   "rho": 0.9,
+   "arrivals": 1590
+  },
+  {
+   "day_id": "dev-high_priority_surge-005",
+   "family": "high_priority_surge",
+   "seed": 707005,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 980
+  },
+  {
+   "day_id": "dev-high_priority_surge-006",
+   "family": "high_priority_surge",
+   "seed": 707006,
+   "heldout_family": false,
+   "rho": 0.6,
+   "arrivals": 979
+  },
+  {
+   "day_id": "dev-high_priority_surge-007",
+   "family": "high_priority_surge",
+   "seed": 707007,
+   "heldout_family": false,
+   "rho": 0.8,
+   "arrivals": 1353
+  },
+  {
+   "day_id": "dev-evening_peak-000",
+   "family": "evening_peak",
+   "seed": 708000,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1886
+  },
+  {
+   "day_id": "dev-evening_peak-001",
+   "family": "evening_peak",
+   "seed": 708001,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1054
+  },
+  {
+   "day_id": "dev-evening_peak-002",
+   "family": "evening_peak",
+   "seed": 708002,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1044
+  },
+  {
+   "day_id": "dev-evening_peak-003",
+   "family": "evening_peak",
+   "seed": 708003,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1669
+  },
+  {
+   "day_id": "dev-evening_peak-004",
+   "family": "evening_peak",
+   "seed": 708004,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1041
+  },
+  {
+   "day_id": "dev-evening_peak-005",
+   "family": "evening_peak",
+   "seed": 708005,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1492
+  },
+  {
+   "day_id": "dev-evening_peak-006",
+   "family": "evening_peak",
+   "seed": 708006,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1278
+  },
+  {
+   "day_id": "dev-evening_peak-007",
+   "family": "evening_peak",
+   "seed": 708007,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1366
+  },
+  {
+   "day_id": "dev-refund_surge-000",
+   "family": "refund_surge",
+   "seed": 709000,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1458
+  },
+  {
+   "day_id": "dev-refund_surge-001",
+   "family": "refund_surge",
+   "seed": 709001,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1686
+  },
+  {
+   "day_id": "dev-refund_surge-002",
+   "family": "refund_surge",
+   "seed": 709002,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 1048
+  },
+  {
+   "day_id": "dev-refund_surge-003",
+   "family": "refund_surge",
+   "seed": 709003,
+   "heldout_family": true,
+   "rho": 0.6,
+   "arrivals": 998
+  },
+  {
+   "day_id": "dev-refund_surge-004",
+   "family": "refund_surge",
+   "seed": 709004,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1348
+  },
+  {
+   "day_id": "dev-refund_surge-005",
+   "family": "refund_surge",
+   "seed": 709005,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1727
+  },
+  {
+   "day_id": "dev-refund_surge-006",
+   "family": "refund_surge",
+   "seed": 709006,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1668
+  },
+  {
+   "day_id": "dev-refund_surge-007",
+   "family": "refund_surge",
+   "seed": 709007,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1770
+  },
+  {
+   "day_id": "dev-combined_shock-000",
+   "family": "combined_shock",
+   "seed": 710000,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1905
+  },
+  {
+   "day_id": "dev-combined_shock-001",
+   "family": "combined_shock",
+   "seed": 710001,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1685
+  },
+  {
+   "day_id": "dev-combined_shock-002",
+   "family": "combined_shock",
+   "seed": 710002,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1659
+  },
+  {
+   "day_id": "dev-combined_shock-003",
+   "family": "combined_shock",
+   "seed": 710003,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1849
+  },
+  {
+   "day_id": "dev-combined_shock-004",
+   "family": "combined_shock",
+   "seed": 710004,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1632
+  },
+  {
+   "day_id": "dev-combined_shock-005",
+   "family": "combined_shock",
+   "seed": 710005,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1575
+  },
+  {
+   "day_id": "dev-combined_shock-006",
+   "family": "combined_shock",
+   "seed": 710006,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1690
+  },
+  {
+   "day_id": "dev-combined_shock-007",
+   "family": "combined_shock",
+   "seed": 710007,
+   "heldout_family": true,
+   "rho": 1.1,
+   "arrivals": 1970
+  },
+  {
+   "day_id": "dev-severe_overload-000",
+   "family": "severe_overload",
+   "seed": 711000,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2176
+  },
+  {
+   "day_id": "dev-severe_overload-001",
+   "family": "severe_overload",
+   "seed": 711001,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2199
+  },
+  {
+   "day_id": "dev-severe_overload-002",
+   "family": "severe_overload",
+   "seed": 711002,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2230
+  },
+  {
+   "day_id": "dev-severe_overload-003",
+   "family": "severe_overload",
+   "seed": 711003,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2222
+  },
+  {
+   "day_id": "dev-severe_overload-004",
+   "family": "severe_overload",
+   "seed": 711004,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2199
+  },
+  {
+   "day_id": "dev-severe_overload-005",
+   "family": "severe_overload",
+   "seed": 711005,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2238
+  },
+  {
+   "day_id": "dev-severe_overload-006",
+   "family": "severe_overload",
+   "seed": 711006,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2186
+  },
+  {
+   "day_id": "dev-severe_overload-007",
+   "family": "severe_overload",
+   "seed": 711007,
+   "heldout_family": true,
+   "rho": 1.3,
+   "arrivals": 2144
+  },
+  {
+   "day_id": "dev-random_shape-000",
+   "family": "random_shape",
+   "seed": 712000,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1753
+  },
+  {
+   "day_id": "dev-random_shape-001",
+   "family": "random_shape",
+   "seed": 712001,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1541
+  },
+  {
+   "day_id": "dev-random_shape-002",
+   "family": "random_shape",
+   "seed": 712002,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1721
+  },
+  {
+   "day_id": "dev-random_shape-003",
+   "family": "random_shape",
+   "seed": 712003,
+   "heldout_family": true,
+   "rho": 0.9,
+   "arrivals": 1531
+  },
+  {
+   "day_id": "dev-random_shape-004",
+   "family": "random_shape",
+   "seed": 712004,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1378
+  },
+  {
+   "day_id": "dev-random_shape-005",
+   "family": "random_shape",
+   "seed": 712005,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1663
+  },
+  {
+   "day_id": "dev-random_shape-006",
+   "family": "random_shape",
+   "seed": 712006,
+   "heldout_family": true,
+   "rho": 0.8,
+   "arrivals": 1334
+  },
+  {
+   "day_id": "dev-random_shape-007",
+   "family": "random_shape",
+   "seed": 712007,
+   "heldout_family": true,
+   "rho": 1.0,
+   "arrivals": 1636
+  }
+ ]
+}

@@ -1,0 +1,29 @@
+{
+ "what": "re-fit of V3 tfidf_ridge_tail256tok with the V3 recipe; TEST scored once (reproduction only)",
+ "alpha": 3,
+ "v3_alpha": 3,
+ "val_mae_grid": {
+  "0.3": 0.40831,
+  "1": 0.3992,
+  "3": 0.39542,
+  "10": 0.39717,
+  "30": 0.40346
+ },
+ "val_mae": 0.39542,
+ "v3_val_mae": 0.39542,
+ "test_mae": 0.39187,
+ "v3_test_mae": 0.39187,
+ "n_params": 193429,
+ "v3_n_params": 193429,
+ "max_abs_diff_vs_v3_test_pred": 0.0,
+ "n_test_pred_equal_4dp": 1016,
+ "n_test": 1016,
+ "fit_s": 25.8,
+ "test_spearman": 0.596,
+ "test_mae_en": 0.3012,
+ "test_mae_zh": 0.4888,
+ "reproduced_within_0.002": true,
+ "checkpoint": "/tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tfidf_ridge_tail256",
+ "sha256": "1c2018532cf6b50631eca9e150e66b94f2ac8c1cdfead1d620e44b7088a75261",
+ "size_bytes": 3077609
+}

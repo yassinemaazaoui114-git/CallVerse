@@ -23,3 +23,7 @@ experiments/agents_ef/results/**/*.pt
 experiments/agents_ef/results/real_data/
 experiments/agents_ef/v3/**/*.pt
 experiments/agents_ef/v3/**/*.pt.tmp
+experiments/agents_ef/v4/**/*.pt
+experiments/agents_ef/v4/**/*.pt.tmp
+experiments/agents_ef/v4/**/*.joblib
+experiments/agents_ef/v4/**/*.pkl

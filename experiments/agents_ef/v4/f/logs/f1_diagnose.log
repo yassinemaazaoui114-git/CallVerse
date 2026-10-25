@@ -1,0 +1,6 @@
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (730 > 512). Running this sequence through the model will result in indexing errors
+e5_L6_256 repro {'n': 60, 'max_abs_diff': 5e-05, 'mean_abs_diff': 2.6e-05} uss sd 0.347 shopnova sd 0.0422
+tinybert_en repro {'n': 60, 'max_abs_diff': 5e-05, 'mean_abs_diff': 2.5e-05} uss sd 0.1864 shopnova sd 0.0688
+tfidf_tail256 repro {'n': 60, 'max_abs_diff': 5e-05, 'mean_abs_diff': 2.6e-05} uss sd 0.3509 shopnova sd 0.0498
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (730 > 512). Running this sequence through the model will result in indexing errors
+wrote /home/user/CallVerse-research/experiments/agents_ef/v4/f/results/f1_diagnosis.json

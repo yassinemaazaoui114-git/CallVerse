@@ -1,0 +1,12 @@
+{
+  "n_params": 8081,
+  "algo": "dqn",
+  "run_dir": "/home/user/CallVerse-research/experiments/agents_ef/v3/e/runs/dqn_equal_h64x64_150k_s8",
+  "ckpt_kb": 34.3,
+  "policy": "rl:dqn_equal_h64x64_150k_s8",
+  "split": "dev",
+  "n_days": 104,
+  "eval_s": 29.6,
+  "decision_ms_p50": 0.1708,
+  "decision_ms_p95": 0.5255
+}
