@@ -6,3 +6,7 @@
 15:17 dueling_double_dqn s1 150000 equal 64,64 exit=0
 15:26 ppo s1 150000 equal 64,64 exit=0
 15:27 dqn s1 150000 equal 64,64 exit=0
+15:37 double_dqn s1 150000 equal 64,64 exit=0
+15:38 dueling_dqn s1 150000 equal 64,64 exit=0
+15:49 dueling_double_dqn s2 150000 equal 64,64 exit=0
+15:49 ppo s2 150000 equal 64,64 exit=0

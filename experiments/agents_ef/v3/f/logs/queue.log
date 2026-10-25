@@ -1,1 +1,6 @@
 === 2026-10-25T15:04:45Z start tinybert_ft_en_frac0.5_len128
+=== 2026-10-25T15:38:43Z end tinybert_ft_en_frac0.5_len128 (exit 0)
+deleted non-best /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tinybert_ft_en_frac0.5_len128_s0
+deleted non-best /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tinybert_ft_en_frac0.5_len128_s2
+kept /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/tinybert_ft_en_frac0.5_len128_s1
+=== 2026-10-25T15:38:43Z start e5small_trim_ft_L6_frac0.5_len128

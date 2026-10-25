@@ -1,0 +1,132 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 5965.74it/s]
+Loading weights:   0%|          | 0/105 [00:00<?, ?it/s]Loading weights: 100%|██████████| 105/105 [00:00<00:00, 6181.34it/s]
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 8085.70it/s]
+[transformers] [1mRobertaForSequenceClassification LOAD REPORT[0m from: cardiffnlp/twitter-roberta-base-sentiment-latest
+Key                         | Status     |  | 
+----------------------------+------------+--+-
+roberta.pooler.dense.weight | UNEXPECTED |  | 
+roberta.pooler.dense.bias   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+dev-0000 notify fr calm clean -> A approve
+dev-0001 notify fr calm clean -> A approve
+dev-0002 status en calm clean -> A info
+dev-0003 status en calm clean -> A info
+dev-0004 notify fr calm clean -> A approve
+dev-0005 refund en calm ungrounded_claim -> B escalate
+dev-0006 status en calm clean -> A info
+dev-0007 status en calm clean -> A info
+dev-0008 damaged en angry clean -> B ask_proof
+dev-0009 notify fr calm clean -> A approve
+dev-0010 refund fr calm clean -> A approve
+dev-0011 refund en calm stale_rule_id -> B info
+dev-0012 status en calm clean -> A info
+dev-0013 refund en calm unconfirmed -> B ask_user
+dev-0014 status en angry clean -> A info
+dev-0015 notify en calm provider_error -> A escalate
+dev-0016 refund en calm wrong_amount -> B approve
+dev-0017 status fr calm clean -> A info
+dev-0018 status en angry clean -> A info
+dev-0019 status en calm clean -> A info
+dev-0020 status en angry clean -> A info
+dev-0021 status en calm clean -> A info
+dev-0022 refund en calm provider_error -> B escalate
+dev-0023 refund en calm clean -> B info
+dev-0024 damaged en angry clean -> B ask_proof
+dev-0025 refund en calm clean -> B info
+dev-0026 refund en calm clean -> B approve
+dev-0027 damaged en calm clean -> B ask_proof
+dev-0028 status en calm clean -> A info
+dev-0029 refund en angry wrong_amount -> B approve
+dev-0030 refund en angry clean -> B approve
+dev-0031 refund en calm wrong_amount -> B info
+dev-0032 notify en calm clean -> A approve
+dev-0033 refund en calm no_search -> B approve
+dev-0034 status en angry clean -> A info
+dev-0035 refund en angry clean -> B info
+dev-0036 refund en calm clean -> B approve
+dev-0037 damaged en angry clean -> B ask_proof
+dev-0038 notify en calm clean -> A approve
+dev-0039 notify fr calm no_tool_first -> A approve
+dev-0040 status en calm clean -> A info
+dev-0041 refund en calm clean -> B info
+dev-0042 refund en angry provider_error -> B escalate
+dev-0043 status fr calm clean -> A info
+dev-0044 status en calm no_tool_first -> A info
+dev-0045 notify fr calm clean -> A approve
+dev-0046 refund en calm wrong_amount -> B info
+dev-0047 status fr calm clean -> A info
+dev-0048 refund en calm clean -> B info
+dev-0049 status fr calm clean -> A info
+dev-0050 status en angry provider_error -> A escalate
+dev-0051 notify fr calm clean -> A approve
+dev-0052 refund en calm clean -> B info
+dev-0053 status fr calm clean -> A info
+dev-0054 notify en calm clean -> A approve
+dev-0055 refund en angry ungrounded_claim -> B escalate
+dev-0056 refund en angry clean -> B info
+dev-0057 status en calm clean -> A info
+dev-0058 status fr calm clean -> A info
+dev-0059 notify en calm clean -> A approve
+dev-0060 refund en calm wrong_amount -> B info
+dev-0061 notify en calm clean -> A approve
+dev-0062 refund en calm ungrounded_claim -> B escalate
+dev-0063 damaged en calm clean -> B ask_proof
+dev-0064 status en angry clean -> A info
+dev-0065 status fr calm clean -> A info
+dev-0066 status en calm clean -> A info
+dev-0067 status en angry clean -> A info
+dev-0068 refund en angry stale_rule_id -> B info
+dev-0069 status en angry clean -> A info
+dev-0070 notify fr calm no_tool_first -> A approve
+dev-0071 damaged en angry clean -> B ask_proof
+dev-0072 status en calm no_tool_first -> A info
+dev-0073 status en calm clean -> A info
+dev-0074 refund fr calm clean -> A info
+dev-0075 status en angry clean -> A info
+dev-0076 status fr calm clean -> A info
+dev-0077 refund en calm clean -> B info
+dev-0078 refund fr calm clean -> A info
+dev-0079 refund en calm clean -> B info
+dev-0080 notify en calm provider_error -> A escalate
+dev-0081 notify en calm clean -> A approve
+dev-0082 status en angry clean -> A info
+dev-0083 notify fr calm clean -> A approve
+dev-0084 notify en calm clean -> A approve
+dev-0085 damaged en angry clean -> B ask_proof
+dev-0086 notify fr calm clean -> A approve
+dev-0087 refund en calm clean -> B info
+dev-0088 notify en calm clean -> A approve
+dev-0089 notify fr calm clean -> A approve
+dev-0090 status en calm no_tool_first -> A info
+dev-0091 refund en calm clean -> B approve
+dev-0092 notify fr calm clean -> A approve
+dev-0093 refund en calm clean -> B info
+dev-0094 status en angry clean -> A info
+dev-0095 refund fr calm stale_rule_id -> A info
+dev-0096 damaged en angry clean -> B ask_proof
+dev-0097 refund en angry stale_rule_id -> B info
+dev-0098 refund en angry clean -> B approve
+dev-0099 notify en calm clean -> A approve
+dev-0100 damaged en angry clean -> B ask_proof
+dev-0101 status fr calm clean -> A info
+dev-0102 refund en angry unconfirmed -> B ask_user
+dev-0103 refund en calm clean -> B info
+dev-0104 refund en calm wrong_amount -> B info
+dev-0105 refund fr calm clean -> A info
+dev-0106 refund en calm clean -> B info
+dev-0107 notify fr calm clean -> A approve
+dev-0108 status en calm clean -> A info
+dev-0109 refund en calm wrong_amount -> B approve
+dev-0110 status fr calm clean -> A info
+dev-0111 notify en calm clean -> A approve
+dev-0112 refund en calm ungrounded_claim -> B escalate
+dev-0113 refund en angry clean -> B info
+dev-0114 damaged en angry clean -> B ask_proof
+dev-0115 refund en calm no_search -> B info
+dev-0116 refund en angry clean -> B info
+dev-0117 refund en calm stale_rule_id -> B info
+dev-0118 status fr calm clean -> A info
+dev-0119 refund en angry clean -> B info
+wrote /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/m7_corpus/dev

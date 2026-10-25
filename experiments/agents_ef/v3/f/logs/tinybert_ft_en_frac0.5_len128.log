@@ -57,3 +57,5 @@ Notes:
 - UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
   tinybert_ft seed 2 epoch 1: VAL MAE 0.3263 (187.0 s)
   tinybert_ft seed 2 epoch 2: VAL MAE 0.3045 (193.7 s)
+  tinybert_ft seed 2 epoch 3: VAL MAE 0.3060 (214.8 s)
+tinybert_ft_en_frac0.5_len128 {'all': 'MAE 0.305±0.001 QWK 0.066', 'lang:en': 'MAE 0.305±0.001 QWK 0.066'} params 14370345

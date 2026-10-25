@@ -17,3 +17,7 @@ rule:erlang:0.6 done 111.5s
 rule:erlang:0.2 done 108.4s
 rule:erlang:0.1 done 113.2s
 rule:erlang:0.05 done 118.6s
+rule:mpc:0 done 288.6s
+rule:mpc:1 done 282.9s
+rule:mpc:1.5 done 263.5s
+rule:mpc:2 done 309.2s

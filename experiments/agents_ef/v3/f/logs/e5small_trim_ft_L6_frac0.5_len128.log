@@ -1,0 +1,3 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 22623.98it/s]
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (797 > 512). Running this sequence through the model will result in indexing errors
+  e5small_trim_ft seed 0 epoch 1: VAL MAE 0.4144 (687.0 s)

@@ -1,0 +1,58 @@
+{
+ "lang:en": {
+  "n": 525,
+  "annotator_noise_var": 0.2971,
+  "expected_mae_of_perfect_predictor": 0.234,
+  "target_var": 0.1688,
+  "noise_share_of_target_var": 0.513,
+  "max_explainable_r2": 0.487
+ },
+ "lang:zh": {
+  "n": 491,
+  "annotator_noise_var": 0.2865,
+  "expected_mae_of_perfect_predictor": 0.2466,
+  "target_var": 0.4438,
+  "noise_share_of_target_var": 0.215,
+  "max_explainable_r2": 0.785
+ },
+ "sub:SGD": {
+  "n": 150,
+  "annotator_noise_var": 0.2921,
+  "expected_mae_of_perfect_predictor": 0.2298,
+  "target_var": 0.1613,
+  "noise_share_of_target_var": 0.518,
+  "max_explainable_r2": 0.482
+ },
+ "sub:MWOZ": {
+  "n": 150,
+  "annotator_noise_var": 0.3055,
+  "expected_mae_of_perfect_predictor": 0.2393,
+  "target_var": 0.125,
+  "noise_share_of_target_var": 0.724,
+  "max_explainable_r2": 0.276
+ },
+ "sub:ReDial": {
+  "n": 150,
+  "annotator_noise_var": 0.3274,
+  "expected_mae_of_perfect_predictor": 0.2447,
+  "target_var": 0.2178,
+  "noise_share_of_target_var": 0.435,
+  "max_explainable_r2": 0.565
+ },
+ "sub:CCPE": {
+  "n": 75,
+  "annotator_noise_var": 0.2274,
+  "expected_mae_of_perfect_predictor": 0.2066,
+  "target_var": 0.1203,
+  "noise_share_of_target_var": 0.56,
+  "max_explainable_r2": 0.44
+ },
+ "sub:JDDC": {
+  "n": 491,
+  "annotator_noise_var": 0.2865,
+  "expected_mae_of_perfect_predictor": 0.2466,
+  "target_var": 0.4438,
+  "noise_share_of_target_var": 0.215,
+  "max_explainable_r2": 0.785
+ }
+}
