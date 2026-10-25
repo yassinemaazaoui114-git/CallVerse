@@ -1,0 +1,4 @@
+deleted non-best /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/mminilmv2l6_trim_ft_frac0.5_len128_s0
+deleted non-best /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/mminilmv2l6_trim_ft_frac0.5_len128_s2
+kept /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v3/ckpt/mminilmv2l6_trim_ft_frac0.5_len128_s1
+=== 2026-10-25T17:27:22Z start e5small_trim_ft_L6_frac0.5_len256

@@ -25,11 +25,17 @@
     "high_priority_surge"
   ],
   "val_manifest_days": 48,
-  "status": "running",
+  "status": "done",
   "started": "2026-10-25T17:05:12",
   "n_params": 8146,
   "code_revision": "76d8968",
   "torch": "2.14.1+cpu",
   "python": "3.13.16",
-  "hardware": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  "hardware": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "ended": "2026-10-25T17:14:42",
+  "steps": 150048,
+  "episodes": 1563,
+  "best_val_return": -181.7689845748104,
+  "train_wall_s": 569.7,
+  "peak_rss_mb": 345.5
 }

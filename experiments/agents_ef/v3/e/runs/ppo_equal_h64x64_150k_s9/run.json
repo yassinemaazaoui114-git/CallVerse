@@ -1,0 +1,41 @@
+{
+  "run_id": "ppo_equal_h64x64_150k_s9",
+  "algo": "ppo",
+  "seed": 9,
+  "steps_budget": 150000,
+  "hidden": [
+    64,
+    64
+  ],
+  "weights": "equal",
+  "reward": {
+    "w_sla": 1.0,
+    "w_ab": 1.0,
+    "w_cost": 1.0,
+    "w_csat_synthetic": 0.0
+  },
+  "train_families": [
+    "normal",
+    "morning_peak",
+    "two_peak",
+    "tracking_spike",
+    "volatile",
+    "slowdown",
+    "failure",
+    "high_priority_surge"
+  ],
+  "val_manifest_days": 48,
+  "status": "done",
+  "started": "2026-10-25T18:00:31",
+  "n_params": 15122,
+  "code_revision": "e2c4d87",
+  "torch": "2.14.1+cpu",
+  "python": "3.13.16",
+  "hardware": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "ended": "2026-10-25T18:08:55",
+  "steps": 150048,
+  "episodes": 1563,
+  "best_val_return": -202.33959048622935,
+  "train_wall_s": 504.5,
+  "peak_rss_mb": 313.0
+}

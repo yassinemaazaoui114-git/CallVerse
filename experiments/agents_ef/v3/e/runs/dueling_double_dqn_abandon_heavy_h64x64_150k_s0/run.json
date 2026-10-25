@@ -1,0 +1,41 @@
+{
+  "run_id": "dueling_double_dqn_abandon_heavy_h64x64_150k_s0",
+  "algo": "dueling_double_dqn",
+  "seed": 0,
+  "steps_budget": 150000,
+  "hidden": [
+    64,
+    64
+  ],
+  "weights": "abandon_heavy",
+  "reward": {
+    "w_sla": 1.0,
+    "w_ab": 2.0,
+    "w_cost": 1.0,
+    "w_csat_synthetic": 0.0
+  },
+  "train_families": [
+    "normal",
+    "morning_peak",
+    "two_peak",
+    "tracking_spike",
+    "volatile",
+    "slowdown",
+    "failure",
+    "high_priority_surge"
+  ],
+  "val_manifest_days": 48,
+  "status": "done",
+  "started": "2026-10-25T18:25:05",
+  "n_params": 8146,
+  "code_revision": "e2c4d87",
+  "torch": "2.14.1+cpu",
+  "python": "3.13.16",
+  "hardware": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "ended": "2026-10-25T18:34:35",
+  "steps": 150048,
+  "episodes": 1563,
+  "best_val_return": -220.2835590566333,
+  "train_wall_s": 570.5,
+  "peak_rss_mb": 345.3
+}
