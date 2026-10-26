@@ -49,3 +49,25 @@ paired bootstrap over TEST dialogues + Holm; every experiment registered in `v5/
 ## 15:55 — F8 labelling package (`labelling/`), dry run SCRIPTED (pseudo-random fill-in ratings, NOT labels)
 - Test found a rounding bug in allocate() (total 101 for n=100) → fixed (exact total).
 - Finding: in the scripted corpus every FR conversation is P1 (English templates → reply_language_mismatch).
+- Mutation test on the 240 real-format conversations (inject one defect per new kind): first run found a BUG —
+  reply_delivery_promise_unsupported recall 99/240 because the data-date exemption looked at the whole reply
+  (templates always say "the promised delivery date was …"). Fixed: exemption only within the promise's sentence;
+  regression test added. After the fix all 7 kinds 100% detected, no cross-firing. Caveat: the mutation set was
+  then used to fix the check, so it is a development set, not an independent recall estimate.
+
+## 16:00 — neural plan, pre-registered BEFORE the F2 loss results
+- N2 = n2_scratch_full_mse: documented V3 initialisation (pretrained e5-small, vocab trimmed on TRAIN+VAL text,
+  6 layers, fresh head), full TRAIN, MSE, 3 epochs, LR 4e-5 (V3 value) with 6% warm-up + linear decay.
+  Why: removes the seed-selection bias of the warm start and isolates "full TRAIN + schedule" vs V3.
+- N3 (conditional) = warm start + Huber (delta 0.5) 2 epochs, ONLY if the F2 same-feature comparison shows Huber
+  or ordinal lowering VAL MAE by >= 0.003 vs MSE on BOTH TF-IDF and frozen-e5 features, or lowering
+  dissatisfied-class MAE by >= 0.05 without raising overall VAL MAE by > 0.002. Otherwise N3 = wmse (sample
+  weighting toward extreme classes) is NOT run either (VAL MAE would be the selection metric and weighting trades
+  MAE for extremes) and the slot goes to a 2nd seed of the best of N1/N2.
+- 384 tokens: NOT run. Evidence: Ridge tail512 is worse than tail256 on VAL (0.3973 vs 0.3954), full text ≈ tail256
+  (0.3956): no sign that more context helps; cost x1.6.
+- CLS pooling: not run (no evidence it matters; V3 mean pooling; would need a scratch run).
+- Ridge saved: $FV5/ckpt/ridge_v5_roles (SHA256 0119f1b0…debb68), reload reproduces grid VAL preds (≤1e-4).
+- VAL paired bootstrap vs B_v3 (`results/f3_ridge_val_paired_ci.json`): even on VAL the selected roles gain is
+  -0.0047 [-0.0105, +0.0009] — CI includes 0 on the selection set itself; only "nochar" is credibly worse
+  (+0.0046 [0.0009, 0.0085]). Expectation written now: TEST gain of roles is likely ~0 (as in v4).

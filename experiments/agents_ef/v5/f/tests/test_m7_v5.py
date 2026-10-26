@@ -144,3 +144,11 @@ def test_refund_exceeds_balance_positive_and_boundary(tmp_path):
     f = [x for x in new_flags(c) if x["code"] == "refund_exceeds_balance"]
     assert f and abs(f[0]["evidence"]["amount"] - 59.9) < 1e-9
     assert "refund_exceeds_balance" not in codes(conv(tmp_path, OK, writes=[big], refunded=0))   # exactly the balance
+
+
+def test_delivery_promise_not_excused_by_a_data_date_in_another_sentence(tmp_path):
+    # regression (mutation test, v5): the template's "the promised delivery date was 2026-10-01" must not excuse
+    # an invented "will arrive tomorrow" in a different sentence
+    r = "The promised delivery date was 2026-10-01. Your order 4512 will arrive tomorrow."
+    c = conv(tmp_path, r, outcome="info", action="status", facts={"promised_date": "2026-10-01"})
+    assert "reply_delivery_promise_unsupported" in codes(c)

@@ -4,3 +4,6 @@
   ep 1 step 80/297 loss 0.2436 lr 1.84e-05 466s
   ep 1 step 100/297 loss 0.2469 lr 1.77e-05 620s
   ep 1 step 120/297 loss 0.2410 lr 1.70e-05 825s
+  ep 1 step 140/297 loss 0.2355 lr 1.62e-05 1033s
+  ep 1 step 160/297 loss 0.1985 lr 1.55e-05 1238s
+  ep 1 step 180/297 loss 0.2508 lr 1.48e-05 1438s

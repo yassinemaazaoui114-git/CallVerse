@@ -1,0 +1,42 @@
+{
+  "run_id": "dueling_dqn_h64x64_150k_n3_s1",
+  "algo": "dueling_dqn",
+  "steps": 150000,
+  "hidden": [
+    64,
+    64
+  ],
+  "per": false,
+  "alpha": 0.6,
+  "beta0": 0.4,
+  "nstep": 3,
+  "dr": false,
+  "flip_cost": 0.0,
+  "n_quant": null,
+  "lr": 0.0005,
+  "gamma": 0.97,
+  "buffer": 100000,
+  "batch": 128,
+  "train_every": 4,
+  "target_every": 2000,
+  "eps": "1.0->0.05 over 60k",
+  "learning_starts": 5000,
+  "selection": "best V3 VAL return (48 days)",
+  "seed": 1,
+  "train_families": [
+    "normal",
+    "morning_peak",
+    "two_peak",
+    "tracking_spike",
+    "volatile",
+    "slowdown",
+    "failure",
+    "high_priority_surge"
+  ],
+  "status": "running",
+  "started": "2026-10-26T16:05:03",
+  "n_params": 8146,
+  "torch": "2.14.1+cpu",
+  "python": "3.13.16",
+  "hardware": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+}

@@ -1,0 +1,821 @@
+{
+ "corpus": "SCRIPTED M7 corpus (fake agents, real pipeline, SLM offline)",
+ "splits": {
+  "dev": {
+   "n": 120,
+   "ms_per_conversation_v5_review": 0.28,
+   "flags_v4": {
+    "slm_fallback_template": 120,
+    "reply_language_mismatch": 29,
+    "sent_back": 7,
+    "escalated": 9,
+    "claim_false": 7,
+    "pipeline_error": 5,
+    "rule_not_searched": 1,
+    "agent_answered_without_tools": 5,
+    "cited_missing_rule": 1,
+    "proposal_malformed": 1
+   },
+   "flags_v5": {
+    "slm_fallback_template": 120,
+    "reply_language_mismatch": 29,
+    "sent_back": 7,
+    "escalated": 9,
+    "claim_false": 7,
+    "pipeline_error": 5,
+    "rule_not_searched": 1,
+    "agent_answered_without_tools": 5,
+    "cited_missing_rule": 1,
+    "proposal_malformed": 1
+   },
+   "new_code_flags": {
+    "reply_refund_promise_unbacked": 0,
+    "reply_delivery_promise_unsupported": 0,
+    "reply_number_unsupported": 0,
+    "reply_instruction_leak": 0,
+    "reply_language_unexpected": 0,
+    "followup_promise_unbacked": 0,
+    "refund_exceeds_balance": 0
+   },
+   "evidence_refs_v4_ok": "196/196",
+   "conversations_by_code": {
+    "agent_answered_without_tools": {
+     "n": 5,
+     "rate": 0.0417,
+     "wilson95": [
+      0.0179,
+      0.0938
+     ],
+     "examples": [
+      "dev-0039.jsonl:13",
+      "dev-0044.jsonl:13",
+      "dev-0070.jsonl:13",
+      "dev-0072.jsonl:13",
+      "dev-0090.jsonl:13"
+     ]
+    },
+    "cited_missing_rule": {
+     "n": 1,
+     "rate": 0.0083,
+     "wilson95": [
+      0.0015,
+      0.0457
+     ],
+     "examples": [
+      "dev-0095.jsonl:31"
+     ]
+    },
+    "claim_false": {
+     "n": 4,
+     "rate": 0.0333,
+     "wilson95": [
+      0.013,
+      0.0826
+     ],
+     "examples": [
+      "dev-0005.jsonl:27",
+      "dev-0005.jsonl:27",
+      "dev-0055.jsonl:27",
+      "dev-0055.jsonl:27",
+      "dev-0062.jsonl:27"
+     ]
+    },
+    "escalated": {
+     "n": 9,
+     "rate": 0.075,
+     "wilson95": [
+      0.04,
+      0.1364
+     ],
+     "examples": [
+      "dev-0005.jsonl:104",
+      "dev-0015.jsonl:20",
+      "dev-0022.jsonl:21",
+      "dev-0042.jsonl:21",
+      "dev-0050.jsonl:20"
+     ]
+    },
+    "pipeline_error": {
+     "n": 5,
+     "rate": 0.0417,
+     "wilson95": [
+      0.0179,
+      0.0938
+     ],
+     "examples": [
+      "dev-0015.jsonl:12",
+      "dev-0022.jsonl:13",
+      "dev-0042.jsonl:13",
+      "dev-0050.jsonl:12",
+      "dev-0080.jsonl:12"
+     ]
+    },
+    "proposal_malformed": {
+     "n": 1,
+     "rate": 0.0083,
+     "wilson95": [
+      0.0015,
+      0.0457
+     ],
+     "examples": [
+      "dev-0095.jsonl:31"
+     ]
+    },
+    "reply_language_mismatch": {
+     "n": 29,
+     "rate": 0.2417,
+     "wilson95": [
+      0.1739,
+      0.3255
+     ],
+     "examples": [
+      "dev-0000.jsonl:39",
+      "dev-0001.jsonl:39",
+      "dev-0004.jsonl:39",
+      "dev-0009.jsonl:39",
+      "dev-0010.jsonl:55"
+     ]
+    },
+    "rule_not_searched": {
+     "n": 1,
+     "rate": 0.0083,
+     "wilson95": [
+      0.0015,
+      0.0457
+     ],
+     "examples": [
+      "dev-0033.jsonl:34"
+     ]
+    },
+    "sent_back": {
+     "n": 7,
+     "rate": 0.0583,
+     "wilson95": [
+      0.0285,
+      0.1155
+     ],
+     "examples": [
+      "dev-0005.jsonl:40",
+      "dev-0016.jsonl:42",
+      "dev-0029.jsonl:42",
+      "dev-0055.jsonl:40",
+      "dev-0062.jsonl:40"
+     ]
+    },
+    "slm_fallback_template": {
+     "n": 120,
+     "rate": 1.0,
+     "wilson95": [
+      0.969,
+      1.0
+     ],
+     "examples": [
+      "dev-0000.jsonl:39",
+      "dev-0001.jsonl:39",
+      "dev-0002.jsonl:22",
+      "dev-0003.jsonl:22",
+      "dev-0004.jsonl:39"
+     ]
+    }
+   },
+   "grades_v5": {
+    "review": 32,
+    "ok_minor": 79,
+    "fail": 9
+   }
+  },
+  "test": {
+   "n": 120,
+   "ms_per_conversation_v5_review": 0.26,
+   "flags_v4": {
+    "slm_fallback_template": 120,
+    "reply_language_mismatch": 23,
+    "sent_back": 4,
+    "escalated": 6,
+    "claim_false": 7,
+    "agent_answered_without_tools": 6,
+    "rule_not_searched": 2,
+    "cited_missing_rule": 1,
+    "proposal_malformed": 1,
+    "missed_entitlement": 1,
+    "pipeline_error": 2
+   },
+   "flags_v5": {
+    "slm_fallback_template": 120,
+    "reply_language_mismatch": 23,
+    "sent_back": 4,
+    "escalated": 6,
+    "claim_false": 7,
+    "agent_answered_without_tools": 6,
+    "rule_not_searched": 2,
+    "cited_missing_rule": 1,
+    "proposal_malformed": 1,
+    "missed_entitlement": 1,
+    "pipeline_error": 2
+   },
+   "new_code_flags": {
+    "reply_refund_promise_unbacked": 0,
+    "reply_delivery_promise_unsupported": 0,
+    "reply_number_unsupported": 0,
+    "reply_instruction_leak": 0,
+    "reply_language_unexpected": 0,
+    "followup_promise_unbacked": 0,
+    "refund_exceeds_balance": 0
+   },
+   "evidence_refs_v4_ok": "184/184",
+   "conversations_by_code": {
+    "agent_answered_without_tools": {
+     "n": 6,
+     "rate": 0.05,
+     "wilson95": [
+      0.0231,
+      0.1048
+     ],
+     "examples": [
+      "test-0017.jsonl:13",
+      "test-0049.jsonl:13",
+      "test-0050.jsonl:13",
+      "test-0079.jsonl:13",
+      "test-0106.jsonl:13"
+     ]
+    },
+    "cited_missing_rule": {
+     "n": 1,
+     "rate": 0.0083,
+     "wilson95": [
+      0.0015,
+      0.0457
+     ],
+     "examples": [
+      "test-0031.jsonl:27"
+     ]
+    },
+    "claim_false": {
+     "n": 4,
+     "rate": 0.0333,
+     "wilson95": [
+      0.013,
+      0.0826
+     ],
+     "examples": [
+      "test-0008.jsonl:31",
+      "test-0008.jsonl:31",
+      "test-0052.jsonl:31",
+      "test-0052.jsonl:31",
+      "test-0100.jsonl:27"
+     ]
+    },
+    "escalated": {
+     "n": 6,
+     "rate": 0.05,
+     "wilson95": [
+      0.0231,
+      0.1048
+     ],
+     "examples": [
+      "test-0008.jsonl:108",
+      "test-0052.jsonl:108",
+      "test-0073.jsonl:20",
+      "test-0095.jsonl:20",
+      "test-0100.jsonl:104"
+     ]
+    },
+    "missed_entitlement": {
+     "n": 1,
+     "rate": 0.0083,
+     "wilson95": [
+      0.0015,
+      0.0457
+     ],
+     "examples": [
+      "test-0031.jsonl:38"
+     ]
+    },
+    "pipeline_error": {
+     "n": 2,
+     "rate": 0.0167,
+     "wilson95": [
+      0.0046,
+      0.0587
+     ],
+     "examples": [
+      "test-0073.jsonl:12",
+      "test-0095.jsonl:12"
+     ]
+    },
+    "proposal_malformed": {
+     "n": 1,
+     "rate": 0.0083,
+     "wilson95": [
+      0.0015,
+      0.0457
+     ],
+     "examples": [
+      "test-0031.jsonl:27"
+     ]
+    },
+    "reply_language_mismatch": {
+     "n": 23,
+     "rate": 0.1917,
+     "wilson95": [
+      0.1312,
+      0.2712
+     ],
+     "examples": [
+      "test-0006.jsonl:22",
+      "test-0008.jsonl:108",
+      "test-0017.jsonl:25",
+      "test-0024.jsonl:22",
+      "test-0027.jsonl:39"
+     ]
+    },
+    "rule_not_searched": {
+     "n": 2,
+     "rate": 0.0167,
+     "wilson95": [
+      0.0046,
+      0.0587
+     ],
+     "examples": [
+      "test-0023.jsonl:34",
+      "test-0071.jsonl:34"
+     ]
+    },
+    "sent_back": {
+     "n": 4,
+     "rate": 0.0333,
+     "wilson95": [
+      0.013,
+      0.0826
+     ],
+     "examples": [
+      "test-0008.jsonl:44",
+      "test-0052.jsonl:44",
+      "test-0100.jsonl:40",
+      "test-0114.jsonl:44"
+     ]
+    },
+    "slm_fallback_template": {
+     "n": 120,
+     "rate": 1.0,
+     "wilson95": [
+      0.969,
+      1.0
+     ],
+     "examples": [
+      "test-0000.jsonl:22",
+      "test-0001.jsonl:22",
+      "test-0002.jsonl:22",
+      "test-0003.jsonl:53",
+      "test-0004.jsonl:35"
+     ]
+    }
+   },
+   "grades_v5": {
+    "ok_minor": 93,
+    "review": 20,
+    "fail": 7
+   }
+  }
+ },
+ "rule_audit_v4_on_v5_reviews": {
+  "internal_consistency": 1,
+  "coverage": 2,
+  "governance": 8,
+  "usage": 3,
+  "u5_predicted_satisfaction_per_rule": "SKIPPED: satisfaction score not validated for this domain; it must not create rule flags",
+  "n_rules": 8,
+  "sim_today": "2026-10-09",
+  "note": "F reports only; it never changes a rule. 'Outdated' is never claimed: see freshness."
+ },
+ "rule_audit_flags": [
+  {
+   "kind": "stale_reference",
+   "rule_id": "R-REF-02",
+   "severity": "medium",
+   "what": "agents cited R-REF-02 2 time(s); it is not in the policy file",
+   "category": "internal_consistency",
+   "false_positive_risk": "low for code/config refs (exact id match); for agent citations, one LLM slip can repeat in a batch — the support count is shown"
+  },
+  {
+   "kind": "knowledge_gap",
+   "rule_id": null,
+   "severity": "low",
+   "what": "no conditional rule covers: delivered, on time",
+   "category": "coverage",
+   "false_positive_risk": "high: 'no rule' may be the intended policy (nothing is owed); it is a question, not a defect"
+  },
+  {
+   "kind": "knowledge_gap",
+   "rule_id": null,
+   "severity": "medium",
+   "what": "no conditional rule covers: delivered, late",
+   "category": "coverage",
+   "false_positive_risk": "high: 'no rule' may be the intended policy (nothing is owed); it is a question, not a defect"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-DEL-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "category": "governance",
+   "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-DEL-02",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "category": "governance",
+   "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-REF-03",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "category": "governance",
+   "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-REF-05",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "category": "governance",
+   "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-RET-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "category": "governance",
+   "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-DMG-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "category": "governance",
+   "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-ESC-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "category": "governance",
+   "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+  },
+  {
+   "kind": "unreviewed",
+   "rule_id": "R-NOT-01",
+   "severity": "low",
+   "what": "AI-written wording with no review, version or validity date",
+   "category": "governance",
+   "false_positive_risk": "none for the fact itself (fields are absent); it says nothing about whether the wording is right"
+  },
+  {
+   "kind": "usage_signal",
+   "rule_id": "R-REF-03",
+   "severity": "medium",
+   "what": "condition false in 24/50 checks: agents often apply it where it does not hold",
+   "category": "usage",
+   "false_positive_risk": "medium/high: depends on the period's case mix (e.g. 'never used' when no client asked); minimum support of 5 conversations applies"
+  },
+  {
+   "kind": "usage_signal",
+   "rule_id": "R-DEL-01",
+   "severity": "low",
+   "what": "never cited or retrieved in 240 conversations",
+   "category": "usage",
+   "false_positive_risk": "medium/high: depends on the period's case mix (e.g. 'never used' when no client asked); minimum support of 5 conversations applies"
+  },
+  {
+   "kind": "usage_signal",
+   "rule_id": "R-RET-01",
+   "severity": "low",
+   "what": "never cited or retrieved in 240 conversations",
+   "category": "usage",
+   "false_positive_risk": "medium/high: depends on the period's case mix (e.g. 'never used' when no client asked); minimum support of 5 conversations applies"
+  }
+ ],
+ "freshness": {
+  "status": "NOT_CHECKABLE",
+  "why": "no dated, authoritative source (law, carrier contract, signed company decision) exists for any rule, and the policy file has no version or date fields; 'outdated' cannot be shown",
+  "what_would_make_it_checkable": [
+   "valid_from / valid_until / last_reviewed / owner fields per rule",
+   "a dated source reference per rule (document id + date)",
+   "a change log of the policy file"
+  ]
+ },
+ "promise_rules_map": [
+  {
+   "rule": "R-NOT-01",
+   "text_constraint": "Promise a notification only after the subscription is recorded.",
+   "v5_check": "followup_promise_unbacked (kind notification): promise without a create_subscription write"
+  },
+  {
+   "rule": "R-ESC-01",
+   "text_constraint": "Do not promise the client a refund above 300 TND; say that it needs approval.",
+   "v5_check": "reply_refund_promise_unbacked: any refund promise without approve+refund decision AND create_refund"
+  },
+  {
+   "rule": "R-REF-05",
+   "text_constraint": "A refund can never be higher than the amount paid minus refunds given.",
+   "v5_check": "refund_exceeds_balance: executed create_refund amount > paid - refunded_total (Coordinator re-read)"
+  },
+  {
+   "rule": "R-DMG-01",
+   "text_constraint": "Only after the photo proof is received can a replacement or a refund be offered.",
+   "v5_check": "partly: reply_refund_promise_unbacked catches a refund promise; a REPLACEMENT promise is not checked (no replacement action exists in the platform)"
+  },
+  {
+   "rule": "R-DEL-01/02",
+   "text_constraint": "status must come from the tracking data; no refund for 1-5 days late",
+   "v5_check": "reply_delivery_promise_unsupported (arrival-time promises) + reply_number_unsupported; v4 claim_false for the agent's structured facts"
+  }
+ ],
+ "mutation_recall_new_checks": {
+  "reply_refund_promise_unbacked": {
+   "eligible": 220,
+   "detected": 220,
+   "recall": 1.0,
+   "other_new_codes_fired": {}
+  },
+  "reply_delivery_promise_unsupported": {
+   "eligible": 240,
+   "detected": 240,
+   "recall": 1.0,
+   "other_new_codes_fired": {}
+  },
+  "reply_number_unsupported": {
+   "eligible": 240,
+   "detected": 240,
+   "recall": 1.0,
+   "other_new_codes_fired": {}
+  },
+  "reply_instruction_leak": {
+   "eligible": 240,
+   "detected": 240,
+   "recall": 1.0,
+   "other_new_codes_fired": {}
+  },
+  "reply_language_unexpected": {
+   "eligible": 137,
+   "detected": 137,
+   "recall": 1.0,
+   "other_new_codes_fired": {}
+  },
+  "followup_promise_unbacked": {
+   "eligible": 43,
+   "detected": 43,
+   "recall": 1.0,
+   "other_new_codes_fired": {}
+  },
+  "refund_exceeds_balance": {
+   "eligible": 20,
+   "detected": 20,
+   "recall": 1.0,
+   "other_new_codes_fired": {}
+  }
+ },
+ "owner_rows": [
+  {
+   "code": "agent_answered_without_tools",
+   "dev": 5,
+   "held_out": 6,
+   "dev_ci": [
+    0.0179,
+    0.0938
+   ],
+   "held_out_ci": [
+    0.0231,
+    0.1048
+   ],
+   "difference_credible": false,
+   "repeated_failure": true,
+   "examples": [
+    "dev-0039.jsonl:13",
+    "dev-0044.jsonl:13",
+    "test-0017.jsonl:13",
+    "test-0049.jsonl:13"
+   ],
+   "action": "agent answered from memory: check the prompt / tool forcing"
+  },
+  {
+   "code": "cited_missing_rule",
+   "dev": 1,
+   "held_out": 1,
+   "dev_ci": [
+    0.0015,
+    0.0457
+   ],
+   "held_out_ci": [
+    0.0015,
+    0.0457
+   ],
+   "difference_credible": false,
+   "repeated_failure": false,
+   "examples": [
+    "dev-0095.jsonl:31",
+    "test-0031.jsonl:27"
+   ],
+   "action": "remove the old rule id from the agent prompts"
+  },
+  {
+   "code": "claim_false",
+   "dev": 4,
+   "held_out": 4,
+   "dev_ci": [
+    0.013,
+    0.0826
+   ],
+   "held_out_ci": [
+    0.013,
+    0.0826
+   ],
+   "difference_credible": false,
+   "repeated_failure": true,
+   "examples": [
+    "dev-0005.jsonl:27",
+    "dev-0005.jsonl:27",
+    "test-0008.jsonl:31",
+    "test-0008.jsonl:31"
+   ],
+   "action": "read the case: an agent stated a fact contradicting the platform data"
+  },
+  {
+   "code": "escalated",
+   "dev": 9,
+   "held_out": 6,
+   "dev_ci": [
+    0.04,
+    0.1364
+   ],
+   "held_out_ci": [
+    0.0231,
+    0.1048
+   ],
+   "difference_credible": false,
+   "repeated_failure": true,
+   "examples": [
+    "dev-0005.jsonl:104",
+    "dev-0015.jsonl:20",
+    "test-0008.jsonl:108",
+    "test-0052.jsonl:108"
+   ],
+   "action": "check the escalation reasons (agent errors vs genuine edge cases)"
+  },
+  {
+   "code": "missed_entitlement",
+   "dev": 0,
+   "held_out": 1,
+   "dev_ci": [
+    -0.0,
+    0.031
+   ],
+   "held_out_ci": [
+    0.0015,
+    0.0457
+   ],
+   "difference_credible": false,
+   "repeated_failure": false,
+   "examples": [
+    "test-0031.jsonl:38"
+   ],
+   "action": "read the case: a due refund was not given"
+  },
+  {
+   "code": "pipeline_error",
+   "dev": 5,
+   "held_out": 2,
+   "dev_ci": [
+    0.0179,
+    0.0938
+   ],
+   "held_out_ci": [
+    0.0046,
+    0.0587
+   ],
+   "difference_credible": false,
+   "repeated_failure": true,
+   "examples": [
+    "dev-0015.jsonl:12",
+    "dev-0022.jsonl:13",
+    "test-0073.jsonl:12",
+    "test-0095.jsonl:12"
+   ],
+   "action": "check the LLM provider and error handling"
+  },
+  {
+   "code": "proposal_malformed",
+   "dev": 1,
+   "held_out": 1,
+   "dev_ci": [
+    0.0015,
+    0.0457
+   ],
+   "held_out_ci": [
+    0.0015,
+    0.0457
+   ],
+   "difference_credible": false,
+   "repeated_failure": false,
+   "examples": [
+    "dev-0095.jsonl:31",
+    "test-0031.jsonl:27"
+   ],
+   "action": "check the agent's proposal format"
+  },
+  {
+   "code": "reply_language_mismatch",
+   "dev": 29,
+   "held_out": 23,
+   "dev_ci": [
+    0.1739,
+    0.3255
+   ],
+   "held_out_ci": [
+    0.1312,
+    0.2712
+   ],
+   "difference_credible": false,
+   "repeated_failure": true,
+   "examples": [
+    "dev-0000.jsonl:39",
+    "dev-0001.jsonl:39",
+    "test-0006.jsonl:22",
+    "test-0008.jsonl:108"
+   ],
+   "action": "add French reply templates / make the SLM answer in the client's language"
+  },
+  {
+   "code": "rule_not_searched",
+   "dev": 1,
+   "held_out": 2,
+   "dev_ci": [
+    0.0015,
+    0.0457
+   ],
+   "held_out_ci": [
+    0.0046,
+    0.0587
+   ],
+   "difference_credible": false,
+   "repeated_failure": true,
+   "examples": [
+    "dev-0033.jsonl:34",
+    "test-0023.jsonl:34",
+    "test-0071.jsonl:34"
+   ],
+   "action": "agent cites rules without searching: check the agent prompt"
+  },
+  {
+   "code": "sent_back",
+   "dev": 7,
+   "held_out": 4,
+   "dev_ci": [
+    0.0285,
+    0.1155
+   ],
+   "held_out_ci": [
+    0.013,
+    0.0826
+   ],
+   "difference_credible": false,
+   "repeated_failure": true,
+   "examples": [
+    "dev-0005.jsonl:40",
+    "dev-0016.jsonl:42",
+    "test-0008.jsonl:44",
+    "test-0052.jsonl:44"
+   ],
+   "action": "read the send-back reasons; repeated ones mean the agent misreads a rule"
+  },
+  {
+   "code": "slm_fallback_template",
+   "dev": 120,
+   "held_out": 120,
+   "dev_ci": [
+    0.969,
+    1.0
+   ],
+   "held_out_ci": [
+    0.969,
+    1.0
+   ],
+   "difference_credible": false,
+   "repeated_failure": true,
+   "examples": [
+    "dev-0000.jsonl:39",
+    "dev-0001.jsonl:39",
+    "test-0000.jsonl:22",
+    "test-0001.jsonl:22"
+   ],
+   "action": "check why the SLM gives no passing reply (here: SLM offline during the corpus build)"
+  }
+ ]
+}

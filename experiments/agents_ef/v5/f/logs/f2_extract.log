@@ -3,3 +3,10 @@ train 0
 train 640
 train 1280
 train 1920
+train 2560
+train 3200
+train 3840
+train 4480
+val 0
+val 640
+test 0

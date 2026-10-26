@@ -1,0 +1,11 @@
+{"worker": "F", "round": "v5", "updated_utc": "2026-10-26T15:58Z",
+ "F1_data_audit": "done (results/f1_data_audit.json, deliverables/F_DATA_PROVENANCE.md)",
+ "F2_collapse": "running (embedding extraction, then analyses)",
+ "F3_ridge": "VAL grid done, selected 'roles'; TEST pending freeze",
+ "F4_neural": "N1 n1_warm_full_mse training (epoch 1/2)",
+ "F5_extra_encoder": "screen queued after F2",
+ "F6_ensemble": "pending",
+ "F7_evaluation": "pending freeze",
+ "F8_domain_validation": "labelling package + SCRIPTED dry run done; deliverable pending",
+ "F9_m7": "done (deliverables/F_M7_REVIEW.md)",
+ "test_scored": false, "git": "none (Worker D commits)"}

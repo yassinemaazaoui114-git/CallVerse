@@ -112,7 +112,12 @@ def new_flags(conv: dict) -> list[dict]:
     if m:
         facts = {**coordinator_reread(conv), **(decision.get("facts") or {})}
         dates = {str(facts.get(k)) for k in ("promised_date", "delivered_date") if facts.get(k)}
-        if not any(d in reply for d in dates):
+        # the exemption looks only at the SENTENCE that holds the promise: a data date elsewhere in the reply
+        # ("the promised delivery date was ...") does not back "it will arrive tomorrow" (mutation test, v5).
+        start = max(reply.rfind(x, 0, m.start()) for x in ".!?") + 1
+        ends = [i for i in (reply.find(x, m.end()) for x in ".!?") if i >= 0]
+        sentence = reply[start:min(ends) if ends else len(reply)]
+        if not any(d in sentence for d in dates):
             add("reply_delivery_promise_unsupported", "medium",
                 "the reply promises when the parcel will arrive; no tool gives an arrival time",
                 {"phrase": m.group(0), "dates_in_data": sorted(dates)})
