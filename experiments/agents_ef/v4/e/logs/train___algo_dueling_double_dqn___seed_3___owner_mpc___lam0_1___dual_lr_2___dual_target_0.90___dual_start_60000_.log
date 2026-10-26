@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/train_v4.py", line 276, in <module>
+    "train_wall_s")}))
+    
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/train_v4.py", line 217, in main
+    train_log, val_log, steps, ep, t0 = [], [], 0, 0, time.perf_counter()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/common.py", line 88, in reset
+    out = super().reset(*a, **kw)
+  File "/home/user/CallVerse-research/experiments/agents_ef/v3/e/env_v3.py", line 138, in reset
+    self.tape = tp = self.build_tape(seed, family, spec)
+                     ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/CallVerse-research/experiments/agents_ef/v3/e/env_v3.py", line 109, in build_tape
+    prio, rank, emo = self._attrs(q, n, r_att, extra)
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/CallVerse-research/experiments/agents_ef/v3/e/env_v3.py", line 124, in _attrs
+    reasons = rng.choice(len(names), size=n, p=probs)
+  File "numpy/random/_generator.pyx", line 907, in numpy.random._generator.Generator.choice
+  File "/tmp/claude-0/-home-user-CallVerse/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py", line 3442, in prod
+    return _wrapreduction(a, np.multiply, 'prod', axis, dtype, out,
+                          keepdims=keepdims, initial=initial, where=where)
+  File "/tmp/claude-0/-home-user-CallVerse/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/venv/lib/python3.13/site-packages/numpy/_core/fromnumeric.py", line 66, in _wrapreduction
+    def _wrapreduction(obj, ufunc, method, axis, dtype, out, **kwargs):
+    
+KeyboardInterrupt

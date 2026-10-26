@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/train_v4.py", line 276, in <module>
+    "train_wall_s")}))
+    
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/train_v4.py", line 222, in main
+    mask = info["action_mask"]
+                 ^^^^^^^^^^^^^
+  File "/home/user/CallVerse-research/experiments/agents_ef/v4/e/train_v4.py", line 131, in decide
+    a_rule = owner.act(env, obs, m)
+  File "/home/user/CallVerse-research/experiments/agents_ef/v3/e/baselines_v3.py", line 80, in act
+    costs = [self.cost(env, int(a)) for a in valid]
+             ~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/user/CallVerse-research/experiments/agents_ef/v3/e/baselines_v3.py", line 72, in cost
+    lost = (backlog * c.step_min / env.patience).sum()
+  File "/tmp/claude-0/-home-user-CallVerse/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/venv/lib/python3.13/site-packages/numpy/_core/_methods.py", line 49, in _sum
+    return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+KeyboardInterrupt

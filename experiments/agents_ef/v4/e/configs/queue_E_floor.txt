@@ -5,3 +5,10 @@
 --algo dueling_double_dqn --seed 2 --floor 3
 --algo dueling_double_dqn --seed 3 --floor 3
 --algo dueling_double_dqn --seed 4 --floor 3
+# Arm F: hierarchical training matching the best DEV structure: Forecast(z=0.25) owns activate/deactivate,
+# RL learns allocation + fallback INSIDE floor@3. Deployed as floor@3|hier:forecast:<run>.
+--algo dueling_double_dqn --seed 0 --owner forecast --floor 3
+--algo dueling_double_dqn --seed 1 --owner forecast --floor 3
+--algo dueling_double_dqn --seed 2 --owner forecast --floor 3
+--algo dueling_double_dqn --seed 3 --owner forecast --floor 3
+--algo dueling_double_dqn --seed 4 --owner forecast --floor 3
