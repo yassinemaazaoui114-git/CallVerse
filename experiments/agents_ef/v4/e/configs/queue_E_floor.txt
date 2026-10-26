@@ -1,0 +1,7 @@
+# Arm E: training inside a static stronger mask (queue C >= 3 sessions), equal reward. Question: does a policy that
+# LEARNS with the floor allocate the remaining sessions better than the frozen V3 net wrapped by floor@3?
+--algo dueling_double_dqn --seed 0 --floor 3
+--algo dueling_double_dqn --seed 1 --floor 3
+--algo dueling_double_dqn --seed 2 --floor 3
+--algo dueling_double_dqn --seed 3 --floor 3
+--algo dueling_double_dqn --seed 4 --floor 3

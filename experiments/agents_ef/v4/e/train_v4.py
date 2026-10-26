@@ -6,6 +6,7 @@ Options (each answers one question from the V3 failure analysis, see NOTEBOOK.md
   --shield t        SHIELDED TRAINING: the urgent-capacity shield (common.UrgentShield, Erlang-C target t) is part
                     of the environment during training AND evaluation. The agent explores and bootstraps only over
                     shielded actions, so it learns what is best GIVEN the protection (instead of fighting it).
+  --floor k         same, with a STATIC floor: queue C never below k sessions (a stronger version of the V3 mask).
   --lam0 / --dual-* CONSTRAINED OBJECTIVE (Lagrangian): training reward = v3 reward - lam * (queue-C failures)/F_ref.
                     lam is a Lagrange multiplier updated by dual ascent after every training day:
                         lam <- clip(lam + dual_lr * (dual_target - queue-C SLA of that day), 0, lam_max)
@@ -164,6 +165,7 @@ def main(argv=None):
     p.add_argument("--hidden", default="64,64")
     p.add_argument("--eval-every", type=int, default=15_000)
     p.add_argument("--shield", type=float, default=None)
+    p.add_argument("--floor", type=int, default=None, help="static stronger mask: queue C never below k (trained in the loop)")
     p.add_argument("--lam0", type=float, default=0.0)
     p.add_argument("--dual-target", type=float, default=0.92)
     p.add_argument("--dual-lr", type=float, default=0.0)
@@ -178,6 +180,8 @@ def main(argv=None):
     parts = [a.algo, f"h{a.hidden.replace(',', 'x')}", f"{a.steps // 1000}k"]
     if a.shield is not None:
         parts.append(f"sh{a.shield:g}")
+    if a.floor is not None:
+        parts.append(f"fl{a.floor}")
     if a.owner:
         parts.append(f"own{a.owner}")
     if a.lam0 or a.dual_lr:
@@ -185,12 +189,18 @@ def main(argv=None):
                      + (f"w{a.dual_start // 1000}k" if a.dual_start else ""))
     run_id = "_".join(parts) + f"_s{a.seed}" + a.tag
     out = RUNS / run_id
+    skip = E4 / "configs" / "skip_runs.txt"            # lets me drop queued runs without killing the queue
+    if skip.exists() and run_id in skip.read_text().split():
+        print("skip (descoped, see NOTEBOOK):", run_id)
+        return
     if (out / "run.json").exists() and json.loads((out / "run.json").read_text()).get("status") == "done":
         print("skip (done):", run_id)
         return
     out.mkdir(parents=True, exist_ok=True)
     env, val_env = EnvV4(None, TRAIN_FAMILIES), EnvV4(None, TRAIN_FAMILIES)
     shield = UrgentShield(a.shield) if a.shield is not None else None
+    if a.floor is not None:
+        shield = UrgentShield(static=a.floor)
     owner = make_owner(a.owner)
     val_days = load_manifest("val")
     base = make_agent(a.algo, env.obs_dim, env.n_actions, a.seed, hidden=hidden)
@@ -198,7 +208,7 @@ def main(argv=None):
     agent.lam = a.lam0
     rng = np.random.default_rng(1_000_000 + a.seed)          # SAME training-day stream as V3 for the same seed
     meta = {"run_id": run_id, "algo": a.algo, "seed": a.seed, "steps_budget": a.steps, "hidden": list(hidden),
-            "weights": "equal", "shield_target": a.shield, "lam0": a.lam0, "dual_lr": a.dual_lr,
+            "weights": "equal", "shield_target": a.shield, "floor_c": a.floor, "lam0": a.lam0, "dual_lr": a.dual_lr,
             "dual_target": a.dual_target, "lam_max": a.lam_max, "owner": a.owner, "dual_start": a.dual_start, "sel_c_min": a.sel_c_min,
             "train_families": TRAIN_FAMILIES, "val_manifest_days": len(val_days), "status": "running",
             "started": time.strftime("%Y-%m-%dT%H:%M:%S"), "n_params": agent.n_params(),

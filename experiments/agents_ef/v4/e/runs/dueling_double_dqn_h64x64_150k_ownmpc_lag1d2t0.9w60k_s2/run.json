@@ -1,0 +1,37 @@
+{
+  "run_id": "dueling_double_dqn_h64x64_150k_ownmpc_lag1d2t0.9w60k_s2",
+  "algo": "dueling_double_dqn",
+  "seed": 2,
+  "steps_budget": 150000,
+  "hidden": [
+    64,
+    64
+  ],
+  "weights": "equal",
+  "shield_target": null,
+  "floor_c": null,
+  "lam0": 1.0,
+  "dual_lr": 2.0,
+  "dual_target": 0.9,
+  "lam_max": 10.0,
+  "owner": "mpc",
+  "dual_start": 60000,
+  "sel_c_min": 91.3,
+  "train_families": [
+    "normal",
+    "morning_peak",
+    "two_peak",
+    "tracking_spike",
+    "volatile",
+    "slowdown",
+    "failure",
+    "high_priority_surge"
+  ],
+  "val_manifest_days": 48,
+  "status": "running",
+  "started": "2026-10-26T00:01:40",
+  "n_params": 8146,
+  "torch": "2.14.1+cpu",
+  "python": "3.13.16",
+  "hardware": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+}

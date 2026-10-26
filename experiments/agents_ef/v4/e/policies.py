@@ -9,6 +9,10 @@ Spec grammar (composable, written in result file names with ':' -> '__' and '|' 
   hier:<owner>:<run>   hierarchical as TRAINED by train_v4 --owner: owner (mpc|forecast) owns activate/deactivate,
                        RL chooses among the remaining actions only (its mask never contains activate/deactivate)
   shield@<t>|<inner>   urgent-capacity shield (common.UrgentShield, Erlang-C target t) around any inner policy
+  gate@<d>:<rule>|rl:<run>  confidence-gated hybrid: the classical rule's action is the DEFAULT; the RL action is
+                       used only if the network values it at least d above the rule's action (Q(a_rl) - Q(a_rule) >= d,
+                       Q in return units; d = 0 -> pure RL, d large -> pure rule). Uses the diagnosis that RL is
+                       nearly indifferent in ~40 % of decisions and only clearly better in some states (overload).
   floor@<k>|<inner>    static stronger mask: queue C never below k sessions (k=2 is the V3 mask)
 Each policy object exposes .stats (counters of shield vetoes) so the evaluator can report safety interventions.
 """
@@ -84,6 +88,24 @@ def _default_in_mask(env, m):
 
 
 def make_policy(spec: str) -> Policy:
+    if spec.startswith("gate@"):
+        head, _, inner_spec = spec.partition("|")
+        d_s, _, rule_s = head[len("gate@"):].partition(":")
+        delta, rule = float(d_s), make_rule(rule_s)
+        inner = make_policy(inner_spec)
+        pol = Policy(None, {**inner.meta, "gate_delta": delta, "gate_rule": rule_s}, inner.agent)
+        pol.stats.update(rl_overrides=0)
+
+        def fn(env, obs, mask):
+            a_rule = int(rule.act(env, obs, mask))
+            q = q_values(inner.agent, obs)
+            a_rl = masked_argmax(q, mask)
+            if a_rl != a_rule and q[a_rl] - q[a_rule] >= delta:
+                pol.stats["rl_overrides"] += 1
+                return a_rl
+            return a_rule
+        pol.fn = fn
+        return pol
     if spec.startswith("shield@") or spec.startswith("floor@"):
         head, _, inner_spec = spec.partition("|")
         target = float(head.split("@")[1])

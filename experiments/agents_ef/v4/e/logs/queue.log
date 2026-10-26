@@ -2,3 +2,7 @@
 23:24:29 finished: --algo dueling_double_dqn --seed 1 --dual-lr 2 --dual-target 0.90
 23:35:54 finished: --algo dueling_double_dqn --seed 2 --dual-lr 2 --dual-target 0.90
 23:36:20 finished: --algo dueling_double_dqn --seed 3 --dual-lr 2 --dual-target 0.90
+23:44:51 finished: --algo dueling_double_dqn --seed 4 --dual-lr 2 --dual-target 0.90
+23:44:51 queue v4/e/configs/queue_B_lagrangian.txt complete
+00:01:37 finished: --algo dueling_double_dqn --seed 1 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+00:01:39 finished: --algo dueling_double_dqn --seed 0 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000

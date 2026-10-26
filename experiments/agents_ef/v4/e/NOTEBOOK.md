@@ -100,3 +100,53 @@ only overload behaviour. Data: 48 V3 VAL days, MPC/Forecast/Erlang + 5 seeds DDQ
   checkpoint selection; RL's only real advantage is overload allocation. Targeted fixes: Lagrangian penalty on
   C failures (makes the C signal louder, with a pre-declared target), hierarchical capacity owner (removes
   dithering, inherits MPC's envelope), and a classical floor/shield as a hard backstop.
+
+## Exp 3 (complete part) — runtime shield / hierarchy on frozen V3 DDQN (DEV, 104 days) (23:46)
+| policy | seeds | DEV return | Δ vs MPC [95% CI] | queue-C SLA | Δ C pp [CI] | HIGH Δ pp |
+|---|---|---|---|---|---|---|
+| shield@0.05 | 5 | −268.5 | −54.2 [−76.6,−36.9] | 98.7 | +7.5 | −0.34 |
+| shield@0.1 | 5 | −256.0 | −41.7 [−60.9,−27.6] | 98.2 | +6.9 | −0.27 |
+| shield@0.2 | 5 | −245.6 | −31.3 [−50.2,−17.8] | 97.3 | +6.1 | −0.24 |
+| shield@0.35 | 5 | −236.2 | −21.9 [−35.4,−11.1] | 96.2 | +5.0 | −0.16 |
+| shield@0.2 + V3 guarded | 3* | −235.5 | −21.2 | 97.0 | +5.7 | −0.33 |
+| mpcguard (MPC owns act/deact, V3 DDQN allocates) | 5 | −216.9 | −2.6 [−12.0,+4.4] | 87.1 | −4.2 [−7.4,−1.2] | −0.14 |
+(*partial at that time.) Conclusion: an Erlang-C dynamic floor is far too blunt — it over-protects C (floor 4–6,
+C SLA 96–99 %) and starves the other queues (lost % up, even HIGH SLA down). A network trained WITHOUT the shield
+also keeps proposing what the shield forbids. Runtime shields are rejected as a main approach; only a mild static
+floor (floor@3, being tested) remains a candidate backstop. mpcguard removes dithering (cost = MPC's) but RL
+allocation still under-serves C (−4.2 pp).
+
+## Exp 4 — Arm B: Lagrangian (dual ascent, target 0.90, no warm-up), 5 seeds, DEV (23:46)
+- DEV: return −224.7 (seeds −230.5 −220.1 −219.1 −228.3 −225.5), Δ vs MPC −10.4 [−15.8,−4.4];
+  queue-C SLA 90.3 %, Δ −1.0 pp [−2.3,+0.5]; HIGH −0.05 pp; cost 1731/day (MPC 1657), C sessions 3.58 (MPC 3.31).
+- Conclusion: the constrained objective WORKS for the constraint (C deficit −10.4 pp → −1.0 pp, i.e. the credit-
+  assignment diagnosis was right: a louder C signal makes the net protect C) but it is EXPENSIVE: the net protects C
+  by adding sessions (cost +74/day vs MPC) rather than by timing moves. Return −10 vs MPC (and −7 vs plain DDQN).
+- Train curves: λ saturates at 10 early (exploration), then oscillates 0.2–8 → nonstationary objective. Arm D
+  (warm-up) tests whether that matters.
+
+## Exp 5 (designed 23:44) — confidence-gated hybrid "gate@d:mpc|rl" (no training)
+- Question: diagnosis says RL is nearly indifferent in ~40 % of decisions but has a real edge in some states
+  (overload). If MPC is the default and RL overrides only when its own Q-value says its action is ≥ d better than
+  MPC's action, do we keep MPC's queue-C protection and add RL's overload gains? d ∈ {0.05,0.15,0.3,0.6}, 5 seeds.
+  Caveat (declared): Q-values estimate the value of RL's OWN greedy continuation, not of the mixed policy, so the
+  gate is a heuristic use of the Q-function, not an exact advantage test.
+
+## Exp 6 — static stronger mask floor@3 (queue C ≥ 3 sessions) and gate (DEV) (23:55)
+| policy (frozen V3 DDQN seeds 0-4) | DEV return | Δ vs MPC [CI] | C SLA | Δ C pp [CI] | HIGH Δ | lost % | cost |
+|---|---|---|---|---|---|---|---|
+| plain (10 seeds) | −217.5 | −3.2 [−8.9,+4.4] | 80.8 | −10.4 [−13.9,−7.4] | −0.06 | 4.38 | 1714 |
+| floor@3 | −212.5 | +1.8 [−5.4,+8.3] | 88.1 | −3.2 [−5.2,−1.3] | +0.03 | 4.02 | 1735 |
+| shield@0.5 (Erlang floor) | −231.6 | −17.3 [−29.6,−7.6] | 95.3 | +4.1 | −0.12 | 5.16 | 1711 |
+| gate@0.05:mpc | −216.9 | −2.6 [−8.6,+3.6] | 81.0 | −10.3 | −0.04 | 4.30 | 1702 |
+| gate@0.15:mpc | −213.5 | +0.9 [−4.8,+6.2] | 81.4 | −9.9 [−13.7,−5.7] | −0.04 | 4.17 | 1685 |
+| hier:mpc (V3 net NOT trained for it) | −216 to −390 per seed | — | — | — | — | — | — |
+- floor@3 is the first variant that improves BOTH return (+5.0 vs plain, same seeds) and queue C (+7.3 pp) with no
+  retraining; still −3.2 pp C vs MPC (misses the −1 pp DEV target). Static floors are blunt but predictable:
+  the RL keeps its allocation freedom above the floor.
+- Gate: even when MPC is the default, the few RL overrides at d ≤ 0.15 already cost ~10 pp of queue C → the RL's
+  "confident" overrides are exactly the ones that take sessions from C. Gate rejected.
+- hier:mpc with the V3 net is unstable (seed 2 −390, seed 4 −339): a net never trained without activate/deactivate
+  behaves badly when they are removed. Expected; arm C trains in that setting.
+- Next: floor@4; floor@3 on arm B (Lagrangian) agents, on V3 guarded, on mpcguard; floor@3 for DDQN seeds 5-9;
+  arm E = training inside floor@3 (queued after arm C/C0/D).

@@ -24,7 +24,7 @@ from v4.e.common import E4, QC, EnvV4, load_manifest  # noqa: E402
 from v3.e.evaluate_v3 import KPI  # noqa: E402
 
 EXTRA = ["c_fail", "c_arrived", "c_alloc_mean", "alloc_mean", "n_keep", "n_move", "n_move_into_c", "n_move_out_c",
-         "n_fb_on", "n_fb_off", "n_act", "n_deact", "shield_active", "shield_vetoes", "shield_forced"]
+         "n_fb_on", "n_fb_off", "n_act", "n_deact", "shield_active", "shield_vetoes", "shield_forced", "rl_overrides"]
 
 
 def fname(spec):
@@ -67,7 +67,7 @@ def run_day(env, pol, d, trace=False):
            "c_fail": env.c_fail_day, "c_arrived": int((env.tape["q"] == QC).sum()),
            "c_alloc_mean": float(np.mean(c_alloc)), "alloc_mean": float(np.mean(alloc)), **cnt,
            "shield_active": pol.stats.get("shield_active", 0), "shield_vetoes": pol.stats.get("shield_vetoes", 0),
-           "shield_forced": pol.stats.get("shield_forced", 0)}
+           "shield_forced": pol.stats.get("shield_forced", 0), "rl_overrides": pol.stats.get("rl_overrides", 0)}
     return row, steps, lat
 
 
@@ -124,11 +124,15 @@ def eval_policy(args):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="dev", choices=["dev", "test4", "val"])
-    ap.add_argument("--policies", nargs="+", required=True)
+    ap.add_argument("--policies", nargs="*", default=[])
+    ap.add_argument("--policy-file", default=None, help="one policy spec per line (avoids shell quoting of '|')")
     ap.add_argument("--workers", type=int, default=1)
     ap.add_argument("--trace", action="store_true")
     a = ap.parse_args(argv)
-    jobs = [(p, a.split, a.trace) for p in a.policies]
+    specs = list(a.policies)
+    if a.policy_file:
+        specs += [l.strip() for l in open(a.policy_file) if l.strip() and not l.startswith("#")]
+    jobs = [(p, a.split, a.trace) for p in specs]
     if a.workers > 1:
         with ProcessPoolExecutor(a.workers) as ex:
             for spec, st in ex.map(eval_policy, jobs):

@@ -1,0 +1,2 @@
+hier:mpc:dueling_double_dqn_h64x64_150k_ownmpc_lag1d2t0.9w60k_s0
+hier:mpc:dueling_double_dqn_h64x64_150k_ownmpc_lag1d2t0.9w60k_s1
