@@ -1,0 +1,2 @@
+item_id,conversation_id,language,annotator_id,client_messages,replies_received,rating_1to5,confidence_low_med_high,cannot_judge_reason,comment
+I0000,<conversation id>,fr,ANN-1,<redacted client messages>,<replies the client received>,,,,
