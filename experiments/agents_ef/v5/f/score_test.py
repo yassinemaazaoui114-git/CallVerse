@@ -78,6 +78,7 @@ def main(argv=None):
                                      "p95": round(float(np.percentile(lat, 95)), 2)},
            "test_batch_s": round(batch_s, 1), "peak_rss_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1),
            "test_ids": [r["id"] for r in te], "test_pred": [round(float(x), 5) for x in pt],
+           "load_average_1_5_15": [round(x, 2) for x in __import__("os").getloadavg()],
            "scored_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     write_json(out, res)
     from v5.registry.registry import finish, register

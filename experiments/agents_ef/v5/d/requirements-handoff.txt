@@ -1,0 +1,16 @@
+# Minimal, cloud-tested versions for running the SELECTED Agent E and Agent F models locally (Windows or Linux).
+# NOT VERIFIED on Windows: these exact wheels were installed on Linux; check availability before installing.
+# Recorded from the cloud environment where every result was produced (Python 3.13.16, CPU).
+# scikit-learn MUST match exactly: the TF-IDF+Ridge scorer is a joblib pickle, and pickles are not guaranteed to
+# load across scikit-learn versions. torch: install the CPU wheel (or CUDA wheel only if GPU fine-tuning is approved).
+numpy==2.5.4
+scipy==1.18.1
+scikit-learn==1.9.1
+joblib==1.6.0
+torch==2.14.1          # CPU: pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+pyyaml==6.0.3
+pytest==9.1.1
+# Only for the optional neural Agent F model (e5-small trimmed); not needed for TF-IDF+Ridge or Agent E:
+# transformers==5.20.2
+# tokenizers==0.23.3
+# safetensors==0.8.0

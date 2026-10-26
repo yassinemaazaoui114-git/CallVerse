@@ -13,3 +13,6 @@
   ep 1 step 260/297 loss 0.2551 lr 1.19e-05 2145s
   ep 1 step 280/297 loss 0.2402 lr 1.12e-05 2284s
 n1_warm_full_mse epoch 1: VAL MAE 0.4111 Spearman 0.5871 (2468.4 s)
+  ep 2 step 20/297 loss 0.2219 lr 9.91e-06 224s
+  ep 2 step 40/297 loss 0.1983 lr 9.19e-06 430s
+  ep 2 step 60/297 loss 0.1918 lr 8.48e-06 639s
