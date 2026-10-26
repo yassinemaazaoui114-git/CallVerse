@@ -1,0 +1,10 @@
+{
+  "n_params": 0,
+  "shield": "shield@0.2",
+  "policy": "shield@0.2|rule:mpc:0.5",
+  "split": "dev",
+  "n_days": 104,
+  "eval_s": 55.0,
+  "decision_ms_p50": 2.4133,
+  "decision_ms_p95": 4.48
+}

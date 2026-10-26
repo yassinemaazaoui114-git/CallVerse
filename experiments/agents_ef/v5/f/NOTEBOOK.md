@@ -71,3 +71,19 @@ paired bootstrap over TEST dialogues + Holm; every experiment registered in `v5/
 - VAL paired bootstrap vs B_v3 (`results/f3_ridge_val_paired_ci.json`): even on VAL the selected roles gain is
   -0.0047 [-0.0105, +0.0009] — CI includes 0 on the selection set itself; only "nochar" is credibly worse
   (+0.0046 [0.0009, 0.0085]). Expectation written now: TEST gain of roles is likely ~0 (as in v4).
+
+## 16:20 — F2 results (`results/f2_collapse.json`, figures f2_*.png)
+- Calibration: slope of LABEL on PRED ≈ 1 (Ridge VAL 0.96, TEST 1.07; e5 TEST 1.05) → predictions are calibrated
+  on average; slope of PRED on LABEL = 0.32–0.34 ≈ R² (0.31–0.36) → the "collapse" is what a calibrated
+  predictor with low explained variance must do. Within a language R² is only 0.09–0.17 (EN and ZH); a big part of
+  the pooled R² is the corpus offset (group_mean alone: R² 0.24 on TEST).
+- Same-feature loss comparison (VAL): TF-IDF Ridge(MSE) 0.3954, SGD-squared 0.3954, SGD-Huber 0.3937 (-0.0017),
+  ordinal Frank&Hall 0.4029 (+0.0075). Frozen e5 linear MSE 0.4047, Huber 0.4085, ordinal 0.4108, MLP MSE 0.4067,
+  MLP Huber 0.4021. Huber widens the prediction SD a little but lowers dissatisfied-class error? NO: dissatisfied
+  MAE gets WORSE with Huber (TF-IDF 0.991→1.050, MLP 1.025→1.107); ordinal improves it slightly (0.991→0.976).
+  → The loss/head is not the cause of compression. Pre-registered N3 rule NOT met (Huber gain < 0.003 on TF-IDF,
+  worse on frozen-e5 linear; no >= 0.05 dissatisfied gain) → N3 Huber NOT run; slot = 2nd seed of the best of N1/N2.
+- Inflating predictions to the label SD (demo, not used): EN MAE 0.307→0.376, ZH 0.490→0.602 — variance is not accuracy.
+- Truncation (Ridge, VAL): tail beats head at 128 (0.3994 vs 0.4127) and 256 (0.3954 vs 0.4062); at 512 head ≈ tail
+  (0.3962 vs 0.3973) because most dialogues fit; full text 0.3956. The END of the dialogue carries the signal;
+  more context beyond 256 tokens does not help.

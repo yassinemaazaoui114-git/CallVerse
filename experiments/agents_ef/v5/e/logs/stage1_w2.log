@@ -5,3 +5,9 @@
 {"run_id": "dueling_dqn_h64x64_150k_flip0.0625_s0", "status": "done", "best_val_return": -181.13364864931418, "best_step": 150000, "train_wall_s": 671.4}
 [16:04:58] worker 2 end: --algo dueling_dqn --seed 0 --flip-cost 0.0625
 [16:04:58] worker 2 start: --algo dueling_dqn --seed 1 --nstep 3
+{"run_id": "dueling_dqn_h64x64_150k_n3_s1", "status": "done", "best_val_return": -188.90300938816293, "best_step": 150000, "train_wall_s": 529.6}
+[16:13:54] worker 2 end: --algo dueling_dqn --seed 1 --nstep 3
+[16:13:54] worker 2 start: --algo dueling_dqn --seed 1 --dr
+{"run_id": "dueling_dqn_h64x64_150k_dr_s1", "status": "done", "best_val_return": -187.48338425321512, "best_step": 150000, "train_wall_s": 436.4}
+[16:21:16] worker 2 end: --algo dueling_dqn --seed 1 --dr
+[16:21:16] worker 2 start: --algo dueling_dqn --seed 2 --per

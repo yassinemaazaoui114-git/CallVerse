@@ -67,3 +67,5 @@ paired two-level bootstrap vs control on the SAME seeds (v3 boot_diff).
   hysteresis (no activate within 2 steps after a deactivate, and the reverse; `hyst@2|…`) reduce reversals and
   change DEV return / queue-C SLA of the frozen V3 nets, with no retraining? Single setting k = 2 (no sweep).
   It complements the training-time flip cost arm (A-FLIP).
+
+- 16:20 an interim report was sent to Worker D by mistake (harness prompt); work continues with the full plan.

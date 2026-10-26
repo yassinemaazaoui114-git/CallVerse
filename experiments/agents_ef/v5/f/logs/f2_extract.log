@@ -10,3 +10,5 @@ train 4480
 val 0
 val 640
 test 0
+test 640
+saved /tmp/claude-0/-home-user/1a5e3645-531b-5493-9c5e-b45226413d98/scratchpad/f_v5/emb_e5_256.npz

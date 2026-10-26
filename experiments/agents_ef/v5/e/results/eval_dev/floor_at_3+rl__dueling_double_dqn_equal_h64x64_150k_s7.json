@@ -1,0 +1,14 @@
+{
+  "n_params": 8146,
+  "algo": "dueling_double_dqn",
+  "run_dir": "/home/user/CallVerse-research/experiments/agents_ef/v3/e/runs/dueling_double_dqn_equal_h64x64_150k_s7",
+  "ckpt_kb": 34.9,
+  "checkpoint": "best.pt",
+  "shield": "floor@3",
+  "policy": "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s7",
+  "split": "dev",
+  "n_days": 104,
+  "eval_s": 34.1,
+  "decision_ms_p50": 0.3717,
+  "decision_ms_p95": 0.7194
+}

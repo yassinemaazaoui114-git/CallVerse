@@ -1,0 +1,82 @@
+/home/user/CallVerse-research/experiments/agents_ef/v5/f/common.py:62: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  return float(spearmanr(y, p).statistic) if np.std(p) > 0 else float("nan")
+tail 128 {'val_mae': 0.3994, 'val_mae_en': 0.308, 'val_mae_zh': 0.497, 'val_spearman': 0.5587, 'val_slope': 0.2875, 'alpha': 10}
+tail 256 {'val_mae': 0.3954, 'val_mae_en': 0.307, 'val_mae_zh': 0.49, 'val_spearman': 0.5648, 'val_slope': 0.3223, 'alpha': 3}
+tail 512 {'val_mae': 0.3973, 'val_mae_en': 0.3074, 'val_mae_zh': 0.4934, 'val_spearman': 0.5605, 'val_slope': 0.3226, 'alpha': 3}
+head 128 {'val_mae': 0.4127, 'val_mae_en': 0.3186, 'val_mae_zh': 0.5134, 'val_spearman': 0.4882, 'val_slope': 0.2538, 'alpha': 10}
+head 256 {'val_mae': 0.4062, 'val_mae_en': 0.3168, 'val_mae_zh': 0.5018, 'val_spearman': 0.5135, 'val_slope': 0.2684, 'alpha': 10}
+head 512 {'val_mae': 0.3962, 'val_mae_en': 0.3077, 'val_mae_zh': 0.4907, 'val_spearman': 0.5572, 'val_slope': 0.3174, 'alpha': 3}
+{
+ "val_truncation_ridge": {
+  "tail128": {
+   "val_mae": 0.3994,
+   "val_mae_en": 0.308,
+   "val_mae_zh": 0.497,
+   "val_spearman": 0.5587,
+   "val_slope": 0.2875,
+   "alpha": 10
+  },
+  "tail256": {
+   "val_mae": 0.3954,
+   "val_mae_en": 0.307,
+   "val_mae_zh": 0.49,
+   "val_spearman": 0.5648,
+   "val_slope": 0.3223,
+   "alpha": 3
+  },
+  "tail512": {
+   "val_mae": 0.3973,
+   "val_mae_en": 0.3074,
+   "val_mae_zh": 0.4934,
+   "val_spearman": 0.5605,
+   "val_slope": 0.3226,
+   "alpha": 3
+  },
+  "head128": {
+   "val_mae": 0.4127,
+   "val_mae_en": 0.3186,
+   "val_mae_zh": 0.5134,
+   "val_spearman": 0.4882,
+   "val_slope": 0.2538,
+   "alpha": 10
+  },
+  "head256": {
+   "val_mae": 0.4062,
+   "val_mae_en": 0.3168,
+   "val_mae_zh": 0.5018,
+   "val_spearman": 0.5135,
+   "val_slope": 0.2684,
+   "alpha": 10
+  },
+  "head512": {
+   "val_mae": 0.3962,
+   "val_mae_en": 0.3077,
+   "val_mae_zh": 0.4907,
+   "val_spearman": 0.5572,
+   "val_slope": 0.3174,
+   "alpha": 3
+  },
+  "full": {
+   "val_mae": 0.39561697081397035,
+   "val_mae_en": 0.3072085818412766,
+   "val_mae_zh": 0.49014732562184044,
+   "val_spearman": 0.5626788675085806,
+   "val_slope": 0.32477990093635334,
+   "alpha": 3
+  }
+ },
+ "val_inflation_demo_not_used": {
+  "en": {
+   "mae_before": 0.307,
+   "mae_inflated_to_label_sd": 0.3764,
+   "qwk_before": -0.0085,
+   "qwk_inflated": 0.1911
+  },
+  "zh": {
+   "mae_before": 0.49,
+   "mae_inflated_to_label_sd": 0.6022,
+   "qwk_before": 0.2167,
+   "qwk_inflated": 0.2408
+  }
+ }
+}
