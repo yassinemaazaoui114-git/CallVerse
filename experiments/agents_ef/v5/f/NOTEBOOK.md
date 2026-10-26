@@ -32,3 +32,20 @@ paired bootstrap over TEST dialogues + Holm; every experiment registered in `v5/
   no licence = all rights reserved by default + Taobao platform data. Candidate for a licence request only.
 
 ## 15:42 — F3 Ridge VAL grid launched (1 thread; briefly 3 threads in total with N1)
+- Grid result (VAL, `results/f3_ridge_grid.json`): B_v3 reproduces V3 exactly (VAL 0.3954, alpha 3).
+  One-factor gains: roles +0.0047 (only factor >= 0.001); noword +0.0004; tailfull -0.0002; charwb25 0;
+  tail512 -0.0019; word13 -0.0006; char13 -0.0006; nochar -0.0046; mindf5 -0.0003; nosublin -0.0003; lang -0.0008.
+  Greedy rule → selected "roles" (VAL 0.3907). CAVEAT: v4 already scored a very similar roles variant on TEST
+  (tie, diff -0.0012 CI [-0.008, +0.006]); my TEST score of the v5 roles config will therefore not be a blind
+  confirmation in spirit even though the selection procedure is VAL-only. Written down before scoring.
+
+## 15:50 — F9 M7 v5 checks (`m7/quality_v5.py`, tests `tests/test_m7_v5.py`, 14 pass)
+- 7 new deterministic checks (refund promise unbacked by approved+executed refund, EN via callverse.slm.check and
+  FR regex; delivery-time promise without data date; reply numbers not in the decision; instruction/tool-format
+  leak; EN client→FR reply; follow-up promise without subscription/escalation; executed refund > balance).
+- On the 240 scripted conversations: 0 new flags (templates are consistent with the decision) → 0 false positives;
+  recall only from unit tests (no planted defect of these kinds exists in the corpus).
+
+## 15:55 — F8 labelling package (`labelling/`), dry run SCRIPTED (pseudo-random fill-in ratings, NOT labels)
+- Test found a rounding bug in allocate() (total 101 for n=100) → fixed (exact total).
+- Finding: in the scripted corpus every FR conversation is P1 (English templates → reply_language_mismatch).

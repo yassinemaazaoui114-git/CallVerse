@@ -81,6 +81,16 @@ def allocate(pop: dict, n: int) -> dict:
         n0 = min(N0, round(q) - n1)
         n1 = min(N1, round(q) - n0)                                     # top up P1 if P0 is short
         out[(g, "P1")], out[(g, "P0")] = n1, n0
+    # rounding can leave the total 1-2 off n: fix it on the largest strata that have room (P0 first)
+    total_pop = sum(pop.values())
+    target = min(n, total_pop)
+    order = sorted(out, key=lambda h: (h[1] != "P0", -out[h]))
+    while sum(out.values()) > target:
+        h = next(h for h in order if out[h] > 0)
+        out[h] -= 1
+    while sum(out.values()) < target:
+        h = next(h for h in order if out[h] < pop.get(h, 0))
+        out[h] += 1
     return out
 
 

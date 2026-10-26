@@ -1,3 +1,4 @@
 --algo dueling_dqn --seed 0 --per
 --algo dueling_dqn --seed 0 --nstep 3
 --algo dueling_dqn --seed 0 --dr
+--algo dueling_dqn --seed 0 --flip-cost 0.0625
