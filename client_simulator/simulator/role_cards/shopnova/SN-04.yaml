@@ -1,0 +1,15 @@
+id: SN-04
+company: shopnova
+reason: return_item
+mood: insistent
+typo_level: medium
+persona:
+  description: Bought a yoga mat and a water bottle in August and barely used them.
+  language: English
+goal: You want to return both items and get 52.80 EUR back, even though it was delivered
+  weeks ago.
+facts:
+  order_id: 4515
+  amount: 52.80 EUR
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-SN-04.yaml

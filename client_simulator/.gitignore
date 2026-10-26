@@ -1,0 +1,30 @@
+# Client Simulator: never commit data, weights, credentials or local working files.
+# (Applies inside client_simulator/ only; the repo root .gitignore still applies too.)
+
+# Secrets and credentials
+.env
+kaggle.json
+
+# Data: downloads, LLM cache, processed datasets (third-party data; rebuilt by scripts/)
+data/
+
+# Model weights (scorer ONNX, writer GGUF/safetensors) and Kaggle job inputs/outputs
+models/
+kaggle_upload/
+kaggle_out/
+results/p8_models/
+*.onnx
+*.gguf
+*.safetensors
+*.pkl
+
+# Local logs and working notes
+logs/
+TASK*.md
+PROGRESS.md
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

@@ -1,0 +1,42 @@
+{
+  "lines": [
+    "Out of 100 real customers, 69 give 5, 13 give 4, 3 give 3, 1 give 2 and 13 give 1. Most give 5 unless something went wrong; 2 and 3 are rare.",
+    "Waiting time matters: answered in under 5 minutes the average is 4.48; after more than 8 hours it is 3.65 and 26% give 1 (vs 8% when answered fast).",
+    "Late deliveries score lowest (average 4.07); damaged-item contacts highest (4.60).",
+    "Customers whose remark is negative (not solved, worst, bad, pathetic) give 1 in 64% of cases (average 2.19); customers whose remark is positive (good, thanks, happy) give 5 in 88% of cases (average 4.80).",
+    "Customers who wrote no remark average 4.33."
+  ],
+  "shots": [
+    {
+      "id": "csat_22099",
+      "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about a late delivery (topic: Delayed). You waited more than 8 hours for the first answer. After the contact you wrote this remark: \"Very worst delivery commitment, ordered a mobile with one <NAME> delivery, after three days also not received yet.\"",
+      "score": 1,
+      "comment": "Very worst delivery commitment, ordered a mobile with one <NAME> delivery, after three days also not received yet."
+    },
+    {
+      "id": "csat_61481",
+      "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about returning an item (topic: Reverse Pickup Enquiry). You waited 5 to 30 minutes for the first answer. After the contact you wrote this remark: \"She was pretty nice to me..But make sure that my issue must be resolved..\"",
+      "score": 5,
+      "comment": "She was pretty nice to me..But make sure that my issue must be resolved.."
+    },
+    {
+      "id": "csat_75294",
+      "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about another question (topic: Product Specific Information). The waiting time is not known. After the contact you wrote this remark: \"I will never buy from Shopzilla again\"",
+      "score": 2,
+      "comment": "I will never buy from Shopzilla again"
+    },
+    {
+      "id": "csat_02358",
+      "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about a late delivery (topic: Delayed). You waited less than 5 minutes for the first answer. After the contact you wrote this remark: \"Right information and good wehavear ??\"",
+      "score": 4,
+      "comment": "Right information and good wehavear ??"
+    },
+    {
+      "id": "csat_13769",
+      "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about another question (topic: Product Specific Information). You waited 2 to 8 hours for the first answer. After the contact you wrote this remark: \"Refund process to be fast and convenient.\"",
+      "score": 3,
+      "comment": "Refund process to be fast and convenient."
+    }
+  ],
+  "source": "eCommerce Customer Service Satisfaction (Kaggle ddosad), licence to verify, https://www.kaggle.com/datasets/ddosad/ecommerce-customer-service-satisfaction (train split only)"
+}

@@ -1,0 +1,15 @@
+id: SN-06
+company: shopnova
+reason: damaged_item
+mood: anxious, apologetic
+typo_level: low
+persona:
+  description: 78 years old, visually impaired, lives alone, uses a screen reader.
+  language: English
+goal: Your air fryer stopped heating yesterday. You cannot get to a drop-off point
+  and would prefer a phone call.
+facts:
+  order_id: 4517
+  item: air fryer
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-SN-06.yaml

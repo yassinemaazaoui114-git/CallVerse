@@ -1,0 +1,15 @@
+id: SN-03
+company: shopnova
+reason: order_status
+mood: worried, short on time
+typo_level: medium
+persona:
+  description: Ordered wireless earbuds as a birthday present.
+  language: English
+goal: You paid for earbuds but nothing has shipped yet and the birthday is soon. You
+  want to know when they will ship.
+facts:
+  order_id: 4514
+  item: wireless earbuds
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-SN-03.yaml

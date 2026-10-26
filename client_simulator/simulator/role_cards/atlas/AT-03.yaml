@@ -1,0 +1,15 @@
+id: AT-03
+company: atlas
+reason: refund_request
+mood: disappointed
+typo_level: medium
+persona:
+  description: Student travelling Casablanca to Marrakech to visit friends.
+  language: English
+goal: Your bus on 18 October was cancelled because of a strike. You want another bus
+  the same day, or your money back.
+facts:
+  booking_ref: BK-7733
+  date: 18 October
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-AT-03.yaml

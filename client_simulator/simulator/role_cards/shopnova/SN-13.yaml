@@ -1,0 +1,12 @@
+id: SN-13
+company: shopnova
+reason: late_delivery
+mood: anxious
+typo_level: medium
+persona:
+  description: Ordered medicine-cabinet supplies for an elderly parent.
+  language: English
+goal: The parcel was due two days ago and you need it before the weekend.
+facts:
+  order_id: 4526
+patience_turns: 4

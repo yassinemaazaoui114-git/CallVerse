@@ -1,0 +1,13 @@
+id: SN-15
+company: shopnova
+reason: refund_request
+mood: angry
+typo_level: high
+persona:
+  description: Was charged twice for the same order.
+  language: English
+goal: You see two payments of 39.99 EUR on your bank account and want one refunded.
+facts:
+  order_id: 4528
+  amount: 39.99 EUR
+patience_turns: 4

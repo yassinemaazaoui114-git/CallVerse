@@ -1,0 +1,16 @@
+id: AT-02
+company: atlas
+reason: delay_disruption
+mood: annoyed
+typo_level: medium
+persona:
+  description: Flying Frankfurt to Djerba today for a family holiday, stuck at the
+    gate.
+  language: English
+goal: Your flight is already four hours late and nobody tells you anything. You want
+  to know if you get compensation and how much.
+facts:
+  booking_ref: BK-7732
+  route: Frankfurt-Djerba
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-AT-02.yaml
