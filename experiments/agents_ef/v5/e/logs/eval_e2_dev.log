@@ -1,0 +1,8 @@
+rule:mpc:0.5 done 43.3s ret -214.32
+floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s0 done 33.0s ret -210.93
+floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s0 done 33.8s ret -206.04
+floor@3|rl:dueling_dqn_equal_h64x64_150k_s0 done 33.4s ret -222.04
+rl:dueling_dqn_equal_h64x64_150k_s0 done 28.7s ret -225.42
+floor@3|rl:dueling_dqn_equal_h64x64_150k_s1 done 34.1s ret -216.02
+rl:dueling_dqn_equal_h64x64_150k_s1 done 34.8s ret -220.20
+floor@3|rl:dueling_dqn_equal_h64x64_150k_s2 done 37.1s ret -225.12

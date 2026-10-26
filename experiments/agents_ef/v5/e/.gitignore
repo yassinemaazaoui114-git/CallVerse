@@ -1,0 +1,4 @@
+# checkpoints are git-ignored (hashes are recorded in deliverables/E_REPRODUCE.md)
+*.pt
+*.pt.tmp
+results/**/*.trace.jsonl

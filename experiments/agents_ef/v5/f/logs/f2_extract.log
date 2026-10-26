@@ -1,0 +1,4 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:  15%|█▌        | 30/199 [00:00<00:04, 40.32it/s]Loading weights:  31%|███       | 62/199 [00:01<00:03, 35.18it/s]Loading weights:  50%|████▉     | 99/199 [00:02<00:02, 44.70it/s]Loading weights:  55%|█████▌    | 110/199 [00:03<00:03, 29.65it/s]Loading weights:  71%|███████▏  | 142/199 [00:03<00:01, 35.63it/s]Loading weights:  73%|███████▎  | 146/199 [00:04<00:01, 28.60it/s]Loading weights:  86%|████████▌ | 171/199 [00:04<00:00, 43.36it/s]Loading weights:  91%|█████████▏| 182/199 [00:04<00:00, 47.18it/s]Loading weights: 100%|██████████| 199/199 [00:04<00:00, 41.86it/s]
+train 0
+train 640
+train 1280

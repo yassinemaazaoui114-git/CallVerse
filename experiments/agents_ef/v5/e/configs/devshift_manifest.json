@@ -1,0 +1,1696 @@
+{
+ "split": "devshift",
+ "days_per_family": 6,
+ "families": [
+  "normal",
+  "morning_peak",
+  "two_peak",
+  "tracking_spike",
+  "volatile",
+  "slowdown",
+  "failure",
+  "high_priority_surge"
+ ],
+ "train_families": [
+  "normal",
+  "morning_peak",
+  "two_peak",
+  "tracking_spike",
+  "volatile",
+  "slowdown",
+  "failure",
+  "high_priority_surge"
+ ],
+ "heldout_families": [
+  "evening_peak",
+  "refund_surge",
+  "combined_shock",
+  "severe_overload",
+  "random_shape"
+ ],
+ "unseen_shift_families": [
+  "shift_slow_service",
+  "shift_impatient",
+  "shift_urgent_wave"
+ ],
+ "seed_rule": "seed = 760000 + 1000*family_index + i",
+ "dr_ranges_sha256": "47b5db430d9ee8f78c0df32110e1158d9d8a42b42a15f619b1f16a2e8927aaf8",
+ "days": [
+  {
+   "day_id": "devshift-normal-000",
+   "family": "normal",
+   "seed": 760000,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.9901,
+   "arrivals": 1631,
+   "shift": {
+    "base_family": "normal",
+    "rho_mult": 0.9901,
+    "shape_knots": [
+     1.0144,
+     0.8693,
+     0.9482,
+     1.1275
+    ],
+    "svc_mult": [
+     1.0709,
+     1.0625,
+     0.8655,
+     0.9566
+    ],
+    "pat_mult": [
+     0.8014,
+     0.9467,
+     0.8124,
+     0.906
+    ],
+    "extra_spikes": [
+     [
+      2,
+      45,
+      56,
+      1.6985
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-normal-001",
+   "family": "normal",
+   "seed": 760001,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.57894,
+   "arrivals": 1014,
+   "shift": {
+    "base_family": "normal",
+    "rho_mult": 0.9649,
+    "shape_knots": null,
+    "svc_mult": [
+     1.1298,
+     1.0871,
+     0.9565,
+     1.125
+    ],
+    "pat_mult": [
+     0.9881,
+     1.0683,
+     1.0207,
+     1.0356
+    ],
+    "extra_spikes": [
+     [
+      1,
+      43,
+      57,
+      1.3733
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-normal-002",
+   "family": "normal",
+   "seed": 760002,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.86504,
+   "arrivals": 1417,
+   "shift": {
+    "base_family": "normal",
+    "rho_mult": 1.0813,
+    "shape_knots": null,
+    "svc_mult": [
+     0.9279,
+     0.9312,
+     1.0568,
+     1.0848
+    ],
+    "pat_mult": [
+     1.0618,
+     1.1881,
+     1.1554,
+     1.0904
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-normal-003",
+   "family": "normal",
+   "seed": 760003,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.82647,
+   "arrivals": 1317,
+   "shift": {
+    "base_family": "normal",
+    "rho_mult": 0.9183,
+    "shape_knots": null,
+    "svc_mult": [
+     0.8699,
+     0.9774,
+     0.9937,
+     1.0814
+    ],
+    "pat_mult": [
+     1.1418,
+     0.8155,
+     0.9277,
+     0.8566
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     58,
+     81,
+     2
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-normal-004",
+   "family": "normal",
+   "seed": 760004,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.55494,
+   "arrivals": 899,
+   "shift": {
+    "base_family": "normal",
+    "rho_mult": 0.9249,
+    "shape_knots": [
+     1.0562,
+     0.9313,
+     0.9936,
+     0.9071
+    ],
+    "svc_mult": [
+     1.0113,
+     1.0293,
+     0.9278,
+     0.8506
+    ],
+    "pat_mult": [
+     1.127,
+     1.0809,
+     0.9311,
+     0.908
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-normal-005",
+   "family": "normal",
+   "seed": 760005,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.9123300000000001,
+   "arrivals": 1492,
+   "shift": {
+    "base_family": "normal",
+    "rho_mult": 1.0137,
+    "shape_knots": [
+     1.0951,
+     0.8325,
+     0.927,
+     0.8747
+    ],
+    "svc_mult": [
+     1.0989,
+     1.0723,
+     0.8543,
+     1.0112
+    ],
+    "pat_mult": [
+     1.0966,
+     0.8225,
+     1.1976,
+     1.1948
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     10,
+     21,
+     3
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-morning_peak-000",
+   "family": "morning_peak",
+   "seed": 761000,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.84996,
+   "arrivals": 1435,
+   "shift": {
+    "base_family": "morning_peak",
+    "rho_mult": 0.9444,
+    "shape_knots": null,
+    "svc_mult": [
+     0.9293,
+     1.0606,
+     1.1426,
+     0.9574
+    ],
+    "pat_mult": [
+     1.0443,
+     0.9981,
+     1.0345,
+     0.8257
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-morning_peak-001",
+   "family": "morning_peak",
+   "seed": 761001,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.74152,
+   "arrivals": 1252,
+   "shift": {
+    "base_family": "morning_peak",
+    "rho_mult": 0.9269,
+    "shape_knots": [
+     0.8583,
+     0.9558,
+     0.9185,
+     0.9815
+    ],
+    "svc_mult": [
+     0.9978,
+     0.9805,
+     1.13,
+     1.0621
+    ],
+    "pat_mult": [
+     0.8327,
+     1.0959,
+     0.8766,
+     0.8473
+    ],
+    "extra_spikes": [
+     [
+      2,
+      55,
+      69,
+      1.5545
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-morning_peak-002",
+   "family": "morning_peak",
+   "seed": 761002,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.0077,
+   "arrivals": 1670,
+   "shift": {
+    "base_family": "morning_peak",
+    "rho_mult": 1.0077,
+    "shape_knots": [
+     1.1865,
+     0.8867,
+     1.1842,
+     0.8796
+    ],
+    "svc_mult": [
+     1.0274,
+     1.0716,
+     0.9079,
+     1.088
+    ],
+    "pat_mult": [
+     1.1362,
+     1.0283,
+     0.9976,
+     1.0068
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     57,
+     67,
+     5
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-morning_peak-003",
+   "family": "morning_peak",
+   "seed": 761003,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.91224,
+   "arrivals": 1627,
+   "shift": {
+    "base_family": "morning_peak",
+    "rho_mult": 1.0136,
+    "shape_knots": [
+     0.8921,
+     0.8081,
+     1.0661,
+     1.1674
+    ],
+    "svc_mult": [
+     0.897,
+     1.0485,
+     0.9985,
+     1.0771
+    ],
+    "pat_mult": [
+     0.9873,
+     0.8938,
+     0.8049,
+     0.8853
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-morning_peak-004",
+   "family": "morning_peak",
+   "seed": 761004,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.7345600000000001,
+   "arrivals": 1240,
+   "shift": {
+    "base_family": "morning_peak",
+    "rho_mult": 0.9182,
+    "shape_knots": [
+     1.041,
+     0.8042,
+     0.9315,
+     1.0931
+    ],
+    "svc_mult": [
+     0.9514,
+     0.9656,
+     0.9457,
+     1.053
+    ],
+    "pat_mult": [
+     1.0753,
+     0.9743,
+     0.874,
+     1.1224
+    ],
+    "extra_spikes": [
+     [
+      2,
+      28,
+      41,
+      1.7801
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-morning_peak-005",
+   "family": "morning_peak",
+   "seed": 761005,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.59358,
+   "arrivals": 970,
+   "shift": {
+    "base_family": "morning_peak",
+    "rho_mult": 0.9893,
+    "shape_knots": [
+     1.0914,
+     1.0048,
+     0.9558,
+     0.8491
+    ],
+    "svc_mult": [
+     0.9515,
+     0.8824,
+     1.0374,
+     0.8786
+    ],
+    "pat_mult": [
+     0.8904,
+     0.9457,
+     0.9161,
+     0.8801
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-two_peak-000",
+   "family": "two_peak",
+   "seed": 762000,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.13641,
+   "arrivals": 1945,
+   "shift": {
+    "base_family": "two_peak",
+    "rho_mult": 1.0331,
+    "shape_knots": null,
+    "svc_mult": [
+     0.8905,
+     1.0846,
+     0.9033,
+     1.0453
+    ],
+    "pat_mult": [
+     0.8488,
+     0.9403,
+     1.0011,
+     0.8861
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-two_peak-001",
+   "family": "two_peak",
+   "seed": 762001,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.9178200000000001,
+   "arrivals": 1573,
+   "shift": {
+    "base_family": "two_peak",
+    "rho_mult": 1.0198,
+    "shape_knots": [
+     1.0987,
+     1.1333,
+     0.9566,
+     0.9947
+    ],
+    "svc_mult": [
+     0.9119,
+     0.8533,
+     1.1152,
+     1.0661
+    ],
+    "pat_mult": [
+     0.9688,
+     1.1414,
+     1.0132,
+     0.8849
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-two_peak-002",
+   "family": "two_peak",
+   "seed": 762002,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.77656,
+   "arrivals": 1329,
+   "shift": {
+    "base_family": "two_peak",
+    "rho_mult": 0.9707,
+    "shape_knots": null,
+    "svc_mult": [
+     0.8936,
+     0.99,
+     0.8984,
+     0.9785
+    ],
+    "pat_mult": [
+     1.0799,
+     1.129,
+     1.1937,
+     0.9248
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-two_peak-003",
+   "family": "two_peak",
+   "seed": 762003,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.59622,
+   "arrivals": 1024,
+   "shift": {
+    "base_family": "two_peak",
+    "rho_mult": 0.9937,
+    "shape_knots": null,
+    "svc_mult": [
+     1.1141,
+     1.0773,
+     1.01,
+     1.0806
+    ],
+    "pat_mult": [
+     1.1723,
+     1.0054,
+     1.1109,
+     0.8965
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     48,
+     73,
+     3
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-two_peak-004",
+   "family": "two_peak",
+   "seed": 762004,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.1709500000000002,
+   "arrivals": 2044,
+   "shift": {
+    "base_family": "two_peak",
+    "rho_mult": 1.0645,
+    "shape_knots": null,
+    "svc_mult": [
+     1.1209,
+     1.076,
+     0.9293,
+     0.9261
+    ],
+    "pat_mult": [
+     1.0156,
+     0.9279,
+     1.1877,
+     0.9605
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     8,
+     27,
+     4
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-two_peak-005",
+   "family": "two_peak",
+   "seed": 762005,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.6428999999999999,
+   "arrivals": 1046,
+   "shift": {
+    "base_family": "two_peak",
+    "rho_mult": 1.0715,
+    "shape_knots": [
+     1.0009,
+     1.061,
+     0.8509,
+     0.8847
+    ],
+    "svc_mult": [
+     0.8877,
+     1.1449,
+     1.0932,
+     0.8649
+    ],
+    "pat_mult": [
+     1.1669,
+     0.8574,
+     0.8727,
+     0.9489
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     20,
+     39,
+     2
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-tracking_spike-000",
+   "family": "tracking_spike",
+   "seed": 763000,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.945,
+   "arrivals": 1704,
+   "shift": {
+    "base_family": "tracking_spike",
+    "rho_mult": 0.945,
+    "shape_knots": null,
+    "svc_mult": [
+     0.9808,
+     1.046,
+     1.0142,
+     1.0724
+    ],
+    "pat_mult": [
+     0.9156,
+     1.1587,
+     1.1215,
+     1.0965
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-tracking_spike-001",
+   "family": "tracking_spike",
+   "seed": 763001,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.0647,
+   "arrivals": 1991,
+   "shift": {
+    "base_family": "tracking_spike",
+    "rho_mult": 1.0647,
+    "shape_knots": [
+     0.8665,
+     1.1318,
+     1.0723,
+     0.8192
+    ],
+    "svc_mult": [
+     0.9993,
+     1.0957,
+     0.9679,
+     0.9653
+    ],
+    "pat_mult": [
+     1.0296,
+     0.81,
+     0.9332,
+     0.9967
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-tracking_spike-002",
+   "family": "tracking_spike",
+   "seed": 763002,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.02465,
+   "arrivals": 1843,
+   "shift": {
+    "base_family": "tracking_spike",
+    "rho_mult": 0.9315,
+    "shape_knots": [
+     1.1707,
+     1.0843,
+     1.0894,
+     1.117
+    ],
+    "svc_mult": [
+     0.9704,
+     1.0212,
+     0.8509,
+     0.8771
+    ],
+    "pat_mult": [
+     1.0601,
+     1.0691,
+     1.0172,
+     0.9018
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-tracking_spike-003",
+   "family": "tracking_spike",
+   "seed": 763003,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.1924000000000001,
+   "arrivals": 2268,
+   "shift": {
+    "base_family": "tracking_spike",
+    "rho_mult": 1.084,
+    "shape_knots": null,
+    "svc_mult": [
+     0.8525,
+     0.9544,
+     1.1039,
+     1.0114
+    ],
+    "pat_mult": [
+     0.8223,
+     0.8237,
+     1.0027,
+     1.1801
+    ],
+    "extra_spikes": [
+     [
+      1,
+      18,
+      48,
+      1.7081
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-tracking_spike-004",
+   "family": "tracking_spike",
+   "seed": 763004,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.7718400000000001,
+   "arrivals": 1348,
+   "shift": {
+    "base_family": "tracking_spike",
+    "rho_mult": 0.9648,
+    "shape_knots": null,
+    "svc_mult": [
+     1.0905,
+     1.058,
+     0.9059,
+     0.8645
+    ],
+    "pat_mult": [
+     1.0375,
+     0.8169,
+     0.936,
+     1.0719
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-tracking_spike-005",
+   "family": "tracking_spike",
+   "seed": 763005,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.74624,
+   "arrivals": 1386,
+   "shift": {
+    "base_family": "tracking_spike",
+    "rho_mult": 0.9328,
+    "shape_knots": null,
+    "svc_mult": [
+     1.0374,
+     1.1034,
+     1.0837,
+     1.0842
+    ],
+    "pat_mult": [
+     1.0927,
+     1.1831,
+     0.8424,
+     1.0055
+    ],
+    "extra_spikes": [
+     [
+      2,
+      75,
+      83,
+      2.1411
+     ]
+    ],
+    "extra_failure": [
+     8,
+     25,
+     4
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-volatile-000",
+   "family": "volatile",
+   "seed": 764000,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.6460134108761344,
+   "arrivals": 1080,
+   "shift": {
+    "base_family": "volatile",
+    "rho_mult": 1.0479,
+    "shape_knots": null,
+    "svc_mult": [
+     0.9131,
+     1.0975,
+     1.1084,
+     1.0897
+    ],
+    "pat_mult": [
+     0.8342,
+     1.0661,
+     1.0658,
+     0.9164
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-volatile-001",
+   "family": "volatile",
+   "seed": 764001,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.9222915699650331,
+   "arrivals": 1602,
+   "shift": {
+    "base_family": "volatile",
+    "rho_mult": 1.0665,
+    "shape_knots": null,
+    "svc_mult": [
+     1.0916,
+     0.9233,
+     1.0196,
+     1.0724
+    ],
+    "pat_mult": [
+     1.1878,
+     1.028,
+     1.1963,
+     1.1042
+    ],
+    "extra_spikes": [
+     [
+      1,
+      73,
+      93,
+      1.355
+     ]
+    ],
+    "extra_failure": [
+     53,
+     71,
+     2
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-volatile-002",
+   "family": "volatile",
+   "seed": 764002,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.6749491990989949,
+   "arrivals": 1223,
+   "shift": {
+    "base_family": "volatile",
+    "rho_mult": 1.0655,
+    "shape_knots": null,
+    "svc_mult": [
+     1.1396,
+     0.9158,
+     0.9852,
+     1.1117
+    ],
+    "pat_mult": [
+     1.123,
+     0.9772,
+     1.0406,
+     0.9846
+    ],
+    "extra_spikes": [
+     [
+      1,
+      54,
+      83,
+      1.8404
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-volatile-003",
+   "family": "volatile",
+   "seed": 764003,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.36388,
+   "arrivals": 612,
+   "shift": {
+    "base_family": "volatile",
+    "rho_mult": 0.9097,
+    "shape_knots": [
+     0.941,
+     0.8016,
+     1.1233,
+     1.0123
+    ],
+    "svc_mult": [
+     0.8646,
+     0.9403,
+     0.9843,
+     1.0046
+    ],
+    "pat_mult": [
+     1.1953,
+     0.81,
+     1.1072,
+     0.8632
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-volatile-004",
+   "family": "volatile",
+   "seed": 764004,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.6220175280016196,
+   "arrivals": 1031,
+   "shift": {
+    "base_family": "volatile",
+    "rho_mult": 1.0944,
+    "shape_knots": [
+     1.1026,
+     1.0233,
+     1.1855,
+     0.9606
+    ],
+    "svc_mult": [
+     1.1498,
+     0.9062,
+     0.8848,
+     1.0966
+    ],
+    "pat_mult": [
+     0.8487,
+     0.957,
+     0.9611,
+     0.9149
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-volatile-005",
+   "family": "volatile",
+   "seed": 764005,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.7823136362150711,
+   "arrivals": 1318,
+   "shift": {
+    "base_family": "volatile",
+    "rho_mult": 1.0877,
+    "shape_knots": null,
+    "svc_mult": [
+     1.108,
+     0.9279,
+     0.9159,
+     0.9289
+    ],
+    "pat_mult": [
+     0.8028,
+     1.0889,
+     1.0294,
+     0.9729
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-slowdown-000",
+   "family": "slowdown",
+   "seed": 765000,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.61278,
+   "arrivals": 1025,
+   "shift": {
+    "base_family": "slowdown",
+    "rho_mult": 1.0213,
+    "shape_knots": null,
+    "svc_mult": [
+     0.8513,
+     0.9641,
+     0.9403,
+     1.1042
+    ],
+    "pat_mult": [
+     1.0238,
+     1.1759,
+     0.9081,
+     0.8606
+    ],
+    "extra_spikes": [
+     [
+      2,
+      81,
+      93,
+      2.0106
+     ]
+    ],
+    "extra_failure": [
+     7,
+     29,
+     6
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-slowdown-001",
+   "family": "slowdown",
+   "seed": 765001,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.8260000000000001,
+   "arrivals": 1335,
+   "shift": {
+    "base_family": "slowdown",
+    "rho_mult": 1.0325,
+    "shape_knots": [
+     0.8239,
+     1.1218,
+     0.8829,
+     0.9777
+    ],
+    "svc_mult": [
+     1.1329,
+     1.1394,
+     1.05,
+     1.1264
+    ],
+    "pat_mult": [
+     1.0782,
+     0.9423,
+     1.0367,
+     1.1055
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-slowdown-002",
+   "family": "slowdown",
+   "seed": 765002,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.10979,
+   "arrivals": 1900,
+   "shift": {
+    "base_family": "slowdown",
+    "rho_mult": 1.0089,
+    "shape_knots": [
+     1.0564,
+     1.0287,
+     0.9001,
+     0.8563
+    ],
+    "svc_mult": [
+     0.8642,
+     1.0942,
+     1.0772,
+     1.0272
+    ],
+    "pat_mult": [
+     0.9092,
+     0.8851,
+     0.8224,
+     1.1864
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-slowdown-003",
+   "family": "slowdown",
+   "seed": 765003,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.61122,
+   "arrivals": 1001,
+   "shift": {
+    "base_family": "slowdown",
+    "rho_mult": 1.0187,
+    "shape_knots": null,
+    "svc_mult": [
+     0.9993,
+     1.0665,
+     0.8834,
+     1.0028
+    ],
+    "pat_mult": [
+     0.967,
+     1.0517,
+     1.1187,
+     0.8893
+    ],
+    "extra_spikes": [
+     [
+      2,
+      18,
+      29,
+      2.0607
+     ]
+    ],
+    "extra_failure": [
+     34,
+     51,
+     2
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-slowdown-004",
+   "family": "slowdown",
+   "seed": 765004,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.9835200000000001,
+   "arrivals": 1609,
+   "shift": {
+    "base_family": "slowdown",
+    "rho_mult": 1.0928,
+    "shape_knots": [
+     0.9228,
+     0.8836,
+     0.9879,
+     0.9696
+    ],
+    "svc_mult": [
+     1.0292,
+     0.8771,
+     1.1345,
+     1.039
+    ],
+    "pat_mult": [
+     0.8164,
+     1.1395,
+     1.065,
+     0.8797
+    ],
+    "extra_spikes": [
+     [
+      2,
+      26,
+      33,
+      1.9182
+     ]
+    ],
+    "extra_failure": [
+     48,
+     60,
+     3
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-slowdown-005",
+   "family": "slowdown",
+   "seed": 765005,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.9855,
+   "arrivals": 1619,
+   "shift": {
+    "base_family": "slowdown",
+    "rho_mult": 1.095,
+    "shape_knots": [
+     0.8391,
+     1.0893,
+     0.9695,
+     0.9783
+    ],
+    "svc_mult": [
+     1.1137,
+     0.9028,
+     1.0647,
+     1.0724
+    ],
+    "pat_mult": [
+     0.863,
+     1.1576,
+     0.9644,
+     0.9573
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-failure-000",
+   "family": "failure",
+   "seed": 766000,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.87183,
+   "arrivals": 1512,
+   "shift": {
+    "base_family": "failure",
+    "rho_mult": 0.9687,
+    "shape_knots": [
+     1.0594,
+     1.1836,
+     1.1705,
+     1.0821
+    ],
+    "svc_mult": [
+     0.8756,
+     1.1091,
+     0.9596,
+     0.9587
+    ],
+    "pat_mult": [
+     1.0099,
+     0.8952,
+     0.8064,
+     1.196
+    ],
+    "extra_spikes": [
+     [
+      2,
+      23,
+      34,
+      2.3713
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-failure-001",
+   "family": "failure",
+   "seed": 766001,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.88452,
+   "arrivals": 1574,
+   "shift": {
+    "base_family": "failure",
+    "rho_mult": 0.9828,
+    "shape_knots": [
+     0.9916,
+     0.8607,
+     0.8781,
+     1.0402
+    ],
+    "svc_mult": [
+     1.0565,
+     1.0329,
+     0.9006,
+     0.8531
+    ],
+    "pat_mult": [
+     1.0671,
+     1.1384,
+     1.11,
+     1.0634
+    ],
+    "extra_spikes": [
+     [
+      2,
+      47,
+      57,
+      2.1049
+     ],
+     [
+      1,
+      35,
+      55,
+      1.6823
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-failure-002",
+   "family": "failure",
+   "seed": 766002,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.82305,
+   "arrivals": 1419,
+   "shift": {
+    "base_family": "failure",
+    "rho_mult": 0.9145,
+    "shape_knots": null,
+    "svc_mult": [
+     0.9599,
+     0.9905,
+     1.0658,
+     0.8647
+    ],
+    "pat_mult": [
+     0.9488,
+     1.1277,
+     0.8499,
+     0.8514
+    ],
+    "extra_spikes": [
+     [
+      1,
+      34,
+      59,
+      1.3311
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-failure-003",
+   "family": "failure",
+   "seed": 766003,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.9476,
+   "arrivals": 1653,
+   "shift": {
+    "base_family": "failure",
+    "rho_mult": 0.9476,
+    "shape_knots": null,
+    "svc_mult": [
+     0.9209,
+     1.1413,
+     1.0373,
+     0.9497
+    ],
+    "pat_mult": [
+     1.1006,
+     1.1634,
+     1.1663,
+     1.1697
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     35,
+     58,
+     2
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-failure-004",
+   "family": "failure",
+   "seed": 766004,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.9602999999999999,
+   "arrivals": 1704,
+   "shift": {
+    "base_family": "failure",
+    "rho_mult": 1.067,
+    "shape_knots": null,
+    "svc_mult": [
+     1.1122,
+     0.8989,
+     1.1024,
+     0.9212
+    ],
+    "pat_mult": [
+     1.0623,
+     1.0741,
+     1.161,
+     1.1711
+    ],
+    "extra_spikes": [
+     [
+      1,
+      28,
+      46,
+      1.3634
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-failure-005",
+   "family": "failure",
+   "seed": 766005,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.1944900000000003,
+   "arrivals": 2037,
+   "shift": {
+    "base_family": "failure",
+    "rho_mult": 1.0859,
+    "shape_knots": [
+     1.0265,
+     0.8403,
+     1.1071,
+     1.0246
+    ],
+    "svc_mult": [
+     0.9075,
+     1.058,
+     0.8626,
+     0.9478
+    ],
+    "pat_mult": [
+     1.1136,
+     1.1858,
+     1.0592,
+     0.9735
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-high_priority_surge-000",
+   "family": "high_priority_surge",
+   "seed": 767000,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.86706,
+   "arrivals": 1499,
+   "shift": {
+    "base_family": "high_priority_surge",
+    "rho_mult": 0.9634,
+    "shape_knots": [
+     0.9981,
+     0.8809,
+     0.8242,
+     0.9523
+    ],
+    "svc_mult": [
+     1.124,
+     1.1011,
+     0.9361,
+     1.1466
+    ],
+    "pat_mult": [
+     0.9068,
+     0.8669,
+     0.8602,
+     0.9114
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     64,
+     79,
+     6
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-high_priority_surge-001",
+   "family": "high_priority_surge",
+   "seed": 767001,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.04159,
+   "arrivals": 1731,
+   "shift": {
+    "base_family": "high_priority_surge",
+    "rho_mult": 0.9469,
+    "shape_knots": null,
+    "svc_mult": [
+     0.9881,
+     1.0091,
+     0.9827,
+     1.0567
+    ],
+    "pat_mult": [
+     1.1083,
+     1.0556,
+     0.8315,
+     1.0524
+    ],
+    "extra_spikes": [],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-high_priority_surge-002",
+   "family": "high_priority_surge",
+   "seed": 767002,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.88146,
+   "arrivals": 1545,
+   "shift": {
+    "base_family": "high_priority_surge",
+    "rho_mult": 0.9794,
+    "shape_knots": [
+     0.8819,
+     1.0328,
+     0.9517,
+     0.9067
+    ],
+    "svc_mult": [
+     0.9203,
+     0.9398,
+     1.0969,
+     0.9036
+    ],
+    "pat_mult": [
+     1.0574,
+     1.1726,
+     0.8175,
+     1.071
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     19,
+     44,
+     4
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-high_priority_surge-003",
+   "family": "high_priority_surge",
+   "seed": 767003,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 1.0923,
+   "arrivals": 1867,
+   "shift": {
+    "base_family": "high_priority_surge",
+    "rho_mult": 1.0923,
+    "shape_knots": [
+     1.1519,
+     1.1465,
+     1.1421,
+     1.109
+    ],
+    "svc_mult": [
+     0.8806,
+     0.8764,
+     1.0562,
+     0.9149
+    ],
+    "pat_mult": [
+     0.8689,
+     1.198,
+     0.8583,
+     1.0524
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     26,
+     38,
+     2
+    ]
+   }
+  },
+  {
+   "day_id": "devshift-high_priority_surge-004",
+   "family": "high_priority_surge",
+   "seed": 767004,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.64554,
+   "arrivals": 1063,
+   "shift": {
+    "base_family": "high_priority_surge",
+    "rho_mult": 1.0759,
+    "shape_knots": [
+     0.8429,
+     1.1153,
+     0.8859,
+     1.1905
+    ],
+    "svc_mult": [
+     0.9293,
+     0.9034,
+     0.9163,
+     1.0103
+    ],
+    "pat_mult": [
+     0.9647,
+     0.8907,
+     0.8814,
+     1.1132
+    ],
+    "extra_spikes": [
+     [
+      1,
+      34,
+      48,
+      1.417
+     ]
+    ],
+    "extra_failure": null
+   }
+  },
+  {
+   "day_id": "devshift-high_priority_surge-005",
+   "family": "high_priority_surge",
+   "seed": 767005,
+   "heldout_family": false,
+   "unseen_shift": false,
+   "rho": 0.9594,
+   "arrivals": 1668,
+   "shift": {
+    "base_family": "high_priority_surge",
+    "rho_mult": 1.066,
+    "shape_knots": [
+     0.8178,
+     0.9797,
+     1.0192,
+     0.8943
+    ],
+    "svc_mult": [
+     1.0021,
+     0.9876,
+     1.122,
+     1.0489
+    ],
+    "pat_mult": [
+     1.0563,
+     0.834,
+     1.1131,
+     0.8808
+    ],
+    "extra_spikes": [],
+    "extra_failure": [
+     29,
+     52,
+     2
+    ]
+   }
+  }
+ ]
+}

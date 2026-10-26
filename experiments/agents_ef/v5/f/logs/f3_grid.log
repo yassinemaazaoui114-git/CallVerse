@@ -1,0 +1,14 @@
+B_v3         VAL MAE 0.3954 EN 0.3070 ZH 0.4900 alpha 3 feats 193428 18.3s
+tail512      VAL MAE 0.3973 EN 0.3074 ZH 0.4934 alpha 3 feats 275022 25.6s
+tailfull     VAL MAE 0.3956 EN 0.3072 ZH 0.4901 alpha 3 feats 299848 29.2s
+word13       VAL MAE 0.3960 EN 0.3061 ZH 0.4920 alpha 3 feats 238094 18.9s
+noword       VAL MAE 0.3950 EN 0.3074 ZH 0.4887 alpha 3 feats 152755 14.2s
+charwb25     VAL MAE 0.3954 EN 0.3069 ZH 0.4900 alpha 3 feats 215926 23.3s
+char13       VAL MAE 0.3960 EN 0.3070 ZH 0.4910 alpha 3 feats 112553 11.5s
+nochar       VAL MAE 0.4000 EN 0.3087 ZH 0.4977 alpha 3 feats 40673 2.1s
+mindf5       VAL MAE 0.3957 EN 0.3071 ZH 0.4906 alpha 3 feats 73063 15.7s
+nosublin     VAL MAE 0.3957 EN 0.3073 ZH 0.4902 alpha 3 feats 193428 20.2s
+roles        VAL MAE 0.3907 EN 0.2979 ZH 0.4899 alpha 3 feats 222202 22.4s
+lang         VAL MAE 0.3962 EN 0.3062 ZH 0.4924 alpha 3 feats 193430 18.4s
+G_roles      VAL MAE 0.3907 EN 0.2979 ZH 0.4899 alpha 3 feats 222202 21.8s
+selected {'name': 'roles', 'config': {'tail': 256, 'word': [1, 2], 'char': 'wb35', 'min_df': 2, 'sublin': True, 'roles': True, 'lang': False}, 'val_mae': 0.39071763879803645, 'rule': 'one-factor gain >= 0.001, greedy add in gain order, keep if >= 0.001 better'}

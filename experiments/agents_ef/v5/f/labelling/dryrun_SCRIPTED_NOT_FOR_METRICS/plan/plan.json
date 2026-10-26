@@ -1,0 +1,1661 @@
+{
+ "corpus_kind": "SCRIPTED",
+ "stamp": "SCRIPTED — NOT FOR METRICS (dry run of the labelling pipeline)",
+ "created": "2026-10-26T15:51:26Z",
+ "seed": 7,
+ "n_population": 240,
+ "n_sampled": 120,
+ "population_by_stratum": {
+  "en|P0": 65,
+  "en|P1": 123,
+  "fr|P1": 52
+ },
+ "allocation": {
+  "en|P0": 34,
+  "en|P1": 34,
+  "fr|P0": 0,
+  "fr|P1": 52
+ },
+ "split_counts": {
+  "dev": 29,
+  "test": 81,
+  "pilot": 10
+ },
+ "priority_is_not_a_label": "P1/P0 come from M7 flags and Intake sentiment; they only decide sampling rates. Annotators never see them.",
+ "items": [
+  {
+   "conversation_id": "test-0046",
+   "file": "test-0046.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "dev",
+   "item_id": "I0090"
+  },
+  {
+   "conversation_id": "dev-0081",
+   "file": "dev-0081.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0041"
+  },
+  {
+   "conversation_id": "dev-0108",
+   "file": "dev-0108.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0055"
+  },
+  {
+   "conversation_id": "test-0118",
+   "file": "test-0118.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "dev",
+   "item_id": "I0119"
+  },
+  {
+   "conversation_id": "dev-0007",
+   "file": "dev-0007.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0004"
+  },
+  {
+   "conversation_id": "dev-0012",
+   "file": "dev-0012.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0007"
+  },
+  {
+   "conversation_id": "test-0067",
+   "file": "test-0067.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0098"
+  },
+  {
+   "conversation_id": "test-0020",
+   "file": "test-0020.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0073"
+  },
+  {
+   "conversation_id": "dev-0021",
+   "file": "dev-0021.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0012"
+  },
+  {
+   "conversation_id": "dev-0096",
+   "file": "dev-0096.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0049"
+  },
+  {
+   "conversation_id": "test-0038",
+   "file": "test-0038.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0085"
+  },
+  {
+   "conversation_id": "test-0108",
+   "file": "test-0108.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "dev",
+   "item_id": "I0112"
+  },
+  {
+   "conversation_id": "test-0016",
+   "file": "test-0016.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0070"
+  },
+  {
+   "conversation_id": "dev-0057",
+   "file": "dev-0057.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0029"
+  },
+  {
+   "conversation_id": "dev-0006",
+   "file": "dev-0006.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0003"
+  },
+  {
+   "conversation_id": "dev-0019",
+   "file": "dev-0019.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0010"
+  },
+  {
+   "conversation_id": "dev-0114",
+   "file": "dev-0114.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0059"
+  },
+  {
+   "conversation_id": "dev-0111",
+   "file": "dev-0111.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "dev",
+   "item_id": "I0057"
+  },
+  {
+   "conversation_id": "test-0107",
+   "file": "test-0107.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "dev",
+   "item_id": "I0111"
+  },
+  {
+   "conversation_id": "dev-0061",
+   "file": "dev-0061.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "dev",
+   "item_id": "I0032"
+  },
+  {
+   "conversation_id": "test-0063",
+   "file": "test-0063.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "pilot",
+   "item_id": "I0096"
+  },
+  {
+   "conversation_id": "test-0021",
+   "file": "test-0021.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0074"
+  },
+  {
+   "conversation_id": "test-0061",
+   "file": "test-0061.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0094"
+  },
+  {
+   "conversation_id": "test-0079",
+   "file": "test-0079.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0101"
+  },
+  {
+   "conversation_id": "test-0022",
+   "file": "test-0022.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0075"
+  },
+  {
+   "conversation_id": "dev-0028",
+   "file": "dev-0028.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0015"
+  },
+  {
+   "conversation_id": "dev-0059",
+   "file": "dev-0059.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0031"
+  },
+  {
+   "conversation_id": "test-0084",
+   "file": "test-0084.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "pilot",
+   "item_id": "I0103"
+  },
+  {
+   "conversation_id": "test-0109",
+   "file": "test-0109.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "pilot",
+   "item_id": "I0113"
+  },
+  {
+   "conversation_id": "test-0112",
+   "file": "test-0112.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0115"
+  },
+  {
+   "conversation_id": "test-0044",
+   "file": "test-0044.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "dev",
+   "item_id": "I0089"
+  },
+  {
+   "conversation_id": "test-0042",
+   "file": "test-0042.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0088"
+  },
+  {
+   "conversation_id": "test-0064",
+   "file": "test-0064.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "test",
+   "item_id": "I0097"
+  },
+  {
+   "conversation_id": "dev-0032",
+   "file": "dev-0032.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P0",
+   "priority_why": [],
+   "stratum": "en|P0",
+   "inclusion_prob": 0.523077,
+   "split": "dev",
+   "item_id": "I0017"
+  },
+  {
+   "conversation_id": "dev-0069",
+   "file": "dev-0069.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0034"
+  },
+  {
+   "conversation_id": "dev-0103",
+   "file": "dev-0103.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0051"
+  },
+  {
+   "conversation_id": "dev-0033",
+   "file": "dev-0033.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "pilot",
+   "item_id": "I0018"
+  },
+  {
+   "conversation_id": "test-0011",
+   "file": "test-0011.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "dev",
+   "item_id": "I0066"
+  },
+  {
+   "conversation_id": "dev-0029",
+   "file": "dev-0029.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "sent_back",
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0016"
+  },
+  {
+   "conversation_id": "test-0019",
+   "file": "test-0019.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "dev",
+   "item_id": "I0072"
+  },
+  {
+   "conversation_id": "dev-0075",
+   "file": "dev-0075.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0037"
+  },
+  {
+   "conversation_id": "test-0013",
+   "file": "test-0013.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0068"
+  },
+  {
+   "conversation_id": "test-0082",
+   "file": "test-0082.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0102"
+  },
+  {
+   "conversation_id": "test-0054",
+   "file": "test-0054.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0093"
+  },
+  {
+   "conversation_id": "dev-0041",
+   "file": "dev-0041.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0020"
+  },
+  {
+   "conversation_id": "dev-0026",
+   "file": "dev-0026.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0014"
+  },
+  {
+   "conversation_id": "test-0023",
+   "file": "test-0023.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0076"
+  },
+  {
+   "conversation_id": "test-0100",
+   "file": "test-0100.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "claim_false",
+    "escalated",
+    "sent_back",
+    "any_high_severity_flag",
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0107"
+  },
+  {
+   "conversation_id": "test-0032",
+   "file": "test-0032.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0080"
+  },
+  {
+   "conversation_id": "dev-0042",
+   "file": "dev-0042.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "escalated",
+    "pipeline_error",
+    "any_high_severity_flag",
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "dev",
+   "item_id": "I0021"
+  },
+  {
+   "conversation_id": "dev-0093",
+   "file": "dev-0093.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0047"
+  },
+  {
+   "conversation_id": "dev-0025",
+   "file": "dev-0025.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0013"
+  },
+  {
+   "conversation_id": "test-0012",
+   "file": "test-0012.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0067"
+  },
+  {
+   "conversation_id": "test-0062",
+   "file": "test-0062.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0095"
+  },
+  {
+   "conversation_id": "dev-0020",
+   "file": "dev-0020.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "pilot",
+   "item_id": "I0011"
+  },
+  {
+   "conversation_id": "test-0014",
+   "file": "test-0014.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "dev",
+   "item_id": "I0069"
+  },
+  {
+   "conversation_id": "dev-0018",
+   "file": "dev-0018.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0009"
+  },
+  {
+   "conversation_id": "test-0030",
+   "file": "test-0030.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0079"
+  },
+  {
+   "conversation_id": "dev-0048",
+   "file": "dev-0048.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "dev",
+   "item_id": "I0025"
+  },
+  {
+   "conversation_id": "test-0000",
+   "file": "test-0000.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0062"
+  },
+  {
+   "conversation_id": "test-0095",
+   "file": "test-0095.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "escalated",
+    "pipeline_error",
+    "any_high_severity_flag"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "dev",
+   "item_id": "I0106"
+  },
+  {
+   "conversation_id": "test-0009",
+   "file": "test-0009.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0065"
+  },
+  {
+   "conversation_id": "dev-0104",
+   "file": "dev-0104.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "dev",
+   "item_id": "I0052"
+  },
+  {
+   "conversation_id": "dev-0077",
+   "file": "dev-0077.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "pilot",
+   "item_id": "I0039"
+  },
+  {
+   "conversation_id": "dev-0115",
+   "file": "dev-0115.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "dev",
+   "item_id": "I0060"
+  },
+  {
+   "conversation_id": "test-0090",
+   "file": "test-0090.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0104"
+  },
+  {
+   "conversation_id": "dev-0113",
+   "file": "dev-0113.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0058"
+  },
+  {
+   "conversation_id": "dev-0091",
+   "file": "dev-0091.jsonl",
+   "language": "en",
+   "lang_group": "en",
+   "priority": "P1",
+   "priority_why": [
+    "intake_negative"
+   ],
+   "stratum": "en|P1",
+   "inclusion_prob": 0.276423,
+   "split": "test",
+   "item_id": "I0045"
+  },
+  {
+   "conversation_id": "dev-0083",
+   "file": "dev-0083.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0042"
+  },
+  {
+   "conversation_id": "dev-0070",
+   "file": "dev-0070.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0035"
+  },
+  {
+   "conversation_id": "dev-0051",
+   "file": "dev-0051.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0027"
+  },
+  {
+   "conversation_id": "test-0094",
+   "file": "test-0094.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0105"
+  },
+  {
+   "conversation_id": "test-0114",
+   "file": "test-0114.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "claim_false",
+    "escalated",
+    "reply_language_mismatch",
+    "sent_back",
+    "any_high_severity_flag"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0117"
+  },
+  {
+   "conversation_id": "dev-0017",
+   "file": "dev-0017.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0008"
+  },
+  {
+   "conversation_id": "test-0035",
+   "file": "test-0035.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0083"
+  },
+  {
+   "conversation_id": "test-0116",
+   "file": "test-0116.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0118"
+  },
+  {
+   "conversation_id": "test-0027",
+   "file": "test-0027.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0078"
+  },
+  {
+   "conversation_id": "test-0017",
+   "file": "test-0017.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0071"
+  },
+  {
+   "conversation_id": "dev-0089",
+   "file": "dev-0089.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0044"
+  },
+  {
+   "conversation_id": "dev-0118",
+   "file": "dev-0118.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0061"
+  },
+  {
+   "conversation_id": "dev-0078",
+   "file": "dev-0078.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0040"
+  },
+  {
+   "conversation_id": "test-0039",
+   "file": "test-0039.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0086"
+  },
+  {
+   "conversation_id": "dev-0010",
+   "file": "dev-0010.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0006"
+  },
+  {
+   "conversation_id": "dev-0043",
+   "file": "dev-0043.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0022"
+  },
+  {
+   "conversation_id": "test-0024",
+   "file": "test-0024.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0077"
+  },
+  {
+   "conversation_id": "dev-0107",
+   "file": "dev-0107.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0054"
+  },
+  {
+   "conversation_id": "dev-0049",
+   "file": "dev-0049.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0026"
+  },
+  {
+   "conversation_id": "test-0052",
+   "file": "test-0052.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "claim_false",
+    "escalated",
+    "reply_language_mismatch",
+    "sent_back",
+    "any_high_severity_flag"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "pilot",
+   "item_id": "I0092"
+  },
+  {
+   "conversation_id": "dev-0047",
+   "file": "dev-0047.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0024"
+  },
+  {
+   "conversation_id": "test-0006",
+   "file": "test-0006.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0063"
+  },
+  {
+   "conversation_id": "test-0104",
+   "file": "test-0104.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0110"
+  },
+  {
+   "conversation_id": "dev-0058",
+   "file": "dev-0058.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0030"
+  },
+  {
+   "conversation_id": "dev-0001",
+   "file": "dev-0001.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0001"
+  },
+  {
+   "conversation_id": "test-0034",
+   "file": "test-0034.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0082"
+  },
+  {
+   "conversation_id": "dev-0004",
+   "file": "dev-0004.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0002"
+  },
+  {
+   "conversation_id": "dev-0101",
+   "file": "dev-0101.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0050"
+  },
+  {
+   "conversation_id": "dev-0076",
+   "file": "dev-0076.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0038"
+  },
+  {
+   "conversation_id": "test-0041",
+   "file": "test-0041.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0087"
+  },
+  {
+   "conversation_id": "test-0070",
+   "file": "test-0070.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0100"
+  },
+  {
+   "conversation_id": "test-0033",
+   "file": "test-0033.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "pilot",
+   "item_id": "I0081"
+  },
+  {
+   "conversation_id": "test-0113",
+   "file": "test-0113.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0116"
+  },
+  {
+   "conversation_id": "test-0008",
+   "file": "test-0008.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "claim_false",
+    "escalated",
+    "reply_language_mismatch",
+    "sent_back",
+    "any_high_severity_flag"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0064"
+  },
+  {
+   "conversation_id": "dev-0065",
+   "file": "dev-0065.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0033"
+  },
+  {
+   "conversation_id": "dev-0105",
+   "file": "dev-0105.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "pilot",
+   "item_id": "I0053"
+  },
+  {
+   "conversation_id": "dev-0074",
+   "file": "dev-0074.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0036"
+  },
+  {
+   "conversation_id": "test-0037",
+   "file": "test-0037.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0084"
+  },
+  {
+   "conversation_id": "test-0102",
+   "file": "test-0102.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0108"
+  },
+  {
+   "conversation_id": "test-0110",
+   "file": "test-0110.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0114"
+  },
+  {
+   "conversation_id": "dev-0086",
+   "file": "dev-0086.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0043"
+  },
+  {
+   "conversation_id": "dev-0110",
+   "file": "dev-0110.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "pilot",
+   "item_id": "I0056"
+  },
+  {
+   "conversation_id": "dev-0000",
+   "file": "dev-0000.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0000"
+  },
+  {
+   "conversation_id": "dev-0095",
+   "file": "dev-0095.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0048"
+  },
+  {
+   "conversation_id": "test-0047",
+   "file": "test-0047.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0091"
+  },
+  {
+   "conversation_id": "dev-0092",
+   "file": "dev-0092.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0046"
+  },
+  {
+   "conversation_id": "test-0103",
+   "file": "test-0103.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0109"
+  },
+  {
+   "conversation_id": "dev-0009",
+   "file": "dev-0009.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0005"
+  },
+  {
+   "conversation_id": "dev-0039",
+   "file": "dev-0039.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0019"
+  },
+  {
+   "conversation_id": "test-0069",
+   "file": "test-0069.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0099"
+  },
+  {
+   "conversation_id": "dev-0053",
+   "file": "dev-0053.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "test",
+   "item_id": "I0028"
+  },
+  {
+   "conversation_id": "dev-0045",
+   "file": "dev-0045.jsonl",
+   "language": "fr",
+   "lang_group": "fr",
+   "priority": "P1",
+   "priority_why": [
+    "reply_language_mismatch"
+   ],
+   "stratum": "fr|P1",
+   "inclusion_prob": 1.0,
+   "split": "dev",
+   "item_id": "I0023"
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "model": "tfidf_ridge_tail256",
+ "label_type": "synthetic_fixture",
+ "domain": "support_conversation",
+ "corpus": "callverse",
+ "test_n": 81,
+ "test_n_scored": 46,
+ "mae": 0.44,
+ "mae_mean_baseline": 0.43,
+ "spearman": -0.0001,
+ "spearman_ci_low": -0.2767,
+ "spearman_ci_high": 0.2585,
+ "agreement_alpha_ordinal": -0.0797,
+ "human_loo_mae": 1.1278,
+ "SYNTHETIC": true,
+ "stamp": "SCRIPTED \u2014 NOT FOR METRICS (dry run of the labelling pipeline)"
+}

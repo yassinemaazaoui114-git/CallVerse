@@ -1,0 +1,1 @@
+--name n1_warm_full_mse --init v3 --loss mse --epochs 2 --lr 2e-5

@@ -1,0 +1,7 @@
+{"worker": "E", "version": "v5", "updated": "2026-10-26T15:55Z", "phase": "stage1 training + E1/E2 DEV evaluation",
+ "done": ["code: agents5 (PER, n-step, QR), common5 (EnvV5 shifts/DR, manifests), train_v5, policies5 (provenance), evaluate_v5, analyze_v5, shield_analysis",
+          "tests: 19 passed", "reproduction check: v5 trainer == V3 trainer (VAL -824.4428 at 15k)",
+          "v5 evaluator == v4 evaluator (0 mismatches, 3 policies x 104 DEV days)",
+          "manifests: devshift (48 days) sha 1ecf0461..., test5 (800 days) sha deb698ca... (NOT evaluated)"],
+ "running": ["stage1 queue (12 runs, 2 workers): logs/stage1_w*.log", "E2 DEV eval: logs/eval_e2_dev.log"],
+ "training_runs_used": 0, "training_budget": 45}
