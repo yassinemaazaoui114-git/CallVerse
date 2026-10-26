@@ -5,9 +5,9 @@
 ## TASK3 update: lean simulator (S1 = Qwen, so no Qwen)
 **Final setup: `gemma3:1b` writer + fine-tuned MiniLM scorer with the quantile setting (CPU).** The writer needs 828 MiB (0.83 GB) of GPU memory; together with the agents' qwen2.5:3b both used 2,854 MiB on our 6 GB card, so the pair should fit a 4 GB laptop GPU (not tested on a 4 GB card). The scorer needs no GPU (about 10 ms per score). Previous setup: phi4-mini for both.
 
-**Open team question:** the Flipkart CSAT and USS licences are still unconfirmed (BLOCKERS.md B1, B2). The MiniLM
-scorer was trained partly on them; if they cannot be confirmed, retrain it without them (Olist + TripAdvisor only) before
-anything is published.
+**Data use (team decision, 2026-10-26):** the team approved using the Flipkart CSAT and USS data for this project
+(licence as stated by the sources: Flipkart "other", USS none; BLOCKERS.md B1, B2). The MiniLM scorer, trained partly on
+them, is included in the repo (`models/scorer/`).
 
 ### Final comparison (writer on the same 30 role cards; scorer on the same 1,000 real Flipkart CSAT test rows)
 
@@ -29,7 +29,7 @@ on real customer scores. All tests on held-out real data; see FINETUNING.md and 
 Real messages: **Customer Support on Twitter** (CC BY-NC-SA 4.0). Real numbers: **Twitter timestamps** + **CA Medi-Cal
 call-center data** (CHHS Terms of Use, attribution). Real scores with confirmed licence: **TripAdvisor Hotel Reviews** (CC BY-NC 4.0) and
 **Olist** (CC BY-NC-SA 4.0, Portuguese); the two sets that fit best and were used to calibrate (Flipkart CSAT, USS)
-are **licence to verify**.
+have no stated licence (Flipkart "other", USS none) and are **team-approved for this project** (2026-10-26).
 
 **Decision needed:** CallVerse already uses qwen2.5:3b (Qwen) to write replies. If S1 = Qwen, or we count the writer
 as S1, switch the simulator to phi4-mini (one line in `simulator/config.yaml`; its calibration is already shipped).
@@ -68,7 +68,7 @@ does not beat these numbers on the same test rows adds nothing over the baseline
 | **Customer Support on Twitter** (Kaggle thoughtvector) | CC BY-NC-SA 4.0 | first messages, replies, threads, timestamps | 165,747 English first messages kept (16 brands) | Amazon/UPS/Target/Argos/eBay + 11 airlines, rail, Airbnb |
 | Twitter US Airline Sentiment (Kaggle crowdflower) | CC BY-NC-SA 4.0 | complaint reasons (annotators) | 14,640 tweets | US airlines |
 | **CA County Medi-Cal call-center data** (data.chhs.ca.gov) | CHHS Terms of Use (free use with attribution) | abandonment, volume, wait | 180 county-months | public benefits |
-| Flipkart CSAT (Kaggle ddosad) | to verify | reason mix, arrivals, response times | 85,907 contacts | e-commerce |
+| Flipkart CSAT (Kaggle ddosad) | "other"; team-approved | reason mix, arrivals, response times | 85,907 contacts | e-commerce |
 | Technion SEE Lab bank call-center data | to verify | arrivals, abandonment | to verify | bank |
 
 Key numbers: reason mix (Flipkart, mapped) return_item 40.4%, other 32.2%, late_delivery 9.7%, order_status 8.6%,
@@ -81,8 +81,8 @@ mapping: 76% correct on a 50-message hand check.
 
 | Dataset | Licence | Text | Score (who) | Size | Language |
 |---|---|---|---|---|---|
-| Flipkart-style CSAT (Kaggle ddosad) | **to verify** | remark | CSAT 1-5 (customer) | 85,907 (28,742 with remark) | English |
-| USS MultiWOZ + SGD (GitHub) | **to verify** | conversation | 1-5 (annotators) | 1,235 travel dialogues | English |
+| Flipkart-style CSAT (Kaggle ddosad) | "other"; team-approved | remark | CSAT 1-5 (customer) | 85,907 (28,742 with remark) | English |
+| USS MultiWOZ + SGD (GitHub) | none stated; team-approved | conversation | 1-5 (annotators) | 1,235 travel dialogues | English |
 | **TripAdvisor Hotel Reviews** | CC BY-NC 4.0 | review | 1-5 (customer) | 20,491 | English |
 | **Olist reviews** | CC BY-NC-SA 4.0 | review | 1-5 (customer) | 99,224 | Portuguese |
 | Airline Reviews (Skytrax) | to verify | review | 1-10 (customer) | 23,171 | English |
@@ -94,9 +94,9 @@ Drivers of real scores: waiting time (CSAT 4.48 if answered in 5 min -> 3.66 aft
 ## Follow-up (2026-10-25)
 
 - **Licences re-checked**: Flipkart CSAT (Kaggle metadata `other`, no source, no terms) and USS (no LICENSE,
-  READMEs/paper give no terms) are **still to verify**. A **fallback calibration** using only Olist (CC BY-NC-SA 4.0)
+  READMEs/paper give no terms) had no stated terms; the team later approved both for this project (2026-10-26). A **fallback calibration** using only Olist (CC BY-NC-SA 4.0)
   and TripAdvisor (CC BY-NC 4.0) ships as `calibration_fallback.json`. It is weaker on support CSAT (qwen3.5 QWK 0.13
-  vs 0.25 with the main map on the same 100 test rows); use it if the licence cannot be confirmed (SIMULATOR_README.md).
+  vs 0.25 with the main map on the same 100 test rows); kept as an option (SIMULATOR_README.md).
 - **Delay-aware calibration**: mean score per waiting-time bucket now within 0.22 points of real on average (was
   0.42); 8 h+ waits 2.66 vs 3.74 real (was 2.04). Overall test QWK 0.35, Wasserstein 0.24. This matters for agent E:
   the old reward punished waiting about 3x more steeply than real customers.
@@ -105,7 +105,7 @@ Drivers of real scores: waiting time (CSAT 4.48 if answered in 5 min -> 3.66 aft
 
 ## Still "to verify"
 
-Flipkart CSAT licence; USS licence; Skytrax review terms; UserLM-8b's Llama 3.1 base terms;
+Skytrax review terms; UserLM-8b's Llama 3.1 base terms;
 SEE Lab data access. Details and owners: BLOCKERS.md.
 
 ## Needs team approval to download

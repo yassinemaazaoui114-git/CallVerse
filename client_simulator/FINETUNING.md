@@ -2,7 +2,7 @@
 
 Two models were trained on Kaggle (free T4 GPU, private dataset `callverse-memberb-train` with **train + dev rows only**).
 Scripts: `kaggle/writer/writer_lora.py`, `kaggle/scorer/scorer_ft.py`; data prep `scripts/p8_data.py`;
-evaluation `scripts/p8_*.py`; results `results/p8_*.json`, tables `results/p8_tables.md`. No weights are in git.
+evaluation `scripts/p8_*.py`; results `results/p8_*.json`, tables `results/p8_tables.md`. Only the scorer weights are in git (`models/scorer/`).
 
 ## 1. Writer (plays the customer): LoRA on gemma-3-1b-it
 
@@ -64,4 +64,4 @@ Kaggle log + `train_info.json` (`kaggle_out/writer/`); the numbers above were co
 `kaggle/writer/` again (`kaggle kernels push -p kaggle/writer`, dataset `callverse-memberb-train` rebuilt with
 `scripts/p8_data.py` and `kaggle datasets version`), or download the last run with
 `kaggle kernels output <kaggle-user>/callverse-writer-lora -p kaggle_out/writer`. The scorer's ONNX int8 file and
-tokenizer stay in `models/scorer/` (not in git).
+tokenizer are in `models/scorer/` (in git).

@@ -22,7 +22,7 @@ scoring:
   structured_output: true
   calibration_profile: main      # llm mode only: main | fallback
 scorer:
-  model_dir: models/scorer       # scorer_int8.onnx + tokenizer.json (not in git; see SIMULATOR_README.md)
+  model_dir: models/scorer       # scorer_int8.onnx + tokenizer.json (included in git)
   model_file: scorer_int8.onnx
   calibration_file: scorer_calibration.json   # per-source maps fitted on dev half A
   calibration: quantile          # DEFAULT: matches the real score distribution (distance 0.06); dev = map chosen on dev (isotonic, best QWK)

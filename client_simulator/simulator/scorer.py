@@ -1,5 +1,5 @@
 """CPU satisfaction scorer: fine-tuned MiniLM (all-MiniLM-L12-v2) exported to ONNX int8, ~10 ms per score.
-Weights are not in git: put scorer_int8.onnx + tokenizer.json in `scorer.model_dir` (see SIMULATOR_README.md)."""
+Weights (scorer_int8.onnx + tokenizer.json) are in `scorer.model_dir`, models/scorer/ (in git)."""
 import json
 from pathlib import Path
 

@@ -8,12 +8,14 @@ kaggle.json
 # Data: downloads, LLM cache, processed datasets (third-party data; rebuilt by scripts/)
 data/
 
-# Model weights (scorer ONNX, writer GGUF/safetensors) and Kaggle job inputs/outputs
-models/
+# Model weights and Kaggle job inputs/outputs. Exception: the MiniLM scorer in models/scorer/ is committed.
+models/*
+!models/scorer/
 kaggle_upload/
 kaggle_out/
 results/p8_models/
 *.onnx
+!models/scorer/*.onnx
 *.gguf
 *.safetensors
 *.pkl

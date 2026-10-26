@@ -5,7 +5,7 @@
 - **Writer** (plays the customer): `gemma3:1b` in Ollama, prompted with the role card + 5 real example messages
   (`simulator/real_examples.json`). `ollama pull gemma3:1b`.
 - **Scorer** (gives the 1-5 score): fine-tuned MiniLM, ONNX int8, CPU only (`score_mode: scorer`). Put
-  `scorer_int8.onnx` and `tokenizer.json` in `models/scorer/` (not in git; get them with
+  `scorer_int8.onnx` and `tokenizer.json` in `models/scorer/` (included in git; to rebuild, get them with
   `kaggle kernels output <kaggle-user>/callverse-scorer-ft -p kaggle_out/scorer`, then copy from `kaggle_out/scorer/onnx/`).
   `pip install onnxruntime tokenizers`.
 - **Ollama settings**: start Ollama with `OLLAMA_KV_CACHE_TYPE=q8_0` and `OLLAMA_FLASH_ATTENTION=1`; `num_ctx: 1024`

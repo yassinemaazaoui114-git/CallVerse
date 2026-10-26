@@ -39,7 +39,8 @@ Full numbers: `SIMULATOR_README.md` (kit), `SCORE_CALIBRATION.md` (score tests),
 | `SHARE_WITH_YASSINE.md` | one-page handover |
 | `BLOCKERS.md`, `JUDGE_SPOTCHECK*.md` | open items, human re-check sheets |
 
-Not in git (see `.gitignore`): `data/` (downloads, LLM cache, processed sets), `models/` (scorer weights), logs.
+`models/scorer/` holds the scorer weights (`scorer_int8.onnx` + `tokenizer.json`, about 34 MB), included in git.
+Not in git (see `.gitignore`): `data/` (downloads, LLM cache, processed sets), other model files, logs.
 
 ## How to run (from this folder, Windows)
 
@@ -55,8 +56,8 @@ To run the simulator for real:
 1. Install Ollama, then `ollama pull gemma3:1b`. Start Ollama with `OLLAMA_KV_CACHE_TYPE=q8_0` and
    `OLLAMA_FLASH_ATTENTION=1`. The kit calls `http://127.0.0.1:11434` (not `localhost`: on Windows that adds about
    2 s per request).
-2. Put the scorer files `scorer_int8.onnx` and `tokenizer.json` in `models/scorer/`: ask the Client Simulator owner
-   for the scorer folder, or rebuild it (see "Rebuild the scorer").
+2. The scorer is already in `models/scorer/` (included in git; nothing to download). `pip install onnxruntime tokenizers`
+   is covered by `requirements.txt`.
 3. Use it from Python (run from this folder):
 
 ```python
@@ -68,7 +69,7 @@ Optional live test: `$env:CALLVERSE_LIVE="1"; python -m pytest simulator/tests/t
 
 ## Rebuild the data
 
-The processed datasets are not in git (third-party data; some licences are unclear). The scripts rebuild them from
+The processed datasets are not in git (third-party data, over 200 MB). The scripts rebuild them from
 the original sources into `data/`:
 
 1. Download the raw datasets into `data/raw/` (Kaggle CLI with your own `~/.kaggle/kaggle.json`; Git Bash;
@@ -93,9 +94,9 @@ mkdir -p data/raw/medical_callcenter && curl -sL -o data/raw/medical_callcenter/
 2. From `scripts/`: `python p1_build_real_scores.py` (D6 scores), `python p2_build_real_messages.py` (D5 messages),
    `python p8_data.py` (writer + scorer training data, train + dev rows only).
 
-## Rebuild the scorer (about 32 MB, not in git)
+## Rebuild the scorer (optional)
 
-The weights are not in git. Ask the Client Simulator owner for the scorer folder, or rebuild it:
+The scorer weights are included in `models/scorer/`. To rebuild them from the data:
 
 1. `python scripts/p8_data.py` writes the scorer training file (`kaggle_upload/data/scorer_traindev.jsonl`,
    train + dev rows only; test rows are never uploaded).
@@ -106,8 +107,8 @@ The weights are not in git. Ask the Client Simulator owner for the scorer folder
 4. The calibration maps are already in git (`simulator/scorer_calibration.json`); `python scripts/p8_final.py scorer`
    re-fits and re-checks them.
 
-## Open question: data licences
+## Data use
 
-The scorer was trained on the Flipkart eCommerce CSAT data (Kaggle `ddosad`, licence "other") and the USS dialogues
-(GitHub `sunnweiwei`, no licence file). Both are marked **to verify** in `DATA_SOURCES.md`. That is why no processed
-data and no scorer weights are in this repo.
+The team approved using every dataset in `DATA_SOURCES.md` for this project (2026-10-26), including the Flipkart
+eCommerce CSAT data (Kaggle `ddosad`, licence "other") and the USS dialogues (GitHub `sunnweiwei`, no licence file),
+which the scorer was trained on. `DATA_SOURCES.md` keeps each source's real/generated label and stated licence.
