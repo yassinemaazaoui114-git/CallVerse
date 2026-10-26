@@ -16,3 +16,16 @@ n1_warm_full_mse epoch 1: VAL MAE 0.4111 Spearman 0.5871 (2468.4 s)
   ep 2 step 20/297 loss 0.2219 lr 9.91e-06 224s
   ep 2 step 40/297 loss 0.1983 lr 9.19e-06 430s
   ep 2 step 60/297 loss 0.1918 lr 8.48e-06 639s
+  ep 2 step 80/297 loss 0.2179 lr 7.76e-06 845s
+  ep 2 step 100/297 loss 0.2289 lr 7.05e-06 990s
+  ep 2 step 120/297 loss 0.2386 lr 6.33e-06 1131s
+  ep 2 step 140/297 loss 0.2160 lr 5.62e-06 1224s
+  ep 2 step 160/297 loss 0.1873 lr 4.90e-06 1313s
+  ep 2 step 180/297 loss 0.2013 lr 4.19e-06 1409s
+  ep 2 step 200/297 loss 0.2107 lr 3.47e-06 1527s
+  ep 2 step 220/297 loss 0.2405 lr 2.75e-06 1602s
+  ep 2 step 240/297 loss 0.2023 lr 2.04e-06 1674s
+  ep 2 step 260/297 loss 0.2286 lr 1.32e-06 1744s
+  ep 2 step 280/297 loss 0.1946 lr 6.08e-07 1814s
+n1_warm_full_mse epoch 2: VAL MAE 0.4006 Spearman 0.5839 (1917.3 s)
+done n1_warm_full_mse best epoch 2 VAL MAE 0.4006

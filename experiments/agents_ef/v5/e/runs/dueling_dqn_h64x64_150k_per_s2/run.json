@@ -1,7 +1,7 @@
 {
   "run_id": "dueling_dqn_h64x64_150k_per_s2",
   "algo": "dueling_dqn",
-  "steps": 150000,
+  "steps": 150048,
   "hidden": [
     64,
     64
@@ -33,10 +33,17 @@
     "failure",
     "high_priority_surge"
   ],
-  "status": "running",
+  "status": "done",
   "started": "2026-10-26T16:21:26",
   "n_params": 8146,
   "torch": "2.14.1+cpu",
   "python": "3.13.16",
-  "hardware": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  "hardware": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "best_step": 150000,
+  "best_val_return": -184.70216339140998,
+  "best_val_c_sla": 84.04922494379363,
+  "ended": "2026-10-26T16:34:15",
+  "episodes": 1563,
+  "train_wall_s": 768.9,
+  "peak_rss_mb": 349.6
 }

@@ -25,6 +25,8 @@ ARMS = {   # name: (run pattern, control pattern)
     "N5": ("dueling_dqn_h64x64_150k_n5_s{}", DQN_C),
     "DR": ("dueling_dqn_h64x64_150k_dr_s{}", DQN_C),
     "FLIP": ("dueling_dqn_h64x64_150k_flip0.0625_s{}", DQN_C),
+    "PER+FLIP": ("dueling_dqn_h64x64_150k_per_flip0.0625_s{}", DQN_C),
+    "DDQN:PER+FLIP": ("dueling_double_dqn_h64x64_150k_per_flip0.0625_s{}", DDQN_C),
 }
 WRAPS = {"pure": "rl:{}", "floor3": "floor@3|rl:{}"}
 

@@ -1,0 +1,15 @@
+rl:dueling_dqn_h64x64_150k_per_s0
+rl:dueling_dqn_equal_h64x64_150k_s0
+rl:dueling_dqn_h64x64_150k_per_s1
+rl:dueling_dqn_equal_h64x64_150k_s1
+rl:dueling_dqn_h64x64_150k_per_s2
+rl:dueling_dqn_equal_h64x64_150k_s2
+rl:dueling_dqn_h64x64_150k_n3_s0
+rl:dueling_dqn_h64x64_150k_n3_s1
+rl:dueling_dqn_h64x64_150k_n3_s2
+rl:dueling_dqn_h64x64_150k_dr_s0
+rl:dueling_dqn_h64x64_150k_dr_s1
+rl:dueling_dqn_h64x64_150k_dr_s2
+rl:dueling_dqn_h64x64_150k_flip0.0625_s0
+rl:dueling_dqn_h64x64_150k_flip0.0625_s1
+rl:dueling_dqn_h64x64_150k_flip0.0625_s2

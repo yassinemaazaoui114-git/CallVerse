@@ -1,0 +1,25 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 5620.01it/s]
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (693 > 512). Running this sequence through the model will result in indexing errors
+  ep 1 step 20/297 loss 0.4584 lr 1.58e-05 75s
+  ep 1 step 40/297 loss 0.2903 lr 3.09e-05 151s
+  ep 1 step 60/297 loss 0.2479 lr 3.97e-05 230s
+  ep 1 step 80/297 loss 0.2805 lr 3.87e-05 302s
+  ep 1 step 100/297 loss 0.2968 lr 3.78e-05 405s
+  ep 1 step 120/297 loss 0.2750 lr 3.68e-05 500s
+  ep 1 step 140/297 loss 0.2864 lr 3.58e-05 580s
+  ep 1 step 160/297 loss 0.2372 lr 3.49e-05 656s
+  ep 1 step 180/297 loss 0.3010 lr 3.39e-05 738s
+  ep 1 step 200/297 loss 0.2394 lr 3.30e-05 826s
+  ep 1 step 220/297 loss 0.2453 lr 3.20e-05 903s
+  ep 1 step 240/297 loss 0.2581 lr 3.11e-05 981s
+  ep 1 step 260/297 loss 0.3000 lr 3.01e-05 1057s
+  ep 1 step 280/297 loss 0.2753 lr 2.92e-05 1137s
+n2_scratch_full_mse epoch 1: VAL MAE 0.4074 Spearman 0.5632 (1244.1 s)
+  ep 2 step 20/297 loss 0.2607 lr 2.74e-05 80s
+  ep 2 step 40/297 loss 0.2313 lr 2.64e-05 160s
+  ep 2 step 60/297 loss 0.2255 lr 2.55e-05 238s
+  ep 2 step 80/297 loss 0.2520 lr 2.45e-05 317s
+  ep 2 step 100/297 loss 0.2591 lr 2.36e-05 415s
+  ep 2 step 120/297 loss 0.2661 lr 2.26e-05 566s
+  ep 2 step 140/297 loss 0.2409 lr 2.17e-05 692s
+  ep 2 step 160/297 loss 0.2162 lr 2.07e-05 767s

@@ -69,3 +69,58 @@ paired two-level bootstrap vs control on the SAME seeds (v3 boot_diff).
   It complements the training-time flip cost arm (A-FLIP).
 
 - 16:20 an interim report was sent to Worker D by mistake (harness prompt); work continues with the full plan.
+
+## E7a — runtime hysteresis hyst@2 on frozen nets (DEV, 16:35) — NEGATIVE
+- Dueling DQN 5 seeds: −258.0 vs −222.8 unshielded, Δ −35.2 [−70.1, −7.6]; flips/day 37.0 → 0; act+deact/day 51.4 → 44.8.
+- Dueling DDQN 10 seeds: −255.9, Δ −38.4 [−69.4, −14.5] (seeds −215 … −366); ΔC −3.1 pp.
+- MPC: Δ −0.19 [−0.99, +0.54] (MPC flips only 5.9/day).
+- Conclusion: the nets USE activate→deactivate pairs as an indirect "move" (activation goes to the most-loaded queue,
+  deactivation removes from the least-loaded); forbidding the reversal at runtime breaks the learned behaviour.
+  Dithering is a symptom of the 17-action design, not removable after training. Runtime hysteresis rejected.
+
+## E2 — shield analysis (DEV, `python -m v5.e.shield_analysis` → results/e2_shield.json) (16:35)
+- floor@3 around pure RL: shield active (removes ≥1 action) on 69–74 % of steps, but changes the executed action on
+  only 15.1 % (DDQN) / 20.3 % (Dueling DQN) of steps; replacement by a non-RL default 0 % (the RL always re-chooses
+  inside the shielded mask) → 84.9 % / 79.7 % of decisions are the RL's unconstrained own choice. Agreement with
+  MPC 24 % (same as without the shield) → NOT MPC in disguise. Effect DDQN: Δret +5.1 [+0.6, +9.3], ΔC +7.0 pp.
+- floor@3 around V3 guarded: action changed on 26.0 % of steps; RL own 29.5 %, RL re-choice 8.7 %, owner rule
+  (Forecast) 61.8 % → in the guarded hybrid the RL decides only ~38 % of steps; this is a property of the guarded
+  structure (owner decides capacity AND replaces every RL activate/deactivate), not of the floor.
+- Erlang shield@0.2: changes 27–48 % of actions and costs −18 to −29 return for every controller (incl. MPC) →
+  an over-protective ESTIMATED-risk shield; rejected (confirms V4).
+- Hard constraints: 0 invalid proposals executed, 0 HIGH on fallback, 0 budget overruns for every controller.
+
+## Stage 1 result and promotion decision (16:45) — `python -m v5.e.ablation` (DEV, 104 days, seeds 0–2, paired)
+| arm | wrapper | arm return (seed SD) | control (seed SD) | Δ return [CI] | Δ C pp [CI] | Δ CVaR10 [CI] |
+|---|---|---|---|---|---|---|
+| PER | pure | −216.56 (1.6) | −226.74 (7.3) | +10.18 [+2.34, +23.85] | +3.47 [+1.46, +5.29] | +65.7 [−8.0, +192.4] |
+| PER | floor@3 | −211.52 (0.7) | −221.06 (4.6) | +9.54 [+2.65, +20.34] | +2.10 [−0.26, +4.30] | +71.4 [+7.5, +177.5] |
+| N3 | pure | −229.08 (4.3) | −226.74 | −2.34 [−13.52, +10.68] | −1.60 [−3.29, +0.37] | +16.4 |
+| N3 | floor@3 | −224.65 (5.6) | −221.06 | −3.60 [−14.01, +6.95] | −0.48 | +2.1 |
+| DR | pure | −216.65 (1.0) | −226.74 | +10.08 [+2.05, +23.30] | −1.72 [−3.83, +0.24] | +73.1 [−2.8, +200.8] |
+| DR | floor@3 | −210.06 (0.9) | −221.06 | +10.99 [+4.03, +21.44] | −1.31 | +72.8 [+9.5, +179.3] |
+| FLIP | pure | −220.74 (4.6) | −226.74 | +6.00 [−3.49, +20.54] | +0.43 | +47.6 |
+| FLIP | floor@3 | −213.74 (4.9) | −221.06 | +7.32 [−0.76, +18.75] | −0.03 | +46.3 |
+- Pre-declared rule (Δreturn ≥ +2.0 pure, or ΔC ≥ +2 with Δret ≥ −2): **PER, DR, FLIP promoted** (+seeds 3, 4);
+  **N3 dropped** (Δ −2.3, ΔC −1.6) → n = 5 is NOT run (its pre-declared condition failed).
+- Caution written now: control seed 2 (−234.6) is the worst V3 Dueling DQN seed, so seeds 0–2 favour every arm;
+  the large Δs are partly "the arms are more stable than the control". Seed SDs of PER (1.6) and DR (1.0) vs control
+  7.3 are themselves a finding (stability), to be confirmed with seeds 3–4.
+- Stage 2 queue started 16:46 (6 runs).
+
+## Stage 2 result → validation decision (17:05) — 5 seeds vs control seeds 0–4 (`results/ablation.json`)
+| arm | DEV Δ return [CI] | DEV Δ C pp [CI] | seed SD arm / ctl | DEVSHIFT Δ return | DEVSHIFT Δ C pp | Δ CVaR10 DEV |
+|---|---|---|---|---|---|---|
+| PER | +6.98 [−1.06, +19.89] | +2.92 [+0.94, +5.14] | 1.9 / 8.3 | +7.19 [−0.47, +22.57] | +2.96 [+0.77, +5.11] | +50.4 [−4.5, +158.5] |
+| DR | +5.62 [−2.41, +19.10] | −1.44 [−3.86, +1.42] | 1.9 / 8.3 | +4.22 [−3.97, +20.09] | −1.73 [−4.50, +0.70] | +55.1 [−3.7, +171.4] |
+| FLIP | +5.34 [−4.73, +19.26] | +2.19 [−1.97, +6.26] | 5.8 / 8.3 | +6.32 [−2.50, +21.85] | +2.49 [−1.62, +6.52] | +42.2 [−22.0, +159.2] |
+- Pre-declared rule (Δret > 0 AND ΔC ≥ −1.0, or ΔC ≥ +2 with Δret ≥ −2; DR also on DEVSHIFT):
+  **PER validated, FLIP validated, DR NOT validated** (queue C −1.44 pp on DEV and −1.73 pp on DEVSHIFT, i.e. its own
+  validation distribution; DR's return gain does not come with better queue-C protection).
+- Honest caveat: no Δreturn CI excludes 0 at 5 seeds (control seed SD 8.3); the clearest, CI-backed effects are PER's
+  queue-C gain (+2.9 pp, CI > 0 on DEV and DEVSHIFT) and the 4× smaller seed spread of PER and DR.
+- **Stage 3 (17:06):** PER + FLIP on Dueling DQN (seeds 0–4) and on Dueling Double DQN (seeds 0–4) = 10 runs.
+  Budget after queueing: 28 of 45 runs used (12 + 6 + 10; plus a 15k-step reproduction check).
+- E6 decision (rule pre-declared at 15:45): 17 runs left (≥ 8) and the planned TEST5 freeze is ≈ 19:30 UTC
+  (≥ 2.5 h away) → QR-DQN IS run: 3 seeds of the better Stage-3 base with a QR head + PER + FLIP, queued after
+  Stage 3 (base chosen by Stage-3 DEV return, written here before QR results).

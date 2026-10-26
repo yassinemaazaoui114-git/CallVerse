@@ -22,3 +22,5 @@ hyst@2|rl:dueling_double_dqn_equal_h64x64_150k_s5 done 25.9s ret -261.18
 hyst@2|rl:dueling_double_dqn_equal_h64x64_150k_s6 done 26.0s ret -214.97
 hyst@2|rl:dueling_double_dqn_equal_h64x64_150k_s7 done 28.6s ret -365.53
 hyst@2|rl:dueling_double_dqn_equal_h64x64_150k_s8 done 38.1s ret -221.29
+hyst@2|rl:dueling_double_dqn_equal_h64x64_150k_s9 done 34.7s ret -230.74
+hyst@2|rule:mpc:0.5 done 45.6s ret -214.51

@@ -1,0 +1,25 @@
+{
+ "rule": "fine-tune only if probe VAL MAE <= e5small probe - 0.005 and >= 2 h budget left",
+ "e5small": {
+  "alpha": 3000,
+  "val_mae": 0.4031,
+  "val_mae_en": 0.3149,
+  "val_mae_zh": 0.4974,
+  "val_spearman": 0.5441,
+  "val_slope": 0.2848,
+  "n_params_full": null,
+  "n_params_embedding_table": null
+ },
+ "mminilm": {
+  "alpha": 3000,
+  "val_mae": 0.403,
+  "val_mae_en": 0.3184,
+  "val_mae_zh": 0.4935,
+  "val_spearman": 0.5359,
+  "val_slope": 0.2831,
+  "n_params_full": 117653760,
+  "n_params_embedding_table": 96014208
+ },
+ "mminilm_gain_vs_e5_probe": 0.0001,
+ "decision": "SCREENED OUT (no probe advantage over e5-small)"
+}

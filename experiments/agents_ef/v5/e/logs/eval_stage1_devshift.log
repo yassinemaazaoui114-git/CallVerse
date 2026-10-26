@@ -1,0 +1,15 @@
+rl:dueling_dqn_h64x64_150k_per_s0 done 6.3s ret -194.77
+rl:dueling_dqn_equal_h64x64_150k_s0 skip
+rl:dueling_dqn_h64x64_150k_per_s1 done 6.5s ret -192.32
+rl:dueling_dqn_equal_h64x64_150k_s1 skip
+rl:dueling_dqn_h64x64_150k_per_s2 done 9.2s ret -192.26
+rl:dueling_dqn_equal_h64x64_150k_s2 skip
+rl:dueling_dqn_h64x64_150k_n3_s0 done 9.1s ret -199.90
+rl:dueling_dqn_h64x64_150k_n3_s1 done 13.1s ret -214.37
+rl:dueling_dqn_h64x64_150k_n3_s2 done 12.5s ret -204.91
+rl:dueling_dqn_h64x64_150k_dr_s0 done 8.9s ret -197.54
+rl:dueling_dqn_h64x64_150k_dr_s1 done 8.3s ret -195.28
+rl:dueling_dqn_h64x64_150k_dr_s2 done 7.9s ret -198.24
+rl:dueling_dqn_h64x64_150k_flip0.0625_s0 done 8.0s ret -192.72
+rl:dueling_dqn_h64x64_150k_flip0.0625_s1 done 7.3s ret -200.30
+rl:dueling_dqn_h64x64_150k_flip0.0625_s2 done 7.8s ret -196.21

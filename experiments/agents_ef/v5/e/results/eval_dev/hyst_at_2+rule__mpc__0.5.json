@@ -1,0 +1,10 @@
+{
+  "n_params": 0,
+  "hyst": 2,
+  "policy": "hyst@2|rule:mpc:0.5",
+  "split": "dev",
+  "n_days": 104,
+  "eval_s": 45.6,
+  "decision_ms_p50": 1.4964,
+  "decision_ms_p95": 2.9224
+}

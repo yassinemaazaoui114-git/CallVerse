@@ -87,3 +87,15 @@ paired bootstrap over TEST dialogues + Holm; every experiment registered in `v5/
 - Truncation (Ridge, VAL): tail beats head at 128 (0.3994 vs 0.4127) and 256 (0.3954 vs 0.4062); at 512 head ≈ tail
   (0.3962 vs 0.3973) because most dialogues fit; full text 0.3956. The END of the dialogue carries the signal;
   more context beyond 256 tokens does not help.
+
+## 16:52 — N1 done; F5 screen done
+- n1_warm_full_mse: VAL MAE 0.4111 (ep1) → 0.4006 (ep2), Spearman 0.587 / 0.584. Starting point (V3 s1, recomputed
+  here on VAL): MAE 0.3902, Spearman 0.580. Continuing from the VAL-selected checkpoint on full TRAIN made VAL MAE
+  WORSE (+0.010) with ~equal ranking; epoch-1 VAL preds were biased low by -0.11 (bias-free MAE 0.395). Negative
+  result: warm start + more data does not beat the selected V3 checkpoint on VAL.
+- V3 e5 s1 VAL predictions recomputed: MAE 0.39018 = V3 value (reproduction OK) → results/val_preds_e5_v3_s1.json.
+- F5 probe (frozen mean-pooled, Ridge, VAL): e5-small 0.4031 vs paraphrase-mMiniLM-L12 0.4030 (gain 0.0001 <
+  0.005) → SCREENED OUT, not fine-tuned. (alpha 3000 = top of the grid for both; same grid, same handicap.)
+  mMiniLM-L12: 117.7M params of which 96.0M are the embedding table.
+- Lesson: `pgrep -f <pattern>` inside a `sh -c "... <pattern> ..."` wait loop matches itself → the loop never ends
+  (2 stuck waiters killed; the F5 chain had to be relaunched by hand).

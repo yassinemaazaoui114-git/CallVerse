@@ -1,1 +1,4 @@
 Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:  27%|██▋       | 54/199 [00:00<00:00, 162.69it/s]Loading weights:  38%|███▊      | 76/199 [00:01<00:01, 65.57it/s] Loading weights:  45%|████▌     | 90/199 [00:01<00:01, 62.14it/s]Loading weights:  51%|█████▏    | 102/199 [00:02<00:02, 34.37it/s]Loading weights:  65%|██████▌   | 130/199 [00:02<00:01, 37.45it/s]Loading weights:  72%|███████▏  | 144/199 [00:03<00:01, 28.00it/s]Loading weights:  88%|████████▊ | 176/199 [00:03<00:00, 44.22it/s]Loading weights:  93%|█████████▎| 185/199 [00:04<00:00, 44.71it/s]Loading weights: 100%|██████████| 199/199 [00:04<00:00, 48.90it/s]
+mminilm train (4740, 384)
+mminilm val (1016, 384)
+mminilm test (1016, 384)
