@@ -51,7 +51,14 @@ Plus time step, fallback state, budget spent and capacity.
 | Fallback never serves HIGH tickets and is capped at 25% of the day | |
 | Worker D's independent validator agrees with the mask on all 13 scenario families | |
 
-**Final E policy:** see `AGENT_E_NEW_EVALUATION.md` and `MODEL_SELECTION_AND_LIMITATIONS.md` (filled in after Worker E's pre-registered TEST4).
+**Final E policy** (TEST4, frozen pre-registration; details in `MODEL_SELECTION_AND_LIMITATIONS.md`)
+- **Adapter default (RL research deliverable):** `floor@3 | guarded | Lagrangian Dueling DDQN`.
+  - Forecast owns activate/deactivate.
+  - The RL network (8,146 params) chooses allocation moves and capped fallback.
+  - Queue C is kept at ≥ 3 sessions.
+  - Passes the pre-declared urgent margins. Return −4.6 vs MPC, and +0.6 pp lost customers.
+- **Urgent-safe deployable controller:** floor@3 + Fluid MPC, no learned part. It dominates the safe RL pick on return, queue C, lost customers and HIGH SLA.
+- **Backup when the checkpoint is missing:** the adapter answers with the classical rule and says why.
 
 ## Agent F (M7 Quality & Knowledge)
 

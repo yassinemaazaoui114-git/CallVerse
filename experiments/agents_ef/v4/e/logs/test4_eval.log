@@ -38,3 +38,22 @@ guarded:dueling_double_dqn_equal_h64x64_150k_s5 done 128.9s ret -214.78
 guarded:dueling_double_dqn_equal_h64x64_150k_s6 done 128.2s ret -216.83
 guarded:dueling_double_dqn_equal_h64x64_150k_s7 done 128.1s ret -219.86
 guarded:dueling_double_dqn_equal_h64x64_150k_s8 done 128.2s ret -221.46
+guarded:dueling_double_dqn_equal_h64x64_150k_s9 done 134.8s ret -220.59
+rl:dueling_double_dqn_equal_h64x64_150k_s0 done 133.8s ret -231.07
+rl:dueling_double_dqn_equal_h64x64_150k_s1 skip
+rl:dueling_double_dqn_equal_h64x64_150k_s2 skip
+rl:dueling_double_dqn_equal_h64x64_150k_s3 skip
+rl:dueling_double_dqn_equal_h64x64_150k_s4 skip
+rl:dueling_double_dqn_equal_h64x64_150k_s5 skip
+rl:dueling_double_dqn_equal_h64x64_150k_s6 skip
+rl:dueling_double_dqn_equal_h64x64_150k_s7 skip
+rl:dueling_double_dqn_equal_h64x64_150k_s8 skip
+rl:dueling_double_dqn_equal_h64x64_150k_s9 skip
+rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s0 skip
+rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1 skip
+rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s2 skip
+rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s3 skip
+rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s4 skip
+rule:erlang:0.4 skip
+rule:forecast:0.25 skip
+rule:mpc:0.5 skip

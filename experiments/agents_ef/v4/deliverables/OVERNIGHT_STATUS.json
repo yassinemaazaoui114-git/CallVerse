@@ -1,0 +1,41 @@
+{
+ "updated_utc": "2026-10-26T02:08:38Z",
+ "tests": {
+  "research (v3/e, v3/m7, v4/e, v4/f, v4/d)": "149 passed in 39.08s",
+  "prototype tests/": "300 passed in 23.12s"
+ },
+ "agent_E": {
+  "status": "COMPLETE (simulated)",
+  "recommended_rl": "floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1",
+  "checkpoint_sha256": "ed5810c186ed90c915f524e829da17e3b5384cceed8803711894eae5dff5d025",
+  "preregistration_frozen_utc": "2026-10-26T01:03:21Z",
+  "test4_manifest_sha256": "cedc50afa1090457b8a1d6bf9748d06e2b25b1d8261169b2e292864e037545bd",
+  "beats_mpc_within_safety_margins": false,
+  "best_urgent_safe_controller": "floor@3 + Fluid MPC (classical)"
+ },
+ "agent_F": {
+  "status": "COMPLETE offline; real-world accuracy BLOCKED (no genuine labels)",
+  "scorer": "tfidf_ridge_tail256",
+  "scorer_sha256": "1c2018532cf6b50631eca9e150e66b94f2ac8c1cdfead1d620e44b7088a75261",
+  "e_reward_allowed": false
+ },
+ "delivery": {
+  "vault": "https://claude.ai/artifact/CJ3RnnzJpDK317jC9YvdbY",
+  "all_selected_models_backed_up": true,
+  "pushed": false,
+  "merged": false,
+  "callverse_modified": false
+ },
+ "blocked": [
+  "genuine CallVerse satisfaction labels",
+  "DCH-2 (agreement; also annotator labels)",
+  "GPU / RTX 4050 (no access)",
+  "wiring into callverse/ (needs an approved task)",
+  "Intake LLM fallback (no API key)"
+ ],
+ "not_verified": [
+  "real-world performance of any component",
+  "M7 precision on real (non-scripted) conversations",
+  "French satisfaction"
+ ]
+}

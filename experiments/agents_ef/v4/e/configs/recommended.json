@@ -1,0 +1,28 @@
+{
+ "spec": "floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1",
+ "run_id": "dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1",
+ "checkpoint": "v4/e/runs/dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1/best.pt",
+ "best_pt_sha256": "ed5810c186ed90c915f524e829da17e3b5384cceed8803711894eae5dff5d025",
+ "n_params": 8146,
+ "ckpt_kb": 34.9,
+ "algo": "dueling_double_dqn",
+ "hidden": [
+  64,
+  64
+ ],
+ "training": {
+  "dual_lr": 2.0,
+  "dual_target": 0.9,
+  "lam0": 0.0,
+  "final_lam": 5.325275576743305,
+  "steps": 150048,
+  "train_wall_s": 624.5,
+  "best_step": 150000
+ },
+ "structure": "Forecast(z=0.25) owns activate/deactivate; Lagrangian-trained Dueling DDQN chooses allocation moves, keep and capped fallback; static floor: queue C >= 3 sessions",
+ "chosen_by": "pre-registered TEST4 decision rule (safe NEW RL-containing group with the highest TEST4 return) + seed with the best DEV return within that group (DEV only)",
+ "alternative_performance_first": {
+  "spec": "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s1",
+  "note": "best TEST4 return group but FAILS the pre-registered queue-C and HIGH margins; seed = best DEV return"
+ }
+}

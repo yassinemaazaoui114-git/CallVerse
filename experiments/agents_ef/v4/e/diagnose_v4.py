@@ -315,7 +315,8 @@ def figs2():
     axes[0].set_xticks(np.arange(4) + 0.4, ["queue A", "queue B", "queue C (urgent)", "queue D"])
     axes[0].set_ylabel("failed tickets per day (SLA miss + lost)")
     axes[0].set_title("V3 VAL: where each policy fails")
-    axes[0].legend(fontsize=7)
+    axes[0].set_ylim(0, 45)
+    axes[0].legend(fontsize=6, loc="upper left", ncol=2)
     tf = json.loads((RES / "diag_tfrac.json").read_text())
     names = list(next(iter(tf.values())))
     for run, v in tf.items():

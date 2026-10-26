@@ -1,0 +1,157 @@
+{
+ "note": "v4 Agent E checkpoints (git-ignored); recommended = see v4/e/configs/recommended.json",
+ "runs": [
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_fl3_ownforecast_s0",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "5fcf3e81175c546066af68713e49fbe727a310361f8e78c3b9071e6fb0679458"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_fl3_ownforecast_s1",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "f4b7a3371f54fc9a40aadc144aec502ca5f5e65170ee993bf04e92ec6550f13a"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_fl3_ownforecast_s2",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "5ffa56bbcdf75755add4d1134c72ffa327eb1676c171f49f26f7287b6d2633be"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_fl3_s0",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "9d23f2eeb9381b374d4e460aa51ca8ed7e816abcaf06877098cd35d588be82ce"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_fl3_s1",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "0032cdc2705ca898799fec6015f97ada0ca684f8440826d1db09103df0252eed"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_fl3_s2",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "c83e1d4e0445de60dffc3d43eefac71b4f97c3ea83a95945d7c155d0a7be1bde"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_fl3_s3",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "0d920aa049590ff0276eac80554ae605b08a1ceae58c9baeee6732fab40236b8"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_fl3_s4",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "ea6cd2633272e6f34ee52fe54093b6a3bbfac5c6f1136531b22974ba1244c0aa"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_lag0d2t0.9_s0",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "3dc665fb82ed48cf95d0fe280b4b20b9848cc9fbac821a53cd8254a3269623dd"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "ed5810c186ed90c915f524e829da17e3b5384cceed8803711894eae5dff5d025"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_lag0d2t0.9_s2",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "3ae4eac3b3dff5d0c333cb69ccd2631defe6b1f67d5741a09f486e70733f30dc"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_lag0d2t0.9_s3",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "847dcf7d5a2039cc714e7e1e1ac9e904c4451acbcac2bb59cd613125c58e0313"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_lag0d2t0.9_s4",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "d4bdf5fe05f2e69f46dcb22d5362fea84fcb059d36184bce112520b82026a36e"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_ownmpc_lag1d2t0.9w60k_s0",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "7c5bd8e57c5bb23430476b7b15aaf9b461392deacbaac77f3df59c6e9485677c"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_ownmpc_lag1d2t0.9w60k_s1",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "c147de27bd3b8b29b427aa5b7702ac8ad0b9f4872f66ba5b71f91d6fe25e6c76"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_ownmpc_lag1d2t0.9w60k_s2",
+   "status": "running",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "c2d77b875ecb2f0570c264a6e5ae34a5d9bc1ff0d9e9a95c1c0fb2b5be7c2082"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_ownmpc_lag1d2t0.9w60k_s3",
+   "status": "running",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "2d1e9acd7f2f2a9348f46c76a2bcde7050bdc8c662233aec44fa5e7fb487ecc5"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_ownmpc_s0",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "eb1458f800ac35d67aa1d134dc648a416a426de66f44dbce48ecb8bf622608b4"
+   }
+  },
+  {
+   "run_id": "dueling_double_dqn_h64x64_150k_ownmpc_s1",
+   "status": "done",
+   "best.pt": {
+    "bytes": 35725,
+    "sha256": "478a1443081e2b30b5304a80bc015973609da849868130de476bc36038234dd2"
+   }
+  }
+ ]
+}

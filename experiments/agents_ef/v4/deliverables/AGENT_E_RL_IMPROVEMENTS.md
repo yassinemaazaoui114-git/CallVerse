@@ -99,6 +99,20 @@ A floor makes "C has at least 3 sessions" true at every step. It does not make "
 - **Time per run:** ~530–700 s alone or in pairs (150k steps); MPC-owned runs ~1000 s.
 - **DEV evaluation:** about 190 policy-runs of 104 days (`v4/e/results/eval_dev/`).
 
+## What happened on the new TEST4 (confirmatory; details in AGENT_E_NEW_EVALUATION.md)
+
+| Candidate (TEST4, 650 days) | Δ return vs MPC [95% CI] | Δ queue-C SLA (pp) | Δ HIGH SLA (pp) | Pre-registered safety |
+|---|---|---|---|---|
+| floor@3 + guarded (V3 DDQN) | **+6.89 [+2.99, +10.48]**, Holm p = 0.006 | −2.74 | −0.12 | fails (C, HIGH) |
+| floor@3 + guarded (Lagrangian DDQN), **recommended** | −4.57 [−8.74, −0.29] | **+1.79** | −0.05 | **passes** |
+| floor@3 + MPC envelope | +0.18 [−5.69, +5.56] | +0.23 | −0.12 | fails (HIGH) |
+| floor@3 + pure DDQN | +1.62 [−2.42, +5.49] | −3.67 | −0.05 | fails (C) |
+| Lagrangian DDQN (pure) | −10.28 [−15.33, −5.40] | −1.04 | −0.07 | passes |
+
+The DEV ranking held on TEST4. The improvements are real, but they are a trade-off:
+- the most rewarding design is not safe enough by our own pre-declared margins;
+- the safe design costs return.
+
 ## NOT VERIFIED / limits
 - DEV has 104 days; the CIs are wide.
 - DEV is also used to choose the floor (k=3), so DEV differences are optimistic.

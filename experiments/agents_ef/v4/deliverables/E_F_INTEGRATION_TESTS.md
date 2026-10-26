@@ -6,7 +6,7 @@ All tests are **offline** and isolated:
 - no file in `callverse/` changed;
 - no production queue touched.
 
-Run from `experiments/agents_ef/`: `python -m pytest v4/d/tests -q`. Result: **28 passed**.
+Run from `experiments/agents_ef/`: `python -m pytest v4/d/tests -q`. Result: **31 passed**.
 
 ## What the prototype really looks like (audit)
 
@@ -30,7 +30,7 @@ Agent E's input is only as good as Intake's classification. With the LLM fallbac
 |---|---|
 | `test_bridge.py` (16) | Every prototype reason maps to an Agent E queue. The **independent validator** (written from ConfigV3's rules, not from E's code) gives the same allowed set as `EnvV3.action_mask` for all 17 actions on every state of a random-play day in **all 13 families**. The urgent minimum (queue C ≥ 2), capacity and budget refusals come with reasons. The ticket book orders tickets like the prototype queue, and its snapshot contains no message text |
 | `test_fe_contract.py` (5) | The F → E reward channel opens only if Agent F's eligibility flag **and** a validation card that passes the V3 gate agree. Either one alone is refused. Bad scores are refused. Units are those of EnvV3's `(5 − s) / 4` shortfall |
-| `test_integration_e.py` (5) | **Ticket → queue statistics → RL proposal → independent check → simulated update**, using the real Intake fixture and a trained V3 Dueling DDQN. The adapter does not mutate its input, the proposal is independently valid, and queue C stays ≥ 2. A missing checkpoint falls back to MPC and states the reason. **Closed loop**: a full simulated day on tracking_spike, severe_overload and combined_shock, where every one of 96 proposals passes the independent check; 0 invalid proposals, 0 HIGH tickets on fallback, budget kept |
+| `test_integration_e.py` (8) | **Ticket → queue statistics → RL proposal → independent check → simulated update**, using the real Intake fixture and a trained V3 Dueling DDQN. The adapter does not mutate its input, the proposal is independently valid, and queue C stays ≥ 2. A missing checkpoint falls back to MPC and states the reason. **Closed loop**: a full simulated day on tracking_spike, severe_overload and combined_shock, where every one of 96 proposals passes the independent check; 0 invalid proposals, 0 HIGH tickets on fallback, budget kept. **Recommended policy** (default load = `recommended.json`, SHA256 checked) on normal, severe_overload and refund_surge days: every proposal is independently valid, and it never proposes taking a session from queue C at ≤ 3 |
 | `test_integration_f.py` (2) | **Closed conversation → Agent F → quality flags → rule/knowledge warnings → owner report → F → E contract**, on 30 held-out corpus traces. Every evidence ref points at the right trace line. Non-English conversations get no score. Nothing is eligible for E's reward, and the contract refuses all 30. Agent F changes neither the policy file nor the traces (hash check) |
 
 ## Demo
@@ -39,6 +39,8 @@ Agent E's input is only as good as Intake's classification. With the LLM fallbac
 - **Part 1:** 3 decision steps, all three proposals "move 1 session D_availability → C_urgent" as damaged-item tickets queue up; independent check OK; 0.9–13.8 ms per decision.
 - **Part 2:** 6 demo traces. Two French conversations have their score withheld. One escalated case gets `claim_false` ×2, `sent_back` and `escalated`. Owner report: `v4/d/results/demo_owner_report.md`.
 - **Part 3:** 0 reward cells; 6/6 refused, with the gate's reasons.
+
+**Demo caveat (found by the demo).** The ticket bridge's arrival EWMA starts at 0. In the first steps, the Forecast capacity rule inside the recommended policy therefore deactivated 2 sessions while the backlog grew. A deployment must warm-start the EWMA from recent history; this is not fixed here.
 
 ## Not verified
 

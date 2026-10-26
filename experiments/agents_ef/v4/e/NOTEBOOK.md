@@ -221,3 +221,17 @@ allocation still under-serves C (−4.2 pp).
 Training runs used: 16 complete (B 5, C 2, C0 2, E 5, F 3 — F has 3) + 2 stopped (C s2, s3) = 18 of 25 budget.
 - 01:03:21Z pre-registration frozen (configs/preregistration.json/.md, 59 policies in 11 groups, checkpoint SHA256s).
 - 01:04 TEST4 evaluation started: `bash v4/e/run_test4.sh` (2 workers, log logs/test4_eval.log).
+
+## TEST4 — confirmatory evaluation (01:04–01:56) and analysis (01:57)
+- 59 policies × 650 days complete (`results/eval_test4/`, every CSV 651 lines). A second evaluator process on the
+  reversed list was used at 01:15 because the CPU was idle (load ~2); identical deterministic results, the
+  duplicate run in progress at the end was killed before writing.
+- `python -m v4.e.analyze_v4 test4` → results/test4_analysis.json, figures/e5_test4_*.png.
+- Key (Δ vs MPC, paired 95 % CI): floor@3+guarded V3 +6.89 [+2.99,+10.48] Holm p 0.006 BUT queue-C −2.74
+  (low −3.79 < −2) and HIGH −0.12 (low −0.254 < −0.2) → NOT safe. floor@3+guarded Lagrangian −4.57 [−8.74,−0.29],
+  C +1.79 (low +1.16), HIGH −0.05 (low −0.106) → SAFE, lost +0.60 pp. floor@3+MPC envelope +0.18, C ok, HIGH low
+  −0.334 → not safe. Lagrangian pure −10.28, safe. V3 pure −3.29, V3 guarded +3.50 (replicates V3 TEST).
+- Decision by the pre-registered rule: recommended = floor@3 + guarded with Lagrangian DDQN (safe NEW RL group with
+  highest return). Deployment seed = best DEV return within the group (seed 1, DEV −213.8) — chosen on DEV only;
+  configs/recommended.json. The performance-first alternative is reported, not recommended.
+- Exploratory: the performance-first gain is concentrated in severe_overload (+75.2); in-distribution +1.2 (tie).

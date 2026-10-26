@@ -169,3 +169,19 @@ def test_adapter_reproduces_evaluated_policy_and_floor(spec):
     k = env.kpis()
     assert abs(k["sla_pct"] - ref["sla_pct"]) < 1e-9 and abs(k["cost"] - ref["cost"]) < 1e-9
     assert k["high_on_fallback"] == 0 and k["invalid_proposals"] == 0
+
+
+def test_recommended_config_loads_and_matches_hash():
+    """configs/recommended.json -> adapter with the frozen checkpoint (SHA256 must match the pre-registration)."""
+    import json
+    from v4.e.common import CFG
+    rec = json.loads((CFG / "recommended.json").read_text())
+    pr = json.loads((CFG / "preregistration.json").read_text())
+    ad = AgentEAdapter.load()
+    assert ad.spec == rec["spec"] and ad.model_sha256 == rec["best_pt_sha256"]
+    assert pr["checkpoint_hashes"][rec["spec"]]["best_pt_sha256"] == rec["best_pt_sha256"]
+    assert ad.info["n_params"] == rec["n_params"] < 100_000
+    env = EnvV3()
+    env.reset(seed=11, family="normal")
+    p = ad.propose(snapshot_from_env(env))
+    assert p["fallback_reason"] is None and p["mask"][p["action_id"]] and p["audit"]["model_sha256"] == rec["best_pt_sha256"]

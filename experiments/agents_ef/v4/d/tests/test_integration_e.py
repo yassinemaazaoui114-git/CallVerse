@@ -79,3 +79,28 @@ def test_closed_loop_day_every_proposal_passes_independent_check(adapter, family
     k = env.kpis()
     assert refused == 0 and k["invalid_proposals"] == 0 and k["high_on_fallback"] == 0
     assert k["budget_ok"]
+
+
+@pytest.mark.parametrize("family", ["normal", "severe_overload", "refund_surge"])
+def test_recommended_policy_closed_loop_respects_the_queue_c_floor(family):
+    """Default load = Worker E's pre-registered recommendation (configs/recommended.json). On full simulated days
+    every proposal passes the independent check and the policy never takes a session from queue C at <= 3."""
+    from v4.e.adapter import AgentEAdapter, snapshot_from_env
+    from v4.d.bridge import MOVES
+    rec = json.loads((Path(__file__).resolve().parents[2] / "e" / "configs" / "recommended.json").read_text())
+    ad = AgentEAdapter.load()
+    assert ad.agent is not None and ad.model_sha256 == rec["best_pt_sha256"]
+    env = EnvV3()
+    env.reset(seed=777_101, family=family)
+    done, from_c_at_floor = False, 0
+    while not done:
+        st = CapacityState(alloc=env.alloc.copy(), t_step=env.t, fallback_on=bool(env.fallback),
+                           fallback_steps_used=int(env.kpi["fallback_steps"]), budget_spent=float(env.spent),
+                           capacity=int(env.available_capacity()))
+        a = ad.propose(snapshot_from_env(env))["action_id"]
+        assert validate(st, a)[0]
+        if 1 <= a <= 12 and MOVES[a - 1][0] == URGENT and env.alloc[URGENT] <= 3:
+            from_c_at_floor += 1
+        _, _, done, _, _ = env.step(a)
+    k = env.kpis()
+    assert from_c_at_floor == 0 and k["invalid_proposals"] == 0 and k["high_on_fallback"] == 0 and k["budget_ok"]
