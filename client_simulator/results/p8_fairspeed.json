@@ -1,0 +1,92 @@
+{
+  "phi4-mini:3.8b | default server, num_ctx 4096": {
+    "sec_per_message": 2.91,
+    "tokens_per_message": 47.2,
+    "vram_alone_mib": 2957,
+    "nvidia_smi_alone_mib": 2972,
+    "with_qwen2.5_3b": {
+      "qwen2.5:3b": [
+        2063,
+        2063
+      ],
+      "phi4-mini:3.8b": [
+        2957,
+        2957
+      ]
+    },
+    "nvidia_smi_with_qwen_mib": 5047,
+    "fits_with_qwen": true
+  },
+  "gemma3:1b | default server, num_ctx 4096": {
+    "sec_per_message": 2.59,
+    "tokens_per_message": 47.0,
+    "vram_alone_mib": 841,
+    "nvidia_smi_alone_mib": 873,
+    "with_qwen2.5_3b": {
+      "qwen2.5:3b": [
+        2063,
+        2063
+      ],
+      "gemma3:1b": [
+        841,
+        841
+      ]
+    },
+    "nvidia_smi_with_qwen_mib": 2948,
+    "fits_with_qwen": true
+  },
+  "phi4-mini:3.8b | KV q8_0 + flash attention, num_ctx 1024": {
+    "sec_per_message": 0.71,
+    "tokens_per_message": 47.0,
+    "vram_alone_mib": 2510,
+    "nvidia_smi_alone_mib": 2527,
+    "with_qwen2.5_3b": {
+      "qwen2.5:3b": [
+        1996,
+        1996
+      ],
+      "phi4-mini:3.8b": [
+        2510,
+        2510
+      ]
+    },
+    "nvidia_smi_with_qwen_mib": 4534,
+    "fits_with_qwen": true
+  },
+  "gemma3:1b | KV q8_0 + flash attention, num_ctx 1024": {
+    "sec_per_message": 0.46,
+    "tokens_per_message": 57.4,
+    "vram_alone_mib": 828,
+    "nvidia_smi_alone_mib": 847,
+    "with_qwen2.5_3b": {
+      "qwen2.5:3b": [
+        1996,
+        1996
+      ],
+      "gemma3:1b": [
+        828,
+        828
+      ]
+    },
+    "nvidia_smi_with_qwen_mib": 2855,
+    "fits_with_qwen": true
+  },
+  "gemma3:1b | main server restarted (KV q8_0 + flash attention), 127.0.0.1, num_ctx 1024": {
+    "sec_per_message": 0.47,
+    "tokens_per_message": 57.4,
+    "vram_alone_mib": 828,
+    "nvidia_smi_alone_mib": 846,
+    "with_qwen2.5_3b": {
+      "qwen2.5:3b": [
+        1996,
+        1996
+      ],
+      "gemma3:1b": [
+        828,
+        828
+      ]
+    },
+    "nvidia_smi_with_qwen_mib": 2854,
+    "fits_with_qwen": true
+  }
+}

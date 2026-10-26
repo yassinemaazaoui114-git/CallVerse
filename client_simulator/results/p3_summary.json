@@ -1,0 +1,604 @@
+{
+  "llama3.2:3b": {
+    "family": "Llama (Meta)",
+    "licence": "Llama 3.2 Community License",
+    "speed_s_per_msg": 2.85,
+    "vram_mib": 2442,
+    "fits_with_qwen": true,
+    "test1": {
+      "realism": 5,
+      "role": 4,
+      "cards": {
+        "T1-calm": {
+          "code": "X13",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Calm, specific, one long sentence like a real chat; reply answers and asks what is going on."
+        },
+        "T1-formal": {
+          "code": "X17",
+          "realism": 1,
+          "role": 1,
+          "reasoning": "Not formal ('I'm trying to track my order'); reply 'Yes, I'd be happy to confirm.' is an assistant-style phrase."
+        },
+        "T1-angry": {
+          "code": "X18",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Lowercase, no apostrophes, run-on - satisfies the typos card and reads real; but pleading ('help me pls') more than angry."
+        }
+      }
+    },
+    "realism_noex": 0.21785416666666668,
+    "realism_ex5": 0.21372916666666666,
+    "csat_test": {
+      "n": 200,
+      "mae": 0.995,
+      "spearman": 0.27939456207279,
+      "exact_acc": 0.475,
+      "within1_acc": 0.81,
+      "qwk": 0.29703277924498994,
+      "macro_f1": 0.24206607341359695,
+      "wasserstein": 0.425,
+      "pred_dist": {
+        "1": 34,
+        "2": 3,
+        "3": 0,
+        "4": 76,
+        "5": 87
+      },
+      "true_dist": {
+        "1": 22,
+        "2": 3,
+        "3": 4,
+        "4": 31,
+        "5": 140
+      }
+    },
+    "conv_test": {
+      "n": 120,
+      "mae": 0.30833333333333335,
+      "spearman": 0.10302301943931623,
+      "exact_acc": 0.7,
+      "within1_acc": 0.9916666666666667,
+      "qwk": 0.07069102462271648,
+      "macro_f1": 0.19521531100478468,
+      "wasserstein": 0.2416666666666666,
+      "pred_dist": {
+        "1": 0,
+        "2": 0,
+        "3": 113,
+        "4": 7,
+        "5": 0
+      },
+      "true_dist": {
+        "1": 1,
+        "2": 3,
+        "3": 85,
+        "4": 31,
+        "5": 0
+      }
+    },
+    "csat_qwk": 0.29703277924498994,
+    "conv_qwk": 0.07069102462271648,
+    "score_match_qwk_mean": 0.1838619019338532,
+    "invalid_json": 0.0,
+    "unparseable": 0.0
+  },
+  "phi4-mini:3.8b": {
+    "family": "Phi (Microsoft)",
+    "licence": "MIT",
+    "speed_s_per_msg": 3.18,
+    "vram_mib": 2957,
+    "fits_with_qwen": true,
+    "test1": {
+      "realism": 5,
+      "role": 5,
+      "cards": {
+        "T1-formal": {
+          "code": "X15",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Formal-ish and concise ('I am contacting regarding my laptop order 4512'); reply correct."
+        },
+        "T1-calm": {
+          "code": "X16",
+          "realism": 1,
+          "role": 2,
+          "reasoning": "'Dear ShopNova,' is a letter opener that real chat users rarely write; otherwise calm and correct."
+        },
+        "T1-angry": {
+          "code": "X20",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Natural lowercase message, but neither angry nor typo-ridden; ends with 'thanks.' twice."
+        }
+      }
+    },
+    "realism_noex": 0.17727083333333332,
+    "realism_ex5": 0.20435416666666667,
+    "csat_test": {
+      "n": 200,
+      "mae": 0.925,
+      "spearman": 0.244210084048056,
+      "exact_acc": 0.595,
+      "within1_acc": 0.74,
+      "qwk": 0.2749403870681527,
+      "macro_f1": 0.235727969348659,
+      "wasserstein": 0.365,
+      "pred_dist": {
+        "1": 7,
+        "2": 45,
+        "3": 0,
+        "4": 0,
+        "5": 148
+      },
+      "true_dist": {
+        "1": 22,
+        "2": 3,
+        "3": 4,
+        "4": 31,
+        "5": 140
+      }
+    },
+    "conv_test": {
+      "n": 120,
+      "mae": 0.35833333333333334,
+      "spearman": 0.17266129578744163,
+      "exact_acc": 0.65,
+      "within1_acc": 0.9916666666666667,
+      "qwk": 0.1692307692307693,
+      "macro_f1": 0.22298442736053614,
+      "wasserstein": 0.07499999999999996,
+      "pred_dist": {
+        "1": 0,
+        "2": 1,
+        "3": 93,
+        "4": 26,
+        "5": 0
+      },
+      "true_dist": {
+        "1": 1,
+        "2": 3,
+        "3": 85,
+        "4": 31,
+        "5": 0
+      }
+    },
+    "csat_qwk": 0.2749403870681527,
+    "conv_qwk": 0.1692307692307693,
+    "score_match_qwk_mean": 0.222085578149461,
+    "invalid_json": 0.0,
+    "unparseable": 0.0
+  },
+  "gemma3:4b": {
+    "family": "Gemma (Google)",
+    "licence": "Gemma Terms of Use",
+    "speed_s_per_msg": 3.01,
+    "vram_mib": 2772,
+    "fits_with_qwen": true,
+    "test1": {
+      "realism": 6,
+      "role": 5,
+      "cards": {
+        "T1-angry": {
+          "code": "X01",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Short, caps shouting, concrete facts, reply 'dhl is useless!' reads like a real angry customer. Strong anger, but almost no typos on the typos card (auto: first message perfect spelling)."
+        },
+        "T1-calm": {
+          "code": "X08",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Concise, natural, calm; reply gives the number plus the order date. Exactly what a calm customer writes."
+        },
+        "T1-formal": {
+          "code": "X12",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "'Good morning, I am writing to inquire about order 4512' - formal and concise; reply formal ('It is 4512')."
+        }
+      }
+    },
+    "realism_noex": 0.24847916666666667,
+    "realism_ex5": 0.23960416666666667,
+    "csat_test": {
+      "n": 200,
+      "mae": 1.115,
+      "spearman": 0.2723960107491575,
+      "exact_acc": 0.445,
+      "within1_acc": 0.74,
+      "qwk": 0.26279377851920904,
+      "macro_f1": 0.22462219688009571,
+      "wasserstein": 0.525,
+      "pred_dist": {
+        "1": 29,
+        "2": 21,
+        "3": 1,
+        "4": 60,
+        "5": 89
+      },
+      "true_dist": {
+        "1": 22,
+        "2": 3,
+        "3": 4,
+        "4": 31,
+        "5": 140
+      }
+    },
+    "conv_test": {
+      "n": 120,
+      "mae": 1.1916666666666667,
+      "spearman": 0.3183737255501784,
+      "exact_acc": 0.13333333333333333,
+      "within1_acc": 0.6833333333333333,
+      "qwk": 0.14570297535436072,
+      "macro_f1": 0.12267977636398689,
+      "wasserstein": 1.125,
+      "pred_dist": {
+        "1": 1,
+        "2": 12,
+        "3": 6,
+        "4": 45,
+        "5": 56
+      },
+      "true_dist": {
+        "1": 1,
+        "2": 3,
+        "3": 85,
+        "4": 31,
+        "5": 0
+      }
+    },
+    "csat_qwk": 0.26279377851920904,
+    "conv_qwk": 0.14570297535436072,
+    "score_match_qwk_mean": 0.20424837693678488,
+    "invalid_json": 0.6708333333333334,
+    "unparseable": 0.0
+  },
+  "granite4:3b": {
+    "family": "Granite (IBM)",
+    "licence": "Apache 2.0",
+    "speed_s_per_msg": 3.25,
+    "vram_mib": 2391,
+    "fits_with_qwen": true,
+    "test1": {
+      "realism": 5,
+      "role": 4,
+      "cards": {
+        "T1-formal": {
+          "code": "X05",
+          "realism": 1,
+          "role": 1,
+          "reasoning": "Natural first message but worried, not formal. Reply 'Yes, please confirm my order number is 4512' is an odd phrasing (asks the agent to confirm)."
+        },
+        "T1-calm": {
+          "code": "X14",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Calm-worried, gives all facts up front (many real customers do); reply minimal and correct."
+        },
+        "T1-angry": {
+          "code": "X21",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Terse lowercase 'hey, laptop still not here... help!' and 'order id 4512. laptop for study. where is it?' - real, annoyed; but no typos and only mild anger."
+        }
+      }
+    },
+    "realism_noex": 0.18664583333333334,
+    "realism_ex5": 0.1335208333333333,
+    "csat_test": {
+      "n": 200,
+      "mae": 1.115,
+      "spearman": 0.23913981316733615,
+      "exact_acc": 0.27,
+      "within1_acc": 0.765,
+      "qwk": 0.2980561555075594,
+      "macro_f1": 0.18240552201720472,
+      "wasserstein": 0.665,
+      "pred_dist": {
+        "1": 15,
+        "2": 13,
+        "3": 28,
+        "4": 100,
+        "5": 44
+      },
+      "true_dist": {
+        "1": 22,
+        "2": 3,
+        "3": 4,
+        "4": 31,
+        "5": 140
+      }
+    },
+    "conv_test": {
+      "n": 120,
+      "mae": 0.375,
+      "spearman": 0.1167392377687895,
+      "exact_acc": 0.6416666666666667,
+      "within1_acc": 0.9833333333333333,
+      "qwk": 0.12759643916913943,
+      "macro_f1": 0.29434169278996863,
+      "wasserstein": 0.05833333333333332,
+      "pred_dist": {
+        "1": 0,
+        "2": 2,
+        "3": 91,
+        "4": 27,
+        "5": 0
+      },
+      "true_dist": {
+        "1": 1,
+        "2": 3,
+        "3": 85,
+        "4": 31,
+        "5": 0
+      }
+    },
+    "csat_qwk": 0.2980561555075594,
+    "conv_qwk": 0.12759643916913943,
+    "score_match_qwk_mean": 0.2128262973383494,
+    "invalid_json": 0.0012499999999999734,
+    "unparseable": 0.0
+  },
+  "mistral:7b": {
+    "family": "Mistral",
+    "licence": "Apache 2.0",
+    "speed_s_per_msg": 3.68,
+    "vram_mib": 4148,
+    "fits_with_qwen": false,
+    "test1": {
+      "realism": 3,
+      "role": 5,
+      "cards": {
+        "T1-formal": {
+          "code": "X04",
+          "realism": 1,
+          "role": 2,
+          "reasoning": "Stays a formal customer, but 70 words like an email, and the reply repeats the whole request (79 words) instead of just giving the number."
+        },
+        "T1-angry": {
+          "code": "X06",
+          "realism": 1,
+          "role": 1,
+          "reasoning": "First message is very real ('wtf? compensation pls?'). Reply starts with 'whats ur order number?' - echoes the agent's question as if it were the agent (role slip)."
+        },
+        "T1-calm": {
+          "code": "X19",
+          "realism": 1,
+          "role": 2,
+          "reasoning": "Polite calm customer, but the reply repeats the entire request (49 words) instead of answering the question."
+        }
+      }
+    },
+    "realism_noex": 0.28360416666666666,
+    "realism_ex5": 0.2715208333333333,
+    "csat_test": {
+      "n": 200,
+      "mae": 0.64,
+      "spearman": 0.3115257199477692,
+      "exact_acc": 0.71,
+      "within1_acc": 0.865,
+      "qwk": 0.34931959307702476,
+      "macro_f1": 0.23897753433357147,
+      "wasserstein": 0.33999999999999997,
+      "pred_dist": {
+        "1": 17,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 183
+      },
+      "true_dist": {
+        "1": 22,
+        "2": 3,
+        "3": 4,
+        "4": 31,
+        "5": 140
+      }
+    },
+    "conv_test": {
+      "n": 120,
+      "mae": 0.7083333333333334,
+      "spearman": 0.224522972864474,
+      "exact_acc": 0.30833333333333335,
+      "within1_acc": 0.9833333333333333,
+      "qwk": 0.1940839118623604,
+      "macro_f1": 0.1724262743915172,
+      "wasserstein": 0.6416666666666667,
+      "pred_dist": {
+        "1": 0,
+        "2": 11,
+        "3": 9,
+        "4": 100,
+        "5": 0
+      },
+      "true_dist": {
+        "1": 1,
+        "2": 3,
+        "3": 85,
+        "4": 31,
+        "5": 0
+      }
+    },
+    "csat_qwk": 0.34931959307702476,
+    "conv_qwk": 0.1940839118623604,
+    "score_match_qwk_mean": 0.2717017524696926,
+    "invalid_json": 0.0,
+    "unparseable": 0.0
+  },
+  "qwen3.5:4b": {
+    "family": "Qwen (Alibaba)",
+    "licence": "Apache 2.0",
+    "speed_s_per_msg": 3.06,
+    "vram_mib": 3000,
+    "fits_with_qwen": true,
+    "test1": {
+      "realism": 6,
+      "role": 5,
+      "cards": {
+        "T1-angry": {
+          "code": "X03",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "'hi im so pissed ... pls help!!!' and 'yeah its 4512 ordered oct 1st! why did dhl not send it yet??' - lowercase, missing apostrophes, angry, answers the question. Matches the card fully."
+        },
+        "T1-formal": {
+          "code": "X09",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Natural and short, but says 'two weeks late' (card: due 8 Oct, a week of no tracking) and tone is neutral rather than formal."
+        },
+        "T1-calm": {
+          "code": "X11",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Natural, calm, specific; reply 'Sure, it's 4512. I was really hoping for it by the 8th though.' adds a human touch."
+        }
+      }
+    },
+    "realism_noex": 0.16414583333333332,
+    "realism_ex5": 0.15477083333333333,
+    "csat_test": {
+      "n": 200,
+      "mae": 0.8,
+      "spearman": 0.3020527508620095,
+      "exact_acc": 0.67,
+      "within1_acc": 0.815,
+      "qwk": 0.33051995415233915,
+      "macro_f1": 0.23060109289617486,
+      "wasserstein": 0.24,
+      "pred_dist": {
+        "1": 32,
+        "2": 0,
+        "3": 3,
+        "4": 0,
+        "5": 165
+      },
+      "true_dist": {
+        "1": 22,
+        "2": 3,
+        "3": 4,
+        "4": 31,
+        "5": 140
+      }
+    },
+    "conv_test": {
+      "n": 120,
+      "mae": 0.4,
+      "spearman": 0.1752464794683532,
+      "exact_acc": 0.6083333333333333,
+      "within1_acc": 0.9916666666666667,
+      "qwk": 0.17582417582417564,
+      "macro_f1": 0.22190354246692276,
+      "wasserstein": 0.11666666666666672,
+      "pred_dist": {
+        "1": 0,
+        "2": 0,
+        "3": 80,
+        "4": 40,
+        "5": 0
+      },
+      "true_dist": {
+        "1": 1,
+        "2": 3,
+        "3": 85,
+        "4": 31,
+        "5": 0
+      }
+    },
+    "csat_qwk": 0.33051995415233915,
+    "conv_qwk": 0.17582417582417564,
+    "score_match_qwk_mean": 0.2531720649882574,
+    "invalid_json": 0.0,
+    "unparseable": 0.0
+  },
+  "userlm-8b": {
+    "family": "Llama (Microsoft UserLM, fine-tuned from Llama-3.1-8B)",
+    "licence": "MIT (model card); Llama 3.1 base terms: to verify",
+    "speed_s_per_msg": 5.01,
+    "vram_mib": 4187,
+    "fits_with_qwen": false,
+    "test1": {
+      "realism": 2,
+      "role": 3,
+      "cards": {
+        "T1-angry": {
+          "code": "X02",
+          "realism": 0,
+          "role": 0,
+          "reasoning": "First message is in the agent's voice ('I'm sorry to hear that... Our team is here to help... Can you please provide me with more information') - breaks role. Reply then asks the agent 'Is that correct?'."
+        },
+        "T1-formal": {
+          "code": "X07",
+          "realism": 1,
+          "role": 2,
+          "reasoning": "Wrapped in quotation marks and opens with the meta line 'I'm a customer who ordered...'. Reply is fine. Polite and formal enough."
+        },
+        "T1-calm": {
+          "code": "X10",
+          "realism": 1,
+          "role": 1,
+          "reasoning": "Meta opener 'I'm a customer who ordered...'; reply 'Certainly! Our order number is...' sounds like an assistant."
+        }
+      }
+    },
+    "realism_noex": 0.3086875,
+    "realism_ex5": 0.28889583333333335,
+    "csat_test": {
+      "n": 200,
+      "mae": 0.63,
+      "spearman": 0.29026995660972577,
+      "exact_acc": 0.685,
+      "within1_acc": 0.865,
+      "qwk": 0.2846750727449079,
+      "macro_f1": 0.19040057740887767,
+      "wasserstein": 0.47,
+      "pred_dist": {
+        "1": 0,
+        "2": 14,
+        "3": 0,
+        "4": 0,
+        "5": 186
+      },
+      "true_dist": {
+        "1": 22,
+        "2": 3,
+        "3": 4,
+        "4": 31,
+        "5": 140
+      }
+    },
+    "conv_test": {
+      "n": 120,
+      "mae": 0.5583333333333333,
+      "spearman": 0.1469954332542051,
+      "exact_acc": 0.475,
+      "within1_acc": 0.975,
+      "qwk": 0.07931446791550412,
+      "macro_f1": 0.19283529925731763,
+      "wasserstein": 0.42500000000000004,
+      "pred_dist": {
+        "1": 0,
+        "2": 1,
+        "3": 41,
+        "4": 78,
+        "5": 0
+      },
+      "true_dist": {
+        "1": 1,
+        "2": 3,
+        "3": 85,
+        "4": 31,
+        "5": 0
+      }
+    },
+    "csat_qwk": 0.2846750727449079,
+    "conv_qwk": 0.07931446791550412,
+    "score_match_qwk_mean": 0.181994770330206,
+    "invalid_json": 0.10375000000000001,
+    "unparseable": 0.10249999999999998
+  }
+}

@@ -1,0 +1,201 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+csat_04279,5,2,True,True,False,Very poor response time.,return_item,8 h+,False,2.454293727874756,2,phi4-mini:3.8b
+csat_83543,5,3,True,True,False,"Satisfied with response, but no remark.",return_item,5-30 min,False,2.439883232116699,3,phi4-mini:3.8b
+csat_51748,5,2,True,True,False,Long wait for a response.,late_delivery,30 min-2 h,False,2.4032461643218994,2,phi4-mini:3.8b
+csat_29459,5,4,True,True,False,"Satisfied with quick response, but no remark.",refund_request,0-5 min,False,2.435372829437256,4,phi4-mini:3.8b
+csat_79580,5,5,True,True,False,Satisfied with the quick response.,late_delivery,0-5 min,True,2.46663236618042,5,phi4-mini:3.8b
+csat_14190,5,5,True,True,False,Thanks,return_item,0-5 min,True,2.3888916969299316,5,phi4-mini:3.8b
+csat_66434,4,4,True,True,False,"Issue resolved quickly, but item condition was unacceptable.",damaged_item,0-5 min,False,2.4889321327209473,4,phi4-mini:3.8b
+csat_40843,5,2,True,True,False,"Long wait time, but helpful.",other,30 min-2 h,False,2.4832611083984375,2,phi4-mini:3.8b
+csat_43070,4,3,True,True,False,No remark provided.,return_item,2-8 h,False,2.4355244636535645,3,phi4-mini:3.8b
+csat_76294,5,2,True,True,False,Take hard action against the seller regarding this issue,other,unknown,True,2.5637705326080322,2,phi4-mini:3.8b
+csat_78820,5,2,True,True,False,"No remark, very dissatisfied with the wait time.",damaged_item,8 h+,False,2.5295968055725098,2,phi4-mini:3.8b
+csat_72728,5,3,True,True,False,"Satisfied with response, but no remark.",return_item,5-30 min,False,2.5027287006378174,3,phi4-mini:3.8b
+csat_76635,5,3,True,True,False,"Satisfied with the call, but no remark.",other,5-30 min,False,2.609623432159424,3,phi4-mini:3.8b
+csat_32713,5,2,True,True,False,"Very poor response time, no resolution offered.",other,8 h+,False,2.557377338409424,2,phi4-mini:3.8b
+csat_32573,5,3,True,True,False,"Satisfied with the process, but no remark provided.",return_item,2-8 h,False,2.4688007831573486,3,phi4-mini:3.8b
+csat_25882,5,2,True,True,False,"Issue unresolved, no feedback provided.",damaged_item,30 min-2 h,False,2.4929349422454834,2,phi4-mini:3.8b
+csat_50628,5,5,True,True,False,Satisfied with quick response.,order_status,0-5 min,True,2.430128335952759,5,phi4-mini:3.8b
+csat_54998,5,3,True,True,False,"Satisfied with the answer, but no remark.",other,5-30 min,False,2.51578426361084,3,phi4-mini:3.8b
+csat_79247,5,2,True,True,False,Return policy should be more fast.,return_item,8 h+,True,2.4862968921661377,2,phi4-mini:3.8b
+csat_00943,5,3,True,True,False,"Satisfied with the wait, but no remark on service quality.",other,30 min-2 h,False,2.483643054962158,3,phi4-mini:3.8b
+csat_82094,2,2,True,True,False,Kindly deliver products in time,late_delivery,8 h+,True,2.4634218215942383,2,phi4-mini:3.8b
+csat_74777,5,4,True,True,False,"Positive feedback, but waiting time unclear.",order_status,unknown,True,2.4834578037261963,4,phi4-mini:3.8b
+csat_70507,5,5,True,True,False,Very nice response.,other,0-5 min,True,2.4103188514709473,5,phi4-mini:3.8b
+csat_12150,5,5,True,True,False,Prompt and helpful service.,other,0-5 min,False,2.3751790523529053,5,phi4-mini:3.8b
+csat_45472,4,3,True,True,False,"Issue unresolved, waiting for feedback.",return_item,5-30 min,False,2.383129835128784,3,phi4-mini:3.8b
+csat_65059,5,2,True,True,False,No response received.,damaged_item,8 h+,False,2.3795080184936523,2,phi4-mini:3.8b
+csat_55861,5,3,True,True,False,"Email response satisfactory, but no remark provided.",return_item,5-30 min,False,2.5087575912475586,3,phi4-mini:3.8b
+csat_83609,4,5,True,True,False,Prompt and helpful service.,other,0-5 min,False,2.450542688369751,5,phi4-mini:3.8b
+csat_64299,5,4,True,True,False,"Satisfied with prompt assistance, but no remark.",refund_request,0-5 min,False,2.5066885948181152,4,phi4-mini:3.8b
+csat_82546,5,1,True,True,False,"Unclear response, no satisfaction indicated.",late_delivery,8 h+,True,2.5133109092712402,1,phi4-mini:3.8b
+csat_34280,5,3,True,True,False,"Contact acknowledged, but no further details provided.",return_item,5-30 min,True,2.5115091800689697,3,phi4-mini:3.8b
+csat_45875,5,3,True,True,False,"Needs product as order, light gold M",return_item,30 min-2 h,True,2.5340943336486816,3,phi4-mini:3.8b
+csat_49219,5,2,True,True,False,"Issue unresolved, dissatisfied with service.",damaged_item,30 min-2 h,True,2.4807770252227783,2,phi4-mini:3.8b
+csat_21353,5,4,True,True,False,"Quick response, but no remark.",other,5-30 min,False,2.4007465839385986,4,phi4-mini:3.8b
+csat_71203,4,2,True,True,False,Very poor response time.,other,8 h+,False,2.3994550704956055,2,phi4-mini:3.8b
+csat_79231,1,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.4566431045532227,4,phi4-mini:3.8b
+csat_39254,5,1,True,True,False,Very dissatisfied due to long wait time.,late_delivery,8 h+,False,2.4357142448425293,1,phi4-mini:3.8b
+csat_14340,1,4,True,True,False,"Quick response, but no remark.",other,5-30 min,False,2.4100501537323,4,phi4-mini:3.8b
+csat_65867,5,5,True,True,False,Prompt and helpful service.,order_status,0-5 min,False,2.4561166763305664,5,phi4-mini:3.8b
+csat_04214,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.513235330581665,4,phi4-mini:3.8b
+csat_58389,4,2,True,True,False,Please reduce response time,return_item,30 min-2 h,True,2.4283008575439453,2,phi4-mini:3.8b
+csat_13653,4,2,True,True,False,Was very good but my problems related query not confirmation to solve,return_item,8 h+,True,2.5491464138031006,2,phi4-mini:3.8b
+csat_49645,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.457489013671875,4,phi4-mini:3.8b
+csat_62487,5,5,True,True,False,Efficient and prompt service.,other,0-5 min,False,2.386845588684082,5,phi4-mini:3.8b
+csat_10198,5,3,True,True,False,"Satisfied with the process, but no remark provided.",refund_request,2-8 h,False,2.481945753097534,3,phi4-mini:3.8b
+csat_09383,5,5,True,True,False,Impressed with customer service.,return_item,8 h+,True,2.4712677001953125,5,phi4-mini:3.8b
+csat_14172,5,5,True,True,False,Excellent customer service and support.,other,0-5 min,True,2.456488609313965,5,phi4-mini:3.8b
+csat_67574,4,2,True,True,False,Very poor response time.,return_item,8 h+,False,2.4672040939331055,2,phi4-mini:3.8b
+csat_80988,4,4,True,True,False,Issue should be solved ASAP,other,5-30 min,True,2.460148334503174,4,phi4-mini:3.8b
+csat_00743,5,2,True,True,False,Concerned about poor seller practices.,return_item,2-8 h,True,2.4890573024749756,2,phi4-mini:3.8b
+csat_80555,1,2,True,True,False,Unresolved issue and poor response time.,other,8 h+,True,2.4817519187927246,2,phi4-mini:3.8b
+csat_30447,3,5,True,True,False,Prompt and helpful service.,order_status,0-5 min,False,2.3912317752838135,5,phi4-mini:3.8b
+csat_42541,5,3,True,True,False,Quick response but delivery still delayed.,late_delivery,5-30 min,False,2.4138147830963135,3,phi4-mini:3.8b
+csat_48290,5,3,True,True,False,"Satisfied with the call back, but no remark.",refund_request,5-30 min,False,2.5190858840942383,3,phi4-mini:3.8b
+csat_04256,5,5,True,True,False,Efficient and helpful response.,other,0-5 min,False,2.41027569770813,5,phi4-mini:3.8b
+csat_28999,5,4,True,True,False,"Satisfied with quick response, but no remark.",refund_request,0-5 min,False,2.532125234603882,4,phi4-mini:3.8b
+csat_47785,5,5,True,True,False,Excellent service and response time!,late_delivery,0-5 min,True,2.453080415725708,5,phi4-mini:3.8b
+csat_74117,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.4408810138702393,4,phi4-mini:3.8b
+csat_75690,5,3,True,True,False,No feedback provided.,late_delivery,unknown,False,2.3666536808013916,3,phi4-mini:3.8b
+csat_65439,5,3,True,True,False,"Issue unresolved, waiting for feedback.",return_item,5-30 min,False,2.4294605255126953,3,phi4-mini:3.8b
+csat_16874,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.471818685531616,4,phi4-mini:3.8b
+csat_04906,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.369819402694702,4,phi4-mini:3.8b
+csat_19937,5,3,True,True,False,"Satisfied with the answer, but no remark.",other,5-30 min,False,2.444011926651001,3,phi4-mini:3.8b
+csat_56262,5,4,True,True,False,Very very good response,return_item,2-8 h,True,2.435786485671997,4,phi4-mini:3.8b
+csat_11592,1,2,True,True,False,Very long waiting time.,order_status,8 h+,False,2.439392328262329,2,phi4-mini:3.8b
+csat_06884,5,5,True,True,False,Prompt and helpful support.,other,0-5 min,False,2.3990423679351807,5,phi4-mini:3.8b
+csat_84400,1,1,True,True,False,Extremely disappointed with the service and resolution process.,return_item,5-30 min,True,2.6681220531463623,1,phi4-mini:3.8b
+csat_11530,5,3,True,True,False,"Order status unclear, waited too long.",order_status,2-8 h,False,2.4810166358947754,3,phi4-mini:3.8b
+csat_41631,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.481935501098633,4,phi4-mini:3.8b
+csat_52309,5,4,True,True,False,"Helpful, but no remark received.",other,5-30 min,False,2.4731287956237793,4,phi4-mini:3.8b
+csat_67258,5,4,True,True,False,"Satisfied with quick response, but no specific feedback.",other,0-5 min,False,2.5266923904418945,4,phi4-mini:3.8b
+csat_64688,4,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.4848952293395996,4,phi4-mini:3.8b
+csat_83080,4,3,True,True,False,Quick response but delivery still delayed.,late_delivery,5-30 min,False,2.4585652351379395,3,phi4-mini:3.8b
+csat_60151,5,2,True,True,False,Unclear satisfaction with service.,return_item,5-30 min,True,2.4401473999023438,2,phi4-mini:3.8b
+csat_69216,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.454493284225464,4,phi4-mini:3.8b
+csat_18284,5,2,True,True,False,"Long wait time, but no remark.",return_item,30 min-2 h,False,2.513500690460205,2,phi4-mini:3.8b
+csat_14240,5,4,True,True,False,"Satisfied with quick response, but no remark on the outcome.",return_item,0-5 min,False,2.606172800064087,4,phi4-mini:3.8b
+csat_45121,5,5,True,True,False,Prompt and helpful service.,other,0-5 min,True,2.416461706161499,5,phi4-mini:3.8b
+csat_23479,5,3,True,True,False,Received answer but waiting time was longer than expected.,order_status,5-30 min,False,2.4751620292663574,3,phi4-mini:3.8b
+csat_82118,5,4,True,True,False,Positive feedback on the helpful response.,other,30 min-2 h,True,2.4837758541107178,4,phi4-mini:3.8b
+csat_32216,5,5,True,True,False,I had really good experience while talking to support executive,return_item,0-5 min,True,2.552541732788086,5,phi4-mini:3.8b
+csat_77338,5,5,True,True,False,Impressed with the service.,other,unknown,True,2.5867371559143066,5,phi4-mini:3.8b
+csat_77496,5,2,True,True,False,Unprofessional behaviour encountered.,other,unknown,False,2.3744304180145264,2,phi4-mini:3.8b
+csat_84416,3,4,True,True,False,"Satisfied with the response, but no remark.",other,5-30 min,False,2.4500129222869873,4,phi4-mini:3.8b
+csat_25951,1,4,True,True,False,"Satisfied with the quick response, but no remark on the resolution.",return_item,5-30 min,False,2.543706178665161,4,phi4-mini:3.8b
+csat_62558,5,3,True,True,False,Quick response but no remark provided.,return_item,5-30 min,False,2.6037073135375977,3,phi4-mini:3.8b
+csat_26493,4,3,True,True,False,"Satisfied with response, but no remark.",return_item,5-30 min,False,2.4725399017333984,3,phi4-mini:3.8b
+csat_33739,5,3,True,True,False,"Satisfied with response, but no remark.",return_item,5-30 min,False,2.350234031677246,3,phi4-mini:3.8b
+csat_27871,5,4,True,True,False,"Prompt response, but no remark provided.",other,5-30 min,False,2.434645652770996,4,phi4-mini:3.8b
+csat_67386,3,5,True,True,False,Satisfied with quick response.,return_item,0-5 min,True,2.4530186653137207,5,phi4-mini:3.8b
+csat_43645,5,4,True,True,False,"Satisfied with the response, but no remark.",other,5-30 min,False,2.4521539211273193,4,phi4-mini:3.8b
+csat_84001,5,3,True,True,False,"Issue unresolved, waiting for feedback.",return_item,5-30 min,False,2.4118812084198,3,phi4-mini:3.8b
+csat_53510,4,4,True,True,False,"Satisfied with quick response, no remark needed.",other,0-5 min,False,2.4397337436676025,4,phi4-mini:3.8b
+csat_06620,5,4,True,True,False,Efficient and helpful service.,other,0-5 min,False,2.4581663608551025,4,phi4-mini:3.8b
+csat_19067,4,3,True,True,False,"Satisfied with the wait, but no remark on the service.",other,30 min-2 h,False,2.574202299118042,3,phi4-mini:3.8b
+csat_38600,1,2,True,True,False,"Unclear response, needs follow-up.",other,30 min-2 h,True,2.6586647033691406,2,phi4-mini:3.8b
+csat_81344,4,3,True,True,False,"Satisfied with the call, but no remark.",return_item,5-30 min,False,2.508291721343994,3,phi4-mini:3.8b
+csat_82144,5,4,True,True,False,Positive feedback on prompt service.,other,0-5 min,True,2.4919745922088623,4,phi4-mini:3.8b
+csat_01135,5,4,True,True,False,"Positive, but incomplete feedback.",other,0-5 min,True,2.431607246398926,4,phi4-mini:3.8b
+csat_24278,5,3,True,True,False,"Satisfied with the response, but no remark.",return_item,5-30 min,False,2.458045721054077,3,phi4-mini:3.8b
+csat_77852,5,5,True,True,False,Quick and satisfactory response.,order_status,0-5 min,True,2.459782600402832,5,phi4-mini:3.8b
+csat_61560,5,3,True,True,False,"Satisfied with the process, but could improve.",refund_request,2-8 h,False,2.4560303688049316,3,phi4-mini:3.8b
+csat_81816,4,2,True,True,False,Unacceptable long waiting time.,other,8 h+,False,2.4553415775299072,2,phi4-mini:3.8b
+csat_06572,1,1,True,True,False,Your team not solving my issue since last 30 days.,other,8 h+,True,2.5914666652679443,1,phi4-mini:3.8b
+csat_66891,2,2,True,True,False,Very poor response time.,return_item,8 h+,False,2.4337892532348633,2,phi4-mini:3.8b
+csat_26832,5,3,True,True,False,"Satisfied with the answer, but could expect faster response.",other,5-30 min,False,2.460160732269287,3,phi4-mini:3.8b
+csat_57521,5,4,True,True,False,"Prompt response, but no remark written.",late_delivery,0-5 min,False,2.4124884605407715,4,phi4-mini:3.8b
+csat_55324,1,3,True,True,False,Please clarify the return process.,return_item,5-30 min,True,2.4666941165924072,3,phi4-mini:3.8b
+csat_04974,1,2,True,True,False,"Issue unresolved, waiting time too long.",other,30 min-2 h,False,2.501438856124878,2,phi4-mini:3.8b
+csat_68951,5,2,True,True,False,Unprofessional behaviour experienced.,other,5-30 min,False,2.3906972408294678,2,phi4-mini:3.8b
+csat_60821,1,2,True,True,False,"Unclear response, needs improvement.",order_status,30 min-2 h,True,2.4719126224517822,2,phi4-mini:3.8b
+csat_80032,4,3,True,True,False,"Order status unclear, waited too long.",order_status,2-8 h,False,2.445974826812744,3,phi4-mini:3.8b
+csat_80760,5,3,True,True,False,"Satisfied with the call, but no remark provided.",return_item,5-30 min,False,2.532762289047241,3,phi4-mini:3.8b
+csat_31554,5,4,True,True,False,Efficient and helpful service.,return_item,0-5 min,False,2.520608901977539,4,phi4-mini:3.8b
+csat_84805,5,4,True,True,False,"Satisfied with quick response, but no specific feedback.",other,0-5 min,False,2.5290396213531494,4,phi4-mini:3.8b
+csat_27932,4,3,True,True,False,"Satisfied with the response, but no remark.",return_item,5-30 min,False,2.4170191287994385,3,phi4-mini:3.8b
+csat_51289,1,3,True,True,False,"Satisfied with the response, but no remark provided.",refund_request,5-30 min,False,2.469977617263794,3,phi4-mini:3.8b
+csat_26079,5,2,True,True,False,Unprofessional behaviour experienced.,other,5-30 min,False,2.4631402492523193,2,phi4-mini:3.8b
+csat_45075,4,2,True,True,False,No response received.,late_delivery,5-30 min,True,2.406620502471924,2,phi4-mini:3.8b
+csat_50724,5,5,True,True,False,Helpful team member,return_item,0-5 min,True,2.4135210514068604,5,phi4-mini:3.8b
+csat_03971,5,4,True,True,False,Positive feedback but unclear satisfaction.,damaged_item,5-30 min,True,2.474407911300659,4,phi4-mini:3.8b
+csat_60955,4,3,True,True,False,"Satisfied with the answer, but no remark.",other,5-30 min,False,2.53853440284729,3,phi4-mini:3.8b
+csat_41835,5,3,True,True,False,Quick response but delivery still delayed.,late_delivery,5-30 min,False,2.3974051475524902,3,phi4-mini:3.8b
+csat_46188,5,5,True,True,False,Prompt and helpful service.,other,0-5 min,False,2.3942720890045166,5,phi4-mini:3.8b
+csat_00652,3,1,True,True,False,"Unprofessional behaviour, no response after long wait.",other,8 h+,False,2.4565680027008057,1,phi4-mini:3.8b
+csat_62596,5,4,True,True,False,"Prompt response, but no remark indicates unresolved issue.",late_delivery,0-5 min,False,2.460484027862549,4,phi4-mini:3.8b
+csat_42860,5,5,True,True,False,Prompt and helpful response.,other,0-5 min,False,2.3743486404418945,5,phi4-mini:3.8b
+csat_59542,5,3,True,True,False,"Satisfied with the response, but no remark.",refund_request,5-30 min,False,2.51239275932312,3,phi4-mini:3.8b
+csat_21794,5,3,True,True,False,No remark provided.,other,30 min-2 h,False,2.397312641143799,3,phi4-mini:3.8b
+csat_65467,5,5,True,True,False,Prompt and helpful service.,order_status,0-5 min,False,2.367349147796631,5,phi4-mini:3.8b
+csat_69553,1,5,True,True,False,Very good response received.,order_status,0-5 min,True,2.3735926151275635,5,phi4-mini:3.8b
+csat_19914,5,5,True,True,False,Excellent service and prompt response.,other,0-5 min,True,2.46630597114563,5,phi4-mini:3.8b
+csat_69931,1,2,True,True,False,Unhappy with the service.,return_item,2-8 h,True,2.4650943279266357,2,phi4-mini:3.8b
+csat_40501,5,5,True,True,False,Great experience,order_status,0-5 min,True,2.4413251876831055,5,phi4-mini:3.8b
+csat_29959,5,2,True,True,False,Very poor response time.,return_item,8 h+,False,2.398064613342285,2,phi4-mini:3.8b
+csat_27597,5,3,True,True,False,"Satisfied with response, but no remark.",return_item,5-30 min,False,2.449120283126831,3,phi4-mini:3.8b
+csat_14306,5,2,True,True,False,Unprofessional behaviour encountered.,other,0-5 min,False,2.395986318588257,2,phi4-mini:3.8b
+csat_34460,5,2,True,True,False,"Long wait time, but issue handled.",other,30 min-2 h,False,2.4948954582214355,2,phi4-mini:3.8b
+csat_38755,4,2,True,True,False,Long wait for a simple question.,other,30 min-2 h,False,2.474839210510254,2,phi4-mini:3.8b
+csat_45939,5,5,True,True,False,Customer care resolved my problem in very short time,return_item,0-5 min,True,2.498215913772583,5,phi4-mini:3.8b
+csat_32945,1,3,True,True,False,Waited too long for an answer.,order_status,30 min-2 h,False,2.489238739013672,3,phi4-mini:3.8b
+csat_56520,2,2,True,True,False,There is no solution to my problem. I am very upset.,other,2-8 h,True,2.5625693798065186,2,phi4-mini:3.8b
+csat_69409,5,2,True,True,False,Unclear response received.,late_delivery,0-5 min,True,2.49186635017395,2,phi4-mini:3.8b
+csat_57928,4,4,True,True,False,Nys talking and my problem and payment issues immediately solved,return_item,5-30 min,True,2.541260242462158,4,phi4-mini:3.8b
+csat_73874,1,5,True,True,False,Satisfied with the prompt response.,other,5-30 min,True,2.460752487182617,5,phi4-mini:3.8b
+csat_37511,5,3,True,True,False,Received answer but waiting time was longer than expected.,order_status,5-30 min,False,2.4680771827697754,3,phi4-mini:3.8b
+csat_19823,5,3,True,True,False,Issue resolved after some back and forth.,return_item,5-30 min,True,2.6174910068511963,3,phi4-mini:3.8b
+csat_27523,4,5,True,True,False,Prompt and helpful support.,other,0-5 min,False,2.4004526138305664,5,phi4-mini:3.8b
+csat_26757,5,3,True,True,False,"Satisfied with response, but no remark.",return_item,5-30 min,False,2.418341636657715,3,phi4-mini:3.8b
+csat_35053,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.458455801010132,4,phi4-mini:3.8b
+csat_68497,5,5,True,True,False,Prompt and helpful service.,return_item,0-5 min,True,2.3855206966400146,5,phi4-mini:3.8b
+csat_73471,4,4,True,True,False,"Satisfied with the quick response, but no remark provided.",return_item,0-5 min,False,2.4732704162597656,4,phi4-mini:3.8b
+csat_51213,1,1,True,True,False,Incomplete order was delivered and no effective support was provided,other,8 h+,True,2.5245518684387207,1,phi4-mini:3.8b
+csat_68533,5,5,True,True,False,Efficient and prompt service.,return_item,0-5 min,False,2.457152843475342,5,phi4-mini:3.8b
+csat_63260,5,2,True,True,False,Logistic delivery is very bad,return_item,0-5 min,True,2.4698727130889893,2,phi4-mini:3.8b
+csat_63463,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.448228597640991,4,phi4-mini:3.8b
+csat_31166,4,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.379183530807495,4,phi4-mini:3.8b
+csat_05311,1,4,True,True,False,"Prompt response, but no remark indicates unresolved issue.",late_delivery,0-5 min,False,2.459808826446533,4,phi4-mini:3.8b
+csat_04876,5,3,True,True,False,"Satisfied with the call, but no remark.",other,2-8 h,False,2.4330341815948486,3,phi4-mini:3.8b
+csat_80936,5,5,True,True,False,Prompt and helpful service.,order_status,0-5 min,False,2.387613534927368,5,phi4-mini:3.8b
+csat_01533,5,4,True,True,False,"Satisfied with quick response, but no remark.",other,0-5 min,False,2.439364194869995,4,phi4-mini:3.8b
+csat_01963,5,4,True,True,False,"Prompt response, but no remark indicates unresolved issue.",late_delivery,0-5 min,False,2.4517643451690674,4,phi4-mini:3.8b
+csat_84007,1,3,True,True,False,Unclear if issue resolved satisfactorily.,other,2-8 h,False,2.440563440322876,3,phi4-mini:3.8b
+csat_37202,5,4,True,True,False,Grateful for the support received.,other,2-8 h,True,2.4956257343292236,4,phi4-mini:3.8b
+csat_59249,5,5,True,True,False,Efficient and prompt service.,return_item,0-5 min,False,2.395160675048828,5,phi4-mini:3.8b
+csat_55476,4,5,True,True,False,Excellent customer service experience.,refund_request,0-5 min,True,2.436523914337158,5,phi4-mini:3.8b
+csat_21302,5,2,True,True,False,Very poor response time.,return_item,8 h+,False,2.3960814476013184,2,phi4-mini:3.8b
+csat_80752,5,5,True,True,False,Very good service received.,return_item,0-5 min,True,2.4459214210510254,5,phi4-mini:3.8b
+csat_77730,5,5,True,True,False,Very satisfied with the service.,return_item,0-5 min,True,2.448256731033325,5,phi4-mini:3.8b
+csat_71773,4,4,True,True,False,Efficient and helpful service.,return_item,0-5 min,False,2.476409435272217,4,phi4-mini:3.8b
+csat_75357,1,3,True,True,False,No feedback provided.,other,unknown,False,2.3767006397247314,3,phi4-mini:3.8b
+csat_58135,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.462883234024048,4,phi4-mini:3.8b
+csat_30713,5,4,True,True,False,"Prompt response, but no remark indicates unresolved issue.",late_delivery,0-5 min,False,2.464399576187134,4,phi4-mini:3.8b
+csat_36610,5,2,True,True,False,"Try to solve your logistics issues, this is my second time for this order i am getting issues",order_status,8 h+,True,2.6648552417755127,2,phi4-mini:3.8b
+csat_23544,5,4,True,True,False,Efficient and helpful service.,return_item,0-5 min,False,2.623991012573242,4,phi4-mini:3.8b
+csat_63640,5,3,True,True,False,Issue resolved satisfactorily.,other,5-30 min,True,2.461808443069458,3,phi4-mini:3.8b
+csat_25847,5,3,True,True,False,No remark provided.,return_item,2-8 h,False,2.4249236583709717,3,phi4-mini:3.8b
+csat_49970,5,2,True,True,False,"Long wait time, but no remark.",return_item,30 min-2 h,False,2.4263641834259033,2,phi4-mini:3.8b
+csat_36831,4,2,True,True,False,Waited too long for an update.,order_status,30 min-2 h,False,2.479512929916382,2,phi4-mini:3.8b
+csat_52708,5,5,True,True,False,Positive experience with quick response.,refund_request,0-5 min,True,2.44301176071167,5,phi4-mini:3.8b
+csat_24548,5,5,True,True,False,Good service and quick response.,other,0-5 min,True,2.4135847091674805,5,phi4-mini:3.8b
+csat_72588,5,4,True,True,False,"Thanks for helping, but need more assistance.",other,5-30 min,True,2.4295296669006348,4,phi4-mini:3.8b
+csat_50243,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.436631917953491,4,phi4-mini:3.8b
+csat_56661,4,3,True,True,False,No remark provided.,other,5-30 min,False,2.3619346618652344,3,phi4-mini:3.8b
+csat_78531,5,5,True,True,False,Prompt and helpful service.,other,0-5 min,False,2.3865673542022705,5,phi4-mini:3.8b
+csat_52511,4,5,True,True,False,Excellent service and satisfaction!,other,0-5 min,True,2.361017942428589,5,phi4-mini:3.8b
+csat_34493,5,3,True,True,False,"Satisfied with the call, but no remark provided.",return_item,5-30 min,False,2.5438168048858643,3,phi4-mini:3.8b
+csat_68428,5,3,True,True,False,Awaiting response on fraudulent user issue.,other,2-8 h,False,2.4438490867614746,3,phi4-mini:3.8b
+csat_05268,1,1,True,True,False,Unhelpful service and delayed delivery.,order_status,0-5 min,True,2.6386454105377197,1,phi4-mini:3.8b
+csat_73554,1,2,True,True,False,"Issue unresolved, poor handling experience.",other,2-8 h,True,2.585191011428833,2,phi4-mini:3.8b
+csat_63748,5,5,True,True,False,Thanks,return_item,5-30 min,True,2.368828773498535,5,phi4-mini:3.8b
+csat_67918,5,4,True,True,False,"Satisfied with quick response, but no remark.",return_item,0-5 min,False,2.441403388977051,4,phi4-mini:3.8b
+csat_35939,5,2,True,True,False,Unprofessional behaviour encountered.,other,0-5 min,False,2.3840577602386475,2,phi4-mini:3.8b
+csat_18591,5,2,True,True,False,"Long wait time, but no remark.",return_item,30 min-2 h,False,2.491701364517212,2,phi4-mini:3.8b
+csat_00061,5,3,True,True,False,"Issue unresolved, still waiting for a solution.",return_item,5-30 min,False,2.461310386657715,3,phi4-mini:3.8b
+csat_71598,5,5,True,True,False,Prompt and helpful support.,other,0-5 min,False,2.43703031539917,5,phi4-mini:3.8b
+csat_13689,4,2,True,True,False,Shopzilla should improve on the quality of the product delivered.,return_item,8 h+,True,2.5681066513061523,2,phi4-mini:3.8b
+csat_74863,5,4,True,True,False,"Satisfied with the call-back, but no remark provided.",return_item,unknown,False,2.494101047515869,4,phi4-mini:3.8b
+csat_20502,5,4,True,True,False,Positive feedback but no specific issue resolved.,return_item,30 min-2 h,True,2.5184261798858643,4,phi4-mini:3.8b
+csat_04554,5,5,True,True,False,Prompt and helpful service.,order_status,0-5 min,False,2.4016971588134766,5,phi4-mini:3.8b

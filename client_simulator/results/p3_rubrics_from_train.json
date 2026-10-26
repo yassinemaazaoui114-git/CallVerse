@@ -1,0 +1,71 @@
+{
+  "csat": {
+    "lines": [
+      "Out of 100 real customers, 69 give 5, 13 give 4, 3 give 3, 1 give 2 and 13 give 1. Most give 5 unless something went wrong; 2 and 3 are rare.",
+      "Waiting time matters: answered in under 5 minutes the average is 4.48; after more than 8 hours it is 3.65 and 26% give 1 (vs 8% when answered fast).",
+      "Late deliveries score lowest (average 4.07); damaged-item contacts highest (4.60).",
+      "Customers whose remark is negative (not solved, worst, bad, pathetic) give 1 in 64% of cases (average 2.19); customers whose remark is positive (good, thanks, happy) give 5 in 88% of cases (average 4.80).",
+      "Customers who wrote no remark average 4.33."
+    ],
+    "shots": [
+      {
+        "id": "csat_22099",
+        "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about a late delivery (topic: Delayed). You waited more than 8 hours for the first answer. After the contact you wrote this remark: \"Very worst delivery commitment, ordered a mobile with one <NAME> delivery, after three days also not received yet.\"",
+        "score": 1,
+        "comment": "Very worst delivery commitment, ordered a mobile with one <NAME> delivery, after three days also not received yet."
+      },
+      {
+        "id": "csat_61481",
+        "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about returning an item (topic: Reverse Pickup Enquiry). You waited 5 to 30 minutes for the first answer. After the contact you wrote this remark: \"She was pretty nice to me..But make sure that my issue must be resolved..\"",
+        "score": 5,
+        "comment": "She was pretty nice to me..But make sure that my issue must be resolved.."
+      },
+      {
+        "id": "csat_75294",
+        "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about another question (topic: Product Specific Information). The waiting time is not known. After the contact you wrote this remark: \"I will never buy from Shopzilla again\"",
+        "score": 2,
+        "comment": "I will never buy from Shopzilla again"
+      },
+      {
+        "id": "csat_02358",
+        "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about a late delivery (topic: Delayed). You waited less than 5 minutes for the first answer. After the contact you wrote this remark: \"Right information and good wehavear ??\"",
+        "score": 4,
+        "comment": "Right information and good wehavear ??"
+      },
+      {
+        "id": "csat_13769",
+        "prompt": "You are a customer of ShopNova, an online shop. You contacted customer service by phone (you called them) about another question (topic: Product Specific Information). You waited 2 to 8 hours for the first answer. After the contact you wrote this remark: \"Refund process to be fast and convenient.\"",
+        "score": 3,
+        "comment": "Refund process to be fast and convenient."
+      }
+    ]
+  },
+  "conv": {
+    "lines": [
+      "Out of 100 real ratings of such chats, 74 are 3, 23 are 4, 2 are 2, 0 are 1 and 0 are 5. 3 is the normal score for a chat that did its job.",
+      "Chats where at least one of the user's requests went badly average 2.84; the others average 3.23.",
+      "Very short chats (6 user turns or fewer) average 2.83; longer ones average 3.17."
+    ],
+    "shots": [
+      {
+        "id": "uss_sgd_0683",
+        "prompt": "You are a traveller who chatted with an automated travel booking assistant (hotels, trains, taxis, flights, restaurants). What you wanted at the start: \"I need to find some round trip flights.\"\n\nThe conversation (last turns):\nCustomer: Is that a refundable ticket? And which airport does it fly into?\nAgent: I'm sorry to say that the ticket cannot be refunded. It's flying into O'Hare International Airport.\nCustomer: Do you have anything available on United Airlines?\nAgent: I have a United Airlines flight leaving at 3:15 AM and coming back at 12:45 PM for $295.\nCustomer: What else is available?\nAgent: I'm sorry, I don't have anything else available. Is there anything else I can help you with?\nCustomer: Not right now.\nAgent: Thank you for calling us.",
+        "score": 2,
+        "comment": "I had to repeat myself and it still got things wrong."
+      },
+      {
+        "id": "uss_sgd_0628",
+        "prompt": "You are a traveller who chatted with an automated travel booking assistant (hotels, trains, taxis, flights, restaurants). What you wanted at the start: \"I would like to rent a medium-sized car on Monday next week around 3 pm.\"\n\nThe conversation (last turns):\nCustomer: I will be leaving on the 1st of this month and returning on the 13th.\nAgent: There is a delta airlines flight that leaves at 8:45 am and returns a 2:50 am for $303.\nCustomer: That flight sounds good.\nAgent: Would you like to purchase a ticket?\nCustomer: No, I just wanted the information.\nAgent: Can I help with something else?\nCustomer: No, that is all.\nAgent: Have a good day.",
+        "score": 4,
+        "comment": "Quick and it answered everything I asked."
+      },
+      {
+        "id": "uss_mwoz_0712",
+        "prompt": "You are a traveller who chatted with an automated travel booking assistant (hotels, trains, taxis, flights, restaurants). What you wanted at the start: \"I need to book a train from birmingham new street to cambridge.\"\n\nThe conversation (last turns):\nAgent: There are no entertainment attractions in the North, but there are two in the East if you're interested.\nCustomer: Do you have anything in the Centre area?\nAgent: I am sorry there is nothing in the centre.\nCustomer: How about a museum?\nAgent: How about broughton house gallery?\nCustomer: what type of museum is it, and their phone number too then please\nAgent: broughton house gallery is a museum of arts. Their phone number is <PHONE>. Would you like me to make a reservation?\nCustomer: No, that's all the info I needed today. Goodbye!",
+        "score": 3,
+        "comment": "It did the job, nothing special."
+      }
+    ]
+  },
+  "note": "computed from train splits only; CSAT shot comments are the customers' real remarks; CONV shot comments were written by us (USS has no comments), their scores are real"
+}

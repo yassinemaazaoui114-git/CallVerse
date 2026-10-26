@@ -1,0 +1,201 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+csat_04279,5,1,True,True,False,No comment provided.,return_item,8 h+,False,2.5517818927764893,1,granite4:3b
+csat_83543,5,4,True,True,False,"Good service, will use again soon",return_item,5-30 min,False,2.4114811420440674,4,granite4:3b
+csat_51748,5,3,True,True,False,"Average service, but delivery took longer than expected.",late_delivery,30 min-2 h,False,2.5186655521392822,3,granite4:3b
+csat_29459,5,4,True,True,False,Felt heard and helped with the refund process.,refund_request,0-5 min,False,2.553523540496826,4,granite4:3b
+csat_79580,5,4,True,True,False,Nice,late_delivery,0-5 min,True,2.5232229232788086,4,granite4:3b
+csat_14190,5,5,True,True,False,Thanks,return_item,0-5 min,True,2.404088258743286,5,granite4:3b
+csat_66434,4,4,True,True,False,"Prompt and helpful service, issue resolved quickly.",damaged_item,0-5 min,False,2.53361177444458,4,granite4:3b
+csat_40843,5,4,True,True,False,"Good service, will use again.",other,30 min-2 h,False,2.5712122917175293,4,granite4:3b
+csat_43070,4,4,True,True,False,"Good service, will use again soon",return_item,2-8 h,False,2.6484932899475098,4,granite4:3b
+csat_76294,5,2,True,True,False,Take hard action against the seller regarding this issue,other,unknown,True,2.537620782852173,2,granite4:3b
+csat_78820,5,2,True,True,False,Not satisfied with the missing item.,damaged_item,8 h+,False,2.495027780532837,2,granite4:3b
+csat_72728,5,4,True,True,False,"Good service, will use again soon",return_item,5-30 min,False,2.5211293697357178,4,granite4:3b
+csat_76635,5,4,True,True,False,"Good service, will use again.",other,5-30 min,False,2.517995834350586,4,granite4:3b
+csat_32713,5,3,True,True,False,"Damaged item, not resolved yet.",other,8 h+,False,2.526667594909668,3,granite4:3b
+csat_32573,5,4,True,True,False,Prompt and helpful service.,return_item,2-8 h,False,2.368067979812622,4,granite4:3b
+csat_25882,5,3,True,True,False,Not resolved yet,damaged_item,30 min-2 h,False,2.4485995769500732,3,granite4:3b
+csat_50628,5,5,True,True,False,Thanks for checking!,order_status,0-5 min,True,2.466581106185913,5,granite4:3b
+csat_54998,5,4,True,True,False,"Good service, will use again.",other,5-30 min,False,2.4993417263031006,4,granite4:3b
+csat_79247,5,2,True,True,False,Return policy should be more fast.,return_item,8 h+,True,2.511831521987915,2,granite4:3b
+csat_00943,5,4,True,True,False,"Good service, will use again.",other,30 min-2 h,False,2.484703779220581,4,granite4:3b
+csat_82094,2,1,True,True,False,Kindly deliver products in time,late_delivery,8 h+,True,2.5067367553710938,1,granite4:3b
+csat_74777,5,4,True,True,False,Everything is good,order_status,unknown,True,2.4499380588531494,4,granite4:3b
+csat_70507,5,5,True,True,False,Very nice,other,0-5 min,True,2.423696994781494,5,granite4:3b
+csat_12150,5,4,True,True,False,No comment provided.,other,0-5 min,False,2.4784326553344727,4,granite4:3b
+csat_45472,4,4,True,True,False,"Good service, will use again soon.",return_item,5-30 min,False,2.4483482837677,4,granite4:3b
+csat_65059,5,2,True,True,False,Not satisfied with the service.,damaged_item,8 h+,False,2.488607168197632,2,granite4:3b
+csat_55861,5,4,True,True,False,No comment provided.,return_item,5-30 min,False,2.435624599456787,4,granite4:3b
+csat_83609,4,4,True,True,False,"Good service, quick response.",other,0-5 min,False,2.4988293647766113,4,granite4:3b
+csat_64299,5,4,True,True,False,"Felt good about the service, will use again soon.",refund_request,0-5 min,False,2.59538197517395,4,granite4:3b
+csat_82546,5,1,False,True,False,,late_delivery,8 h+,True,2.538241386413574,1,granite4:3b
+csat_34280,5,3,True,True,False,Ok,return_item,5-30 min,True,2.414034366607666,3,granite4:3b
+csat_45875,5,4,True,True,False,"Needs product as order, light gold M",return_item,30 min-2 h,True,2.520824909210205,4,granite4:3b
+csat_49219,5,4,True,True,False,"Good service, but missing item was not replaced yet.",damaged_item,30 min-2 h,True,2.566932439804077,4,granite4:3b
+csat_21353,5,4,True,True,False,"Good service, fast response.",other,5-30 min,False,2.3993821144104004,4,granite4:3b
+csat_71203,4,3,True,True,False,"Damaged item, refund needed",other,8 h+,False,2.3909590244293213,3,granite4:3b
+csat_79231,1,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.4497711658477783,5,granite4:3b
+csat_39254,5,3,True,True,False,Not resolved yet,late_delivery,8 h+,False,2.3828535079956055,3,granite4:3b
+csat_14340,1,4,True,True,False,"Good service, fast response.",other,5-30 min,False,2.4000930786132812,4,granite4:3b
+csat_65867,5,4,True,True,False,No comment provided.,order_status,0-5 min,False,2.465247869491577,4,granite4:3b
+csat_04214,5,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.4762425422668457,5,granite4:3b
+csat_58389,4,3,True,True,False,Please reduce response time,return_item,30 min-2 h,True,2.3875820636749268,3,granite4:3b
+csat_13653,4,2,True,True,False,Problems not confirmed,return_item,8 h+,True,2.4729666709899902,2,granite4:3b
+csat_49645,5,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.3901619911193848,5,granite4:3b
+csat_62487,5,4,True,True,False,No comment provided.,other,0-5 min,False,2.4113988876342773,4,granite4:3b
+csat_10198,5,3,True,True,False,"Average service, but refund process took longer than expected.",refund_request,2-8 h,False,2.5375308990478516,3,granite4:3b
+csat_09383,5,5,True,True,False,Customer service is fabulous and impressive.,return_item,8 h+,True,2.5290215015411377,5,granite4:3b
+csat_14172,5,5,True,True,False,Very good behaviour and helpful customer support,other,0-5 min,True,2.5030972957611084,5,granite4:3b
+csat_67574,4,2,True,True,False,Not satisfied with the service.,return_item,8 h+,False,2.479990243911743,2,granite4:3b
+csat_80988,4,3,True,True,False,Issue should be solved ASAP,other,5-30 min,True,2.456195116043091,3,granite4:3b
+csat_00743,5,1,True,True,False,"Please, do not do work with bad sellers, who send wrong items and fake products",return_item,2-8 h,True,2.660937547683716,1,granite4:3b
+csat_80555,1,1,True,True,False,Bekar product chhi-chhi-chhi,other,8 h+,True,2.700841188430786,1,granite4:3b
+csat_30447,3,4,True,True,False,"Felt well taken care of, thanks!",order_status,0-5 min,False,2.502448081970215,4,granite4:3b
+csat_42541,5,4,True,True,False,Timely assistance with delivery issue.,late_delivery,5-30 min,False,2.3980586528778076,4,granite4:3b
+csat_48290,5,4,True,True,False,"Felt good about the service, will use again soon.",refund_request,5-30 min,False,2.5751116275787354,4,granite4:3b
+csat_04256,5,4,True,True,False,"Good service, resolved my issue quickly.",other,0-5 min,False,2.465531826019287,4,granite4:3b
+csat_28999,5,4,True,True,False,Felt heard and helped with the refund process.,refund_request,0-5 min,False,2.549786329269409,4,granite4:3b
+csat_47785,5,5,True,True,False,5star,late_delivery,0-5 min,True,2.4831032752990723,5,granite4:3b
+csat_74117,5,4,True,True,False,Prompt and helpful service.,return_item,0-5 min,False,2.388615608215332,4,granite4:3b
+csat_75690,5,3,True,True,False,"Late delivery, not happy with the service.",late_delivery,unknown,False,2.4321208000183105,3,granite4:3b
+csat_65439,5,4,True,True,False,"Good service, will use again soon.",return_item,5-30 min,False,2.4471426010131836,4,granite4:3b
+csat_16874,5,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.4088404178619385,5,granite4:3b
+csat_04906,5,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.2917397022247314,5,granite4:3b
+csat_19937,5,4,True,True,False,"Good service, will use again.",other,5-30 min,False,2.47141432762146,4,granite4:3b
+csat_56262,5,5,True,True,False,Very very good response,return_item,2-8 h,True,2.4581780433654785,5,granite4:3b
+csat_11592,1,2,True,True,False,Not happy with the service.,order_status,8 h+,False,2.5526788234710693,2,granite4:3b
+csat_06884,5,4,True,True,False,"Good service, no issues.",other,0-5 min,False,2.4281110763549805,4,granite4:3b
+csat_84400,1,1,True,True,False,Very disappointed with your services and will deactivate my ID from Shopzilla.,return_item,5-30 min,True,2.6985812187194824,1,granite4:3b
+csat_11530,5,3,True,True,False,"Average service, waiting time affected rating.",order_status,2-8 h,False,2.5097265243530273,3,granite4:3b
+csat_41631,5,5,True,True,False,No comment provided,return_item,0-5 min,False,2.468308925628662,5,granite4:3b
+csat_52309,5,4,True,True,False,"Good service, answered quickly.",other,5-30 min,False,2.4542593955993652,4,granite4:3b
+csat_67258,5,4,True,True,False,"Great service, will definitely use again!",other,0-5 min,False,2.5149221420288086,4,granite4:3b
+csat_64688,4,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.4792840480804443,5,granite4:3b
+csat_83080,4,4,True,True,False,Timely assistance with delivery issue.,late_delivery,5-30 min,False,2.4656660556793213,4,granite4:3b
+csat_60151,5,5,True,True,False,Shopzilla best??,return_item,5-30 min,True,2.4867539405822754,5,granite4:3b
+csat_69216,5,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.3931777477264404,5,granite4:3b
+csat_18284,5,4,True,True,False,"Good service, will use again.",return_item,30 min-2 h,False,2.501676559448242,4,granite4:3b
+csat_14240,5,4,True,True,False,"Good service, will use again soon.",return_item,0-5 min,False,2.593113422393799,4,granite4:3b
+csat_45121,5,5,True,True,False,5,other,0-5 min,True,2.4169974327087402,5,granite4:3b
+csat_23479,5,4,True,True,False,Felt heard and helped with order status,order_status,5-30 min,False,2.5188825130462646,4,granite4:3b
+csat_82118,5,4,True,True,False,Nice one,other,30 min-2 h,True,2.42431640625,4,granite4:3b
+csat_32216,5,5,True,True,False,I had really good experience while talking to support executive,return_item,0-5 min,True,2.56355881690979,5,granite4:3b
+csat_77338,5,5,True,True,False,best service,other,unknown,True,2.3674464225769043,5,granite4:3b
+csat_77496,5,3,True,True,False,"Unresolved issue, needed more time to sort out.",other,unknown,False,2.4599812030792236,3,granite4:3b
+csat_84416,3,4,True,True,False,"Good service, will use again.",other,5-30 min,False,2.4199862480163574,4,granite4:3b
+csat_25951,1,4,True,True,False,Helpful and quick service.,return_item,5-30 min,False,2.489654541015625,4,granite4:3b
+csat_62558,5,4,True,True,False,"Good service, will use again.",return_item,5-30 min,False,2.635559320449829,4,granite4:3b
+csat_26493,4,4,True,True,False,"Good service, will use again soon",return_item,5-30 min,False,2.4923229217529297,4,granite4:3b
+csat_33739,5,4,True,True,False,"Good service, will use again soon",return_item,5-30 min,False,2.328369140625,4,granite4:3b
+csat_27871,5,4,True,True,False,"Good service, fast response.",other,5-30 min,False,2.4860734939575195,4,granite4:3b
+csat_67386,3,5,True,True,False,Good,return_item,0-5 min,True,2.420506477355957,5,granite4:3b
+csat_43645,5,4,True,True,False,"Good service, will use again.",other,5-30 min,False,2.451169967651367,4,granite4:3b
+csat_84001,5,4,True,True,False,"Good service, will use again soon.",return_item,5-30 min,False,2.5265605449676514,4,granite4:3b
+csat_53510,4,4,True,True,False,"Good service, quick response.",other,0-5 min,False,2.433218479156494,4,granite4:3b
+csat_06620,5,4,True,True,False,"Good service, no issues.",other,0-5 min,False,2.497587203979492,4,granite4:3b
+csat_19067,4,4,True,True,False,"Good service, helpful staff.",other,30 min-2 h,False,2.4869906902313232,4,granite4:3b
+csat_38600,1,2,True,True,False,Meri samsya ka samadhan nhi kiya gya,other,30 min-2 h,True,2.6880385875701904,2,granite4:3b
+csat_81344,4,4,True,True,False,"Good service, will use again.",return_item,5-30 min,False,2.5117292404174805,4,granite4:3b
+csat_82144,5,4,True,True,False,Work properly,other,0-5 min,True,2.4439988136291504,4,granite4:3b
+csat_01135,5,4,True,True,False,Na,other,0-5 min,True,2.327388048171997,4,granite4:3b
+csat_24278,5,4,True,True,False,Prompt and helpful service.,return_item,5-30 min,False,2.4002010822296143,4,granite4:3b
+csat_77852,5,4,True,True,False,Okay,order_status,0-5 min,True,2.3926126956939697,4,granite4:3b
+csat_61560,5,3,True,True,False,"Average service, but refund process took longer than expected.",refund_request,2-8 h,False,2.526484489440918,3,granite4:3b
+csat_81816,4,3,True,True,False,Not satisfied with the service.,other,8 h+,False,2.47440505027771,3,granite4:3b
+csat_06572,1,1,True,True,False,Your team not solving my issue since last 30 daus,other,8 h+,True,2.5854835510253906,1,granite4:3b
+csat_66891,2,1,True,True,False,Not satisfied with the service.,return_item,8 h+,False,2.481774091720581,1,granite4:3b
+csat_26832,5,4,True,True,False,"Good service, resolved my issue quickly.",other,5-30 min,False,2.444944381713867,4,granite4:3b
+csat_57521,5,4,True,True,False,Timely resolution of delivery issue.,late_delivery,0-5 min,False,2.4955272674560547,4,granite4:3b
+csat_55324,1,5,True,True,False,Please return request my order,return_item,5-30 min,True,2.475780725479126,5,granite4:3b
+csat_04974,1,3,True,True,False,"Average service, but needed more time to resolve the issue.",other,30 min-2 h,False,2.590481996536255,3,granite4:3b
+csat_68951,5,3,True,True,False,"Unresolved issue, needed more time to sort out.",other,5-30 min,False,2.5516064167022705,3,granite4:3b
+csat_60821,1,3,True,True,False,Reasons do bc proper,order_status,30 min-2 h,True,2.472146511077881,3,granite4:3b
+csat_80032,4,3,True,True,False,"Average service, waiting time affected rating.",order_status,2-8 h,False,2.4417293071746826,3,granite4:3b
+csat_80760,5,4,True,True,False,"Good service, will use again.",return_item,5-30 min,False,2.4919381141662598,4,granite4:3b
+csat_31554,5,4,True,True,False,"Good service, will use again.",return_item,0-5 min,False,2.43222975730896,4,granite4:3b
+csat_84805,5,4,True,True,False,"Great service, will definitely use again!",other,0-5 min,False,2.5283989906311035,4,granite4:3b
+csat_27932,4,4,True,True,False,Prompt and helpful service.,return_item,5-30 min,False,2.407930850982666,4,granite4:3b
+csat_51289,1,4,True,True,False,"Prompt and helpful service, issue resolved smoothly.",refund_request,5-30 min,False,2.518094062805176,4,granite4:3b
+csat_26079,5,3,True,True,False,"Unresolved issue, needed more time to sort out.",other,5-30 min,False,2.579066276550293,3,granite4:3b
+csat_45075,4,1,True,True,False,No,late_delivery,5-30 min,True,2.4100167751312256,1,granite4:3b
+csat_50724,5,5,True,True,False,Helpful team member,return_item,0-5 min,True,2.4561660289764404,5,granite4:3b
+csat_03971,5,5,True,True,False,Very good ??  thank you so much ??  I liked it ??,damaged_item,5-30 min,True,2.595961570739746,5,granite4:3b
+csat_60955,4,4,True,True,False,"Good service, will use again.",other,5-30 min,False,2.6323132514953613,4,granite4:3b
+csat_41835,5,4,True,True,False,Timely assistance with delivery issue.,late_delivery,5-30 min,False,2.4325039386749268,4,granite4:3b
+csat_46188,5,4,True,True,False,"Good service, quick response.",other,0-5 min,False,2.4221367835998535,4,granite4:3b
+csat_00652,3,2,True,True,False,Not resolved quickly,other,8 h+,False,2.362325429916382,2,granite4:3b
+csat_62596,5,4,True,True,False,"Fast and helpful service, will definitely use again!",late_delivery,0-5 min,False,2.4815187454223633,4,granite4:3b
+csat_42860,5,4,True,True,False,Prompt and helpful response to payment issue.,other,0-5 min,False,2.5316336154937744,4,granite4:3b
+csat_59542,5,4,True,True,False,"Prompt and helpful service, issue resolved smoothly.",refund_request,5-30 min,False,2.522139072418213,4,granite4:3b
+csat_21794,5,4,True,True,False,"Good service, will use again.",other,30 min-2 h,False,2.485433340072632,4,granite4:3b
+csat_65467,5,4,True,True,False,"Felt well taken care of, thanks!",order_status,0-5 min,False,2.529315948486328,4,granite4:3b
+csat_69553,1,5,True,True,False,Very good,order_status,0-5 min,True,2.369750499725342,5,granite4:3b
+csat_19914,5,5,True,True,False,Thank you so much customer service,other,0-5 min,True,2.4675583839416504,5,granite4:3b
+csat_69931,1,1,True,True,False,This was my last order from Shopzilla,return_item,2-8 h,True,2.525383949279785,1,granite4:3b
+csat_40501,5,5,True,True,False,Great experience,order_status,0-5 min,True,2.4257428646087646,5,granite4:3b
+csat_29959,5,1,True,True,False,No comment provided.,return_item,8 h+,False,2.402813673019409,1,granite4:3b
+csat_27597,5,4,True,True,False,"Good service, will use again soon",return_item,5-30 min,False,2.441415786743164,4,granite4:3b
+csat_14306,5,3,True,True,False,"Unresolved issue, needed more time to sort out.",other,0-5 min,False,2.496380090713501,3,granite4:3b
+csat_34460,5,3,True,True,False,"Average service, but needed more time to resolve the issue.",other,30 min-2 h,False,2.5765297412872314,3,granite4:3b
+csat_38755,4,3,True,True,False,"Average service, but needed more time to resolve the issue.",other,30 min-2 h,False,2.770094633102417,3,granite4:3b
+csat_45939,5,5,True,True,False,Customer care resolved my problem in very short time,return_item,0-5 min,True,2.5283308029174805,5,granite4:3b
+csat_32945,1,3,True,True,False,Waiting for response,order_status,30 min-2 h,False,2.4431302547454834,3,granite4:3b
+csat_56520,2,1,True,True,False,There is no solution to my problem.  I am very upset.,other,2-8 h,True,2.6298320293426514,1,granite4:3b
+csat_69409,5,3,True,True,False,Thexxx you??,late_delivery,0-5 min,True,2.5412888526916504,3,granite4:3b
+csat_57928,4,5,True,True,False,Nys talking and .My problem and payment issues immediately solved,return_item,5-30 min,True,2.581120729446411,5,granite4:3b
+csat_73874,1,5,True,True,False,Thank you,other,5-30 min,True,2.4134864807128906,5,granite4:3b
+csat_37511,5,4,True,True,False,Felt heard and helped with order status,order_status,5-30 min,False,2.500877618789673,4,granite4:3b
+csat_19823,5,5,True,True,False,"Great service, problem solved!",return_item,5-30 min,True,2.5265791416168213,5,granite4:3b
+csat_27523,4,4,True,True,False,Prompt and helpful service.,other,0-5 min,False,2.414177656173706,4,granite4:3b
+csat_26757,5,4,True,True,False,"Good service, will use again soon",return_item,5-30 min,False,2.5109333992004395,4,granite4:3b
+csat_35053,5,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.4034740924835205,5,granite4:3b
+csat_68497,5,5,True,True,False,Thank you,return_item,0-5 min,True,2.351353168487549,5,granite4:3b
+csat_73471,4,5,True,True,False,No comment provided.,return_item,0-5 min,False,2.4542884826660156,5,granite4:3b
+csat_51213,1,1,True,True,False,Incomplete order was delivered and no effective support was provided,other,8 h+,True,2.558120012283325,1,granite4:3b
+csat_68533,5,4,True,True,False,"Good service, will use again.",return_item,0-5 min,False,2.5169754028320312,4,granite4:3b
+csat_63260,5,2,True,True,False,Logistic delivery is very bad,return_item,0-5 min,True,2.5335745811462402,2,granite4:3b
+csat_63463,5,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.3945531845092773,5,granite4:3b
+csat_31166,4,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.3248589038848877,5,granite4:3b
+csat_05311,1,4,True,True,False,"Fast and helpful service, will definitely use again!",late_delivery,0-5 min,False,2.473576307296753,4,granite4:3b
+csat_04876,5,3,True,True,False,"Average service, but needed more time to resolve the issue.",other,2-8 h,False,2.4890921115875244,3,granite4:3b
+csat_80936,5,4,True,True,False,"Felt well taken care of, thanks!",order_status,0-5 min,False,2.553325653076172,4,granite4:3b
+csat_01533,5,4,True,True,False,"Good service, quick response.",other,0-5 min,False,2.408669948577881,4,granite4:3b
+csat_01963,5,4,True,True,False,"Fast and helpful service, will definitely use again!",late_delivery,0-5 min,False,2.4705216884613037,4,granite4:3b
+csat_84007,1,3,True,True,False,"Average service, but needed more time to resolve the issue.",other,2-8 h,False,2.4970901012420654,3,granite4:3b
+csat_37202,5,5,True,True,False,Thanks for support,other,2-8 h,True,2.444640636444092,5,granite4:3b
+csat_59249,5,4,True,True,False,"Good service, will use again.",return_item,0-5 min,False,2.475456714630127,4,granite4:3b
+csat_55476,4,5,True,True,False,Good service,refund_request,0-5 min,True,2.428356647491455,5,granite4:3b
+csat_21302,5,1,True,True,False,Not satisfied with the service.,return_item,8 h+,False,2.4782447814941406,1,granite4:3b
+csat_80752,5,5,True,True,False,Very good,return_item,0-5 min,True,2.4344210624694824,5,granite4:3b
+csat_77730,5,5,True,True,False,Very nice,return_item,0-5 min,True,2.4410951137542725,5,granite4:3b
+csat_71773,4,4,True,True,False,"Good service, will use again.",return_item,0-5 min,False,2.463080883026123,4,granite4:3b
+csat_75357,1,4,True,True,False,"Good service, will use again.",other,unknown,False,2.4208824634552,4,granite4:3b
+csat_58135,5,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.475304365158081,5,granite4:3b
+csat_30713,5,4,True,True,False,"Fast and helpful service, will definitely use again!",late_delivery,0-5 min,False,2.4873178005218506,4,granite4:3b
+csat_36610,5,2,True,True,False,Try to solve your logistics issues this is my second time for this order i am getting issues,order_status,8 h+,True,2.671891689300537,2,granite4:3b
+csat_23544,5,4,True,True,False,"Good service, will use again.",return_item,0-5 min,False,2.646679401397705,4,granite4:3b
+csat_63640,5,4,True,True,False,Batt kar ka accha lage,other,5-30 min,True,2.673489809036255,4,granite4:3b
+csat_25847,5,4,True,True,False,"Good service, will use again soon",return_item,2-8 h,False,2.4924027919769287,4,granite4:3b
+csat_49970,5,4,True,True,False,"Good service, will use again soon",return_item,30 min-2 h,False,2.4225664138793945,4,granite4:3b
+csat_36831,4,4,True,True,False,Felt heard and helped with order status,order_status,30 min-2 h,False,2.4800474643707275,4,granite4:3b
+csat_52708,5,4,True,True,False,we had a good time talking about it.,refund_request,0-5 min,True,2.529850721359253,4,granite4:3b
+csat_24548,5,4,True,True,False,Good,other,0-5 min,True,2.4122085571289062,4,granite4:3b
+csat_72588,5,5,True,True,False,Thanks for helping,other,5-30 min,True,2.3729796409606934,5,granite4:3b
+csat_50243,5,5,True,True,False,Thanks for the help!,return_item,0-5 min,False,2.477872371673584,5,granite4:3b
+csat_56661,4,4,True,True,False,"Good service, will use again.",other,5-30 min,False,2.4547901153564453,4,granite4:3b
+csat_78531,5,4,True,True,False,No comment provided.,other,0-5 min,False,2.412116050720215,4,granite4:3b
+csat_52511,4,5,True,True,False,Gave him csat,other,0-5 min,True,2.468593120574951,5,granite4:3b
+csat_34493,5,4,True,True,False,"Good service, resolved the issue quickly.",return_item,5-30 min,False,2.493194818496704,4,granite4:3b
+csat_68428,5,3,True,True,False,"Average service, but needed more time to resolve the issue.",other,2-8 h,False,2.576871395111084,3,granite4:3b
+csat_05268,1,1,True,True,False,"Worst service, no resolution, took 10 days to deliver an already delivered item.",order_status,0-5 min,True,2.9556143283843994,1,granite4:3b
+csat_73554,1,2,True,True,False,"Issue not resolved, waiting for callback",other,2-8 h,True,2.597676992416382,2,granite4:3b
+csat_63748,5,5,True,True,False,Thanks,return_item,5-30 min,True,2.4251134395599365,5,granite4:3b
+csat_67918,5,4,True,True,False,Prompt and helpful service.,return_item,0-5 min,False,2.4062254428863525,4,granite4:3b
+csat_35939,5,3,True,True,False,"Unresolved issue, needed more time to sort out.",other,0-5 min,False,2.466881513595581,3,granite4:3b
+csat_18591,5,4,True,True,False,"Good service, will use again.",return_item,30 min-2 h,False,2.481825590133667,4,granite4:3b
+csat_00061,5,4,True,True,False,"Good service, will use again.",return_item,5-30 min,False,2.420747995376587,4,granite4:3b
+csat_71598,5,4,True,True,False,"Good service, will use again.",other,0-5 min,False,2.4993510246276855,4,granite4:3b
+csat_13689,4,2,True,True,False,Bad product received,return_item,8 h+,True,2.4568634033203125,2,granite4:3b
+csat_74863,5,4,True,True,False,"Good service, will use again.",return_item,unknown,False,2.4396443367004395,4,granite4:3b
+csat_20502,5,4,True,True,False,Good,return_item,30 min-2 h,True,2.431370973587036,4,granite4:3b
+csat_04554,5,4,True,True,False,"Felt well taken care of, thanks!",order_status,0-5 min,False,2.509755849838257,4,granite4:3b

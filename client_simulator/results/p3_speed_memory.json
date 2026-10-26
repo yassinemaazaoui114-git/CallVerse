@@ -1,0 +1,255 @@
+{
+  "llama3.2:3b": {
+    "model": "llama3.2:3b",
+    "ollama_name": "llama3.2:3b",
+    "load_s": 9.0,
+    "sec_per_message": 2.85,
+    "tokens_per_s": 70.7,
+    "sec_per_score_call": 3.15,
+    "ollama_ps_size_mib": 2442,
+    "ollama_ps_vram_mib": 2442,
+    "nvidia_smi_used_mib": 2454,
+    "nvidia_smi_baseline_mib": 0,
+    "context": 4096,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "llama",
+      "families": [
+        "llama"
+      ],
+      "parameter_size": "3.2B",
+      "quantization_level": "Q4_K_M"
+    },
+    "sample_message": "Hi, I'm writing to inquire about the status of my laptop order 4512, which I placed over a week ago and still hasn't arrived. Can you please let me know what's causing the delay and when I can expect it to be shipped?",
+    "coload_with_qwen2.5_3b": {
+      "llama3.2:3b": [
+        2442,
+        2442
+      ],
+      "qwen2.5:3b": [
+        2063,
+        2063
+      ]
+    },
+    "coload_nvidia_smi_used_mib": 4529,
+    "fits_next_to_qwen2.5_3b": true
+  },
+  "phi4-mini:3.8b": {
+    "model": "phi4-mini:3.8b",
+    "ollama_name": "phi4-mini:3.8b",
+    "load_s": 11.1,
+    "sec_per_message": 3.18,
+    "tokens_per_s": 61.6,
+    "sec_per_score_call": 3.02,
+    "ollama_ps_size_mib": 2957,
+    "ollama_ps_vram_mib": 2957,
+    "nvidia_smi_used_mib": 2968,
+    "nvidia_smi_baseline_mib": 0,
+    "context": 4096,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "phi3",
+      "families": [
+        "phi3"
+      ],
+      "parameter_size": "3.8B",
+      "quantization_level": "Q4_K_M"
+    },
+    "sample_message": "Subject: Delayed Order #4512 - Expected Delivery Date\n\nDear Support Team,\n\nI am writing to express my concern about my laptop order #4512. It has been 7 days past the expected delivery date and I would appreciate an update on the status and an estimated arrival time.\n\nThank you for your assistance.\n",
+    "coload_with_qwen2.5_3b": {
+      "phi4-mini:3.8b": [
+        2957,
+        2957
+      ],
+      "qwen2.5:3b": [
+        2063,
+        2063
+      ]
+    },
+    "coload_nvidia_smi_used_mib": 5043,
+    "fits_next_to_qwen2.5_3b": true
+  },
+  "gemma3:4b": {
+    "model": "gemma3:4b",
+    "ollama_name": "gemma3:4b",
+    "load_s": 16.7,
+    "sec_per_message": 3.01,
+    "tokens_per_s": 62.3,
+    "sec_per_score_call": 3.51,
+    "ollama_ps_size_mib": 2772,
+    "ollama_ps_vram_mib": 2772,
+    "nvidia_smi_used_mib": 3676,
+    "nvidia_smi_baseline_mib": 0,
+    "context": 4096,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3",
+        "clip"
+      ],
+      "parameter_size": "3.9B",
+      "quantization_level": "Q4_K_M"
+    },
+    "sample_message": "Hi, I’m writing to inquire about order 4512 – it’s now seven days overdue and I haven’t received any updates. Could you please check on the status and provide me with an estimated delivery date?",
+    "coload_with_qwen2.5_3b": {
+      "gemma3:4b": [
+        2772,
+        2772
+      ],
+      "qwen2.5:3b": [
+        2063,
+        2063
+      ]
+    },
+    "coload_nvidia_smi_used_mib": 5751,
+    "fits_next_to_qwen2.5_3b": true
+  },
+  "granite4:3b": {
+    "model": "granite4:3b",
+    "ollama_name": "granite4:3b",
+    "load_s": 8.7,
+    "sec_per_message": 3.25,
+    "tokens_per_s": 67.6,
+    "sec_per_score_call": 3.31,
+    "ollama_ps_size_mib": 2391,
+    "ollama_ps_vram_mib": 2391,
+    "nvidia_smi_used_mib": 2402,
+    "nvidia_smi_baseline_mib": 0,
+    "context": 4096,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "granite",
+      "families": [
+        "granite"
+      ],
+      "parameter_size": "3.4B",
+      "quantization_level": "Q4_K_M"
+    },
+    "sample_message": "Hello, I'm writing to inform you that my laptop order #4512 is currently 7 days late. I would greatly appreciate it if you could look into this matter and provide an update on when I can expect the delivery of my order. Thank you for your assistance.",
+    "coload_with_qwen2.5_3b": {
+      "granite4:3b": [
+        2391,
+        2391
+      ],
+      "qwen2.5:3b": [
+        2063,
+        2063
+      ]
+    },
+    "coload_nvidia_smi_used_mib": 4477,
+    "fits_next_to_qwen2.5_3b": true
+  },
+  "mistral:7b": {
+    "model": "mistral:7b",
+    "ollama_name": "mistral:7b",
+    "load_s": 14.2,
+    "sec_per_message": 3.68,
+    "tokens_per_s": 27.0,
+    "sec_per_score_call": 3.73,
+    "ollama_ps_size_mib": 4512,
+    "ollama_ps_vram_mib": 4148,
+    "nvidia_smi_used_mib": 4160,
+    "nvidia_smi_baseline_mib": 0,
+    "context": 4096,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "llama",
+      "families": [
+        "llama"
+      ],
+      "parameter_size": "7.2B",
+      "quantization_level": "Q4_K_M"
+    },
+    "sample_message": " Hi there, I'm writing to inquire about the delay with my laptop order (4512). It's been 7 days past the estimated delivery date. Could you please provide an update on the status?",
+    "coload_with_qwen2.5_3b": {
+      "mistral:7b": [
+        4512,
+        4148
+      ],
+      "qwen2.5:3b": [
+        2063,
+        2063
+      ]
+    },
+    "coload_nvidia_smi_used_mib": 5225,
+    "fits_next_to_qwen2.5_3b": false
+  },
+  "qwen3.5:4b": {
+    "model": "qwen3.5:4b",
+    "ollama_name": "qwen3.5:4b",
+    "load_s": 12.7,
+    "sec_per_message": 3.06,
+    "tokens_per_s": 53.0,
+    "sec_per_score_call": 3.67,
+    "ollama_ps_size_mib": 3000,
+    "ollama_ps_vram_mib": 3000,
+    "nvidia_smi_used_mib": 3658,
+    "nvidia_smi_baseline_mib": 0,
+    "context": 4096,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35"
+      ],
+      "parameter_size": "4.2B",
+      "quantization_level": "Q4_K_M"
+    },
+    "sample_message": "Hello, my order #4512 for a laptop has been delayed for seven days and I'm concerned about the shipping status. Could you please provide an update on when it will arrive or explain what is causing the delay?",
+    "coload_with_qwen2.5_3b": {
+      "qwen3.5:4b": [
+        3000,
+        3000
+      ],
+      "qwen2.5:3b": [
+        2063,
+        2063
+      ]
+    },
+    "coload_nvidia_smi_used_mib": 5733,
+    "fits_next_to_qwen2.5_3b": true
+  },
+  "userlm-8b": {
+    "model": "userlm-8b",
+    "ollama_name": "hf.co/bartowski/microsoft_UserLM-8b-GGUF:Q4_K_M",
+    "load_s": 14.6,
+    "sec_per_message": 5.01,
+    "tokens_per_s": 24.1,
+    "sec_per_score_call": 5.44,
+    "ollama_ps_size_mib": 5365,
+    "ollama_ps_vram_mib": 4187,
+    "nvidia_smi_used_mib": 4199,
+    "nvidia_smi_baseline_mib": 0,
+    "context": 4096,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "llama",
+      "families": [
+        "llama"
+      ],
+      "parameter_size": "8.03B",
+      "quantization_level": "unknown"
+    },
+    "sample_message": "Hi there,\n\nI hope this message finds you well. I wanted to bring to your attention that my laptop order (ID: 4512) has been seven days past the expected delivery date and it still hasn't arrived yet. Could you please provide me with an update on the status of my order? Thank you in advance for your ",
+    "coload_with_qwen2.5_3b": {
+      "hf.co/bartowski/microsoft_UserLM-8b-GGUF:Q4_K_M": [
+        5365,
+        4187
+      ],
+      "qwen2.5:3b": [
+        2063,
+        2063
+      ]
+    },
+    "coload_nvidia_smi_used_mib": 5278,
+    "fits_next_to_qwen2.5_3b": false
+  }
+}

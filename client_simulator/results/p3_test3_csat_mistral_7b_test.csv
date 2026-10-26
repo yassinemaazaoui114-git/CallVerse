@@ -1,0 +1,201 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+csat_04279,5,3,True,True,False,Long waiting time for response,return_item,8 h+,False,4.656188488006592,3,mistral:7b
+csat_83543,5,4,True,True,False,Service was good,return_item,5-30 min,False,4.4704742431640625,4,mistral:7b
+csat_51748,5,4,True,True,False,"Service was good, but delivery was late",late_delivery,30 min-2 h,False,4.0137975215911865,4,mistral:7b
+csat_29459,5,4,True,True,False,Swift and efficient service,refund_request,0-5 min,False,4.080559730529785,4,mistral:7b
+csat_79580,5,4,True,True,False,Nice,late_delivery,0-5 min,True,3.9537808895111084,4,mistral:7b
+csat_14190,5,5,True,True,False,Thanks,return_item,0-5 min,True,3.9844281673431396,5,mistral:7b
+csat_66434,4,4,True,True,False,"Swift response, looking forward to resolution",damaged_item,0-5 min,False,4.004222631454468,4,mistral:7b
+csat_40843,5,4,True,True,False,"Service was good, but could be faster",other,30 min-2 h,False,4.237830400466919,4,mistral:7b
+csat_43070,4,4,True,True,False,"Service was good, but could be faster",return_item,2-8 h,False,4.507566452026367,4,mistral:7b
+csat_76294,5,3,True,True,False,Action needed against the seller,other,unknown,True,4.6558449268341064,3,mistral:7b
+csat_78820,5,3,True,True,False,Long waiting time for response,damaged_item,8 h+,False,4.516221284866333,3,mistral:7b
+csat_72728,5,4,True,True,False,Service was good,return_item,5-30 min,False,4.294980525970459,4,mistral:7b
+csat_76635,5,4,True,True,False,Answered my question,other,5-30 min,False,4.147985935211182,4,mistral:7b
+csat_32713,5,3,True,True,False,"Long waiting time, need faster response",other,8 h+,False,4.257212162017822,3,mistral:7b
+csat_32573,5,4,True,True,False,"Service was good, but could be faster",return_item,2-8 h,False,4.260510206222534,4,mistral:7b
+csat_25882,5,4,True,True,False,"Service was good, but issue not resolved yet",damaged_item,30 min-2 h,False,4.5161731243133545,4,mistral:7b
+csat_50628,5,4,True,True,False,Order status clarified,order_status,0-5 min,True,4.480850458145142,4,mistral:7b
+csat_54998,5,4,True,True,False,Service was good,other,5-30 min,False,4.31709885597229,4,mistral:7b
+csat_79247,5,2,True,True,False,Return policy should be more fast.,return_item,8 h+,True,4.415740728378296,2,mistral:7b
+csat_00943,5,4,True,True,False,Service was helpful,other,30 min-2 h,False,4.183344841003418,4,mistral:7b
+csat_82094,2,2,True,True,False,Kindly deliver products in time,late_delivery,8 h+,True,4.279677867889404,2,mistral:7b
+csat_74777,5,5,True,True,False,Everything is good,order_status,unknown,True,4.325839281082153,5,mistral:7b
+csat_70507,5,5,True,True,False,Very nice,other,0-5 min,True,4.116799831390381,5,mistral:7b
+csat_12150,5,4,True,True,False,Quick and helpful service,other,0-5 min,False,4.155871868133545,4,mistral:7b
+csat_45472,4,4,True,True,False,Service was good,return_item,5-30 min,False,3.9161064624786377,4,mistral:7b
+csat_65059,5,3,True,True,False,Long waiting time for response,damaged_item,8 h+,False,3.9297468662261963,3,mistral:7b
+csat_55861,5,4,True,True,False,Service was good,return_item,5-30 min,False,3.9751596450805664,4,mistral:7b
+csat_83609,4,4,True,True,False,Answered quickly and efficiently.,other,0-5 min,False,4.119246006011963,4,mistral:7b
+csat_64299,5,4,True,True,False,Prompt response and efficient service,refund_request,0-5 min,False,4.354969263076782,4,mistral:7b
+csat_82546,5,2,True,True,False,"Long waiting time, not resolved",late_delivery,8 h+,True,4.421290159225464,2,mistral:7b
+csat_34280,5,4,True,True,False,Ok,return_item,5-30 min,True,4.321627378463745,4,mistral:7b
+csat_45875,5,4,True,True,False,"Needs product as ordered, light gold M",return_item,30 min-2 h,True,4.394650936126709,4,mistral:7b
+csat_49219,5,4,True,True,False,"Issue resolved, thanks",damaged_item,30 min-2 h,True,4.346252679824829,4,mistral:7b
+csat_21353,5,4,True,True,False,Helpful and informative response,other,5-30 min,False,4.332361698150635,4,mistral:7b
+csat_71203,4,3,True,True,False,"Long waiting time, need faster response",other,8 h+,False,4.456948518753052,3,mistral:7b
+csat_79231,1,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,4.274205446243286,4,mistral:7b
+csat_39254,5,3,True,True,False,Long waiting time for response,late_delivery,8 h+,False,4.156274080276489,3,mistral:7b
+csat_14340,1,4,True,True,False,Helpful and informative response,other,5-30 min,False,4.1793577671051025,4,mistral:7b
+csat_65867,5,4,True,True,False,Prompt response and helpful service,order_status,0-5 min,False,4.263544797897339,4,mistral:7b
+csat_04214,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,4.242380619049072,4,mistral:7b
+csat_58389,4,3,True,True,False,Please reduce response time,return_item,30 min-2 h,True,4.194690227508545,3,mistral:7b
+csat_13653,4,3,True,True,False,Problems not fully resolved,return_item,8 h+,True,4.198829412460327,3,mistral:7b
+csat_49645,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,4.052790403366089,4,mistral:7b
+csat_62487,5,4,True,True,False,Answered quickly and efficiently.,other,0-5 min,False,4.0215137004852295,4,mistral:7b
+csat_10198,5,4,True,True,False,Refund process was handled well,refund_request,2-8 h,False,4.1181113719940186,4,mistral:7b
+csat_09383,5,5,True,True,False,Customer service is fabulous and impressive.,return_item,8 h+,True,4.2241387367248535,5,mistral:7b
+csat_14172,5,5,True,True,False,Very good behaviour and helpful customer support,other,0-5 min,True,4.434511661529541,5,mistral:7b
+csat_67574,4,3,True,True,False,Long waiting time for response,return_item,8 h+,False,4.471351861953735,3,mistral:7b
+csat_80988,4,4,True,True,False,Issue should be solved ASAP,other,5-30 min,True,4.615290880203247,4,mistral:7b
+csat_00743,5,2,True,True,False,"Please, do not do work with bad sellers",return_item,2-8 h,True,4.658690929412842,2,mistral:7b
+csat_80555,1,2,True,True,False,Fraudulent product,other,8 h+,True,4.565256357192993,2,mistral:7b
+csat_30447,3,4,True,True,False,"Good service, order status clarified",order_status,0-5 min,False,4.660998821258545,4,mistral:7b
+csat_42541,5,4,True,True,False,"Service was good, but delivery was late",late_delivery,5-30 min,False,4.715775728225708,4,mistral:7b
+csat_48290,5,4,True,True,False,"Service was good, waiting time was acceptable",refund_request,5-30 min,False,4.608441352844238,4,mistral:7b
+csat_04256,5,4,True,True,False,Quick and helpful response,other,0-5 min,False,4.430966138839722,4,mistral:7b
+csat_28999,5,4,True,True,False,Swift and efficient service,refund_request,0-5 min,False,4.335017919540405,4,mistral:7b
+csat_47785,5,5,True,True,False,5star,late_delivery,0-5 min,True,4.098949432373047,5,mistral:7b
+csat_74117,5,4,True,True,False,Efficient service,return_item,0-5 min,False,3.820216178894043,4,mistral:7b
+csat_75690,5,4,True,True,False,"Service was good, but delivery was late",late_delivery,unknown,False,3.985576629638672,4,mistral:7b
+csat_65439,5,4,True,True,False,Service was good,return_item,5-30 min,False,3.793785810470581,4,mistral:7b
+csat_16874,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,3.7760894298553467,4,mistral:7b
+csat_04906,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,3.5685486793518066,4,mistral:7b
+csat_19937,5,4,True,True,False,Service was helpful,other,5-30 min,False,3.5240116119384766,4,mistral:7b
+csat_56262,5,5,True,True,False,Very very good response,return_item,2-8 h,True,3.718306064605713,5,mistral:7b
+csat_11592,1,3,True,True,False,Long waiting time for response,order_status,8 h+,False,3.8637778759002686,3,mistral:7b
+csat_06884,5,4,True,True,False,Prompt response and helpful service.,other,0-5 min,False,4.187034606933594,4,mistral:7b
+csat_84400,1,1,True,True,False,Very disappointed with the service,return_item,5-30 min,True,4.519793272018433,1,mistral:7b
+csat_11530,5,4,True,True,False,Order status clarified,order_status,2-8 h,False,4.49952507019043,4,mistral:7b
+csat_41631,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,4.475376844406128,4,mistral:7b
+csat_52309,5,4,True,True,False,"Helpful response, thanks for the assistance.",other,5-30 min,False,4.695752143859863,4,mistral:7b
+csat_67258,5,4,True,True,False,Answered quickly and efficiently.,other,0-5 min,False,4.476529359817505,4,mistral:7b
+csat_64688,4,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,4.543335437774658,4,mistral:7b
+csat_83080,4,4,True,True,False,"Service was good, but delivery was late",late_delivery,5-30 min,False,4.6557395458221436,4,mistral:7b
+csat_60151,5,4,True,True,False,Shopzilla best?,return_item,5-30 min,True,4.4976441860198975,4,mistral:7b
+csat_69216,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,4.299073219299316,4,mistral:7b
+csat_18284,5,4,True,True,False,"Service was good, but could be faster",return_item,30 min-2 h,False,4.4211061000823975,4,mistral:7b
+csat_14240,5,4,True,True,False,Service was good and quick,return_item,0-5 min,False,4.365294694900513,4,mistral:7b
+csat_45121,5,5,True,True,False,Excellent service,other,0-5 min,True,4.304700613021851,5,mistral:7b
+csat_23479,5,4,True,True,False,Order status clarified,order_status,5-30 min,False,4.37554144859314,4,mistral:7b
+csat_82118,5,4,True,True,False,Nice one,other,30 min-2 h,True,4.151963472366333,4,mistral:7b
+csat_32216,5,5,True,True,False,I had a good experience with support,return_item,0-5 min,True,4.215747594833374,5,mistral:7b
+csat_77338,5,5,True,True,False,best service,other,unknown,True,4.031619310379028,5,mistral:7b
+csat_77496,5,4,True,True,False,"Service was good, but could be more professional",other,unknown,False,4.122856378555298,4,mistral:7b
+csat_84416,3,4,True,True,False,Service was good,other,5-30 min,False,3.974660634994507,4,mistral:7b
+csat_25951,1,4,True,True,False,Service was good,return_item,5-30 min,False,3.7688040733337402,4,mistral:7b
+csat_62558,5,4,True,True,False,"Service was good, no remark provided",return_item,5-30 min,False,4.0795300006866455,4,mistral:7b
+csat_26493,4,4,True,True,False,Service was good,return_item,5-30 min,False,3.981766939163208,4,mistral:7b
+csat_33739,5,4,True,True,False,Service was good,return_item,5-30 min,False,3.737752914428711,4,mistral:7b
+csat_27871,5,4,True,True,False,Answered quickly and helpful,other,5-30 min,False,3.8818910121917725,4,mistral:7b
+csat_67386,3,4,True,True,False,Good,return_item,0-5 min,True,3.6533055305480957,4,mistral:7b
+csat_43645,5,4,True,True,False,Service was good,other,5-30 min,False,3.527048349380493,4,mistral:7b
+csat_84001,5,4,True,True,False,Service was good,return_item,5-30 min,False,3.7802114486694336,4,mistral:7b
+csat_53510,4,4,True,True,False,Answered quickly and efficiently.,other,0-5 min,False,3.699734687805176,4,mistral:7b
+csat_06620,5,4,True,True,False,Answered quickly and efficiently,other,0-5 min,False,3.8888206481933594,4,mistral:7b
+csat_19067,4,4,True,True,False,Answered my question,other,30 min-2 h,False,4.081382989883423,4,mistral:7b
+csat_38600,1,2,True,True,False,My issue was not resolved,other,30 min-2 h,True,4.281053066253662,2,mistral:7b
+csat_81344,4,4,True,True,False,Service was good,return_item,5-30 min,False,4.2558088302612305,4,mistral:7b
+csat_82144,5,4,True,True,False,Work properly,other,0-5 min,True,4.1098737716674805,4,mistral:7b
+csat_01135,5,4,True,True,False,Answered quickly,other,0-5 min,True,3.936692237854004,4,mistral:7b
+csat_24278,5,4,True,True,False,Service was good,return_item,5-30 min,False,3.7316224575042725,4,mistral:7b
+csat_77852,5,4,True,True,False,Order status clarified,order_status,0-5 min,True,3.756646156311035,4,mistral:7b
+csat_61560,5,4,True,True,False,Refund process was handled well,refund_request,2-8 h,False,3.9308922290802,4,mistral:7b
+csat_81816,4,3,True,True,False,"Long waiting time, need faster response",other,8 h+,False,4.1971518993377686,3,mistral:7b
+csat_06572,1,1,True,True,False,Your team not solving my issue since last 30 days,other,8 h+,True,4.687213182449341,1,mistral:7b
+csat_66891,2,3,True,True,False,"Long waiting time, need faster response",return_item,8 h+,False,4.8199543952941895,3,mistral:7b
+csat_26832,5,4,True,True,False,Service was helpful,other,5-30 min,False,4.707587242126465,4,mistral:7b
+csat_57521,5,4,True,True,False,"Fast response, waiting for delivery update",late_delivery,0-5 min,False,4.683978080749512,4,mistral:7b
+csat_55324,1,4,True,True,False,Request for return processed,return_item,5-30 min,True,4.369962453842163,4,mistral:7b
+csat_04974,1,4,True,True,False,Service was helpful,other,30 min-2 h,False,4.193012237548828,4,mistral:7b
+csat_68951,5,4,True,True,False,"Service was good, but no remark provided",other,5-30 min,False,4.234452247619629,4,mistral:7b
+csat_60821,1,4,True,True,False,Reasons do bc proper,order_status,30 min-2 h,True,4.198979139328003,4,mistral:7b
+csat_80032,4,4,True,True,False,Order status clarified,order_status,2-8 h,False,4.055999279022217,4,mistral:7b
+csat_80760,5,4,True,True,False,Service was good,return_item,5-30 min,False,4.072281122207642,4,mistral:7b
+csat_31554,5,4,True,True,False,Efficient service,return_item,0-5 min,False,3.9152517318725586,4,mistral:7b
+csat_84805,5,4,True,True,False,Answered quickly and efficiently.,other,0-5 min,False,3.9487807750701904,4,mistral:7b
+csat_27932,4,4,True,True,False,Service was good,return_item,5-30 min,False,3.9206454753875732,4,mistral:7b
+csat_51289,1,4,True,True,False,"Service was good, waiting time was acceptable",refund_request,5-30 min,False,4.108969449996948,4,mistral:7b
+csat_26079,5,4,True,True,False,"Service was good, but no remark provided",other,5-30 min,False,4.3995583057403564,4,mistral:7b
+csat_45075,4,2,True,True,False,No resolution provided,late_delivery,5-30 min,True,4.240021467208862,2,mistral:7b
+csat_50724,5,5,True,True,False,Helpful team member,return_item,0-5 min,True,4.399696350097656,5,mistral:7b
+csat_03971,5,5,True,True,False,Very good ??  thank you so much ??  I liked it ??,damaged_item,5-30 min,True,4.695215225219727,5,mistral:7b
+csat_60955,4,4,True,True,False,Service was helpful,other,5-30 min,False,4.538578987121582,4,mistral:7b
+csat_41835,5,4,True,True,False,"Service was good, but delivery was late",late_delivery,5-30 min,False,4.740416049957275,4,mistral:7b
+csat_46188,5,4,True,True,False,Answered quickly and efficiently,other,0-5 min,False,4.7170250415802,4,mistral:7b
+csat_00652,3,2,True,True,False,Long waiting time and unprofessional behavior,other,8 h+,False,4.35027289390564,2,mistral:7b
+csat_62596,5,4,True,True,False,Service was good and quick,late_delivery,0-5 min,False,4.260814905166626,4,mistral:7b
+csat_42860,5,4,True,True,False,"Quick response, looking forward to resolution",other,0-5 min,False,4.236019611358643,4,mistral:7b
+csat_59542,5,4,True,True,False,"Service was good, waiting time was acceptable",refund_request,5-30 min,False,4.420176267623901,4,mistral:7b
+csat_21794,5,4,True,True,False,Answered eventually,other,30 min-2 h,False,4.329624176025391,4,mistral:7b
+csat_65467,5,4,True,True,False,"Good service, order status clarified",order_status,0-5 min,False,4.522960424423218,4,mistral:7b
+csat_69553,1,5,True,True,False,Very good,order_status,0-5 min,True,4.178168296813965,5,mistral:7b
+csat_19914,5,5,True,True,False,Thank you so much customer service,other,0-5 min,True,4.128356456756592,5,mistral:7b
+csat_69931,1,2,True,True,False,This was my last order from Shopzilla,return_item,2-8 h,True,4.312105655670166,2,mistral:7b
+csat_40501,5,5,True,True,False,Great experience,order_status,0-5 min,True,4.117035388946533,5,mistral:7b
+csat_29959,5,3,True,True,False,Long waiting time for response,return_item,8 h+,False,4.256993770599365,3,mistral:7b
+csat_27597,5,4,True,True,False,Service was good,return_item,5-30 min,False,3.980402946472168,4,mistral:7b
+csat_14306,5,4,True,True,False,"Answered quickly, but unprofessional behavior noted.",other,0-5 min,False,4.138153076171875,4,mistral:7b
+csat_34460,5,4,True,True,False,Service was helpful,other,30 min-2 h,False,4.1685357093811035,4,mistral:7b
+csat_38755,4,4,True,True,False,Service was helpful,other,30 min-2 h,False,4.197260618209839,4,mistral:7b
+csat_45939,5,5,True,True,False,Customer care resolved my problem in very short time,return_item,0-5 min,True,4.582768678665161,5,mistral:7b
+csat_32945,1,4,True,True,False,Order status enquiry answered in a timely manner,order_status,30 min-2 h,False,4.4969542026519775,4,mistral:7b
+csat_56520,2,2,True,True,False,No solution to my problem. I am very upset.,other,2-8 h,True,4.819992542266846,2,mistral:7b
+csat_69409,5,4,True,True,False,Thexxx you?,late_delivery,0-5 min,True,4.897132873535156,4,mistral:7b
+csat_57928,4,5,True,True,False,Problem and payment issues immediately solved,return_item,5-30 min,True,4.835952043533325,5,mistral:7b
+csat_73874,1,4,True,True,False,Thank you,other,5-30 min,True,4.482213258743286,4,mistral:7b
+csat_37511,5,4,True,True,False,Order status clarified,order_status,5-30 min,False,4.217462539672852,4,mistral:7b
+csat_19823,5,5,True,True,False,Very satisfied with the service,return_item,5-30 min,True,4.440373182296753,5,mistral:7b
+csat_27523,4,4,True,True,False,Quick and helpful response,other,0-5 min,False,4.18885064125061,4,mistral:7b
+csat_26757,5,4,True,True,False,Service was good,return_item,5-30 min,False,4.234541654586792,4,mistral:7b
+csat_35053,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,4.163730621337891,4,mistral:7b
+csat_68497,5,5,True,True,False,Thank you,return_item,0-5 min,True,3.7275679111480713,5,mistral:7b
+csat_73471,4,4,True,True,False,"Quick response, looking forward to the resolution",return_item,0-5 min,False,3.984788417816162,4,mistral:7b
+csat_51213,1,2,True,True,False,Incomplete order and no support,other,8 h+,True,4.1396706104278564,2,mistral:7b
+csat_68533,5,4,True,True,False,Efficient service,return_item,0-5 min,False,4.192933082580566,4,mistral:7b
+csat_63260,5,2,True,True,False,Logistic delivery needs improvement,return_item,0-5 min,True,4.468607664108276,2,mistral:7b
+csat_63463,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,4.245556592941284,4,mistral:7b
+csat_31166,4,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,3.8020451068878174,4,mistral:7b
+csat_05311,1,4,True,True,False,Service was good and quick,late_delivery,0-5 min,False,3.739359140396118,4,mistral:7b
+csat_04876,5,4,True,True,False,"Answered my question, but waiting time was long",other,2-8 h,False,3.8156681060791016,4,mistral:7b
+csat_80936,5,4,True,True,False,Order verification was handled quickly,order_status,0-5 min,False,3.940297842025757,4,mistral:7b
+csat_01533,5,4,True,True,False,Quick and helpful response,other,0-5 min,False,4.173396825790405,4,mistral:7b
+csat_01963,5,4,True,True,False,Service was good and quick,late_delivery,0-5 min,False,4.177981853485107,4,mistral:7b
+csat_84007,1,4,True,True,False,Service was helpful,other,2-8 h,False,3.85414981842041,4,mistral:7b
+csat_37202,5,4,True,True,False,Thanks for support,other,2-8 h,True,3.881309747695923,4,mistral:7b
+csat_59249,5,4,True,True,False,Efficient service,return_item,0-5 min,False,3.984600782394409,4,mistral:7b
+csat_55476,4,5,True,True,False,Good service,refund_request,0-5 min,True,3.9944844245910645,5,mistral:7b
+csat_21302,5,3,True,True,False,"Long waiting time, need faster response",return_item,8 h+,False,4.256319999694824,3,mistral:7b
+csat_80752,5,5,True,True,False,Very good,return_item,0-5 min,True,4.103977203369141,5,mistral:7b
+csat_77730,5,5,True,True,False,Very nice,return_item,0-5 min,True,4.028938293457031,5,mistral:7b
+csat_71773,4,4,True,True,False,Efficient service,return_item,0-5 min,False,4.087867259979248,4,mistral:7b
+csat_75357,1,4,True,True,False,Service was good,other,unknown,False,3.8221538066864014,4,mistral:7b
+csat_58135,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,3.914097547531128,4,mistral:7b
+csat_30713,5,4,True,True,False,Service was good and quick,late_delivery,0-5 min,False,3.8999218940734863,4,mistral:7b
+csat_36610,5,2,True,True,False,"Solve logistics issues, please",order_status,8 h+,True,4.033215284347534,2,mistral:7b
+csat_23544,5,4,True,True,False,Efficient service,return_item,0-5 min,False,4.2205212116241455,4,mistral:7b
+csat_63640,5,4,True,True,False,Good fight resolution,other,5-30 min,True,4.166757583618164,4,mistral:7b
+csat_25847,5,4,True,True,False,"Service was good, but could be faster",return_item,2-8 h,False,4.409807205200195,4,mistral:7b
+csat_49970,5,4,True,True,False,"Service was good, but could be faster",return_item,30 min-2 h,False,4.312796115875244,4,mistral:7b
+csat_36831,4,4,True,True,False,Order status clarified,order_status,30 min-2 h,False,4.274724960327148,4,mistral:7b
+csat_52708,5,4,True,True,False,Good conversation about the refund,refund_request,0-5 min,True,4.353714466094971,4,mistral:7b
+csat_24548,5,4,True,True,False,Good,other,0-5 min,True,4.087777614593506,4,mistral:7b
+csat_72588,5,4,True,True,False,Thanks for helping,other,5-30 min,True,3.9989421367645264,4,mistral:7b
+csat_50243,5,4,True,True,False,Service was quick and efficient,return_item,0-5 min,False,4.033278703689575,4,mistral:7b
+csat_56661,4,4,True,True,False,Service was good,other,5-30 min,False,3.819136142730713,4,mistral:7b
+csat_78531,5,4,True,True,False,Quick and helpful service,other,0-5 min,False,3.8074145317077637,4,mistral:7b
+csat_52511,4,4,True,True,False,Helpful response,other,0-5 min,True,3.853675603866577,4,mistral:7b
+csat_34493,5,4,True,True,False,"Service was good, but no remark provided",return_item,5-30 min,False,4.002127647399902,4,mistral:7b
+csat_68428,5,4,True,True,False,Answered my question,other,2-8 h,False,4.232443571090698,4,mistral:7b
+csat_05268,1,1,True,True,False,"Train executives to provide solutions, worst service ever",order_status,0-5 min,True,4.86570405960083,1,mistral:7b
+csat_73554,1,4,True,True,False,"Good response, but call back needed for complete resolution",other,2-8 h,True,5.367504835128784,4,mistral:7b
+csat_63748,5,4,True,True,False,Thanks,return_item,5-30 min,True,5.0822954177856445,4,mistral:7b
+csat_67918,5,4,True,True,False,Efficient service,return_item,0-5 min,False,4.879933595657349,4,mistral:7b
+csat_35939,5,4,True,True,False,"Answered quickly, but unprofessional behavior noted.",other,0-5 min,False,4.735094308853149,4,mistral:7b
+csat_18591,5,4,True,True,False,"Service was good, but could be faster",return_item,30 min-2 h,False,4.407530307769775,4,mistral:7b
+csat_00061,5,4,True,True,False,"Service was good, but no remark provided",return_item,5-30 min,False,4.574913501739502,4,mistral:7b
+csat_71598,5,4,True,True,False,Quick and helpful response,other,0-5 min,False,4.700792074203491,4,mistral:7b
+csat_13689,4,2,True,True,False,Shopzilla should improve product quality,return_item,8 h+,True,4.451550722122192,2,mistral:7b
+csat_74863,5,4,True,True,False,"Service was good, no remark provided",return_item,unknown,False,4.303021430969238,4,mistral:7b
+csat_20502,5,4,True,True,False,Good,return_item,30 min-2 h,True,4.1355814933776855,4,mistral:7b
+csat_04554,5,4,True,True,False,"Good service, order status clarified",order_status,0-5 min,False,4.295381546020508,4,mistral:7b

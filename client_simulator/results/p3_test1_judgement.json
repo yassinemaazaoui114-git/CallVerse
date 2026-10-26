@@ -1,0 +1,107 @@
+{
+  "X01": {
+    "realism": 2,
+    "role": 1,
+    "reasoning": "Short, caps shouting, concrete facts, reply 'dhl is useless!' reads like a real angry customer. Strong anger, but almost no typos on the typos card (auto: first message perfect spelling)."
+  },
+  "X02": {
+    "realism": 0,
+    "role": 0,
+    "reasoning": "First message is in the agent's voice ('I'm sorry to hear that... Our team is here to help... Can you please provide me with more information') - breaks role. Reply then asks the agent 'Is that correct?'."
+  },
+  "X03": {
+    "realism": 2,
+    "role": 2,
+    "reasoning": "'hi im so pissed ... pls help!!!' and 'yeah its 4512 ordered oct 1st! why did dhl not send it yet??' - lowercase, missing apostrophes, angry, answers the question. Matches the card fully."
+  },
+  "X04": {
+    "realism": 1,
+    "role": 2,
+    "reasoning": "Stays a formal customer, but 70 words like an email, and the reply repeats the whole request (79 words) instead of just giving the number."
+  },
+  "X05": {
+    "realism": 1,
+    "role": 1,
+    "reasoning": "Natural first message but worried, not formal. Reply 'Yes, please confirm my order number is 4512' is an odd phrasing (asks the agent to confirm)."
+  },
+  "X06": {
+    "realism": 1,
+    "role": 1,
+    "reasoning": "First message is very real ('wtf? compensation pls?'). Reply starts with 'whats ur order number?' - echoes the agent's question as if it were the agent (role slip)."
+  },
+  "X07": {
+    "realism": 1,
+    "role": 2,
+    "reasoning": "Wrapped in quotation marks and opens with the meta line 'I'm a customer who ordered...'. Reply is fine. Polite and formal enough."
+  },
+  "X08": {
+    "realism": 2,
+    "role": 2,
+    "reasoning": "Concise, natural, calm; reply gives the number plus the order date. Exactly what a calm customer writes."
+  },
+  "X09": {
+    "realism": 2,
+    "role": 1,
+    "reasoning": "Natural and short, but says 'two weeks late' (card: due 8 Oct, a week of no tracking) and tone is neutral rather than formal."
+  },
+  "X10": {
+    "realism": 1,
+    "role": 1,
+    "reasoning": "Meta opener 'I'm a customer who ordered...'; reply 'Certainly! Our order number is...' sounds like an assistant."
+  },
+  "X11": {
+    "realism": 2,
+    "role": 2,
+    "reasoning": "Natural, calm, specific; reply 'Sure, it's 4512. I was really hoping for it by the 8th though.' adds a human touch."
+  },
+  "X12": {
+    "realism": 2,
+    "role": 2,
+    "reasoning": "'Good morning, I am writing to inquire about order 4512' - formal and concise; reply formal ('It is 4512')."
+  },
+  "X13": {
+    "realism": 2,
+    "role": 2,
+    "reasoning": "Calm, specific, one long sentence like a real chat; reply answers and asks what is going on."
+  },
+  "X14": {
+    "realism": 2,
+    "role": 2,
+    "reasoning": "Calm-worried, gives all facts up front (many real customers do); reply minimal and correct."
+  },
+  "X15": {
+    "realism": 2,
+    "role": 2,
+    "reasoning": "Formal-ish and concise ('I am contacting regarding my laptop order 4512'); reply correct."
+  },
+  "X16": {
+    "realism": 1,
+    "role": 2,
+    "reasoning": "'Dear ShopNova,' is a letter opener that real chat users rarely write; otherwise calm and correct."
+  },
+  "X17": {
+    "realism": 1,
+    "role": 1,
+    "reasoning": "Not formal ('I'm trying to track my order'); reply 'Yes, I'd be happy to confirm.' is an assistant-style phrase."
+  },
+  "X18": {
+    "realism": 2,
+    "role": 1,
+    "reasoning": "Lowercase, no apostrophes, run-on - satisfies the typos card and reads real; but pleading ('help me pls') more than angry."
+  },
+  "X19": {
+    "realism": 1,
+    "role": 2,
+    "reasoning": "Polite calm customer, but the reply repeats the entire request (49 words) instead of answering the question."
+  },
+  "X20": {
+    "realism": 2,
+    "role": 1,
+    "reasoning": "Natural lowercase message, but neither angry nor typo-ridden; ends with 'thanks.' twice."
+  },
+  "X21": {
+    "realism": 2,
+    "role": 1,
+    "reasoning": "Terse lowercase 'hey, laptop still not here... help!' and 'order id 4512. laptop for study. where is it?' - real, annoyed; but no typos and only mild anger."
+  }
+}

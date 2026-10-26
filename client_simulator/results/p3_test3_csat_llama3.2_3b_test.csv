@@ -1,0 +1,201 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+csat_04279,5,1,True,True,False,Extremely poor service,return_item,8 h+,False,2.3857266902923584,1,llama3.2:3b
+csat_83543,5,4,True,True,False,"Helpful response, but no resolution",return_item,5-30 min,False,2.3417816162109375,4,llama3.2:3b
+csat_51748,5,4,True,True,False,"Answered quickly, but no resolution yet.",late_delivery,30 min-2 h,False,2.4379541873931885,4,llama3.2:3b
+csat_29459,5,5,True,True,False,"Quick response, thanks!",refund_request,0-5 min,False,2.319023609161377,5,llama3.2:3b
+csat_79580,5,5,True,True,False,Good service,late_delivery,0-5 min,True,2.348670244216919,5,llama3.2:3b
+csat_14190,5,5,True,True,False,Simple and efficient service,return_item,0-5 min,True,2.396522045135498,5,llama3.2:3b
+csat_66434,4,5,True,True,False,"Quick response, issue resolved.",damaged_item,0-5 min,False,2.398237466812134,5,llama3.2:3b
+csat_40843,5,4,True,True,False,"Waited a bit long, but service was helpful.",other,30 min-2 h,False,2.4585652351379395,4,llama3.2:3b
+csat_43070,4,4,True,True,False,Prompt response appreciated.,return_item,2-8 h,False,2.410243272781372,4,llama3.2:3b
+csat_76294,5,1,True,True,False,Aggressive action needed against seller,other,unknown,True,2.4228599071502686,1,llama3.2:3b
+csat_78820,5,1,True,True,False,Long wait for resolution,damaged_item,8 h+,False,2.3741257190704346,1,llama3.2:3b
+csat_72728,5,4,True,True,False,"Helpful response, but no resolution",return_item,5-30 min,False,2.4283502101898193,4,llama3.2:3b
+csat_76635,5,4,True,True,False,"Quick response, helpful answer.",other,5-30 min,False,2.453162908554077,4,llama3.2:3b
+csat_32713,5,1,True,True,False,Extremely poor service,other,8 h+,False,2.367156744003296,1,llama3.2:3b
+csat_32573,5,4,True,True,False,Prompt response appreciated.,return_item,2-8 h,False,2.3152658939361572,4,llama3.2:3b
+csat_25882,5,4,True,True,False,Missing item issue needs to be resolved quickly.,damaged_item,30 min-2 h,False,2.450469732284546,4,llama3.2:3b
+csat_50628,5,5,True,True,False,"Order status confirmed, thanks!",order_status,0-5 min,True,2.4499855041503906,5,llama3.2:3b
+csat_54998,5,4,True,True,False,"Quick response, but no solution found.",other,5-30 min,False,2.4090073108673096,4,llama3.2:3b
+csat_79247,5,1,True,True,False,Return policy should be more fast.,return_item,8 h+,True,2.401608943939209,1,llama3.2:3b
+csat_00943,5,4,True,True,False,"Waited a bit long, but answer was helpful.",other,30 min-2 h,False,2.441391706466675,4,llama3.2:3b
+csat_82094,2,1,True,True,False,Unacceptable delay,late_delivery,8 h+,True,2.4041504859924316,1,llama3.2:3b
+csat_74777,5,5,True,True,False,Order seems to be okay,order_status,unknown,True,2.3880274295806885,5,llama3.2:3b
+csat_70507,5,5,True,True,False,Very nice customer service,other,0-5 min,True,2.390803575515747,5,llama3.2:3b
+csat_12150,5,5,True,True,False,"Quick response, good service",other,0-5 min,False,2.3891923427581787,5,llama3.2:3b
+csat_45472,4,4,True,True,False,"Answered quickly, but no resolution found.",return_item,5-30 min,False,2.3969106674194336,4,llama3.2:3b
+csat_65059,5,1,True,True,False,Long wait for missing item issue,damaged_item,8 h+,False,2.3966763019561768,1,llama3.2:3b
+csat_55861,5,4,True,True,False,"Prompt response, but no resolution found.",return_item,5-30 min,False,2.442598581314087,4,llama3.2:3b
+csat_83609,4,4,True,True,False,"Quick response, good service centre info.",other,0-5 min,False,2.4333689212799072,4,llama3.2:3b
+csat_64299,5,5,True,True,False,"Quick response, thanks!",refund_request,0-5 min,False,2.45034122467041,5,llama3.2:3b
+csat_82546,5,1,True,True,False,Unhelpful response,late_delivery,8 h+,True,2.4049417972564697,1,llama3.2:3b
+csat_34280,5,5,True,True,False,Satisfied with the response,return_item,5-30 min,True,2.3792765140533447,5,llama3.2:3b
+csat_45875,5,4,True,True,False,"Missing product in order, need light gold M",return_item,30 min-2 h,True,2.459954261779785,4,llama3.2:3b
+csat_49219,5,4,True,True,False,,damaged_item,30 min-2 h,True,2.399698257446289,4,llama3.2:3b
+csat_21353,5,4,True,True,False,"Quick response, but no solution found.",other,5-30 min,False,2.388580560684204,4,llama3.2:3b
+csat_71203,4,1,True,True,False,Extremely poor service,other,8 h+,False,2.297868251800537,1,llama3.2:3b
+csat_79231,1,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.439563035964966,5,llama3.2:3b
+csat_39254,5,1,True,True,False,Extremely poor service,late_delivery,8 h+,False,2.424696445465088,1,llama3.2:3b
+csat_14340,1,4,True,True,False,"Quick response, but no solution found.",other,5-30 min,False,2.3824503421783447,4,llama3.2:3b
+csat_65867,5,5,True,True,False,"Quick response, thanks!",order_status,0-5 min,False,2.386035919189453,5,llama3.2:3b
+csat_04214,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.4413211345672607,5,llama3.2:3b
+csat_58389,4,4,True,True,False,Shorter response time would be helpful,return_item,30 min-2 h,True,2.4814822673797607,4,llama3.2:3b
+csat_13653,4,2,True,True,False,Query not resolved promptly,return_item,8 h+,True,2.5222599506378174,2,llama3.2:3b
+csat_49645,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.4812607765197754,5,llama3.2:3b
+csat_62487,5,5,True,True,False,"Quick response, no issue.",other,0-5 min,False,2.3407375812530518,5,llama3.2:3b
+csat_10198,5,4,True,True,False,Refund process should be faster,refund_request,2-8 h,False,2.4066426753997803,4,llama3.2:3b
+csat_09383,5,1,True,True,False,Not impressed by the long wait time,return_item,8 h+,True,2.4399938583374023,1,llama3.2:3b
+csat_14172,5,5,True,True,False,Excellent service,other,0-5 min,True,2.4400718212127686,5,llama3.2:3b
+csat_67574,4,1,True,True,False,Long wait time for a simple query,return_item,8 h+,False,2.4398016929626465,1,llama3.2:3b
+csat_80988,4,4,True,True,False,Issue should be solved ASAP,other,5-30 min,True,2.4114506244659424,4,llama3.2:3b
+csat_00743,5,1,True,True,False,Bad seller experience,return_item,2-8 h,True,2.3958017826080322,1,llama3.2:3b
+csat_80555,1,1,True,True,False,Bad product,other,8 h+,True,2.3893356323242188,1,llama3.2:3b
+csat_30447,3,5,True,True,False,Order status enquiry answered quickly,order_status,0-5 min,False,2.382248640060425,5,llama3.2:3b
+csat_42541,5,4,True,True,False,"Answered quickly, but no resolution for delayed delivery.",late_delivery,5-30 min,False,2.4093410968780518,4,llama3.2:3b
+csat_48290,5,4,True,True,False,Refund process was handled promptly.,refund_request,5-30 min,False,2.43894624710083,4,llama3.2:3b
+csat_04256,5,5,True,True,False,"Quick response, issue resolved.",other,0-5 min,False,2.4123947620391846,5,llama3.2:3b
+csat_28999,5,5,True,True,False,"Quick response, thanks!",refund_request,0-5 min,False,2.411890983581543,5,llama3.2:3b
+csat_47785,5,5,True,True,False,Great service,late_delivery,0-5 min,True,2.350402355194092,5,llama3.2:3b
+csat_74117,5,5,True,True,False,"Quick response, good service",return_item,0-5 min,False,2.317797899246216,5,llama3.2:3b
+csat_75690,5,1,True,True,False,"Late delivery, no update",late_delivery,unknown,False,2.313781976699829,1,llama3.2:3b
+csat_65439,5,4,True,True,False,"Answered quickly, but no resolution found.",return_item,5-30 min,False,2.380746364593506,4,llama3.2:3b
+csat_16874,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.3937134742736816,5,llama3.2:3b
+csat_04906,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.315265417098999,5,llama3.2:3b
+csat_19937,5,4,True,True,False,"Waited a bit, but answer was helpful.",other,5-30 min,False,2.4433999061584473,4,llama3.2:3b
+csat_56262,5,5,True,True,False,Good response,return_item,2-8 h,True,2.361879587173462,5,llama3.2:3b
+csat_11592,1,1,True,True,False,Long wait time for order status,order_status,8 h+,False,2.422090530395508,1,llama3.2:3b
+csat_06884,5,5,True,True,False,"Quick response, no issues.",other,0-5 min,False,2.454428195953369,5,llama3.2:3b
+csat_84400,1,1,True,True,False,Extremely disappointed with the service and platform.,return_item,5-30 min,True,2.5385923385620117,1,llama3.2:3b
+csat_11530,5,4,True,True,False,Order status enquiry answered promptly.,order_status,2-8 h,False,2.3918027877807617,4,llama3.2:3b
+csat_41631,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.4074699878692627,5,llama3.2:3b
+csat_52309,5,4,True,True,False,"Quick response, helpful installation support.",other,5-30 min,False,2.4597742557525635,4,llama3.2:3b
+csat_67258,5,4,True,True,False,"Quick response, but no resolution.",other,0-5 min,False,2.4051902294158936,4,llama3.2:3b
+csat_64688,4,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.435415029525757,5,llama3.2:3b
+csat_83080,4,4,True,True,False,"Answered quickly, but no resolution for delayed delivery.",late_delivery,5-30 min,False,2.414288282394409,4,llama3.2:3b
+csat_60151,5,5,True,True,False,Shopzilla best???,return_item,5-30 min,True,2.391655445098877,5,llama3.2:3b
+csat_69216,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.36922287940979,5,llama3.2:3b
+csat_18284,5,4,True,True,False,"Quick response, issue resolved.",return_item,30 min-2 h,False,2.4209954738616943,4,llama3.2:3b
+csat_14240,5,5,True,True,False,"Quick resolution, thanks!",return_item,0-5 min,False,2.3958961963653564,5,llama3.2:3b
+csat_45121,5,5,True,True,False,Excellent service,other,0-5 min,True,2.372995615005493,5,llama3.2:3b
+csat_23479,5,4,True,True,False,Order status enquiry answered promptly.,order_status,5-30 min,False,2.3921642303466797,4,llama3.2:3b
+csat_82118,5,5,True,True,False,Good service,other,30 min-2 h,True,2.377535581588745,5,llama3.2:3b
+csat_32216,5,5,True,True,False,Good support experience,return_item,0-5 min,True,2.3567144870758057,5,llama3.2:3b
+csat_77338,5,5,True,True,False,Excellent service,other,unknown,True,2.3089699745178223,5,llama3.2:3b
+csat_77496,5,1,True,True,False,Unsatisfactory service,other,unknown,False,2.3443615436553955,1,llama3.2:3b
+csat_84416,3,4,True,True,False,"Quick response, but no solution found.",other,5-30 min,False,2.369758367538452,4,llama3.2:3b
+csat_25951,1,4,True,True,False,"Helpful response, but no resolution",return_item,5-30 min,False,2.4157774448394775,4,llama3.2:3b
+csat_62558,5,4,True,True,False,"Helpful response, but no resolution",return_item,5-30 min,False,2.5054306983947754,4,llama3.2:3b
+csat_26493,4,4,True,True,False,"Helpful response, but no resolution",return_item,5-30 min,False,2.426079034805298,4,llama3.2:3b
+csat_33739,5,4,True,True,False,"Helpful response, but no resolution",return_item,5-30 min,False,2.2637853622436523,4,llama3.2:3b
+csat_27871,5,4,True,True,False,"Quick response, but no solution found.",other,5-30 min,False,2.4264984130859375,4,llama3.2:3b
+csat_67386,3,5,True,True,False,Good,return_item,0-5 min,True,2.3496432304382324,5,llama3.2:3b
+csat_43645,5,4,True,True,False,"Waited a bit, but got help",other,5-30 min,False,2.3892619609832764,4,llama3.2:3b
+csat_84001,5,4,True,True,False,"Answered quickly, but no resolution found.",return_item,5-30 min,False,2.3757052421569824,4,llama3.2:3b
+csat_53510,4,4,True,True,False,"Quick response, good service.",other,0-5 min,False,2.3352651596069336,4,llama3.2:3b
+csat_06620,5,5,True,True,False,"Quick response, issue resolved.",other,0-5 min,False,2.389780282974243,5,llama3.2:3b
+csat_19067,4,4,True,True,False,"Waited a bit, but got help eventually.",other,30 min-2 h,False,2.4516565799713135,4,llama3.2:3b
+csat_38600,1,1,True,True,False,Problem not solved,other,30 min-2 h,True,2.3832895755767822,1,llama3.2:3b
+csat_81344,4,4,True,True,False,"Quick response, but no resolution yet.",return_item,5-30 min,False,2.439649820327759,4,llama3.2:3b
+csat_82144,5,5,True,True,False,Functioning as expected,other,0-5 min,True,2.419360399246216,5,llama3.2:3b
+csat_01135,5,4,True,True,False,Unsatisfactory response,other,0-5 min,True,2.330618381500244,4,llama3.2:3b
+csat_24278,5,4,True,True,False,"Quick response, but no resolution yet.",return_item,5-30 min,False,2.358001232147217,4,llama3.2:3b
+csat_77852,5,5,True,True,False,Satisfied with quick response,order_status,0-5 min,True,2.405263900756836,5,llama3.2:3b
+csat_61560,5,4,True,True,False,Refund process should be faster.,refund_request,2-8 h,False,2.440807819366455,4,llama3.2:3b
+csat_81816,4,1,True,True,False,Poor response time,other,8 h+,False,2.3732717037200928,1,llama3.2:3b
+csat_06572,1,1,True,True,False,Poor service and long wait,other,8 h+,True,2.397482395172119,1,llama3.2:3b
+csat_66891,2,1,True,True,False,Extremely poor service,return_item,8 h+,False,2.363520383834839,1,llama3.2:3b
+csat_26832,5,4,True,True,False,"Helpful response, but no resolution.",other,5-30 min,False,2.3680403232574463,4,llama3.2:3b
+csat_57521,5,5,True,True,False,"Quick response, but still a late delivery issue",late_delivery,0-5 min,False,2.4431698322296143,5,llama3.2:3b
+csat_55324,1,5,True,True,False,Simple and straightforward request,return_item,5-30 min,True,2.385769844055176,5,llama3.2:3b
+csat_04974,1,4,True,True,False,"Answered quickly, but no resolution found.",other,30 min-2 h,False,2.437126874923706,4,llama3.2:3b
+csat_68951,5,4,True,True,False,"Unprofessional behavior, but resolved issue",other,5-30 min,False,2.3705406188964844,4,llama3.2:3b
+csat_60821,1,2,True,True,False,Not clear or helpful response,order_status,30 min-2 h,True,2.37201189994812,2,llama3.2:3b
+csat_80032,4,4,True,True,False,Order status enquiry answered promptly.,order_status,2-8 h,False,2.3510348796844482,4,llama3.2:3b
+csat_80760,5,4,True,True,False,Exchange process was smooth and efficient.,return_item,5-30 min,False,2.4254038333892822,4,llama3.2:3b
+csat_31554,5,5,True,True,False,"Quick response, issue resolved.",return_item,0-5 min,False,2.4079604148864746,5,llama3.2:3b
+csat_84805,5,4,True,True,False,"Quick response, but no resolution.",other,0-5 min,False,2.412679433822632,4,llama3.2:3b
+csat_27932,4,4,True,True,False,"Quick response, but no resolution yet.",return_item,5-30 min,False,2.3635141849517822,4,llama3.2:3b
+csat_51289,1,4,True,True,False,Quick resolution to refund issue.,refund_request,5-30 min,False,2.416335105895996,4,llama3.2:3b
+csat_26079,5,4,True,True,False,"Unprofessional behavior, but resolved issue",other,5-30 min,False,2.432229518890381,4,llama3.2:3b
+csat_45075,4,1,True,True,False,No solution or response,late_delivery,5-30 min,True,2.396775722503662,1,llama3.2:3b
+csat_50724,5,5,True,True,False,Helpful team member,return_item,0-5 min,True,2.3585777282714844,5,llama3.2:3b
+csat_03971,5,5,True,True,False,Good service despite the issue.,damaged_item,5-30 min,True,2.4091150760650635,5,llama3.2:3b
+csat_60955,4,4,True,True,False,"Waited a bit, but answer was helpful.",other,5-30 min,False,2.510312795639038,4,llama3.2:3b
+csat_41835,5,4,True,True,False,"Answered quickly, but no resolution for delayed delivery.",late_delivery,5-30 min,False,2.4758291244506836,4,llama3.2:3b
+csat_46188,5,5,True,True,False,"Quick response, no issues.",other,0-5 min,False,2.3209266662597656,5,llama3.2:3b
+csat_00652,3,1,True,True,False,Unsatisfactory service,other,8 h+,False,2.332810401916504,1,llama3.2:3b
+csat_62596,5,5,True,True,False,"Quick response, but no resolution yet.",late_delivery,0-5 min,False,2.3475217819213867,5,llama3.2:3b
+csat_42860,5,4,True,True,False,Quick response to payment issues.,other,0-5 min,False,2.3852858543395996,4,llama3.2:3b
+csat_59542,5,4,True,True,False,"Quick response, but no resolution yet.",refund_request,5-30 min,False,2.4063849449157715,4,llama3.2:3b
+csat_21794,5,4,True,True,False,"Quick response, but no solution found.",other,30 min-2 h,False,2.434657096862793,4,llama3.2:3b
+csat_65467,5,5,True,True,False,Order status enquiry answered quickly,order_status,0-5 min,False,2.396942377090454,5,llama3.2:3b
+csat_69553,1,5,True,True,False,Very good,order_status,0-5 min,True,2.289461374282837,5,llama3.2:3b
+csat_19914,5,5,True,True,False,Excellent service,other,0-5 min,True,2.3493947982788086,5,llama3.2:3b
+csat_69931,1,1,True,True,False,"Poor experience, last order from them",return_item,2-8 h,True,2.4097516536712646,1,llama3.2:3b
+csat_40501,5,5,True,True,False,Great experience,order_status,0-5 min,True,2.3533596992492676,5,llama3.2:3b
+csat_29959,5,1,True,True,False,Extremely poor service,return_item,8 h+,False,2.3732640743255615,1,llama3.2:3b
+csat_27597,5,4,True,True,False,"Helpful response, but no resolution",return_item,5-30 min,False,2.340721607208252,4,llama3.2:3b
+csat_14306,5,5,True,True,False,"No issue with service, just unprofessional tone.",other,0-5 min,False,2.4193434715270996,5,llama3.2:3b
+csat_34460,5,4,True,True,False,Helpful and prompt response.,other,30 min-2 h,False,2.441121816635132,4,llama3.2:3b
+csat_38755,4,4,True,True,False,Payment issues need to be resolved quickly.,other,30 min-2 h,False,2.5160675048828125,4,llama3.2:3b
+csat_45939,5,5,True,True,False,"Quick resolution, thanks!",return_item,0-5 min,True,2.3915867805480957,5,llama3.2:3b
+csat_32945,1,4,True,True,False,Order status enquiry responded promptly.,order_status,30 min-2 h,False,2.418405294418335,4,llama3.2:3b
+csat_56520,2,1,True,True,False,"No solution to my problem, very upset.",other,2-8 h,True,2.463350296020508,1,llama3.2:3b
+csat_69409,5,5,True,True,False,Appreciative tone,late_delivery,0-5 min,True,2.4387831687927246,5,llama3.2:3b
+csat_57928,4,5,True,True,False,Problem and payment issues solved quickly,return_item,5-30 min,True,2.385683059692383,5,llama3.2:3b
+csat_73874,1,5,True,True,False,Appreciative response,other,5-30 min,True,2.3647847175598145,5,llama3.2:3b
+csat_37511,5,4,True,True,False,Order status enquiry answered promptly.,order_status,5-30 min,False,2.405121326446533,4,llama3.2:3b
+csat_19823,5,5,True,True,False,Great job resolving my issue!,return_item,5-30 min,True,2.4358396530151367,5,llama3.2:3b
+csat_27523,4,5,True,True,False,"Quick response, issue resolved.",other,0-5 min,False,2.3576819896698,5,llama3.2:3b
+csat_26757,5,4,True,True,False,"Helpful response, but no resolution",return_item,5-30 min,False,2.4372715950012207,4,llama3.2:3b
+csat_35053,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.3511900901794434,5,llama3.2:3b
+csat_68497,5,5,True,True,False,Appreciative customer,return_item,0-5 min,True,2.3051629066467285,5,llama3.2:3b
+csat_73471,4,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.4078495502471924,5,llama3.2:3b
+csat_51213,1,1,True,True,False,Poor support for incomplete order issue,other,8 h+,True,2.4263412952423096,1,llama3.2:3b
+csat_68533,5,5,True,True,False,"Quick response, issue resolved.",return_item,0-5 min,False,2.426064968109131,5,llama3.2:3b
+csat_63260,5,1,True,True,False,Poor delivery service,return_item,0-5 min,True,2.412909984588623,1,llama3.2:3b
+csat_63463,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.3596715927124023,5,llama3.2:3b
+csat_31166,4,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.3051209449768066,5,llama3.2:3b
+csat_05311,1,5,True,True,False,"Quick response, but no resolution yet.",late_delivery,0-5 min,False,2.3688254356384277,5,llama3.2:3b
+csat_04876,5,4,True,True,False,Awaiting response,other,2-8 h,False,2.2998898029327393,4,llama3.2:3b
+csat_80936,5,5,True,True,False,Order status confirmed quickly.,order_status,0-5 min,False,2.3853697776794434,5,llama3.2:3b
+csat_01533,5,5,True,True,False,"Quick response, issue resolved quickly.",other,0-5 min,False,2.358595848083496,5,llama3.2:3b
+csat_01963,5,5,True,True,False,"Quick response, but no resolution yet.",late_delivery,0-5 min,False,2.369579553604126,5,llama3.2:3b
+csat_84007,1,4,True,True,False,Prompt response appreciated.,other,2-8 h,False,2.3854422569274902,4,llama3.2:3b
+csat_37202,5,5,True,True,False,Appreciative of prompt support,other,2-8 h,True,2.3889615535736084,5,llama3.2:3b
+csat_59249,5,5,True,True,False,"Quick response, issue resolved.",return_item,0-5 min,False,2.3917393684387207,5,llama3.2:3b
+csat_55476,4,5,True,True,False,Quick and helpful service,refund_request,0-5 min,True,2.3804807662963867,5,llama3.2:3b
+csat_21302,5,1,True,True,False,Extremely poor service,return_item,8 h+,False,2.441530227661133,1,llama3.2:3b
+csat_80752,5,5,True,True,False,Very good,return_item,0-5 min,True,2.3493003845214844,5,llama3.2:3b
+csat_77730,5,5,True,True,False,Very nice,return_item,0-5 min,True,2.3573365211486816,5,llama3.2:3b
+csat_71773,4,5,True,True,False,"Quick response, issue resolved.",return_item,0-5 min,False,2.4035565853118896,5,llama3.2:3b
+csat_75357,1,4,True,True,False,"Good service, but no feedback",other,unknown,False,2.3680994510650635,4,llama3.2:3b
+csat_58135,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.452162027359009,5,llama3.2:3b
+csat_30713,5,5,True,True,False,"Quick response, but no resolution yet.",late_delivery,0-5 min,False,2.3912415504455566,5,llama3.2:3b
+csat_36610,5,1,True,True,False,Unsolved logistics issues again,order_status,8 h+,True,2.405250310897827,1,llama3.2:3b
+csat_23544,5,5,True,True,False,"Quick response, issue resolved.",return_item,0-5 min,False,2.4673337936401367,5,llama3.2:3b
+csat_63640,5,1,True,True,False,Not helpful or clear response,other,5-30 min,True,2.39003324508667,1,llama3.2:3b
+csat_25847,5,4,True,True,False,Prompt response appreciated.,return_item,2-8 h,False,2.370443820953369,4,llama3.2:3b
+csat_49970,5,4,True,True,False,"Prompt response, but no resolution found.",return_item,30 min-2 h,False,2.3787994384765625,4,llama3.2:3b
+csat_36831,4,4,True,True,False,Order status enquiry answered promptly.,order_status,30 min-2 h,False,2.395111560821533,4,llama3.2:3b
+csat_52708,5,5,True,True,False,"Good conversation, issue resolved.",refund_request,0-5 min,True,2.3870933055877686,5,llama3.2:3b
+csat_24548,5,5,True,True,False,Good,other,0-5 min,True,2.3487887382507324,5,llama3.2:3b
+csat_72588,5,5,True,True,False,Helpful assistance,other,5-30 min,True,2.2936506271362305,5,llama3.2:3b
+csat_50243,5,5,True,True,False,"Quick response, but no resolution yet.",return_item,0-5 min,False,2.427581310272217,5,llama3.2:3b
+csat_56661,4,4,True,True,False,"Quick response, but no solution found.",other,5-30 min,False,2.356647253036499,4,llama3.2:3b
+csat_78531,5,5,True,True,False,"Quick response, invoice processed promptly.",other,0-5 min,False,2.352570056915283,5,llama3.2:3b
+csat_52511,4,5,True,True,False,Good service,other,0-5 min,True,2.3453214168548584,5,llama3.2:3b
+csat_34493,5,4,True,True,False,"Quick response, issue resolved.",return_item,5-30 min,False,2.401691198348999,4,llama3.2:3b
+csat_68428,5,4,True,True,False,Prompt response appreciated.,other,2-8 h,False,2.377204656600952,4,llama3.2:3b
+csat_05268,1,1,True,True,False,"Worst service provider, unhelpful executives, and slow delivery.",order_status,0-5 min,True,2.5747973918914795,1,llama3.2:3b
+csat_73554,1,2,True,True,False,Poor follow-up after initial good service,other,2-8 h,True,2.6321663856506348,2,llama3.2:3b
+csat_63748,5,5,True,True,False,Simple and polite response,return_item,5-30 min,True,2.3987622261047363,5,llama3.2:3b
+csat_67918,5,5,True,True,False,"Quick response, good service",return_item,0-5 min,False,2.349621057510376,5,llama3.2:3b
+csat_35939,5,5,True,True,False,"No issue with service, just unprofessional tone.",other,0-5 min,False,2.398078203201294,5,llama3.2:3b
+csat_18591,5,4,True,True,False,"Quick response, issue resolved.",return_item,30 min-2 h,False,2.3822970390319824,4,llama3.2:3b
+csat_00061,5,4,True,True,False,"Answered quickly, but issue not resolved.",return_item,5-30 min,False,2.3878822326660156,4,llama3.2:3b
+csat_71598,5,5,True,True,False,"Quick response, issue resolved.",other,0-5 min,False,2.400989294052124,5,llama3.2:3b
+csat_13689,4,1,True,True,False,"Bad product, poor quality assurance",return_item,8 h+,True,2.381927728652954,1,llama3.2:3b
+csat_74863,5,4,True,True,False,"Good service, thanks",return_item,unknown,False,2.3101553916931152,4,llama3.2:3b
+csat_20502,5,5,True,True,False,Good,return_item,30 min-2 h,True,2.3412563800811768,5,llama3.2:3b
+csat_04554,5,5,True,True,False,Order status enquiry answered quickly,order_status,0-5 min,False,2.373253107070923,5,llama3.2:3b
