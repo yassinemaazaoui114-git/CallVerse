@@ -70,7 +70,34 @@ A floor makes "C has at least 3 sessions" true at every step. It does not make "
 | 7 | Floor + MPC envelope? | floor@3 around mpcguard | 5 | −213.5 | +0.8 [−7.7,+7.3] | 91.5 | +0.3 [−1.5,+2.1] | −0.05 | 1688 | Meets C, return tie |
 | 7 | Fairness: does the floor help rules too? | floor@3 around MPC / Forecast / Erlang | — | −213.7 / −214.5 / −215.7 | +0.6 / −0.2 / −1.3 | 93.5 / 88.4 / 88.3 | +2.2 / −2.9 / −2.9 | — | 1688 / 1627 / 1668 | Yes, a little |
 
-(Arms C0, E and F are added below when finished.)
+| C0 | Is arm C's failure due to the hierarchy or to the penalty? | MPC owns capacity in training, no penalty | 2 | −266.9 | — | 69.5 (s0) | — | — | 1657 (s0) | **Failed**: −262.3, −271.5. The hierarchical training is the problem |
+| E | Does a net trained inside floor@3 allocate better? | Pure RL trained with the floor in the loop | 5 | −225.2 | −10.9 [−23.9,−0.7] | 88.3 | −2.9 | −0.25 | 1660 | **No**: worse than the V3 net + floor@3 (−212.5) |
+| F | Does a net trained for the guarded structure help? | Forecast owns capacity in training, floor@3 | 3 | −218.1 | −3.8 [−14.2,+4.8] | 84.6 | −6.6 | −0.08 | 1615 | **No**: worse than V3 guarded + floor@3 (−208.4) |
+| 11 | Lagrangian nets inside the guarded structure? | floor@3 around guarded with the arm B nets | 5 | −219.6 | −5.3 [−10.7,+0.4] | **93.1** | **+1.8 [+0.9,+2.7]** | −0.04 | 1625 | Safe, costs ~5 return: the "safety-first" candidate |
+| 7 | (10 seeds) | floor@3 around V3 guarded, all 10 seeds | 10 | **−207.6** | **+6.7 [+0.1,+14.2]** | 88.7 | −2.5 [−4.3,−1.0] | −0.02 | 1625 | Best DEV return; C deficit of 2.5 pp |
+
+### What the experiments teach
+1. **The diagnosis was right about queue C.** Making the queue-C failures explicit, with the Lagrangian (arm B), moves
+   the C deficit from −10.4 pp to −1.0 pp. Simply refusing to go below 3 sessions on C (floor@3) moves it to −3.5 pp.
+2. **The network's weakness is capacity dithering, not allocation.** When a rule owns activate/deactivate (guarded
+   structure), the same V3 network becomes the best policy on DEV, and the cheapest.
+3. **Retraining inside the constraint structure did not help** in 3 independent arms (C0, E, F) at a 150k-step
+   budget. Plausible reasons, not proven:
+   - the rule-driven or floor-limited trajectories give less diverse data;
+   - the feasibility-first checkpoint rule kept checkpoints with high C SLA but lower return (arm E).
+   So the final candidates reuse the V3 checkpoints (genuine trained RL policies, SHA256 recorded) inside the new
+   structure.
+4. **Dynamic shields and the gate are the wrong tools here.**
+   - The dynamic shield is too blunt: it over-protects queue C and starves the other queues.
+   - The gate lets RL override MPC only when the RL's own Q-values say it is better. Those overrides are exactly the
+     moves that hurt queue C.
+
+### Compute used (E4)
+- **Runs:** 18 training runs of 25 budgeted:
+  - completed: B 5, C 2, C0 2, E 5, F 3;
+  - stopped early: 2 (arm C seeds 2 and 3, not evaluated).
+- **Time per run:** ~530–700 s alone or in pairs (150k steps); MPC-owned runs ~1000 s.
+- **DEV evaluation:** about 190 policy-runs of 104 days (`v4/e/results/eval_dev/`).
 
 ## NOT VERIFIED / limits
 - DEV has 104 days; the CIs are wide.

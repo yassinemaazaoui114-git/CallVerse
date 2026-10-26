@@ -1,0 +1,9 @@
+{
+  "n_params": 0,
+  "policy": "rule:erlang:0.4",
+  "split": "test4",
+  "n_days": 650,
+  "eval_s": 112.1,
+  "decision_ms_p50": 0.0779,
+  "decision_ms_p95": 0.1759
+}

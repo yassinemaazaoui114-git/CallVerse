@@ -150,9 +150,70 @@ def test4():
     return res
 
 
+def test4_figures():
+    """Figures of the confirmatory TEST4 analysis (reads results/test4_analysis.json; real data only)."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    res = json.loads((E4 / "results" / "test4_analysis.json").read_text())
+    pr = json.loads((E4 / "configs" / "preregistration.json").read_text())
+    ref = pr["reference_group"]
+    bd = res["board"]
+    order = sorted(bd, key=lambda n: bd[n]["return"]["mean"])
+    fig, ax = plt.subplots(figsize=(10, 0.45 * len(order) + 1.5))
+    m = [bd[n]["return"]["mean"] for n in order]
+    lo = [m[i] - bd[n]["return"]["ci95"][0] for i, n in enumerate(order)]
+    hi = [bd[n]["return"]["ci95"][1] - m[i] for i, n in enumerate(order)]
+    ax.barh(order, m, xerr=[lo, hi], color=["#3a7" if n.startswith("NEW") else "#888" if "RL" not in n and "V3" not in n else "#58c" for n in order])
+    ax.set_xlim(min(m) - 15, max(m) + 10)
+    ax.tick_params(axis="y", labelsize=7)
+    ax.set_xlabel("equal-weight return per day (higher = better), mean and 95% CI")
+    ax.set_title(f"Agent E V4 - confirmatory TEST4 ({pr['n_days']} new days, 13 families)")
+    fig.tight_layout()
+    fig.savefig(E4 / "figures" / "e5_test4_leaderboard.png", dpi=120)
+    plt.close(fig)
+    fig, ax = plt.subplots(figsize=(8.5, 6))
+    for g, c in res["comparisons"].items():
+        if " vs " in g:
+            continue
+        x, y = c["return"], c["sla_queue_c_pct"]
+        ax.errorbar(x["diff"], y["diff"], xerr=[[x["diff"] - x["ci95"][0]], [x["ci95"][1] - x["diff"]]],
+                    yerr=[[y["diff"] - y["ci95"][0]], [y["ci95"][1] - y["diff"]]], fmt="o", capsize=3)
+        ax.annotate(g.replace("NEW ", "").replace(" (", "\n("), (x["diff"], y["diff"]), fontsize=6, xytext=(4, 4), textcoords="offset points")
+    ax.axhline(-pr["constraints"]["queue_c_margin_pp"], ls="--", color="r", lw=1, label="pre-registered queue-C margin (-2 pp)")
+    ax.axhline(0, color="k", lw=0.5)
+    ax.axvline(0, color="k", lw=0.5)
+    ax.set_xlabel("return difference vs MPC (per day, 95% CI)")
+    ax.set_ylabel("queue-C SLA difference vs MPC (pp, 95% CI)")
+    ax.set_title("TEST4: return vs urgent-queue safety, paired differences to MPC k=0.5")
+    ax.legend(fontsize=7)
+    fig.tight_layout()
+    fig.savefig(E4 / "figures" / "e5_test4_return_vs_queueC.png", dpi=120)
+    plt.close(fig)
+    fams = list(next(iter(res["per_family"].values())))
+    names = [n for n in order[::-1] if n != ref]
+    M = np.array([[res["per_family"][n][f] - res["per_family"][ref][f] for f in fams] for n in names])
+    fig, ax = plt.subplots(figsize=(12, 0.45 * len(names) + 2))
+    lim = np.abs(M).max()
+    ax.imshow(M, cmap="RdYlGn", vmin=-lim, vmax=lim, aspect="auto")
+    ax.set_xticks(range(len(fams)), [f + (" (HO)" if f in pr["heldout_families"] else "") for f in fams], rotation=40, ha="right", fontsize=7)
+    ax.set_yticks(range(len(names)), names, fontsize=7)
+    for i in range(len(names)):
+        for j in range(len(fams)):
+            ax.text(j, i, f"{M[i, j]:+.1f}", ha="center", va="center", fontsize=6)
+    ax.set_title("TEST4 by family: return difference vs MPC k=0.5 (HO = held-out family, never trained on)")
+    fig.tight_layout()
+    fig.savefig(E4 / "figures" / "e5_test4_per_family.png", dpi=120)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("split", choices=["dev", "test4"])
     ap.add_argument("--groups", nargs="*")
     a = ap.parse_args()
-    dev(a.groups) if a.split == "dev" else test4()
+    if a.split == "dev":
+        dev(a.groups)
+    else:
+        test4()
+        test4_figures()

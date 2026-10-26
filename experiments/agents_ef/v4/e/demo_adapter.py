@@ -1,10 +1,10 @@
 """Offline demo of the Agent E v4 adapter (no network, no LLM, CPU only).
 
-    python -m v4.e.demo_adapter [--run <run_id>] [--shield 0.2] [--family severe_overload] [--seed 1300001]
+    python -m v4.e.demo_adapter [--spec "floor@3|guarded:<run_id>"] [--family severe_overload] [--seed 424242]
 It plays one simulated day: at every 5-minute step it builds the SNAPSHOT the prototype would send
 (snapshot_from_env), asks the adapter for a PROPOSAL, prints a few of them, lets a minimal 'Coordinator' apply the
 proposal to the simulator (the adapter itself never acts), and prints the day's KPIs and the audit summary.
-Default run/shield = configs/recommended.json (the recommended v4 candidate).
+Default = configs/recommended.json (the recommended v4 candidate); or --spec / --run [--shield t].
 """
 
 import argparse
@@ -21,13 +21,14 @@ from v4.e.common import EnvV4  # noqa: E402
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--spec", default=None, help="policy spec, e.g. 'floor@3|guarded:<run>' (default: recommended.json)")
     ap.add_argument("--run", default=None)
-    ap.add_argument("--shield", default="recommended")
+    ap.add_argument("--shield", default="none")
     ap.add_argument("--family", default="severe_overload")
     ap.add_argument("--seed", type=int, default=424242)
     a = ap.parse_args()
-    shield = a.shield if a.shield == "recommended" else (None if a.shield == "none" else float(a.shield))
-    ad = AgentEAdapter.load(a.run, shield_target=shield)
+    shield = None if a.shield == "none" else float(a.shield)
+    ad = AgentEAdapter.load(a.run, shield_target=shield, spec=a.spec)
     env = EnvV4()
     env.reset(seed=a.seed, family=a.family)
     done, vetoes, lat, shown = False, 0, [], 0
@@ -38,8 +39,8 @@ def main():
         vetoes += p["safety_veto"]
         if env.t in (0, 30, 60) or (p["safety_veto"] and shown < 3):
             shown += p["safety_veto"]
-            print(json.dumps({k: p[k] for k in ("action_id", "action", "policy", "safety_veto", "veto_reason",
-                                                "fallback_reason", "urgent_floor_c")}
+            print(json.dumps({k: p[k] for k in ("action_id", "action", "decided_by", "rl_preference", "safety_veto",
+                                                "veto_reason", "fallback_reason", "urgent_floor_c")}
                              | {"t_step": snap["t_step"], "alloc": [q["alloc"] for q in snap["queues"]],
                                 "waiting": [len(q["waiting"]) for q in snap["queues"]]}))
         _, _, done, _, _ = env.step(p["action_id"])                # the 'Coordinator' executes the proposal
