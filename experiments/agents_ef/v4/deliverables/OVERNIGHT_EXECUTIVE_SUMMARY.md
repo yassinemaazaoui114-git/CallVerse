@@ -20,7 +20,7 @@ V3 is untouched and its TEST was used for no new choice. Everything is committed
 - **Delivery.**
   - Every selected model is backed up and hash-verified in a private vault: https://claude.ai/artifact/CJ3RnnzJpDK317jC9YvdbY
   - End-to-end offline tests and a demo pass.
-  - Tests: **146** research and **300** prototype tests (run before the last 3 integration tests were added); the integration suite now has **31**.
+  - Tests: **149** research tests (31 of them integration) and **300** prototype tests pass.
 
 ## Evidence
 
