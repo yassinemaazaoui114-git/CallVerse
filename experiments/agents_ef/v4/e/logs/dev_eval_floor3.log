@@ -1,0 +1,5 @@
+floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s5 done 21.7s ret -203.27
+floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s6 done 21.8s ret -204.70
+floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s7 done 21.1s ret -209.80
+floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s8 done 21.0s ret -209.41
+floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s9 done 20.5s ret -206.36

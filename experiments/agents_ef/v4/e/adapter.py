@@ -23,10 +23,10 @@ priority_label in {low, medium, high} (simulator convention). Queue mapping (ver
 order_status / late_delivery -> A_status, refund_request / return_item -> B_refund, damaged_item -> C_urgent,
 other -> D_availability.
 
-OUTPUT (dict): action_id, action (human readable), policy, q_values (RL only, list of 17, masked = None),
-mask (17 bools, simulator rules), shielded_mask, safety_veto (bool), veto_reason, fallback_reason (why a classical
-backup rule was used instead of the network, or None), urgent_floor_c, audit {model_sha256, run_id, latency_ms,
-adapter_version, obs_sha256, n_params}.
+OUTPUT (dict): action_id, action (human readable), policy (the spec), q_values (RL only, list of 17, masked = None),
+rl_preference (the network's own choice), decided_by, mask (17 bools, simulator rules), safety_veto (bool: the urgent
+floor changed the decision), veto_reason, fallback_reason (why the classical backup rule was used instead of the
+policy, or None), urgent_floor_c, audit {model_sha256, run_id, latency_ms, adapter_version, obs_sha256, n_params}.
 Hard guarantees (tested): the proposed action is always valid under the simulator mask; with a shield, queue C is
 never reduced below max(2, Erlang-C floor); HIGH tickets are never served by fallback (the fallback switch applies
 to LOW/MEDIUM tickets of A and D only - enforced where tickets are served; the adapter states it in the output).
@@ -121,27 +121,42 @@ def snapshot_from_env(env: EnvV3) -> dict:
 
 
 class AgentEAdapter:
-    def __init__(self, agent, info, run_dir, shield_target=None, backup="mpc:0.5"):
-        self.agent, self.info, self.run_dir = agent, info, Path(run_dir) if run_dir else None
-        self.shield = UrgentShield(shield_target) if shield_target is not None else None
-        self.backup_spec = backup
-        self._backup = None
+    """Wraps ANY v4 policy spec (policies.make_policy), so the adapter behaves EXACTLY like the evaluated policy.
+    Examples: "floor@3|guarded:<run>" (recommended structure), "floor@3|rl:<run>", "rl:<run>", "shield@0.2|rl:<run>".
+    The policy runs on a read-only SnapshotViewV3; the network's Q-values are reported for audit."""
+
+    def __init__(self, spec: str, backup="mpc:0.5"):
+        from v4.e.policies import make_policy
+        self.spec, self.backup_spec, self._backup = spec, backup, None
+        self.load_error, self.policy, self.agent, self.info, self.run_dir = None, None, None, {}, None
+        try:
+            self.policy = make_policy(spec)
+            self.agent = self.policy.agent
+            run_dir = self.policy.meta.get("run_dir")
+            self.run_dir = Path(run_dir) if run_dir else None
+            if self.run_dir:
+                self.info = json.loads((self.run_dir / "run.json").read_text())
+        except Exception as e:                                   # never crash the Coordinator's loop
+            self.load_error = repr(e)[:200]
         self.model_sha256 = file_sha256(self.run_dir / "best.pt") if self.run_dir else None
+        head = spec.split("|")[0] if "|" in spec else ""
+        self.floor_spec = head if head.startswith(("floor@", "shield@")) else None
 
     @classmethod
-    def load(cls, run_id: str | None = None, shield_target: float | None = "recommended", backup="mpc:0.5"):
-        """run_id None -> the recommended candidate in configs/recommended.json. If the checkpoint cannot be loaded
-        the adapter still works: every proposal comes from the classical backup rule with fallback_reason set."""
-        if run_id is None or shield_target == "recommended":
-            rec = json.loads(RECOMMENDED.read_text()) if RECOMMENDED.exists() else {}
-            run_id = run_id or rec.get("run_id")
-            shield_target = rec.get("shield_target") if shield_target == "recommended" else shield_target
-        try:
-            agent, info, run = load_agent(run_id)
-            return cls(agent, info, run, shield_target, backup)
-        except Exception as e:                                   # never crash the Coordinator's loop
-            ad = cls(None, {"run_id": run_id, "load_error": repr(e)[:200]}, None, shield_target, backup)
-            return ad
+    def load(cls, run_id: str | None = None, shield_target="recommended", spec: str | None = None, floor: int | None = None,
+             backup="mpc:0.5"):
+        """spec wins. Else run_id (+ shield_target Erlang floor or static floor). No arguments -> configs/recommended.json."""
+        if spec is None and run_id is None:
+            spec = json.loads(RECOMMENDED.read_text())["spec"]
+        if spec is None:
+            if shield_target == "recommended":
+                shield_target = None
+            spec = f"rl:{run_id}"
+            if floor is not None:
+                spec = f"floor@{floor}|{spec}"
+            elif shield_target is not None:
+                spec = f"shield@{shield_target:g}|{spec}"
+        return cls(spec, backup)
 
     def backup(self):
         if self._backup is None:
@@ -154,35 +169,48 @@ class AgentEAdapter:
         return v, v._obs(), v.action_mask()
 
     def propose(self, snap: dict) -> dict:
+        from v4.e.common import UrgentShield
+        from v4.e.policies import _default_in_mask
         t0 = time.perf_counter()
         view, obs, mask = self.observe(snap)
-        smask, sinfo = (self.shield.mask(view, mask) if self.shield else (mask.copy(), {"floor_c": None, "reason": ""}))
-        fallback_reason, qv, raw = None, None, None
-        if self.agent is None:
-            fallback_reason = f"model not loaded: {self.info.get('load_error')}"
-        else:
+        fallback_reason, qv, raw, veto, reason, floor_c = None, None, None, False, None, None
+        if self.policy is None:
+            fallback_reason = f"policy not loaded: {self.load_error}"
+        elif self.agent is not None:
             qv = q_values(self.agent, obs)
             if not np.isfinite(qv).all():
                 fallback_reason = "non-finite Q-values"
         if fallback_reason is None:
-            raw = masked_argmax(qv, mask)                         # what the network wants under the simulator rules
-            a = masked_argmax(qv, smask)                          # what it proposes inside the safety shield
-            policy = f"rl:{self.info.get('run_id')}" + (f"+shield@{self.shield.target:g}" if self.shield else "")
+            a = int(self.policy(view, obs, mask))
+            if self.agent is not None:
+                raw = masked_argmax(qv, mask)                     # the network's own preference (simulator mask only)
+            inner = getattr(self.policy, "inner", None)
+            if inner is not None:                                 # a floor/shield wraps the policy
+                info = getattr(self.policy, "last_shield", {})
+                floor_c = info.get("floor_c")
+                unshielded = int(inner(view, obs, mask))          # what the same policy would do without the floor
+                veto = unshielded != a
+                if veto:
+                    reason = (f"{info.get('reason') or 'action would lower queue C below its urgent floor'}; "
+                              f"without the floor the policy would {action_name(unshielded)['text']}")
+            policy_name = self.spec
         else:
+            sh = UrgentShield(static=3)                           # backup keeps the urgent floor too
+            smask, info = sh.mask(view, mask)
+            floor_c = info["floor_c"]
             a = int(self.backup().act(view, obs, smask))
             if not smask[a]:
-                from v4.e.policies import _default_in_mask
                 a = _default_in_mask(view, smask)
-            policy = f"backup:rule:{self.backup_spec}"
-        assert mask[a] and smask[a], "adapter produced an invalid action"   # cannot happen by construction
-        veto = raw is not None and raw != a
-        out = {"agent": "E", "kind": "capacity_proposal", "action_id": int(a), "action": action_name(a), "policy": policy,
+            policy_name = f"backup:floor@3|rule:{self.backup_spec}"
+        assert mask[a], "adapter produced an invalid action"      # cannot happen by construction
+        out = {"agent": "E", "kind": "capacity_proposal", "action_id": int(a), "action": action_name(a),
+               "policy": policy_name,
                "q_values": None if qv is None else [float(x) if m else None for x, m in zip(qv, mask)],
-               "mask": [bool(x) for x in mask], "shielded_mask": [bool(x) for x in smask],
-               "safety_veto": bool(veto),
-               "veto_reason": (f"{sinfo['reason'] or 'action would lower queue C below its urgent floor'}; network wanted "
-                               f"{action_name(raw)['text']}") if veto else None,
-               "fallback_reason": fallback_reason, "urgent_floor_c": sinfo.get("floor_c"),
+               "rl_preference": None if raw is None else action_name(raw)["text"],
+               "decided_by": ("backup rule" if fallback_reason else "rl" if raw == a else
+                              "floor/shield" if veto else "capacity-owner rule" if a in (A_ACT, A_DEACT) else "rl (within rules)"),
+               "mask": [bool(x) for x in mask], "safety_veto": bool(veto), "veto_reason": reason,
+               "fallback_reason": fallback_reason, "urgent_floor_c": floor_c,
                "fallback_scope": "fallback never serves HIGH tickets; only LOW/MEDIUM of A_status and D_availability",
                "note": "proposal only: the Coordinator executes or refuses it"}
         out["audit"] = {"adapter_version": ADAPTER_VERSION, "run_id": self.info.get("run_id"), "model_sha256": self.model_sha256,

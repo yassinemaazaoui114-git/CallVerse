@@ -150,3 +150,74 @@ allocation still under-serves C (−4.2 pp).
   behaves badly when they are removed. Expected; arm C trains in that setting.
 - Next: floor@4; floor@3 on arm B (Lagrangian) agents, on V3 guarded, on mpcguard; floor@3 for DDQN seeds 5-9;
   arm E = training inside floor@3 (queued after arm C/C0/D).
+
+## Exp 7 — more floor@3 combinations (DEV) (00:08)
+| policy | seeds | DEV return | Δ vs MPC [CI] | C SLA | Δ C pp [CI] | HIGH Δ | lost % | cost |
+|---|---|---|---|---|---|---|---|---|
+| floor@3 + V3 guarded (Forecast owns capacity, V3 DDQN allocates) | 5 | **−208.4** | +5.9 [−3.7,+13.9] | 89.0 | −2.3 [−4.2,−0.5] | −0.01 | 4.39 | **1625** |
+| floor@3 + mpcguard (MPC owns capacity) | 5 | −213.5 | +0.8 [−7.7,+7.3] | 91.5 | +0.3 [−1.5,+2.1] | −0.05 | 4.19 | 1688 |
+| floor@3 + pure V3 DDQN | 10 | −212.4 | +1.9 [−3.9,+9.3] | 87.8 | −3.5 [−5.5,−1.7] | +0.02 | 4.08 | 1742 |
+| floor@3 + MPC (fairness check) | — | −213.7 | +0.6 [−0.7,+1.7] | 93.5 | +2.2 | +0.06 | 4.21 | 1688 |
+| floor@3 + Forecast | — | −214.5 | −0.2 | 88.4 | −2.9 | −0.01 | 5.14 | 1627 |
+| floor@3 + Erlang | — | −215.7 | −1.3 | 88.3 | −2.9 | +0.05 | 4.92 | 1668 |
+| floor@4 + pure V3 DDQN | 5 | −222.3 | −8.0 | 95.3 | +4.1 | +0.01 | 4.51 | 1752 |
+| floor@3 + arm B (Lagrangian) | 5 | −223.7 | −9.4 | 93.2 | +1.9 | −0.00 | 4.62 | 1748 |
+| gate@0.6:mpc + V3 DDQN | 5 | −208.6 | +5.7 [−0.1,+10.6] | 85.0 | −6.2 | −0.01 | 4.00 | 1667 |
+- floor@3 helps the rules too (MPC +0.6, Forecast +1.9) → the floor is a general fix, not an RL trick; the TEST4
+  set must contain floor@3+MPC as a comparator.
+- floor@4 over-protects. floor@3 + Lagrangian protects C but keeps arm B's cost penalty.
+
+## Exp 8 — Arm C: hierarchical (MPC owner) + Lagrangian with warm-up — FAILED, stopped (00:09)
+- DEV: seed 0 −242.5, seed 1 −232.0 (MPC −214.3). VAL during training: λ still oscillates 1.6–8.8 after warm-up.
+- Decision: stopped seeds 2–3 at ~55 % (SIGINT; run.json status stays "running" = incomplete, never evaluated),
+  dropped seed 4 and arm D (Lagrangian warm-up alone) via configs/skip_runs.txt. Reason: two clearly bad seeds and
+  arm B already shows the Lagrangian costs ~10 return; CPU is better spent on the floor-based arms.
+- Kept: arm C0 (hierarchical MPC owner, NO Lagrangian), seeds 0–1, to attribute arm C's failure.
+- Added arm F: hierarchical training with the Forecast owner INSIDE floor@3 (= the structure of the best DEV
+  candidate floor@3 + guarded, but with the RL trained for it). Arm E (pure RL trained inside floor@3) as planned.
+
+## Exp 9 — Arm C0: hierarchical training with the MPC owner, no Lagrangian — FAILED (00:27)
+- DEV: seed 0 −262.3, seed 1 −271.5 (MPC −214.3). Seed 0: C SLA 69.5 %, lost 6.8 %, 68 moves/day (MPC 58),
+  7.4 fallback switches/day (MPC 0.8). VAL during training still improving at 150k (−470 → −210) and never
+  VAL-feasible → learning inside the MPC-owned loop is much slower; 150k steps are not enough.
+- Attribution: arm C's failure comes from the hierarchical TRAINING setup (C0 is even worse without the C penalty),
+  not from the Lagrangian. The Lagrangian in arm C did raise C SLA (93.5 % for seed 0) as in arm B.
+- Contrast: the V3 net trained WITHOUT the owner works well INSIDE the guarded structure (Exp 7). Reason (plausible,
+  not proven): a free-capacity agent explores every action and learns general state values; in the owner loop the
+  agent only sees the rule's capacity trajectories (less diverse data) and its moves interact with the rule's
+  activation logic.
+- floor@3 + V3 guarded, seeds 5–9 (DEV): −203.3 −204.7 −209.8 −209.4 −206.4 → consistent with seeds 0–4.
+
+## Exp 10 — Arm E: pure RL trained inside floor@3 (first 2 seeds, DEV) (00:35)
+- DEV: seed 0 −218.4, seed 1 −211.9 (mean −215.2) vs the frozen V3 nets wrapped by floor@3 on the same seeds
+  −210.9 / −207.5. Retraining inside the floor did NOT help so far.
+- Selection-rule side effect (declared rule, kept): no VAL evaluation reached the feasibility threshold
+  (VAL C ≥ 91.3; arm E VAL C 82–89), so best.pt = highest VAL C-SLA checkpoint, not the best VAL return
+  (seed 1 best VAL return −179.6 at 60k was not kept). Recorded as a limitation; not changed after the fact.
+- Decision rule for TEST4 inclusion of retrained arms, written BEFORE arm E seeds 2–4 / arm F results: a retrained
+  arm enters TEST4 only if its DEV mean return (all its seeds) is ≥ the DEV mean of the same structure with the
+  frozen V3 weights (E vs floor@3|rl V3 seeds 0–4 = −212.5; F vs floor@3|guarded V3 seeds 0–4 = −208.4) AND its
+  DEV queue-C SLA is not lower.
+
+## Exp 11 — Arms E and F complete; Lagrangian nets inside the guarded structure (DEV) (01:03)
+| policy | seeds | DEV return | Δ vs MPC [CI] | C SLA | Δ C pp [CI] | HIGH Δ | cost |
+|---|---|---|---|---|---|---|---|
+| floor@3 + V3 guarded | 10 | **−207.6** | **+6.7 [+0.1,+14.2]** | 88.7 | −2.5 [−4.3,−1.0] | −0.02 | 1625 |
+| arm E: RL trained inside floor@3 | 5 | −225.2 | −10.9 [−23.9,−0.7] | 88.3 | −2.9 | −0.25 | 1660 |
+| arm F: Forecast-owned hierarchy trained inside floor@3 | 3 | −218.1 | −3.8 [−14.2,+4.8] | 84.6 | −6.6 | −0.08 | 1615 |
+| floor@3 + guarded with arm-B Lagrangian nets | 5 | −219.6 | −5.3 [−10.7,+0.4] | **93.1** | **+1.8 [+0.9,+2.7]** | −0.04 | 1625 |
+| guarded with arm-B Lagrangian nets (no floor) | 5 | −222.0 | −7.7 | 88.6 | −2.7 | −0.11 | 1582 |
+- E (−225.2 < −212.5) and F (−218.1 < −208.4, C lower) FAIL the pre-declared inclusion rule → not in TEST4.
+  Retraining inside the constraint structure did not beat reusing the V3 nets (3 independent arms now agree:
+  C0, E, F). Plausible reason: constrained exploration = less diverse data, and checkpoint selection by the
+  feasibility rule.
+- The Lagrangian nets in the guarded+floor structure are SAFE on DEV (C +1.8 pp) but cost ~5 return vs MPC:
+  added to TEST4 as the "safety-first" candidate (explicitly a trade-off, decided before TEST4).
+- NOTE (honest, before TEST4): with the pre-declared 2.0 pp queue-C margin, the best-return candidate
+  (floor@3 + V3 guarded) would FAIL on DEV (CI lower bound −4.3 pp). The margin was set on business grounds,
+  not to make any candidate pass.
+
+## FREEZE (next step): configs/prereg_candidates.json → python -m v4.e.preregister
+Training runs used: 16 complete (B 5, C 2, C0 2, E 5, F 3 — F has 3) + 2 stopped (C s2, s3) = 18 of 25 budget.
+- 01:03:21Z pre-registration frozen (configs/preregistration.json/.md, 59 policies in 11 groups, checkpoint SHA256s).
+- 01:04 TEST4 evaluation started: `bash v4/e/run_test4.sh` (2 workers, log logs/test4_eval.log).

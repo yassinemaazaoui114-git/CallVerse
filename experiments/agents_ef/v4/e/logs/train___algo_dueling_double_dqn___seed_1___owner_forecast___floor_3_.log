@@ -1,0 +1,1 @@
+{"run_id": "dueling_double_dqn_h64x64_150k_fl3_ownforecast_s1", "status": "done", "best_val_return": -197.4932716577132, "best_val_c_sla": 85.26801561945332, "final_lam": 0.0, "train_wall_s": 538.8}

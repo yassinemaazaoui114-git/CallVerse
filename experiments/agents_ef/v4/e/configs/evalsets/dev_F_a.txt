@@ -1,0 +1,2 @@
+floor@3|hier:forecast:dueling_double_dqn_h64x64_150k_fl3_ownforecast_s0
+floor@3|rl:dueling_double_dqn_h64x64_150k_fl3_s4

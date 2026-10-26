@@ -8,3 +8,22 @@
 00:01:39 finished: --algo dueling_double_dqn --seed 0 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
 00:09:00 finished: --algo dueling_double_dqn --seed 2 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
 00:09:00 finished: --algo dueling_double_dqn --seed 3 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+00:09:03 finished: --algo dueling_double_dqn --seed 4 --owner mpc --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+00:24:49 finished: --algo dueling_double_dqn --seed 1 --owner mpc
+00:24:52 finished: --algo dueling_double_dqn --seed 2 --owner mpc
+00:24:54 finished: --algo dueling_double_dqn --seed 0 --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+00:24:56 finished: --algo dueling_double_dqn --seed 1 --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+00:24:59 finished: --algo dueling_double_dqn --seed 2 --lam0 1 --dual-lr 2 --dual-target 0.90 --dual-start 60000
+00:25:02 finished: --algo dueling_double_dqn --seed 0 --owner mpc
+00:25:02 queue v4/e/configs/queue_C_hier.txt complete
+00:34:05 finished: --algo dueling_double_dqn --seed 1 --floor 3
+00:34:06 finished: --algo dueling_double_dqn --seed 0 --floor 3
+00:42:38 finished: --algo dueling_double_dqn --seed 2 --floor 3
+00:42:41 finished: --algo dueling_double_dqn --seed 3 --floor 3
+00:51:09 finished: --algo dueling_double_dqn --seed 4 --floor 3
+00:51:27 finished: --algo dueling_double_dqn --seed 0 --owner forecast --floor 3
+01:00:12 finished: --algo dueling_double_dqn --seed 1 --owner forecast --floor 3
+01:00:14 finished: --algo dueling_double_dqn --seed 3 --owner forecast --floor 3
+01:00:17 finished: --algo dueling_double_dqn --seed 4 --owner forecast --floor 3
+01:00:27 finished: --algo dueling_double_dqn --seed 2 --owner forecast --floor 3
+01:00:27 queue v4/e/configs/queue_E_floor.txt complete

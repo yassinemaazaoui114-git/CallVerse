@@ -1,0 +1,10 @@
+floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s0
+guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s0
+floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1
+guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1
+floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s2
+guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s2
+floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s3
+guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s3
+floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s4
+guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s4

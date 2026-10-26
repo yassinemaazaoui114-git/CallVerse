@@ -50,7 +50,7 @@ def test_adapter_never_mutates_snapshot_and_is_valid():
         before = copy.deepcopy(snap)
         p = ad.propose(snap)
         assert snap == before
-        assert mask[p["action_id"]] and p["shielded_mask"][p["action_id"]]
+        assert mask[p["action_id"]]
         assert p["fallback_reason"] is None and len(p["q_values"]) == N_ACTIONS
         assert p["audit"]["model_sha256"] and len(p["audit"]["model_sha256"]) == 64
 
@@ -146,3 +146,26 @@ def test_bad_snapshot_rejected():
     s["queues"] = s["queues"][:3]
     with pytest.raises(ValueError):
         SnapshotViewV3(s)
+
+
+@pytest.mark.parametrize("spec", [f"floor@3|guarded:{RUN}", f"floor@3|rl:{RUN}", "floor@3|rule:mpc:0.5"])
+def test_adapter_reproduces_evaluated_policy_and_floor(spec):
+    """Driving a full day through the adapter (snapshot -> proposal -> env.step) gives EXACTLY the same day as the
+    evaluator's policy object acting on the env directly; queue C is never below 3 after Agent E's own action."""
+    from v4.e.policies import make_policy
+    from v4.e.evaluate_v4 import run_day
+    day = {"day_id": "t", "family": "severe_overload", "seed": 31337}
+    ref, _, _ = run_day(EnvV4(), make_policy(spec), day)
+    ad = AgentEAdapter.load(spec=spec)
+    env = EnvV4()
+    env.reset(seed=day["seed"], family=day["family"])
+    done = False
+    while not done:
+        p = ad.propose(snapshot_from_env(env))
+        assert alloc_after(env, p["action_id"])[QC] >= min(3, env.alloc[QC] + 1) or env.alloc[QC] >= 3
+        if env.alloc[QC] >= 3:
+            assert alloc_after(env, p["action_id"])[QC] >= 3
+        _, r, done, _, _ = env.step(p["action_id"])
+    k = env.kpis()
+    assert abs(k["sla_pct"] - ref["sla_pct"]) < 1e-9 and abs(k["cost"] - ref["cost"]) < 1e-9
+    assert k["high_on_fallback"] == 0 and k["invalid_proposals"] == 0

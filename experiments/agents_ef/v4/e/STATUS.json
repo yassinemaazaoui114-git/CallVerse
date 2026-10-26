@@ -1,5 +1,6 @@
-{"worker": "E", "updated": "2026-10-25T23:40", "phase": "E1 diagnosis done (draft), E4 training arms running",
- "done": ["dev manifest (sha d54493d2...)", "test4 manifest (sha cedc50af..., not evaluated)", "DEV eval of 51 V3 policies",
-          "VAL traces + diagnosis figures", "t_frac ablation", "adapter + 10 tests passing", "arm B seeds 0-3"],
- "running": ["arm B seed 4", "DEV runtime shield sweep", "DEV floor/hier sweep (queued)", "Q-gap diagnosis", "queue C/C0/D (waits for arm B)"],
- "next": ["DEV eval arm B", "choose candidates", "pre-registration", "TEST4", "reports"]}
+{"worker": "E", "updated": "2026-10-26T00:37", "phase": "E4 last training arms (E, F); candidate list drafted (configs/prereg_candidates.json)",
+ "done": ["dev manifest", "test4 manifest (not evaluated)", "E1 diagnosis + figures", "E2 options tested on DEV",
+          "E3 base = dueling_double_dqn 64x64", "arms B (5), C (2 + 2 stopped), C0 (2), E (2 of 5)", "adapter + 13 tests"],
+ "running": ["arm E seeds 2-4", "arm F seeds 0-2"],
+ "next": ["DEV eval E/F", "freeze + pre-register", "TEST4 eval", "analysis", "deliverables"],
+ "training_runs_used": 16, "training_budget": 25}

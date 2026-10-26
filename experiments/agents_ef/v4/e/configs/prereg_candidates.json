@@ -1,0 +1,130 @@
+{
+ "reference_group": "MPC k=0.5 (reference)",
+ "groups": {
+  "MPC k=0.5 (reference)": [
+   "rule:mpc:0.5"
+  ],
+  "Forecast z=0.25": [
+   "rule:forecast:0.25"
+  ],
+  "Erlang-C 0.4": [
+   "rule:erlang:0.4"
+  ],
+  "floor@3 + MPC (fairness check)": [
+   "floor@3|rule:mpc:0.5"
+  ],
+  "V3 pure RL: Dueling DDQN": [
+   "rl:dueling_double_dqn_equal_h64x64_150k_s0",
+   "rl:dueling_double_dqn_equal_h64x64_150k_s1",
+   "rl:dueling_double_dqn_equal_h64x64_150k_s2",
+   "rl:dueling_double_dqn_equal_h64x64_150k_s3",
+   "rl:dueling_double_dqn_equal_h64x64_150k_s4",
+   "rl:dueling_double_dqn_equal_h64x64_150k_s5",
+   "rl:dueling_double_dqn_equal_h64x64_150k_s6",
+   "rl:dueling_double_dqn_equal_h64x64_150k_s7",
+   "rl:dueling_double_dqn_equal_h64x64_150k_s8",
+   "rl:dueling_double_dqn_equal_h64x64_150k_s9"
+  ],
+  "V3 guarded hybrid: Forecast + DDQN": [
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s0",
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s1",
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s2",
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s3",
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s4",
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s5",
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s6",
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s7",
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s8",
+   "guarded:dueling_double_dqn_equal_h64x64_150k_s9"
+  ],
+  "NEW floor@3 + guarded (Forecast capacity, DDQN allocation)": [
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s0",
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s1",
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s2",
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s3",
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s4",
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s5",
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s6",
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s7",
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s8",
+   "floor@3|guarded:dueling_double_dqn_equal_h64x64_150k_s9"
+  ],
+  "NEW floor@3 + pure DDQN": [
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s0",
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s1",
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s2",
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s3",
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s4",
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s5",
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s6",
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s7",
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s8",
+   "floor@3|rl:dueling_double_dqn_equal_h64x64_150k_s9"
+  ],
+  "NEW floor@3 + MPC envelope (MPC capacity, DDQN allocation)": [
+   "floor@3|mpcguard:dueling_double_dqn_equal_h64x64_150k_s0",
+   "floor@3|mpcguard:dueling_double_dqn_equal_h64x64_150k_s1",
+   "floor@3|mpcguard:dueling_double_dqn_equal_h64x64_150k_s2",
+   "floor@3|mpcguard:dueling_double_dqn_equal_h64x64_150k_s3",
+   "floor@3|mpcguard:dueling_double_dqn_equal_h64x64_150k_s4"
+  ],
+  "NEW Lagrangian DDQN (constrained objective)": [
+   "rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s0",
+   "rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1",
+   "rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s2",
+   "rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s3",
+   "rl:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s4"
+  ],
+  "NEW floor@3 + guarded with Lagrangian DDQN": [
+   "floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s0",
+   "floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s1",
+   "floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s2",
+   "floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s3",
+   "floor@3|guarded:dueling_double_dqn_h64x64_150k_lag0d2t0.9_s4"
+  ]
+ },
+ "primary_comparisons": [
+  "NEW floor@3 + guarded (Forecast capacity, DDQN allocation)",
+  "NEW floor@3 + pure DDQN",
+  "NEW floor@3 + MPC envelope (MPC capacity, DDQN allocation)",
+  "NEW Lagrangian DDQN (constrained objective)",
+  "NEW floor@3 + guarded with Lagrangian DDQN",
+  "V3 pure RL: Dueling DDQN",
+  "V3 guarded hybrid: Forecast + DDQN"
+ ],
+ "secondary_comparisons": [
+  [
+   "NEW floor@3 + guarded (Forecast capacity, DDQN allocation)",
+   "V3 guarded hybrid: Forecast + DDQN"
+  ],
+  [
+   "NEW floor@3 + pure DDQN",
+   "V3 pure RL: Dueling DDQN"
+  ],
+  [
+   "NEW floor@3 + guarded (Forecast capacity, DDQN allocation)",
+   "floor@3 + MPC (fairness check)"
+  ],
+  [
+   "floor@3 + MPC (fairness check)",
+   "MPC k=0.5 (reference)"
+  ],
+  [
+   "Forecast z=0.25",
+   "MPC k=0.5 (reference)"
+  ],
+  [
+   "Erlang-C 0.4",
+   "MPC k=0.5 (reference)"
+  ]
+ ],
+ "constraints": {
+  "queue_c_margin_pp": 2.0,
+  "high_margin_pp": 0.2,
+  "queue_c_rule": "queue-C SLA: lower 95% CI bound of (candidate - MPC) > -2.0 pp",
+  "high_rule": "HIGH-priority SLA: lower 95% CI bound of (candidate - MPC) > -0.2 pp",
+  "safety_rule": "0 HIGH tickets on fallback, 0 invalid proposals reaching execution, budget respected on every day"
+ },
+ "decision_rule": "A candidate is SAFE if it passes all three constraints. It BEATS MPC if it is safe and the lower 95% CI bound of its return difference vs MPC is > 0 with Holm-adjusted p < 0.05. Recommended final Agent E = the safe NEW RL-containing candidate with the highest TEST4 mean return (even if it only ties MPC); if no new candidate is safe, the safe RL-containing group with the highest return; if none is safe, report that and recommend the candidate with the smallest queue-C deficit. Ties are reported as ties.",
+ "notes": "Candidates chosen on DEV (exploratory). Seeds: all available training seeds of each group (10 for V3-weight groups; 5 for the MPC-envelope group to save CPU; 5 for Lagrangian). The floor k=3 was chosen on DEV. Retrained arms E (pure RL inside floor@3) and F (Forecast-owned hierarchy inside floor@3) failed the pre-declared inclusion rule on DEV and are NOT in TEST4; arms C/C0 (MPC-owned hierarchical training) failed on DEV."
+}
