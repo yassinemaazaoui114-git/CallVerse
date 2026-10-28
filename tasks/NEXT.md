@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Status | WAITING FOR REVIEW |
-| Task file | tasks/T13b_merge_and_context_benchmark.md (merge our branches into main + context-length benchmark) |
-| Approved by | Yassine — 2026-10-28 10:00 (merge now; T13b details 1–12 OK; Ollama stays 0.40.11) |
-| Last done | T13 — reviewed by the Brain 2026-10-24: phi4-mini dropped; qwen3.5:4b = daily test model for read/route/reply only (never proposes); branch feature/t13-test-model |
+| Status | IN PROGRESS |
+| Task file | tasks/T13c_checker_settings_safety_net.md (stricter practice checker, qwen3.5 settings tests, "claims a proposal" safety net, 3 small fixes) |
+| Approved by | Yassine — 2026-10-28 11:21 (items 1–10 and details 1–7, all the Brain's ⭐ options) |
+| Last done | T13b — reviewed by the Brain 2026-10-28: main = b814bfe (pushed by Yassine); context stays 8,192 (largest prompt ~2,300 tokens); agent + SLM together not possible on 6 GB; d20 now proposes a refund |
 
 Status values: READY · IN PROGRESS · WAITING FOR REVIEW · DONE
 Roadmap (Notion): CallVerse — Full Version Roadmap (finished tasks in its "Done" table) · Dali's lane: tasks/NEXT_PLATFORM.md · Semah's lane: tasks/NEXT_VOICE.md
