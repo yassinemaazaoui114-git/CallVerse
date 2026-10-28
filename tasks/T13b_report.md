@@ -81,7 +81,7 @@ tested context (4,096 and 6,144 already evict), so setup B cannot happen.
 ## 4. Problems
 1. **`main` is merged locally but NOT pushed** (`main` = `b814bfe`, `origin/main` still `d125959`). The Claude
    Code permission check refused `git push origin main`. Yassine needs to push it himself
-   (`! git push origin main`). `feature/t13b-context` is also not pushed yet (see Next step).
+   (`! git push origin main`). `feature/t13b-context` is pushed (it contains the merge commit, on top of it).
 2. **The task's step 4 could not be followed as written.** `CALLVERSE_FORCE_AGENTS_MODEL=cv-qwen3.5-4b-ctx16384`
    fails because `llm.models_for()` only accepts a model listed in `config.yaml` (`models.agents_local`), and
    the task forbids changing `config.yaml`. Workaround (no repo change): copy each test copy onto the name
