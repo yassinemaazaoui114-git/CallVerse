@@ -123,3 +123,12 @@ def test_checker_global_and_expect_checks():
                              {"final_reply": "Hello"}, [], [])
     assert len(exp) == 2
     assert live.leaks("Please check get_order and P-0001") == ["get_order", "P-0"]
+
+
+# ---------- T13c: pause between messages only with the Groq (default) agents ----------
+
+def test_pause_between_messages_only_with_the_default_agents_set(monkeypatch):
+    monkeypatch.delenv("CALLVERSE_AGENTS_SET", raising=False)
+    assert live.pause_seconds() == 5
+    monkeypatch.setenv("CALLVERSE_AGENTS_SET", "local")
+    assert live.pause_seconds() == 0

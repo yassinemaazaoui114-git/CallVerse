@@ -2,7 +2,8 @@
 
 - No env var: the agents chain is exactly the normal one (gpt-oss-120b -> gpt-oss-20b -> gemini-3.5-flash).
 - Switch on: every "agents" call uses models.agents_local only (Ollama, no API).
-- CALLVERSE_FORCE_AGENTS_MODEL still keeps one model alone, inside the chosen set.
+- CALLVERSE_FORCE_AGENTS_MODEL still keeps one model alone, inside the chosen set. T13c: in the local set an
+  unlisted name is accepted as an Ollama model (never an API model); in the default set it must be listed.
 - The quota guard checks only the local models when the switch is on, and keeps the forced model.
 """
 
@@ -45,6 +46,20 @@ def test_force_picks_one_model_in_the_local_set(monkeypatch):
 def test_forcing_an_api_model_in_the_local_set_fails(monkeypatch):
     monkeypatch.setenv("CALLVERSE_AGENTS_SET", "local")
     monkeypatch.setenv("CALLVERSE_FORCE_AGENTS_MODEL", "openai/gpt-oss-120b")
+    with pytest.raises(llm.AllModelsFailed):
+        llm.models_for("agents", load_config())
+
+
+def test_force_accepts_an_unlisted_ollama_name_in_the_local_set(monkeypatch):
+    # T13c: e.g. a temporary Ollama copy for a benchmark; it gets the settings of the first local entry.
+    monkeypatch.setenv("CALLVERSE_AGENTS_SET", "local")
+    monkeypatch.setenv("CALLVERSE_FORCE_AGENTS_MODEL", "cv-test-copy")
+    first = load_config()["models"]["agents_local"][0]
+    assert llm.models_for("agents", load_config()) == [{**first, "model": "cv-test-copy"}]
+
+
+def test_force_of_an_unlisted_name_still_fails_in_the_default_set(monkeypatch):
+    monkeypatch.setenv("CALLVERSE_FORCE_AGENTS_MODEL", "cv-test-copy")
     with pytest.raises(llm.AllModelsFailed):
         llm.models_for("agents", load_config())
 
