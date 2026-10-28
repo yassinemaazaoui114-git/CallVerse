@@ -51,6 +51,8 @@ demo-day runbook.
   before the stop: 15 (results not shown)." Exit 2. Record: `out/live_check_live_typing_test_messages_aborted.json`.
   **Not scored, so it does not count as the one run.** I did not look at the 15 finished results; they are
   not saved.
+  - **Done in T12 (2026-10-24 10:19–10:25), the one official run:** 20/20 passed · crashes 0 · leaks 0 ·
+    wrong writes 0 · avg 16.4 s · max 51.3 s. Pass rule (0 · 0 · 0 · ≥ 18/20) met. Details: `tasks/T12_report.md`.
 - **Regression S0, S2, S3, S4**: **not run** (stop rule: first daily-limit error).
 - **Tokens used today** (from the traces, `llm_call` lines):
 

@@ -44,15 +44,30 @@ def retry_after_seconds(error) -> float | None:
         return None
 
 
+def model_set(role_key: str) -> str:
+    """Which list of models a role uses. Env CALLVERSE_<ROLE>_SET=local (e.g. CALLVERSE_AGENTS_SET=local, T13)
+    switches the role to models.<role>_local of config.yaml (local test models: no API, no quota).
+    Not set = "default" = the normal list models.<role>."""
+    return "local" if os.getenv(f"CALLVERSE_{role_key.upper()}_SET", "").lower() == "local" else "default"
+
+
 def models_for(role_key: str, cfg: dict) -> list[dict]:
     """The models of a role, in order. Env CALLVERSE_FORCE_<ROLE>_MODEL (e.g. CALLVERSE_FORCE_AGENTS_MODEL)
-    keeps only the model with that name: used to test one model on its own (e.g. Gemini)."""
-    entries = cfg["models"][role_key]
+    keeps only the model with that name: used to test one model on its own (e.g. Gemini).
+    With CALLVERSE_<ROLE>_SET=local the list is models.<role>_local instead (see model_set)."""
+    if model_set(role_key) == "local":
+        key = f"{role_key}_local"
+        if key not in cfg["models"]:
+            raise AllModelsFailed(f"CALLVERSE_{role_key.upper()}_SET=local but models.{key} is not in config.yaml")
+        entries = cfg["models"][key]
+    else:
+        entries = cfg["models"][role_key]
     forced = os.getenv(f"CALLVERSE_FORCE_{role_key.upper()}_MODEL")
     if forced:
         entries = [e for e in entries if e["model"] == forced]
         if not entries:
-            raise AllModelsFailed(f"forced model '{forced}' is not in models.{role_key} of config.yaml")
+            raise AllModelsFailed(f"forced model '{forced}' is not in the {model_set(role_key)} models of "
+                                  f"'{role_key}' in config.yaml")
     return entries
 
 
