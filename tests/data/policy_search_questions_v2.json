@@ -1,0 +1,143 @@
+{
+ "_note": "HELD-OUT policy-search test set v2, written by the Brain 2026-10-28 and approved by Yassine. Never tune anything on these questions. expected = list of rule ids that count as correct; an empty list means no rule exists yet (cancellation): report what comes back, do not score.",
+ "questions": [
+  {
+   "id": "p01",
+   "text": "My parcel was supposed to come 3 days ago and still nothing, can I get money back?",
+   "expected": [
+    "R-DEL-02"
+   ]
+  },
+  {
+   "id": "p02",
+   "text": "It's been 9 days past the date you promised, I want a full refund",
+   "expected": [
+    "R-REF-03"
+   ]
+  },
+  {
+   "id": "p03",
+   "text": "You already refunded part of my order, refund the rest plus 20 TND extra",
+   "expected": [
+    "R-REF-05"
+   ]
+  },
+  {
+   "id": "p04",
+   "text": "I chose cash on delivery and the package never came, refund please",
+   "expected": [
+    "R-REF-05"
+   ]
+  },
+  {
+   "id": "p05",
+   "text": "Got the shoes last week, never worn, still in the box, can I send them back?",
+   "expected": [
+    "R-RET-01"
+   ]
+  },
+  {
+   "id": "p06",
+   "text": "I received my blender a month ago and want to return it",
+   "expected": [
+    "R-RET-01"
+   ]
+  },
+  {
+   "id": "p07",
+   "text": "The screen of the tablet I received is cracked",
+   "expected": [
+    "R-DMG-01"
+   ]
+  },
+  {
+   "id": "p08",
+   "text": "Box arrived crushed and the mug inside is broken, I want a new one",
+   "expected": [
+    "R-DMG-01"
+   ]
+  },
+  {
+   "id": "p09",
+   "text": "The refund I'm asking for is 450 TND, who approves that?",
+   "expected": [
+    "R-ESC-01"
+   ]
+  },
+  {
+   "id": "p10",
+   "text": "My 620 TND order is 8 days late, refund it",
+   "expected": [
+    "R-ESC-01",
+    "R-REF-03"
+   ]
+  },
+  {
+   "id": "p11",
+   "text": "Can you text me when the courier is on the way?",
+   "expected": [
+    "R-NOT-01"
+   ]
+  },
+  {
+   "id": "p12",
+   "text": "Notify me when my order leaves your warehouse",
+   "expected": [
+    "R-NOT-01"
+   ]
+  },
+  {
+   "id": "p13",
+   "text": "How do you count if an order is late?",
+   "expected": [
+    "R-DEL-01"
+   ]
+  },
+  {
+   "id": "p14",
+   "text": "How many days late before I get compensation?",
+   "expected": [
+    "R-REF-03",
+    "R-DEL-02"
+   ]
+  },
+  {
+   "id": "p15",
+   "text": "wher is my pakage its late 2 dayz",
+   "expected": [
+    "R-DEL-02"
+   ]
+  },
+  {
+   "id": "p16",
+   "text": "ordr 4512 week late refund now!!!",
+   "expected": [
+    "R-REF-03"
+   ]
+  },
+  {
+   "id": "p17",
+   "text": "I changed my mind about the jacket, it came yesterday, how do I return it?",
+   "expected": [
+    "R-RET-01"
+   ]
+  },
+  {
+   "id": "p18",
+   "text": "The item works but it's scratched, I have pictures",
+   "expected": [
+    "R-DMG-01"
+   ]
+  },
+  {
+   "id": "p19",
+   "text": "I want to cancel my order before it ships",
+   "expected": []
+  },
+  {
+   "id": "p20",
+   "text": "Cancel order 4514 and give my money back, I don't need it anymore",
+   "expected": []
+  }
+ ]
+}
