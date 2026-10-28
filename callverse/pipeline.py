@@ -18,7 +18,12 @@
   because it was written before the decision ("sent for checking").
 - reply_source: "slm" (first try passed the rule check), "slm_retry" (second try), "template"
   (both failed, or Ollama is not running: the pipeline still answers, it never crashes).
+- Safety net (T13c): if the agent's text CLAIMS a proposal ("I propose ...", "sent for checking") but it called
+  no proposal tool, the same agent runs once more with a short note. Nothing is written by the net itself.
+  Used only when config.yaml pipeline.proposal_claim_retry is true (OFF by default).
 """
+
+import re
 
 from callverse import trace
 from callverse.agents.agent_a import AgentA
@@ -29,6 +34,20 @@ from callverse.coordinator.coordinator import (escalate_decision, for_user, info
 from callverse.intake import intake
 from callverse.queues.router import route
 from callverse.slm.writer import write_reply
+
+# T13c safety net (L3): an answer that CLAIMS a proposal although no proposal tool was called (seen with the
+# local test model: "I can propose a full refund ... sent for checking", but no propose_refund call). Short list.
+PROPOSAL_CLAIM_RE = re.compile(r"\bpropos(?:e|ed|es|ing|al)\b|sent for checking|\bsubmitted\b[^.]{0,60}\bfor review",
+                               re.IGNORECASE)
+PROPOSAL_TOOLS = ("propose_refund", "propose_subscription")
+PROPOSAL_CLAIM_NOTE = ("[Note: A first answer to this message said that something is proposed, but no proposal tool "
+                       "was called. If a rule allows it, call the proposal tool now. Otherwise answer without saying "
+                       "that anything is proposed.]")
+
+
+def claims_proposal(answer: str) -> bool:
+    """True when the agent's text says it proposes / proposed something (the phrases above)."""
+    return bool(PROPOSAL_CLAIM_RE.search(answer or ""))
 
 
 def ticket_note(ticket: dict) -> str:
@@ -94,6 +113,15 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
         trace.log("agent_retry", "pipeline", {"ticket_id": ticket["ticket_id"], "agent": result["agent"],
                                               "first_answer": result["answer"], "note": note})
         result = agent_cls(chat_fn=chat_fn).run(f"{message}\n\n{note}")
+    called = {c["tool"] for c in result["tool_calls"]}
+    net_on = load_config().get("pipeline", {}).get("proposal_claim_retry", False)   # config switch, OFF by default
+    if net_on and claims_proposal(result["answer"]) and not called & set(PROPOSAL_TOOLS) and not result.get("proposal"):
+        # T13c safety net: the answer claims a proposal, but no proposal tool was called, so nothing would
+        # happen. One more run (at most one), with a short note. The net writes nothing: only a real proposal
+        # tool call reaches the Coordinator, which checks it as before.
+        trace.log("proposal_claim_retry", "pipeline", {"ticket_id": ticket["ticket_id"], "agent": result["agent"],
+                                                       "first_answer": result["answer"], "note": PROPOSAL_CLAIM_NOTE})
+        result = agent_cls(chat_fn=chat_fn).run(f"{message}\n\n{PROPOSAL_CLAIM_NOTE}")
     proposals, decision = [], None
     while result.get("proposal"):
         proposals.append(result["proposal"])

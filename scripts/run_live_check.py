@@ -35,6 +35,9 @@ from scripts.quota_check import check_models
 
 OUT_DIR = Path("out")
 MAX_WORDS = 120
+# T13c (R3): pause between messages with the default (Groq) agents, to stay under the per-minute token limits.
+# The local test models (CALLVERSE_AGENTS_SET=local) have no such limit: no pause.
+PAUSE_SECONDS_GROQ = 5
 TOOL_NAMES = ("get_user", "get_order", "get_tracking", "get_refunds", "get_company_profile", "search_policy",
               "propose_refund", "propose_subscription", "ask_agent")
 LEAK_RE = re.compile(r"coordinator|agent|proposal|P-0|\bR-[A-Z]{0,3}-?\d|sent for checking|"
@@ -153,6 +156,11 @@ def snapshot() -> dict:
     return data
 
 
+def pause_seconds() -> int:
+    """Seconds to wait between two messages: 5 with the default (Groq) agents set, 0 with the local one."""
+    return PAUSE_SECONDS_GROQ if llm.model_set("agents") == "default" else 0
+
+
 def run_one(message: dict) -> dict:
     """Reset, run one message, check it. Never raises."""
     seed()
@@ -215,7 +223,9 @@ def main() -> None:
         abort(path, f"daily limit before the start: {[q['model'] for q in quota if q['status'] == 'daily_limit']}", 0)
 
     results = []
-    for m in messages:
+    for i, m in enumerate(messages):
+        if i > 0:
+            time.sleep(pause_seconds())   # not counted in the message's seconds (run_one starts its own timer)
         hits_before = len(llm.DAILY_LIMIT_HITS)
         r = run_one(m)
         if len(llm.DAILY_LIMIT_HITS) > hits_before:

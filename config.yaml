@@ -32,9 +32,11 @@ models:
     - {provider: google,     model: "gemini-3.5-flash"}
   # T13: LOCAL test models for the agents (daily tests: no API, no quota, repeatable). Test stand-in only, NOT M2.
   # Used only with env CALLVERSE_AGENTS_SET=local (then every "agents" call, Intake LLM fallback included,
-  # uses this list). Force one with CALLVERSE_FORCE_AGENTS_MODEL=<model>. Without the env var: not used.
+  # uses this list). Force one with CALLVERSE_FORCE_AGENTS_MODEL=<model>; in this local set any Ollama name is
+  # accepted (T13c: not listed = same settings as the first entry). Without the env var: not used.
   # The cv-* names are Ollama copies with a context of 8,192 tokens (Modelfile `PARAMETER num_ctx 8192`):
-  # one agent turn is ~6,000 tokens and Ollama's default context cuts the prompt silently.
+  # Ollama's default context (4,096) can cut a prompt silently. Measured in T13b: the largest single agent
+  # prompt is ~2,300 tokens (~6,000 was the total of all calls in one turn), so 8,192 leaves room to spare.
   agents_local:
     - {provider: ollama,     model: "cv-qwen3.5-4b", temperature: 0, seed: 42, options: {reasoning_effort: none}}
     - {provider: ollama,     model: "cv-phi4-mini",  temperature: 0, seed: 42}
@@ -114,6 +116,13 @@ coordinator:
     subscribe: [R-NOT-01, R-DEL-02]
   # A case may be sent back to the agent this many times; the next send-back becomes "escalate".
   max_send_backs: 2
+
+# Pipeline switches (T13c).
+pipeline:
+  # Safety net: when the agent's text claims a proposal but it called no proposal tool, run it once more.
+  # OFF by default (Brain review 2026-10-28): in T13c it fired mostly on "no proposal needed" sentences and
+  # never helped. Turn on with true to test it again.
+  proposal_claim_retry: false
 
 # SLM reply writer (tasks T05, T05b): rule-check settings and the calm openers added by code.
 slm:

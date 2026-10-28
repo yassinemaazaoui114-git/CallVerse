@@ -54,7 +54,10 @@ def model_set(role_key: str) -> str:
 def models_for(role_key: str, cfg: dict) -> list[dict]:
     """The models of a role, in order. Env CALLVERSE_FORCE_<ROLE>_MODEL (e.g. CALLVERSE_FORCE_AGENTS_MODEL)
     keeps only the model with that name: used to test one model on its own (e.g. Gemini).
-    With CALLVERSE_<ROLE>_SET=local the list is models.<role>_local instead (see model_set)."""
+    With CALLVERSE_<ROLE>_SET=local the list is models.<role>_local instead (see model_set).
+    T13c: in the local set a forced name that is not listed is still accepted as an Ollama model, with the
+    settings of the first local entry (e.g. a temporary Ollama copy for a benchmark). An API model of the
+    default list is never accepted there, so the local set can never call an API."""
     if model_set(role_key) == "local":
         key = f"{role_key}_local"
         if key not in cfg["models"]:
@@ -64,10 +67,14 @@ def models_for(role_key: str, cfg: dict) -> list[dict]:
         entries = cfg["models"][role_key]
     forced = os.getenv(f"CALLVERSE_FORCE_{role_key.upper()}_MODEL")
     if forced:
-        entries = [e for e in entries if e["model"] == forced]
-        if not entries:
+        listed = [e for e in entries if e["model"] == forced]
+        api_names = {e["model"] for e in cfg["models"].get(role_key, []) if e["provider"] != "ollama"}
+        if not listed and model_set(role_key) == "local" and forced not in api_names:
+            return [{**entries[0], "model": forced}]   # same provider (ollama) and settings, other model name
+        if not listed:
             raise AllModelsFailed(f"forced model '{forced}' is not in the {model_set(role_key)} models of "
                                   f"'{role_key}' in config.yaml")
+        entries = listed
     return entries
 
 
