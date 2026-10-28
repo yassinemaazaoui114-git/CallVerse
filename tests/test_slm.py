@@ -231,6 +231,30 @@ def test_forbidden_list_comes_from_config_and_keeps_t05_entries():
         assert not r["passed"] and any("forbidden" in p for p in r["problems"]), phrase
 
 
+@pytest.mark.parametrize("copied", [
+    "Hello, length: Very short: 2 or 3 sentences, at most 45 words. Order 7002 is with our finance team.",
+    "Hello, order 7002. The next step is: our finance team reviews the request.",
+    "Hello, order 7002. Tone: formal. Our finance team reviews the request.",
+    "Hello, order 7002 (outcome: layer3). Our finance team reviews the request.",
+    "Hello, order 7002. Our finance team reviews the next_step.",
+    "Hello, order 7002. Clear: 3 to 5 sentences. Our finance team reviews the request.",
+])
+def test_copied_instruction_labels_fail(copied):
+    # T13f: the 1B models of T13e copied lines of their instructions into the reply.
+    result = check_reply(copied, LAYER3)
+    assert not result["passed"] and any("forbidden" in p for p in result["problems"]), result["problems"]
+
+
+def test_normal_replies_and_templates_pass_the_label_check():
+    ok = ("Dear customer, about your order 7002: refunds above 300 TND need approval from our finance team. "
+          "Our finance team reviews the request and we reply with their decision.")
+    assert check_reply(ok, LAYER3_MUST)["passed"]
+    assert check_reply(GOOD, REFUND)["passed"]
+    for outcome in ("approve", "send_back", "ask_user", "ask_proof", "layer3", "escalate", "info"):
+        d = {**LAYER3_MUST, "outcome": outcome}
+        assert check_reply(templates.render(d), d)["passed"], outcome
+
+
 def test_llm_passes_sampling_settings_only_when_configured(monkeypatch):
     from callverse import llm
     sent = []

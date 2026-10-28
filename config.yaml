@@ -45,11 +45,13 @@ models:
     # (gemini-3.8-flash took 47-76 s per call in T07).
     - {provider: google,     model: "gemini-3.5-flash"}
   slm:       # M5, the reply writer (task T05): small local model, no tools, never reads the database.
-    # T05b rule: qwen2.5:3b if free VRAM >= 2.5 GB and a reply takes <= 10 s, else qwen2.5:1.5b.
-    # This PC: RTX 3050 Ti Laptop, 4 GB, 3.3 GB free; 3b uses 2.0 GB, 2.6-3.8 s per reply -> qwen2.5:3b
-    # (Qwen licence). Fallback: "qwen2.5:1.5b" (Apache 2.0), same settings. Switch by editing this line only.
+    # T13e (approved 2026-10-28): qwen2.5:1.5b passed 14/14 practice replies on the first try, like qwen2.5:3b
+    # (0 template, 0 invented content). It uses ~1 GB less GPU memory (1.2 GB vs 2.2 GB loaded) and has the
+    # Apache 2.0 licence (qwen2.5:3b: Qwen research licence, non-commercial). It is also the base for the later LoRA.
+    # qwen2.5:3b stays only as the backup: used only if 1.5b is missing or unreachable.
     # temperature 0 + seed: the same decision always gives the same reply (reproducible evaluation).
-    - {provider: ollama,     model: "qwen2.5:3b", temperature: 0, seed: 42}
+    - {provider: ollama,     model: "qwen2.5:1.5b", temperature: 0, seed: 42}
+    - {provider: ollama,     model: "qwen2.5:3b",   temperature: 0, seed: 42}
 
 # Layer 3 stub (ShopNova finance). Refunds above 300 TND go to finance: that threshold is in rule
 # R-ESC-01's condition (callverse/kb/policies_shopnova.json). The stub approves up to this amount
@@ -145,6 +147,12 @@ slm:
     - ['\bminimum threshold\b|\b(?:did|does) not (?:meet|reach) the\b|\bbelow the threshold\b', 'minimum']
     - ['\bcommitted to (?:resolving|fixing|solving)\b', 'committed']
     - ['\btechnical (?:issue|problem|error)\b', 'technical']
+    # T13f: instruction labels copied from the SLM prompt into the reply (T13e: "length: Very short: 2 or 3
+    # sentences, at most 45 words", "The next step is: ..."). The keyword 'instruction-label' never appears in a
+    # decision, so these are always rejected.
+    - ['\b(?:tone|length|style|formality|emotion|outcome|decision|facts)\s*:', 'instruction-label']
+    - ['\bnext step is\s*:|\b(?:next_step|must_say|order_number)\b', 'instruction-label']
+    - ['\bat most \d+ words\b|\b\d+ (?:or|to) \d+ sentences\b', 'instruction-label']
   # Warm-up (T09): one tiny call at start-up loads the model into memory, with a longer timeout, so the
   # first real reply is not slowed by the model load (T08: 62 s timeout on the first reply).
   warmup_timeout_s: 120
