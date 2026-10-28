@@ -20,6 +20,7 @@
   (both failed, or Ollama is not running: the pipeline still answers, it never crashes).
 - Safety net (T13c): if the agent's text CLAIMS a proposal ("I propose ...", "sent for checking") but it called
   no proposal tool, the same agent runs once more with a short note. Nothing is written by the net itself.
+  Used only when config.yaml pipeline.proposal_claim_retry is true (OFF by default).
 """
 
 import re
@@ -113,7 +114,8 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
                                               "first_answer": result["answer"], "note": note})
         result = agent_cls(chat_fn=chat_fn).run(f"{message}\n\n{note}")
     called = {c["tool"] for c in result["tool_calls"]}
-    if claims_proposal(result["answer"]) and not called & set(PROPOSAL_TOOLS) and not result.get("proposal"):
+    net_on = load_config().get("pipeline", {}).get("proposal_claim_retry", False)   # config switch, OFF by default
+    if net_on and claims_proposal(result["answer"]) and not called & set(PROPOSAL_TOOLS) and not result.get("proposal"):
         # T13c safety net: the answer claims a proposal, but no proposal tool was called, so nothing would
         # happen. One more run (at most one), with a short note. The net writes nothing: only a real proposal
         # tool call reaches the Coordinator, which checks it as before.

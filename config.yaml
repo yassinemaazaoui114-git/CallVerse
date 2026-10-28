@@ -117,6 +117,13 @@ coordinator:
   # A case may be sent back to the agent this many times; the next send-back becomes "escalate".
   max_send_backs: 2
 
+# Pipeline switches (T13c).
+pipeline:
+  # Safety net: when the agent's text claims a proposal but it called no proposal tool, run it once more.
+  # OFF by default (Brain review 2026-10-28): in T13c it fired mostly on "no proposal needed" sentences and
+  # never helped. Turn on with true to test it again.
+  proposal_claim_retry: false
+
 # SLM reply writer (tasks T05, T05b): rule-check settings and the calm openers added by code.
 slm:
   # Forbidden promises / wordings: [regex (lower case text), keyword]. A match is allowed only when the
