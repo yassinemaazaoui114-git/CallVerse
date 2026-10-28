@@ -1,8 +1,8 @@
 # T13b report — Merge into main + context-length benchmark (qwen3.5:4b)
 
 ## 1. In plain words
-Our T11–T13 work is now merged into `main` on this PC (no conflicts, all 307 tests pass), but **`main` is not
-pushed yet**: the push was blocked by Claude Code's permission check, so Yassine must push it himself.
+Our T11–T13 work is now merged into `main` (no conflicts, all 307 tests pass) and `main` is on GitHub. Yassine
+pushed it himself, because Claude Code's permission check blocked my push.
 Then we measured how much "memory for text" (context) the local test model can have on the 6 GB GPU. Up to
 16,384 tokens it runs fully on the GPU; at 32,768 part of it moves to the CPU, so the rule picks **16,384**.
 But the biggest prompt our agents ever send is only about **2,300 tokens**, so even 4,096 is enough and nothing
@@ -15,6 +15,7 @@ this GPU: Ollama always unloads one to make room, even at the smallest context.
 - Merge: `git checkout main`, `git pull --ff-only` (already up to date), `git merge --no-ff
   origin/feature/t13-test-model` → **`b814bfe`**, 0 conflicts. Tests on the merged `main`: **307/307**.
 - **`git push origin main` was refused by the Claude Code permission check** (not by GitHub). Not retried.
+  Yassine then pushed it himself: `d125959..b814bfe  main -> main`.
 - Branch `feature/t13b-context` from the new local `main`; first commit `5f2998b` = this task file + `tasks/NEXT.md`.
 - 5 Ollama copies `cv-qwen3.5-4b-ctx<N>` (Modelfile `FROM qwen3.5:4b` + `PARAMETER num_ctx N`, exactly as T13;
   `ollama show --parameters` = same values as `cv-qwen3.5-4b` except `num_ctx`). The ctx8192 copy got the
@@ -79,9 +80,8 @@ this GPU: Ollama always unloads one to make room, even at the smallest context.
 tested context (4,096 and 6,144 already evict), so setup B cannot happen.
 
 ## 4. Problems
-1. **`main` is merged locally but NOT pushed** (`main` = `b814bfe`, `origin/main` still `d125959`). The Claude
-   Code permission check refused `git push origin main`. Yassine needs to push it himself
-   (`! git push origin main`). `feature/t13b-context` is pushed (it contains the merge commit, on top of it).
+1. **My push of `main` was blocked** by the Claude Code permission check, so Yassine pushed it himself
+   (`origin/main` = `b814bfe`). `feature/t13b-context` is pushed (it contains the merge commit, on top of it).
 2. **The task's step 4 could not be followed as written.** `CALLVERSE_FORCE_AGENTS_MODEL=cv-qwen3.5-4b-ctx16384`
    fails because `llm.models_for()` only accepts a model listed in `config.yaml` (`models.agents_local`), and
    the task forbids changing `config.yaml`. Workaround (no repo change): copy each test copy onto the name
@@ -112,5 +112,5 @@ tested context (4,096 and 6,144 already evict), so setup B cannot happen.
 4. d20 now proposes a refund with qwen3.5:4b (it never did in T13): re-check T13's "never proposes" conclusion on 0.40.12?
 
 ## 6. Next step
-Yassine: push `main` (`git push origin main`) and start the Ollama app again. Then Brain review of this report and the
+Yassine: start the Ollama app again (`main` is already pushed). Then Brain review of this report and the
 decision on the context value (a one-line `config.yaml` comment + Modelfile change in a later task).
