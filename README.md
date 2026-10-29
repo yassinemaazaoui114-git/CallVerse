@@ -152,6 +152,9 @@ login), My orders and Help chat (a logged-in client). The Help chat reaches Call
    ```powershell
    .\start_shopnova.ps1   # checks Ollama, Intake + Agent A + SLM local, Agent B on Groq; Ctrl+C to stop
    ```
+   The app does not watch its files (`fileWatcherType = "none"`, no more torchvision messages): **after a code
+   change, restart it** (Ctrl+C, then `.\start_shopnova.ps1`). From Claude Code's `!` prompt (bash), use
+   `! powershell -ExecutionPolicy Bypass -File .\start_shopnova.ps1`.
 3. Clean demo data again: `python -m callverse.data.seed` (ShopNova data) and delete `callverse/data/callverse.db` (tickets).
 
 ## For the platform builder

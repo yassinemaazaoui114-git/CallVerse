@@ -33,14 +33,15 @@ def test_card_order_is_created_and_stock_goes_down():
     assert order["order_date"] == "2026-10-09" and order["promised_date"] == "2026-11-03"   # + 25 days
     assert order["items"] == [{"product_id": 1, "name": "Wireless Earbuds", "qty": 2, "price": 59.90}]
     assert order["delivered_date"] is None and order["carrier"] is None
-    assert (order["source"], order["ai_generated"], order["scripted"]) == (None, 0, 0)
+    assert (order["source"], order["ai_generated"], order["scripted"]) == ("app", 0, 0)   # follow-up Q1
+    assert order["payment"] == "card"                                                    # follow-up Q2
     assert _row("SELECT stock FROM products WHERE id = 1")["stock"] == stock - 2
     assert json.loads(_row("SELECT items FROM orders WHERE id = ?", order["id"])["items"]) == order["items"]
 
 
 def test_cash_on_delivery_pays_nothing_yet():
     order = create_order(5, 4, 1, "cash_on_delivery")
-    assert order["total"] == 189.00 and order["paid"] == 0
+    assert order["total"] == 189.00 and order["paid"] == 0 and order["payment"] == "cash_on_delivery"
 
 
 def test_order_ids_follow_the_highest_id():

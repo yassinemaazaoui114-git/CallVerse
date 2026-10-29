@@ -95,3 +95,74 @@ message "My order 4512 is late, I want a refund please." gave an approved refund
 ## 6. Next step
 - Yassine runs `python -m scripts.create_demo_accounts`, starts Ollama, runs `.\start_shopnova.ps1`, and tries Shop / My orders / Help chat as Sara (screenshots for the review).
 - Then T18 (Admin dashboard, Manage, Refund approvals with the real Layer 3 queue, using the `approvals` table that already exists).
+
+---
+
+## Follow-up (approved by the Brain after review + Yassine's browser test, 2026-10-29)
+Same branch, same hard limits, no merge. Time: 14:11 → 14:22 (box 1 h).
+
+### In plain words
+The chat now has one input box. "Ask about this order" shows a small label, and if the client's message names no
+order, the order number is added for them. The "cancelled vs refunded" mistake is fixed in the Coordinator's sentence
+itself, so every model gets the right words. ShopNova's database now stores each product's category and each
+order's payment method, and orders bought in the app are labelled `app`. The quota check moved into `callverse/`,
+and its tokens are saved apart from the tickets.
+
+### Done
+| Item | What changed | Files |
+|---|---|---|
+| F1 | Prefilled form removed (one input: `st.chat_input`). My orders sets `chat_order = N`; Help chat shows "📦 About order N" (cleared by New chat) and passes `about_order=N`. The channel's `with_order()` adds " (order N)" only when Intake's regex finds no order number in the text. The added number goes through the same identity check, and the saved user message shows it | `pages/2_My_orders.py`, `pages/3_Help_chat.py`, `web_chat.py` |
+| F2 | `server.fileWatcherType = "none"`; README: restart the app after a code change (plus how to start it from Claude Code's `!` prompt: `! powershell -ExecutionPolicy Bypass -File .\start_shopnova.ps1`) | `apps/shopnova/.streamlit/config.toml`, `README.md` |
+| F3 | **Cause:** `coordinator.user_words()` hard-coded `next_step = "Your order N is now cancelled."` for R-REF-03, while `_finish()` moves the order to **`refunded`** (and puts that in `facts.order_status`). The SLM copied the wrong sentence faithfully. **Fix (code, no prompt):** the sentence now comes from the decision's own fact, "Your order N is now {status_words(order_status)}.", and only when the status really became `refunded` / `cancelled`; if the move failed, nothing is said | `callverse/coordinator/coordinator.py` (user_words only), `tests/test_coordinator.py`, `tests/test_reply.py` |
+| F5 | Each live text at most once per message (was: no two identical in a row) | `web_chat.py` |
+| Q1 | `'app'` added to `seed.SOURCES` (CHECK) and the contract; `create_order` writes `source = 'app'` | `seed.py`, `writes.py`, `docs/platform_contract.md` |
+| Q2 | `products.category` (TEXT; real = sample file, 1–6 = `seed.SCRIPTED_CATEGORIES`); `orders.payment` (NOT NULL, CHECK card / cash_on_delivery; real = Olist mapping, already in the sample file; scripted: 4514 cash_on_delivery, the rest card). `PAYMENT_METHODS` moved to seed.py. `create_order` stores `payment`. `shop_reads` reads the category column (the file lookup is gone). The builder needed no change: it already wrote both fields to the sample file, and seed.py used to skip them | `seed.py`, `writes.py`, `shop_reads.py`, contract, `tests/test_seed_data.py`, `tests/test_create_order_auth.py` |
+| Q3/Q4 | Unchanged, as approved | — |
+| Q5 | New table `system_tokens(id, purpose, provider, model, tokens, at)` in callverse.db; `check_models` returns each ping's tokens (read from its `llm_call` trace line); `agent_b_ready()` saves them with purpose `quota_check`, in no ticket | `store.py`, `callverse/quota.py`, `web_chat.py` |
+| Q6 | Quota logic moved to **`callverse/quota.py`**; `scripts/quota_check.py` imports it and only prints (same output, same exit codes, the old test patches still work) | `callverse/quota.py`, `scripts/quota_check.py` |
+| F4 | Not changed (left for T14) | — |
+
+**How the pinned check was updated (Q2).**
+- The old pinned md5 (`SCRIPTED_ROWS_MD5 = bab2634b…`) dumps an explicit list of the OLD columns. It is **unchanged and still passes**, which proves that no old value of a scripted row moved.
+- A new test (`test_new_columns_category_and_payment`) pins the new values exactly:
+  - category of products 1–6;
+  - payment of orders 4505–4515 (4514 = cash_on_delivery, the rest card);
+  - real rows equal to the sample file;
+  - no product without a category;
+  - no undelivered cash-on-delivery order with paid ≠ 0.
+- `test_payment_and_source_codes_are_checked`: a bad payment code is refused by the CHECK, and `'app'` is accepted.
+
+### Evidence
+- **Tests: 403/403 pass** (395 + 8 new, several updated), 0 API calls. New tests:
+  - `test_quota_check_is_cached_and_its_tokens_are_system_tokens`, `test_quota_check_counts_the_tokens_of_its_ping`;
+  - `test_live_texts_are_shown_once_per_message`;
+  - `test_asked_order_is_added_only_when_the_message_has_none`, `test_asked_order_of_another_user_is_still_refused`;
+  - `test_help_chat_has_one_input_and_passes_the_asked_order`;
+  - `test_new_columns_category_and_payment`, `test_payment_and_source_codes_are_checked`.
+- **F3 before / after.** Same message, Sara: "My order 4512 is late, I want a refund please." (`web_chat.send`, `CALLVERSE_AGENTS_SET=local`).
+
+  | | Data: order 4512 | decision `next_step` | reply (source `slm`) |
+  |---|---|---|---|
+  | **Before** (T17 live proof, `traces/t17_live_proof.jsonl`) | `stuck_at_depot → refunded` | "Your order 4512 is now cancelled." | "I'm sorry for the trouble. Your refund of 59.90 TND is approved. Your order 4512 is now **cancelled**." |
+  | **After** (`traces/t17_followup_live.jsonl`) | `stuck_at_depot → refunded` | "Your order 4512 is now refunded." | "I'm sorry for the trouble. Your refund of 59.90 TND is approved. Your order 4512 is now **refunded**." |
+
+  - After run: ticket T-0001 Solved, lead B, 32 steps; refund **id 92**, 59.90 TND, R-REF-03, P-0001.
+  - Live texts (F5): Reading your message… → Checking your order… → Checking with our refund team… → Checking the rules… → Writing the reply… (each once; before: "Checking your order…" twice).
+  - 22.9 s. **Groq 4,069 tokens**: 3,972 for Agent B in the ticket + 97 for the quota ping, saved in `system_tokens`. **0 Gemini.**
+  - Then `python -m callverse.data.seed` (4512: 0 refunds, `stuck_at_depot`) and `callverse/data/callverse.db` deleted.
+- **F2:** a short app start (Home/Shop requested, health ok, Shop 200) printed 0 torchvision lines. That run did not open the Help chat page, which loads transformers, so the full proof is Yassine's next browser test.
+- **Ollama** was already running (my second `ollama serve` exited: port in use), so I used it and left it running.
+
+### Problems
+- **Reseed needed:** every existing `shopnova.db` must be rebuilt (`python -m callverse.data.seed`) for the new columns. An old file has no `payment` / `category` columns: `create_order` would return an error and the shop would fail to read `category`. I reseeded this PC's file.
+- **Agents see more:** the read tools return whole rows, so agents now also see `payment` in `get_order` (written in the contract). No prompt or tool code changed. It is extra true data, but it is new input for B.
+- **Stale comment:** the `user_words` docstring still says the data has no payment method. I left it as it is, because the Coordinator change was limited to F3.
+- **One-click order label:** with "About order N" active, every message without a number in that chat gets " (order N)" added, until New chat.
+- **Held-out data not touched:** the SLM decision sets in `tests/data/` may still carry the old "now cancelled" sentence as fixed input. I did not open or run them.
+
+### Questions for the Brain
+1. Should "About order N" stop after the first message (now it stays until New chat)?
+2. Should `products.category` become NOT NULL with a CHECK on the known categories once the admin's "add product" exists (T18)?
+
+### Next step
+Yassine: restart the app (`.\start_shopnova.ps1`), try "Ask about this order" → "Is it late?" as Sara, and check that no torchvision lines appear. Then T18.

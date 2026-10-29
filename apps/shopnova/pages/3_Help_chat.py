@@ -2,6 +2,8 @@
 
 The page shows the current ticket's messages (from callverse.db), the ticket number, the live steps while
 CallVerse works ("Checking your order…"), and a "New chat" button (the next message starts a new ticket).
+One input box only. After "Ask about this order" (My orders) a small label "About order N" is shown, and the
+channel adds that order number to a message that names none (F1).
 """
 
 import shopnova_ui as ui
@@ -31,7 +33,11 @@ else:
     head.markdown("New conversation: ask us about an order, a delivery, a refund or a return.")
 if button.button("New chat", key="new_chat"):
     st.session_state["chat_ticket_id"] = None
+    st.session_state.pop("chat_order", None)
     st.rerun()
+about = st.session_state.get("chat_order")
+if about:
+    st.caption(f"📦 About order {about}")
 
 if ticket:
     for m in store.messages(ticket["id"]):
@@ -50,21 +56,12 @@ def answer(text: str) -> None:
     with st.chat_message("assistant"):
         with st.status("Reading your message…", expanded=False) as status:
             out = web_chat.send(sender["user_id"], ui.COMPANY, text, ticket_id=st.session_state["chat_ticket_id"],
-                                on_step=lambda said: status.update(label=said))
+                                on_step=lambda said: status.update(label=said), about_order=about)
             status.update(label="Done", state="complete")
     st.session_state["chat_ticket_id"] = out["ticket_id"]
     st.rerun()   # show the conversation from the tickets store (the reply included)
 
 
-prefill = st.session_state.get("chat_prefill")
-if prefill:
-    # From "Ask about this order": the order number is already written, the user adds the question.
-    with st.form("prefilled", clear_on_submit=True):
-        typed = st.text_input("Your message", value=prefill)
-        if st.form_submit_button("Send", type="primary") and typed.strip():
-            st.session_state.pop("chat_prefill", None)
-            answer(typed.strip())
 typed = st.chat_input("Type your message…")
 if typed and typed.strip():
-    st.session_state.pop("chat_prefill", None)
     answer(typed.strip())

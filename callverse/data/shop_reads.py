@@ -2,21 +2,14 @@
 
 Like reports.py: NOT agent tools, nothing here writes. Buying goes through writes.create_order.
 
-Categories: the products table has no category column (the category of the real Olist products stays in the
-sample file, see seed.py). So the category is read from that file for products 101+, and the 6 scripted
-products get one from SCRIPTED_CATEGORIES below (display only, the scripted data itself is not changed).
+Categories come from the products.category column (T17 follow-up Q2); a product without one is "other".
 """
 
 import json
 from contextlib import closing
-from functools import lru_cache
 
 from callverse.data.db import connect
-from callverse.data.seed import load_real_sample
 
-# Category of the 6 scripted products (shown in the shop only).
-SCRIPTED_CATEGORIES = {1: "audio", 2: "telephony", 3: "electronics", 4: "watches_gifts", 5: "audio",
-                       6: "computers_accessories"}
 FEATURED_IDS = (1, 2, 3, 4, 5, 6)   # the scripted products: "Featured" on top of the shop
 # One icon and a readable name per category (T17 item 6).
 CATEGORY_ICONS = {
@@ -33,16 +26,6 @@ CATEGORY_NAMES = {
 PAGE_SIZE = 24
 
 
-@lru_cache(maxsize=1)
-def _categories_by_id() -> dict[int, str]:
-    real = {p["id"]: p["category"] for p in load_real_sample()["products"]}
-    return {**real, **SCRIPTED_CATEGORIES}
-
-
-def category_of(product_id: int) -> str:
-    return _categories_by_id().get(product_id, "other")
-
-
 def icon(category: str) -> str:
     return CATEGORY_ICONS.get(category, CATEGORY_ICONS["other"])
 
@@ -53,8 +36,8 @@ def category_name(category: str) -> str:
 
 def _all_products() -> list[dict]:
     with closing(connect()) as con:
-        rows = con.execute("SELECT id, name, price, stock FROM products ORDER BY id").fetchall()
-    return [{**dict(r), "category": category_of(r["id"])} for r in rows]
+        rows = con.execute("SELECT id, name, price, stock, category FROM products ORDER BY id").fetchall()
+    return [{**dict(r), "category": r["category"] or "other"} for r in rows]
 
 
 def product(product_id) -> dict | None:

@@ -4,13 +4,17 @@
 
 The app never calls Intake, the agents or the Coordinator itself: it calls send(), and send() calls the
 same pipeline as before (callverse/pipeline.py, not changed). What send() adds around it:
-1. the ticket: which ticket this message goes on (tickets/store.py, the ticket rule), the user message saved;
+1. the ticket: which ticket this message goes on (tickets/store.py, the ticket rule), the user message saved.
+   about_order (T17 follow-up F1): the order the user clicked "Ask about this order" for. If the message names
+   no order number, " (order N)" is added to it (so Intake finds it); a message with an order number is not
+   changed. The added number goes through the same identity check as a typed one;
 2. quota check (item 9): Agent B runs on Groq (T16). If B has no model left, the user gets "Our assistant is
-   busy, please try again later." and the pipeline is NOT called (no half answer from a weaker model);
+   busy, please try again later." and the pipeline is NOT called (no half answer from a weaker model).
+   The ping's tokens are saved as SYSTEM tokens (store.system_tokens), not in the ticket (Q5);
 3. identity check (item 12): Intake reads the message; if it names an order that is not this user's
    order, the user gets "This order is not on your account." and NO agent runs, no order data is shown;
 4. the pipeline (handle_ticket on that Intake ticket), with every trace line of this message saved as a
-   `step` and turned into a short live text for the page ("Checking your order…");
+   `step` and turned into a short live text for the page ("Checking your order…"), each text once per message;
 5. the reply saved and the ticket updated (status, main reason, priority, lead agent).
 It never crashes: any error gives the pipeline's own "extra check" (escalate) reply and an error step.
 
@@ -21,8 +25,9 @@ import threading
 import time
 
 from callverse import pipeline, trace
+from callverse import quota
 from callverse.coordinator.coordinator import escalate_decision, user_words
-from callverse.intake import intake
+from callverse.intake import extract, intake
 from callverse.tickets import store
 from callverse.tools.shopnova_tools import get_order
 
@@ -58,12 +63,16 @@ _quota_cache: dict = {}   # {"at": monotonic seconds, "ok": bool}
 
 
 def agent_b_ready() -> bool:
-    """True if at least one of Agent B's models answers (scripts/quota_check.py logic, role agent_b).
-    Cached for QUOTA_CACHE_SECONDS, so a chat does not pay one Groq call per message."""
+    """True if at least one of Agent B's models answers (callverse/quota.py, role agent_b).
+    Cached for QUOTA_CACHE_SECONDS, so a chat does not pay one Groq call per message.
+    The tokens of the ping are saved as system tokens (not in any ticket)."""
     if _quota_cache and time.monotonic() - _quota_cache["at"] < QUOTA_CACHE_SECONDS:
         return _quota_cache["ok"]
-    from scripts.quota_check import check_models   # the quota guard lives with its script (T10b)
-    ok = any(r["status"] == "ok" for r in check_models("agent_b", stop_at_first_ok=True))
+    results = quota.check_models("agent_b", stop_at_first_ok=True)
+    for r in results:
+        if r.get("tokens"):
+            store.add_system_tokens("quota_check", r.get("provider"), r.get("model"), r["tokens"])
+    ok = any(r["status"] == "ok" for r in results)
     _quota_cache.update(at=time.monotonic(), ok=ok)
     return ok
 
@@ -116,15 +125,23 @@ def _not_users_order(order_id, user_id: int) -> bool:
     return "error" in order or order.get("user_id") != int(user_id)
 
 
+def with_order(text: str, about_order: int | None) -> str:
+    """F1: add " (order N)" when the user asks about order N but typed no order number; else the text as it is."""
+    if about_order is None or extract.extract(text)["order_id"] is not None:
+        return text
+    return f"{text} (order {int(about_order)})"
+
+
 def send(user_id: int, company: str, text: str, ticket_id: str | None = None, on_step=None,
-         chat_fn=None, slm_chat_fn=None) -> dict:
+         chat_fn=None, slm_chat_fn=None, about_order: int | None = None) -> dict:
     """Handle one user message. Returns {ticket_id, status, reply, outcome, reply_source, steps, seconds}.
 
-    on_step(text): called with each live text while the pipeline runs (the page shows it).
+    on_step(text): called with each live text while the pipeline runs (the page shows it), each text once.
+    about_order: the order of "Ask about this order" (F1), added to the text if it names no order number.
     chat_fn / slm_chat_fn: fake LLMs for the tests (as in pipeline.handle_ticket); None = the real models.
     """
     with _lock:
-        return _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn)
+        return _send(user_id, company, with_order(text, about_order), ticket_id, on_step, chat_fn, slm_chat_fn)
 
 
 def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> dict:
@@ -137,7 +154,7 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
     def listen(record):
         records.append(record)
         said = live_text(record)
-        if said and on_step and (not shown or shown[-1] != said):
+        if said and on_step and said not in shown:   # F5: each text once per message
             shown.append(said)
             on_step(said)
 

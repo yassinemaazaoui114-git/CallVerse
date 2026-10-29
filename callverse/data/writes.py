@@ -29,7 +29,7 @@ from callverse import trace
 from callverse.config import sim_today
 from callverse.data.db import connect
 from callverse.data.seed import (ALWAYS_ALLOWED, COUNTED_REFUND_STATUSES, DECISIONS, NOTIFICATION_EVENTS,
-                                 ORDER_STATUSES, STATUS_MOVES)
+                                 ORDER_STATUSES, PAYMENT_METHODS, STATUS_MOVES)
 
 
 def _refuse(function: str, args: dict, reason: str) -> dict:
@@ -246,7 +246,6 @@ def create_subscription(order_id: int, event: str, proposal_id: str | None = Non
     return _done("create_subscription", args, row)
 
 
-PAYMENT_METHODS = ("card", "cash_on_delivery")   # company_profile.json payment_methods
 MAX_ORDER_QTY = 10
 
 
@@ -256,12 +255,12 @@ def create_order(user_id: int, product_id: int, quantity: int, payment: str) -> 
     NOT a Coordinator write and never in an agent allow-list: only the ShopNova app calls it, for the user
     who is logged in (the app checks the login first). Checks: the user exists; the product exists and has
     enough stock; quantity is a whole number 1-10; payment is card or cash_on_delivery.
-    - paid = total for card, 0 for cash on delivery (paid when delivered, like order 4514). The payment
-      method itself is not stored: the orders table has no column for it (paid = 0 says cash on delivery);
+    - paid = total for card, 0 for cash on delivery (paid when delivered, like order 4514); the method is
+      stored in the `payment` column (T17 follow-up Q2);
     - order_date = sim today, promised_date = today + the profile's median delivery promise (25 days);
     - items = one line {product_id, name, qty, price} like the other orders, price = the unit price. No
       "Delivery" line: the shop's delivery fee is 0 for now (the real Olist orders carry their real freight);
-    - labels: ai_generated = 0, scripted = 0, source NULL (= written at run time, docs/platform_contract.md).
+    - labels: ai_generated = 0, scripted = 0, source = 'app' (T17 follow-up Q1, docs/platform_contract.md).
     """
     args = {"user_id": user_id, "product_id": product_id, "quantity": quantity, "payment": payment}
     if isinstance(quantity, bool) or not isinstance(quantity, int) or not 1 <= quantity <= MAX_ORDER_QTY:
@@ -293,10 +292,10 @@ def create_order(user_id: int, product_id: int, quantity: int, payment: str) -> 
         order_id = con.execute("SELECT COALESCE(MAX(id), 0) + 1 FROM orders").fetchone()[0]
         con.execute(
             "INSERT INTO orders (id, user_id, items, total, paid, status, order_date, promised_date, delivered_date,"
-            " carrier, tracking_number, source, source_id, ai_generated, scripted)"
-            " VALUES (?, ?, ?, ?, ?, 'processing', ?, ?, NULL, NULL, NULL, NULL, NULL, 0, 0)",
+            " carrier, tracking_number, payment, source, source_id, ai_generated, scripted)"
+            " VALUES (?, ?, ?, ?, ?, 'processing', ?, ?, NULL, NULL, NULL, ?, 'app', NULL, 0, 0)",
             (order_id, user_id, json.dumps(items), total, total if payment == "card" else 0.0,
-             today.isoformat(), (today + timedelta(days=promise_days)).isoformat()))
+             today.isoformat(), (today + timedelta(days=promise_days)).isoformat(), payment))
         con.execute("UPDATE products SET stock = stock - ? WHERE id = ?", (quantity, product_id))
         con.commit()
         row = dict(con.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone())

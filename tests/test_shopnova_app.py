@@ -130,10 +130,10 @@ def test_my_orders_shows_only_the_users_own_orders():
     assert any(b.key == "ask_4512" for b in at.main.button)
 
 
-def test_ask_about_this_order_fills_the_chat_message():
+def test_ask_about_this_order_sets_the_chat_order():
     at = run("orders", "sara")
     at.button(key="ask_4512").click().run()
-    assert at.session_state["chat_prefill"] == "About my order 4512: "
+    assert at.session_state["chat_order"] == 4512
 
 
 def test_help_chat_sends_through_the_channel_and_shows_the_ticket(monkeypatch):
@@ -159,3 +159,25 @@ def test_help_chat_sends_through_the_channel_and_shows_the_ticket(monkeypatch):
 
     at.button(key="new_chat").click().run()
     assert "New conversation" in texts(at) and at.session_state["chat_ticket_id"] is None
+
+
+def test_help_chat_has_one_input_and_passes_the_asked_order(monkeypatch):
+    sent = []
+
+    def fake_send(user_id, company, text, ticket_id=None, on_step=None, about_order=None, **kwargs):
+        sent.append(about_order)
+        t = store.ticket_for_message(company, user_id, ticket_id)
+        return {"ticket_id": t["id"], "status": "New", "reply": "..."}
+
+    monkeypatch.setattr(web_chat, "send", fake_send)
+    at = AppTest.from_file(str(PAGES["chat"]), default_timeout=TIMEOUT)
+    at.session_state["authentication_status"] = True
+    at.session_state["username"] = "sara"
+    at.session_state["chat_order"] = 4512
+    at.run()
+    assert "About order 4512" in texts(at)
+    assert len(at.chat_input) == 1 and len(at.main.text_input) == 0      # one input box, no extra form
+    at.chat_input[0].set_value("Is it late?").run()
+    assert sent == [4512]
+    at.button(key="new_chat").click().run()
+    assert "About order 4512" not in texts(at)

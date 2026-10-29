@@ -75,7 +75,12 @@ def user_words(outcome: str, action, rule_id, facts: dict, order_id) -> tuple[li
             must = f"Your refund of {amount:.2f} TND is approved after a check by our finance team."
         else:
             must = f"Your refund of {amount:.2f} TND is approved."
-        next_step = {"R-REF-03": f"Your order {order_id} is now cancelled.",
+        # T17 follow-up (F3): the order's NEW status is said from the facts (the status _finish read back after
+        # set_order_status), never a fixed word. Before, R-REF-03 always said "cancelled" while the data said
+        # "refunded". If the status did not move, nothing is said about it.
+        status = facts.get("order_status")
+        moved = f"Your order {order_id} is now {status_words(status)}." if status in ("refunded", "cancelled") else ""
+        next_step = {"R-REF-03": moved,
                      "R-RET-01": "The refund is paid once we receive the returned item."}.get(rule_id, "")
         return [must], next_step
     if outcome == "approve" and action == "subscribe":

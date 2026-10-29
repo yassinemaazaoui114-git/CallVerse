@@ -154,6 +154,7 @@ def test_refund_message_saves_ticket_messages_and_steps(monkeypatch):
     assert out["steps"] == len(kinds)
     assert live[0] == "Reading your message…" and "Checking with our refund team…" in live
     assert "Checking the rules…" in live and live[-1] == "Writing the reply…"
+    assert len(live) == len(set(live))                                   # F5: each text once per message
     assert run_tool("B", "get_refunds", {"order_id": 4512})["refunded_total"] == 59.90   # written by the Coordinator
 
 
@@ -166,16 +167,57 @@ def test_quota_used_up_makes_no_pipeline_call(monkeypatch):
     assert run_tool("B", "get_refunds", {"order_id": 4512})["refunded_total"] == 0
 
 
-def test_quota_check_is_cached(monkeypatch):
+def test_quota_check_is_cached_and_its_tokens_are_system_tokens(monkeypatch):
     calls = []
     monkeypatch.undo()                                       # the real agent_b_ready, with a fake quota check
-    from scripts import quota_check
-    monkeypatch.setattr(quota_check, "check_models",
-                        lambda role_key, stop_at_first_ok=False: calls.append(role_key) or [{"status": "ok"}])
+    monkeypatch.setattr(web_chat.quota, "check_models", lambda role_key, stop_at_first_ok=False: calls.append(
+        role_key) or [{"provider": "groq", "model": "openai/gpt-oss-120b", "status": "ok", "tokens": 97}])
     web_chat._quota_cache.clear()
-    assert web_chat.agent_b_ready() and web_chat.agent_b_ready()
+    try:
+        assert web_chat.agent_b_ready() and web_chat.agent_b_ready()
+    finally:
+        web_chat._quota_cache.clear()
     assert calls == ["agent_b"]
-    web_chat._quota_cache.clear()
+    rows = store.system_tokens()                             # Q5: saved apart, in no ticket
+    assert [(r["purpose"], r["model"], r["tokens"]) for r in rows] == [("quota_check", "openai/gpt-oss-120b", 97)]
+
+
+def test_quota_check_counts_the_tokens_of_its_ping(monkeypatch):
+    from callverse import llm, quota
+
+    def fake_chat(role_key, messages, **kwargs):
+        trace.log("llm_call", "llm", {"role": role_key, "tokens": {"total": 42}})
+
+    monkeypatch.setattr(llm, "chat", fake_chat)
+    results = quota.check_models("agent_b", stop_at_first_ok=True)
+    assert [(r["model"], r["status"], r["tokens"]) for r in results] == [("openai/gpt-oss-120b", "ok", 42)]
+
+
+def test_live_texts_are_shown_once_per_message():
+    shown = []
+    records = [{"step": "intake_start"}, {"step": "tool_call", "data": {"tool": "get_order"}},
+               {"step": "handover"}, {"step": "tool_call", "data": {"tool": "get_order"}},
+               {"step": "coordinator_check"}, {"step": "coordinator_check"},
+               {"step": "coordinator_decision", "data": {"outcome": "approve"}}]
+    for r in records:
+        said = web_chat.live_text(r)
+        if said and said not in shown:
+            shown.append(said)
+    assert shown == ["Reading your message…", "Checking your order…", "Checking with our refund team…",
+                     "Checking the rules…", "Writing the reply…"]
+
+
+def test_asked_order_is_added_only_when_the_message_has_none():
+    assert web_chat.with_order("Is it late?", 4512) == "Is it late? (order 4512)"
+    assert web_chat.with_order("Is order 4509 late?", 4512) == "Is order 4509 late?"   # the user's number wins
+    assert web_chat.with_order("Is it late?", None) == "Is it late?"
+
+
+def test_asked_order_of_another_user_is_still_refused():
+    # F1: the number added by the channel goes through the same identity check (4510 = Youssef's order)
+    out = web_chat.send(1, "shopnova", "Where is it? It is late.", about_order=4510, chat_fn=no_llm)
+    assert out["reply"] == web_chat.NOT_YOUR_ORDER_REPLY
+    assert store.messages(out["ticket_id"])[0]["text"] == "Where is it? It is late. (order 4510)"
 
 
 def test_order_of_another_user_gets_no_agent_call():

@@ -12,8 +12,9 @@ The schema is described in docs/platform_contract.md section 2 (with which colum
 Labels asked by the teacher, on every table:
 - ai_generated = 1 : the row (or part of it, see the contract) is fictional data written by an AI / a generator.
 - scripted     = 1 : the row belongs to a demo scenario that must stay exactly as it is.
-- source           : where the row comes from: "scripted" (written below), "olist" (real data) or
-                     "generated" (made by the builder from real signals); NULL = written at run time.
+- source           : where the row comes from: "scripted" (written below), "olist" (real data),
+                     "generated" (made by the builder from real signals) or "app" (an order a client placed in
+                     the ShopNova app, T17); NULL = written at run time by the Coordinator.
 - source_id        : the Olist id of a real row (order_id, customer_unique_id, product_id, review_id).
 Rows created later at run time (by the Coordinator's write functions) get 0 / 0 and source NULL.
 
@@ -31,12 +32,14 @@ from callverse.kb.policies import notification_events
 DB_PATH = db.DEFAULT_DB_PATH  # kept for older imports; the file in use is db.db_path()
 # The real ShopNova sample (T15), derived from Olist (CC BY-NC-SA 4.0, see DATA_LICENCES.md).
 REAL_SAMPLE_PATH = Path(__file__).resolve().parent / "real" / "shopnova_olist_sample.json"
-SOURCES = ("scripted", "olist", "generated")
+SOURCES = ("scripted", "olist", "generated", "app")
 
 # Allowed codes (also enforced by CHECK constraints in the schema below).
 ORDER_STATUSES = ("processing", "shipped", "stuck_at_depot", "out_for_delivery",
                   "delivered", "refunded", "cancelled")
 REFUND_STATUSES = ("approved", "completed", "refused")
+# How an order is paid (company_profile.json payment_methods). Cash on delivery: paid = 0 until delivered.
+PAYMENT_METHODS = ("card", "cash_on_delivery")
 # Refund statuses that count as money given back (a "refused" refund does not count).
 COUNTED_REFUND_STATUSES = ("approved", "completed")
 # Allowed status moves (set_order_status). Besides these, any status may go to "cancelled" or "refunded".
@@ -82,7 +85,8 @@ CREATE TABLE products (
     id    INTEGER PRIMARY KEY,
     name  TEXT NOT NULL,
     price REAL NOT NULL,
-    stock INTEGER NOT NULL,{SOURCE},{LABELS}
+    stock INTEGER NOT NULL,
+    category TEXT,                     -- e.g. "audio" (Olist's English category; T17 follow-up Q2){SOURCE},{LABELS}
 );
 CREATE TABLE orders (
     id              INTEGER PRIMARY KEY,
@@ -95,7 +99,8 @@ CREATE TABLE orders (
     promised_date   TEXT,
     delivered_date  TEXT,                -- NULL = not delivered yet
     carrier         TEXT,
-    tracking_number TEXT,{SOURCE},{LABELS}
+    tracking_number TEXT,
+    payment         TEXT NOT NULL CHECK (payment IN {_in(PAYMENT_METHODS)}),   -- T17 follow-up Q2{SOURCE},{LABELS}
 );
 CREATE TABLE refunds (
     id          INTEGER PRIMARY KEY,
@@ -164,6 +169,13 @@ PRODUCTS = [
     (5, "Bluetooth Speaker", 89.00,  30),
     (6, "Laptop Backpack",   74.90,  25),
 ]
+
+
+# T17 follow-up Q2: the category of each scripted product and the payment of each scripted order. Kept apart
+# from PRODUCTS / ORDERS so those rows stay exactly as they were (other code reads them by position).
+SCRIPTED_CATEGORIES = {1: "audio", 2: "telephony", 3: "electronics", 4: "watches_gifts", 5: "audio",
+                       6: "computers_accessories"}
+CASH_ON_DELIVERY_ORDERS = {4514}   # paid 0.00: the only scripted cash-on-delivery order; all others: card
 
 
 def _item(product_id: int, qty: int = 1) -> dict:
@@ -239,23 +251,25 @@ def seed(db_path: Path | None = None) -> Path:
         # the refund of order 4506 are demo cases (scripted = 1); users 1-5 and products 1-6 are not (as before).
         con.executemany("INSERT INTO users (id, name, email, phone, source, ai_generated, scripted)"
                         " VALUES (?, ?, ?, ?, 'scripted', 1, 0)", USERS)
-        con.executemany("INSERT INTO products (id, name, price, stock, source, ai_generated, scripted)"
-                        " VALUES (?, ?, ?, ?, 'scripted', 1, 0)", PRODUCTS)
+        con.executemany("INSERT INTO products (id, name, price, stock, category, source, ai_generated, scripted)"
+                        " VALUES (?, ?, ?, ?, ?, 'scripted', 1, 0)",
+                        [(*p, SCRIPTED_CATEGORIES[p[0]]) for p in PRODUCTS])
         # items is stored as JSON text because SQLite has no list type.
         con.executemany("INSERT INTO orders (id, user_id, items, total, paid, status, order_date, promised_date,"
-                        " delivered_date, carrier, tracking_number, source, ai_generated, scripted)"
-                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'scripted', 1, 1)",
-                        [(o[0], o[1], json.dumps(o[2]), *o[3:]) for o in ORDERS])
+                        " delivered_date, carrier, tracking_number, payment, source, ai_generated, scripted)"
+                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'scripted', 1, 1)",
+                        [(o[0], o[1], json.dumps(o[2]), *o[3:],
+                          "cash_on_delivery" if o[0] in CASH_ON_DELIVERY_ORDERS else "card") for o in ORDERS])
         con.executemany("INSERT INTO refunds (id, order_id, amount, status, rule_id, proposal_id, created_at,"
                         " source, ai_generated, scripted) VALUES (?, ?, ?, ?, ?, ?, ?, 'scripted', 1, 1)", REFUNDS)
 
         # Real data: every row of the sample file already carries its labels (source, source_id, ai_generated;
         # scripted = 0 by default). Its refunds have no id in the file: they get 2, 3, ... after refund 1.
-        # `category` (products) and `payment` (orders) stay in the file only: the schema has no column for them.
+        # T17 follow-up Q2: `category` (products) and `payment` (orders) are now loaded too (before: file only).
         real = load_real_sample()
         _insert(con, "users", real["users"])
-        _insert(con, "products", real["products"], skip=("category",))
-        _insert(con, "orders", real["orders"], skip=("payment",))
+        _insert(con, "products", real["products"])
+        _insert(con, "orders", real["orders"])
         _insert(con, "reviews", real["reviews"])
         _insert(con, "refunds", real["refunds"])
         con.commit()

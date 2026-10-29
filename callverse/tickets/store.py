@@ -11,6 +11,8 @@ Tables (docs/ui_design.md section 3):
 - steps     : how CallVerse worked on ONE message (intake, route, tool calls, proposal, Coordinator, SLM...),
               copied from the trace, so the Console can replay it without reading trace files.
 - approvals : refunds waiting for finance (created now, used in T18).
+- system_tokens : tokens CallVerse spent for itself, not for a ticket (T17 follow-up Q5: the quota check's
+              "Say OK." pings), so the Console can show them apart from the tokens per ticket.
 
 The ticket rule (T17 item 11), in ticket_for_message():
 - one chat = one ticket. "Solved" when the decision is final; "Waiting for user" when we asked something;
@@ -84,6 +86,14 @@ CREATE TABLE IF NOT EXISTS approvals (
     decided_by  TEXT,
     decided_at  TEXT,
     reason      TEXT
+);
+CREATE TABLE IF NOT EXISTS system_tokens (
+    id       INTEGER PRIMARY KEY,
+    purpose  TEXT NOT NULL,              -- e.g. "quota_check"
+    provider TEXT,
+    model    TEXT,
+    tokens   INTEGER NOT NULL,
+    at       TEXT NOT NULL
 );
 """
 
@@ -167,6 +177,20 @@ def add_step(ticket_id: str, message_id: int | None, step: str, agent: str | Non
                            json.dumps(data, ensure_ascii=False, default=str), now()))
         con.commit()
     return cur.lastrowid
+
+
+def add_system_tokens(purpose: str, provider: str | None, model: str | None, tokens: int) -> int:
+    """Save tokens spent outside any ticket (e.g. the quota check) and return the row id."""
+    with closing(connect()) as con:
+        cur = con.execute("INSERT INTO system_tokens (purpose, provider, model, tokens, at) VALUES (?, ?, ?, ?, ?)",
+                          (purpose, provider, model, int(tokens), now()))
+        con.commit()
+    return cur.lastrowid
+
+
+def system_tokens() -> list[dict]:
+    with closing(connect()) as con:
+        return [dict(r) for r in con.execute("SELECT * FROM system_tokens ORDER BY id").fetchall()]
 
 
 def messages(ticket_id: str) -> list[dict]:

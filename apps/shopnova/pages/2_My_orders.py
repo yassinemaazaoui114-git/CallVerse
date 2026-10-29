@@ -13,7 +13,7 @@ user = accounts.require_role("user")   # without a user login the page shows onl
 
 
 def ask_about(order_id: int) -> None:
-    st.session_state["chat_prefill"] = f"About my order {order_id}: "
+    st.session_state["chat_order"] = order_id   # Help chat shows "About order N" (F1)
 
 
 orders = shop_reads.user_orders(user["user_id"])   # the user id comes from the accounts file, not the browser

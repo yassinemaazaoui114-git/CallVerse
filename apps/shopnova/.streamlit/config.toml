@@ -12,6 +12,9 @@ font = "sans serif"
 address = "127.0.0.1"
 port = 8501
 headless = true
+# T17 follow-up (F2): no file watcher. It scanned the installed libraries (torchvision messages in the console).
+# So after a code change the app must be restarted (Ctrl+C, then .\start_shopnova.ps1 again).
+fileWatcherType = "none"
 
 [browser]
 gatherUsageStats = false
