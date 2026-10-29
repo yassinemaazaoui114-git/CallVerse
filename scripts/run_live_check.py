@@ -36,7 +36,7 @@ from scripts.quota_check import check_models
 OUT_DIR = Path("out")
 MAX_WORDS = 120
 # T13c (R3): pause between messages with the default (Groq) agents, to stay under the per-minute token limits.
-# The local test models (CALLVERSE_AGENTS_SET=local) have no such limit: no pause.
+# The local test models have no such limit: no pause, but only when A AND B are both local (T16).
 PAUSE_SECONDS_GROQ = 5
 TOOL_NAMES = ("get_user", "get_order", "get_tracking", "get_refunds", "get_company_profile", "search_policy",
               "propose_refund", "propose_subscription", "ask_agent")
@@ -157,8 +157,10 @@ def snapshot() -> dict:
 
 
 def pause_seconds() -> int:
-    """Seconds to wait between two messages: 5 with the default (Groq) agents set, 0 with the local one."""
-    return PAUSE_SECONDS_GROQ if llm.model_set("agents") == "default" else 0
+    """Seconds to wait between two messages: 5 when ANY agent role is on the API (Groq), 0 only when both
+    the agents (A + Intake fallback) and Agent B are local (T16: B has its own switch, CALLVERSE_AGENT_B_SET)."""
+    on_api = any(llm.model_set(role) == "default" for role in ("agents", "agent_b"))
+    return PAUSE_SECONDS_GROQ if on_api else 0
 
 
 def run_one(message: dict) -> dict:

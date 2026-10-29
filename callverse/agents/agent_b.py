@@ -40,6 +40,9 @@ Be short and polite. Answer in the language of the client's message (English mes
 class AgentB(BaseAgent):
     agent_id = "B"
     name = "Agent B - Payment & Refund"
+    # T16: its own model list in config.yaml (models.agent_b, Groq), so B can stay on the API while the
+    # other roles run locally. Temporary test setup until the M2 benchmark.
+    role_key = "agent_b"
     # Its job: 1 step with 3 tools, search, proposal, answer = 4 model calls; 8 leaves room for corrections.
     max_steps = 8
 
