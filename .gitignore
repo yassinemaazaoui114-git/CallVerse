@@ -16,3 +16,6 @@ out/
 __pycache__/
 .pytest_cache/
 .venv/
+
+# Raw downloaded datasets (Olist etc.) — never committed, downloaded by hand (T15)
+data/raw/
