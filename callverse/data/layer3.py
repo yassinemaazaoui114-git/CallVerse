@@ -10,8 +10,13 @@ config.yaml (layer3.stub_max_approve_tnd). Nothing is hard-coded twice.
 
 This function only DECIDES: it writes nothing to the database. The Coordinator (later task) calls it
 and then, if approved, writes the refund with create_refund(). It is in no agent allow-list.
+
+T18: layer3_mode() says who plays finance. "stub" (config default) = the rule above. "queue" (env var
+CALLVERSE_LAYER3_MODE=queue) = the ShopNova admin decides later on the Refund approvals page
+(callverse/channels/approvals.py); the Coordinator then returns "layer3_pending" and does not call the stub.
 """
 
+import os
 from contextlib import closing
 
 from callverse import trace
@@ -19,6 +24,17 @@ from callverse.config import load_config
 from callverse.data.db import connect
 from callverse.data.writes import is_valid_amount
 from callverse.kb.policies import layer3_threshold
+
+MODES = ("stub", "queue")
+MODE_ENV = "CALLVERSE_LAYER3_MODE"
+
+
+def layer3_mode() -> str:
+    """"stub" or "queue": the env var CALLVERSE_LAYER3_MODE if set, else config.yaml layer3.mode (default stub)."""
+    mode = os.environ.get(MODE_ENV) or load_config()["layer3"].get("mode", "stub")
+    if mode not in MODES:
+        raise ValueError(f"layer3 mode '{mode}' is not allowed (allowed: {', '.join(MODES)})")
+    return mode
 
 
 def layer3_decide(order_id: int, amount: float, reason: str) -> dict:

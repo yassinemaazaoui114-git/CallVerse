@@ -40,6 +40,14 @@ def fresh_env(tmp_path, seeded_template):
 
 
 @pytest.fixture(autouse=True)
+def layer3_stub_by_default(monkeypatch):
+    """T18: every test starts in layer3 mode "stub" (config default). A test that wants the real queue sets
+    CALLVERSE_LAYER3_MODE=queue itself; monkeypatch puts the env back after it (the ShopNova pages set it with
+    setdefault, which would otherwise leak "queue" into the next tests)."""
+    monkeypatch.setenv("CALLVERSE_LAYER3_MODE", "stub")   # setenv (not delenv): monkeypatch then restores it
+
+
+@pytest.fixture(autouse=True)
 def slm_offline(monkeypatch):
     """Tests never call the real SLM (Ollama): when a test gives no fake SLM, the call fails like a stopped
     Ollama and the writer uses its template. Tests that need SLM text pass their own slm_chat_fn / chat_fn."""

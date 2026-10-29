@@ -16,6 +16,10 @@ same pipeline as before (callverse/pipeline.py, not changed). What send() adds a
 4. the pipeline (handle_ticket on that Intake ticket), with every trace line of this message saved as a
    `step` and turned into a short live text for the page ("Checking your order…"), each text once per message;
 5. the reply saved and the ticket updated (status, main reason, priority, lead agent).
+T18 (real Layer 3 queue, layer3 mode "queue"): on the Coordinator's "layer3_pending", an `approvals` row is created
+(pending) and the ticket becomes "Waiting for finance"; the admin decides later (callverse/channels/approvals.py).
+Duplicate guard: if the message's order (the user's own) already has a PENDING approval, the user is told it is
+still with finance and NO agent runs (step "approval_pending"); checked before the quota check (T18 follow-up).
 It never crashes: any error gives the pipeline's own "extra check" (escalate) reply and an error step.
 
 One message at a time (a lock): the pipeline has one trace and one set of local models; a demo has few users.
@@ -33,12 +37,15 @@ from callverse.tools.shopnova_tools import get_order
 
 BUSY_REPLY = "Our assistant is busy, please try again later."
 NOT_YOUR_ORDER_REPLY = "This order is not on your account."
+ALREADY_PENDING_REPLY = ("Your refund request for order {order_id} is already with our finance team. "
+                         "We will reply here as soon as it has been reviewed.")
 QUOTA_CACHE_SECONDS = 300   # B's quota is checked at most once per 5 minutes (one tiny Groq call)
 
 # Decision outcome -> ticket status (item 11). Final decisions solve the ticket; a question waits for the user.
 # escalate: a human colleague must look, so the ticket stays Open.
 STATUS_BY_OUTCOME = {"approve": "Solved", "info": "Solved", "layer3_refused": "Solved",
-                     "ask_user": "Waiting for user", "ask_proof": "Waiting for user", "escalate": "Open"}
+                     "ask_user": "Waiting for user", "ask_proof": "Waiting for user", "escalate": "Open",
+                     "layer3_pending": "Waiting for finance"}   # T18
 
 # Trace step -> kind of step saved in the tickets store (docs/ui_design.md section 3; "llm" added for the
 # tokens per ticket of the Console, "quota" / "identity" for the two checks of this channel).
@@ -178,6 +185,27 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
                 "reply_source": source, "steps": len(store.steps(tid)),
                 "seconds": round(time.perf_counter() - start, 2)}
 
+    def already_pending(order_id, **fields):
+        """T18 duplicate guard: this order's refund already waits for finance -> the fixed reply, no agent call.
+        Returns the channel's result, or None when the order has no pending approval."""
+        waiting = store.pending_approval_for_order(order_id)
+        if not waiting:
+            return None
+        channel_step("approval_pending", {"order_id": waiting["order_id"], "approval_id": waiting["id"],
+                                          "approval_ticket": waiting["ticket_id"]})
+        same = waiting["ticket_id"] == tid
+        return finish(ALREADY_PENDING_REPLY.format(order_id=waiting["order_id"]),
+                      "Waiting for finance" if same else "Solved", "approval_pending", "channel", **fields)
+
+    # 1b. T18 follow-up: the duplicate guard comes BEFORE the quota check (it needs no agent and no model). The
+    # order number is read with the plain extractor (no model); only the user's OWN order gets this reply, so it
+    # never tells anything about another client's order (that case goes on to the identity check below).
+    typed_order = extract.extract(text)["order_id"]
+    if typed_order is not None and not _not_users_order(typed_order, user_id):
+        guarded = already_pending(typed_order)
+        if guarded:
+            return guarded
+
     # 2. Quota check: no pipeline call at all when Agent B has no model left.
     try:
         ready = agent_b_ready()
@@ -200,8 +228,21 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
                 return finish(NOT_YOUR_ORDER_REPLY, "Waiting for user", "not_your_order", "channel",
                               main_reason=intake_ticket["main_reason"],
                               priority=intake_ticket.get("priority_label"))
+            # The same guard again on Intake's order (Intake may find an order the plain extractor did not).
+            guarded = already_pending(intake_ticket["order_id"], main_reason=intake_ticket["main_reason"],
+                                      priority=intake_ticket.get("priority_label"))
+            if guarded:
+                return guarded
             # 4. The pipeline, as it is.
             out = pipeline.handle_ticket(intake_ticket, chat_fn=chat_fn, slm_chat_fn=slm_chat_fn)
+            decision = out["decision"]
+            if decision["outcome"] == "layer3_pending":
+                # T18: the refund waits for the ShopNova admin (Refund approvals page).
+                approval = store.create_approval(tid, decision["order_id"], decision["facts"]["amount_tnd"],
+                                                 decision["proposal_id"])
+                channel_step("approval", {"approval_id": approval["id"], "order_id": approval["order_id"],
+                                          "amount": approval["amount"], "proposal_id": approval["proposal_id"],
+                                          "status": "pending"})
         except AssertionError:
             raise   # an assert in a test's fake LLM: a failing test must stay visible
         except Exception as e:

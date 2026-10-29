@@ -78,7 +78,10 @@ models:
 # Layer 3 stub (ShopNova finance). Refunds above 300 TND go to finance: that threshold is in rule
 # R-ESC-01's condition (callverse/kb/policies_shopnova.json). The stub approves up to this amount
 # and refuses above it.
-layer3: {stub_max_approve_tnd: 500}
+# T18: mode stub = the rule above decides (default: tests, practice set, demo backup). mode queue = a REAL approval
+# queue: the refund waits for the ShopNova admin (Refund approvals page). Turned on with the env var
+# CALLVERSE_LAYER3_MODE=queue (set by start_shopnova.ps1 and the ShopNova app), so this file stays on stub.
+layer3: {mode: stub, stub_max_approve_tnd: 500}
 
 # Intake (task T03): a fixed pipeline, not an agent. Local models run on CPU.
 intake:

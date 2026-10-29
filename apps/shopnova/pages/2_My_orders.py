@@ -16,6 +16,7 @@ def ask_about(order_id: int) -> None:
     st.session_state["chat_order"] = order_id   # Help chat shows "About order N" (F1)
 
 
+ui.unread_notice(user, switch=True)   # T18: "💬 New reply on T-00NN" (e.g. finance decided a refund)
 orders = shop_reads.user_orders(user["user_id"])   # the user id comes from the accounts file, not the browser
 if not orders:
     st.info("You have no orders yet. Have a look at the shop!")

@@ -3,6 +3,10 @@
 The ShopNova app is the COMPANY's website (port 8501). It reads ShopNova data for display
 (callverse/data/shop_reads.py), buys through writes.create_order, and reaches CallVerse ONLY through the
 web chat channel (callverse/channels/web_chat.py). It never calls an agent itself.
+
+T18: the app starts from app.py (st.navigation). The sidebar menu shows Home · Shop · My orders · Help chat to
+everyone and the admin pages (Admin dashboard · Manage · Refund approvals) only to an account with their
+permission. Hiding is only for comfort: each admin page calls require_permission first and again before writes.
 """
 
 import os
@@ -17,13 +21,28 @@ if str(ROOT) not in sys.path:
 import streamlit as st  # noqa: E402
 
 from callverse.auth import accounts  # noqa: E402
+from callverse.tickets import store  # noqa: E402
 
 COMPANY = "shopnova"
 HELP_PAGE = "pages/3_Help_chat.py"
+NAV_FLAG = "_sn_navigation"   # set by app.py: the page runs inside the app's navigation (the sidebar menu is drawn)
+
+# The sidebar menu (T18): (page file, label, icon, url path, permission or None = everyone).
+MENU = [
+    ("Home.py",                     "Home",             "🏠", "",                 None),
+    ("pages/1_Shop.py",             "Shop",             "🛍️", "Shop",             None),
+    ("pages/2_My_orders.py",        "My orders",        "📦", "My_orders",        None),
+    (HELP_PAGE,                     "Help chat",        "💬", "Help_chat",        None),
+    ("pages/4_Admin_dashboard.py",  "Admin dashboard",  "📊", "Admin_dashboard",  "view_dashboard"),
+    ("pages/5_Manage.py",           "Manage",           "🗂️", "Manage",           "view_dashboard"),
+    ("pages/6_Refund_approvals.py", "Refund approvals", "✅", "Refund_approvals", "approve_refunds"),
+]
 
 # T16/T17 item 8: Intake + Agent A + SLM run locally, Agent B stays on Groq (its own model list).
 # setdefault: a value given by the start script (or a test) is kept.
 os.environ.setdefault("CALLVERSE_AGENTS_SET", "local")
+# T18: in the app, refunds above 300 TND wait for the ShopNova admin (the real Layer 3 queue), not the stub.
+os.environ.setdefault("CALLVERSE_LAYER3_MODE", "queue")
 
 # The approved mock: warm and light (cream, navy, coral), rounded cards, the floating help button.
 CSS = """
@@ -53,8 +72,50 @@ def setup(title: str) -> dict | None:
     with st.sidebar:
         st.markdown('<div class="sn-logo">ShopNova <span>✦</span></div>', unsafe_allow_html=True)
         st.caption("Electronics, delivered across Tunisia")
+        menu = st.container()   # filled AFTER the login box, so a login or logout shows the right pages at once
     login_box()
+    if st.session_state.get(NAV_FLAG):
+        with menu:
+            for path, label, icon, _, perm in menu_items(st.session_state):
+                st.page_link(path, label=label, icon=icon)
     return accounts.check_role(st.session_state, "user")
+
+
+def menu_items(session) -> list[tuple]:
+    """The menu entries this session may see: everyone's pages, plus the admin pages it has the permission for."""
+    return [m for m in MENU if m[4] is None or accounts.check_permission(session, m[4]) is not None]
+
+
+def all_pages() -> list:
+    """Every page of the app for st.navigation (app.py). ALL are registered, so a typed URL of an admin page
+    reaches that page and its require_permission shows only "please log in"; the menu shows only allowed ones."""
+    return [st.Page(path, title=label, icon=icon, url_path=url or None, default=(url == ""))
+            for path, label, icon, url, _ in MENU]
+
+
+def admin_setup(title: str, perm: str) -> dict:
+    """Set up an admin page: the usual setup, then the permission check (stops the page if it fails)."""
+    setup(title)
+    st.title(title)
+    return accounts.require_permission(perm)
+
+
+def open_ticket(ticket_id: str) -> None:
+    """Show this ticket in the Help chat (the "New reply" button)."""
+    st.session_state["chat_ticket_id"] = ticket_id
+    st.session_state.pop("chat_order", None)
+
+
+def unread_notice(user: dict, shown_ticket: str | None = None, switch: bool = False) -> None:
+    """T18 item 17: "💬 New reply on T-00NN" with a button that opens that ticket (not for the ticket on screen).
+    switch = True (My orders): the button also goes to the Help chat page."""
+    for t in store.unread_tickets(COMPANY, user["user_id"]):
+        if t["id"] == shown_ticket:
+            continue
+        note, button = st.columns([4, 1])
+        note.info(f"💬 New reply on {t['id']}")
+        if button.button("Open", key=f"open_{t['id']}", on_click=open_ticket, args=(t["id"],)) and switch:
+            st.switch_page(HELP_PAGE)
 
 
 def login_box() -> None:

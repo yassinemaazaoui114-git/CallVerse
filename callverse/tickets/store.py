@@ -10,7 +10,8 @@ Tables (docs/ui_design.md section 3):
 - messages  : what was said: sender user / assistant / system, the text, when.
 - steps     : how CallVerse worked on ONE message (intake, route, tool calls, proposal, Coordinator, SLM...),
               copied from the trace, so the Console can replay it without reading trace files.
-- approvals : refunds waiting for finance (created now, used in T18).
+- approvals : refunds waiting for finance (T18: created by the channel on "layer3_pending", decided by the
+              ShopNova admin through callverse/channels/approvals.py).
 - system_tokens : tokens CallVerse spent for itself, not for a ticket (T17 follow-up Q5: the quota check's
               "Say OK." pings), so the Console can show them apart from the tokens per ticket.
 
@@ -58,7 +59,8 @@ CREATE TABLE IF NOT EXISTS tickets (
     lead_agent  TEXT,                        -- "A" or "B": the agent that answered the last message
     created_at  TEXT NOT NULL,               -- simulation time, ISO
     updated_at  TEXT NOT NULL,
-    closed_at   TEXT
+    closed_at   TEXT,
+    user_unread INTEGER NOT NULL DEFAULT 0       -- T18: 1 = a reply the user has not opened yet (e.g. finance's)
 );
 CREATE TABLE IF NOT EXISTS messages (
     id        INTEGER PRIMARY KEY,
@@ -114,6 +116,10 @@ def connect() -> sqlite3.Connection:
     con = sqlite3.connect(_db_path)
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
+    # T18: a callverse.db made before T18 has no user_unread column: add it, so the old file keeps working.
+    if "user_unread" not in {r["name"] for r in con.execute("PRAGMA table_info(tickets)")}:
+        con.execute("ALTER TABLE tickets ADD COLUMN user_unread INTEGER NOT NULL DEFAULT 0")
+        con.commit()
     return con
 
 
@@ -227,6 +233,73 @@ def ticket_for_message(company: str, user_id: int, ticket_id: str | None = None)
     if ticket["status"] == "Solved":
         ticket = update_ticket(ticket["id"], status="Open")
     return ticket
+
+
+def set_unread(ticket_id: str, unread: bool) -> None:
+    """T18: mark a ticket as having a reply the user has not opened (1) or as opened (0).
+    updated_at is NOT changed: opening a reply must not move the 3-day reopen window."""
+    with closing(connect()) as con:
+        con.execute("UPDATE tickets SET user_unread = ? WHERE id = ?", (1 if unread else 0, str(ticket_id)))
+        con.commit()
+
+
+def unread_tickets(company: str, user_id: int) -> list[dict]:
+    """The user's tickets with a reply not opened yet (the "💬 New reply on T-00NN" notice), oldest first."""
+    with closing(connect()) as con:
+        rows = con.execute("SELECT * FROM tickets WHERE company = ? AND user_id = ? AND user_unread = 1 ORDER BY id",
+                           (company, int(user_id))).fetchall()
+    return [dict(r) for r in rows]
+
+
+# ---------- approvals (T18: the real Layer 3 queue) ----------
+
+def create_approval(ticket_id: str, order_id: int, amount: float, proposal_id: str | None) -> dict:
+    """A refund waiting for the ShopNova admin (status "pending")."""
+    with closing(connect()) as con:
+        cur = con.execute("INSERT INTO approvals (ticket_id, order_id, amount, proposal_id, status)"
+                          " VALUES (?, ?, ?, ?, 'pending')", (str(ticket_id), int(order_id), float(amount), proposal_id))
+        con.commit()
+    return get_approval(cur.lastrowid)
+
+
+def get_approval(approval_id: int) -> dict | None:
+    with closing(connect()) as con:
+        row = con.execute("SELECT * FROM approvals WHERE id = ?", (int(approval_id),)).fetchone()
+    return dict(row) if row else None
+
+
+def approvals(status: str | None = None) -> list[dict]:
+    """All approvals (or those with one status): pending ones oldest first, the others newest first."""
+    with closing(connect()) as con:
+        if status is None:
+            rows = con.execute("SELECT * FROM approvals ORDER BY status != 'pending', "
+                               "CASE WHEN status = 'pending' THEN id ELSE -id END").fetchall()
+        else:
+            rows = con.execute("SELECT * FROM approvals WHERE status = ? ORDER BY id", (status,)).fetchall()
+    return [dict(r) for r in rows]
+
+
+def pending_approval_for_order(order_id) -> dict | None:
+    """The pending approval of this order, if there is one (the channel's duplicate guard)."""
+    if order_id is None:
+        return None
+    with closing(connect()) as con:
+        row = con.execute("SELECT * FROM approvals WHERE order_id = ? AND status = 'pending' ORDER BY id LIMIT 1",
+                          (int(order_id),)).fetchone()
+    return dict(row) if row else None
+
+
+def close_approval(approval_id: int, status: str, decided_by: str, reason: str | None) -> bool:
+    """Set a PENDING approval to approved / refused. False if it was not pending any more (decided once):
+    the "WHERE status = 'pending'" makes the check and the change one step, so two clicks cannot both close it."""
+    if status not in ("approved", "refused"):
+        raise ValueError(f"an approval is closed as approved or refused, not '{status}'")
+    with closing(connect()) as con:
+        cur = con.execute("UPDATE approvals SET status = ?, decided_by = ?, decided_at = ?, reason = ?"
+                          " WHERE id = ? AND status = 'pending'",
+                          (status, decided_by, now(), reason, int(approval_id)))
+        con.commit()
+    return cur.rowcount == 1
 
 
 def current_ticket(company: str, user_id: int) -> dict | None:

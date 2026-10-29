@@ -14,7 +14,7 @@ Labels asked by the teacher, on every table:
 - scripted     = 1 : the row belongs to a demo scenario that must stay exactly as it is.
 - source           : where the row comes from: "scripted" (written below), "olist" (real data),
                      "generated" (made by the builder from real signals) or "app" (an order a client placed in
-                     the ShopNova app, T17); NULL = written at run time by the Coordinator.
+                     the ShopNova app, T17, or a product / user the admin added, T18); NULL = written at run time by the Coordinator.
 - source_id        : the Olist id of a real row (order_id, customer_unique_id, product_id, review_id).
 Rows created later at run time (by the Coordinator's write functions) get 0 / 0 and source NULL.
 
@@ -86,7 +86,8 @@ CREATE TABLE products (
     name  TEXT NOT NULL,
     price REAL NOT NULL,
     stock INTEGER NOT NULL,
-    category TEXT,                     -- e.g. "audio" (Olist's English category; T17 follow-up Q2){SOURCE},{LABELS}
+    category TEXT,                     -- e.g. "audio" (Olist's English category; T17 follow-up Q2)
+    active   INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),   -- T18: 0 = removed from the shop (soft delete){SOURCE},{LABELS}
 );
 CREATE TABLE orders (
     id              INTEGER PRIMARY KEY,
@@ -143,6 +144,16 @@ CREATE TABLE proposals (               -- audit: every agent proposal and the Co
     decision_reason TEXT,
     created_at      TEXT NOT NULL,
     decided_at      TEXT,{LABELS}
+);
+CREATE TABLE admin_actions (           -- T18: every change made by the ShopNova admin, with who, when, before / after
+    id           INTEGER PRIMARY KEY,
+    at           TEXT NOT NULL,        -- simulation clock, ISO
+    admin        TEXT NOT NULL,        -- the admin's username
+    action       TEXT NOT NULL,        -- e.g. "create_product", "set_order_status", "approve_refund"
+    target_table TEXT NOT NULL,        -- e.g. "products"
+    target_id    TEXT NOT NULL,        -- the changed row's id
+    before       TEXT,                 -- JSON of the row before (NULL for a new row)
+    after        TEXT                  -- JSON of the row after
 );
 """
 

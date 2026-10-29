@@ -52,7 +52,7 @@ callverse/          the code
   tickets/            CallVerse's own tickets database (store.py -> data/callverse.db, T17)
   channels/           web_chat.py: the one door from a company app into CallVerse (T17)
   auth/               demo logins and roles (accounts.py, T17)
-apps/shopnova/      the ShopNova Streamlit app (Home.py + pages/, T17)
+apps/shopnova/      the ShopNova Streamlit app (app.py + Home.py + pages/, T17; admin pages T18)
 config/             accounts.example.yaml (the real accounts.yaml is not in git)
   kb/ coordinator/ queues/ notifier/ intake/ slm/ simulator/   empty, filled by later tasks
 scripts/            runnable entry points (run_demo.py)
@@ -141,6 +141,10 @@ Details: [docs/platform_contract.md](docs/platform_contract.md) section 8.
 The company's website, a Streamlit app **on this PC only** (<http://127.0.0.1:8501>): Shop (everyone; buying needs a
 login), My orders and Help chat (a logged-in client). The Help chat reaches CallVerse through one channel function
 (`callverse/channels/web_chat.py`); each chat is a ticket in CallVerse's own database `callverse/data/callverse.db`.
+T18: logged in as `admin`, the sidebar also shows **Admin dashboard**, **Manage** (products, orders, users, refunds,
+admin log) and **Refund approvals**: in the app, a refund above 300 TND waits there for the admin (the real Layer 3
+queue, `CALLVERSE_LAYER3_MODE=queue`); the client gets the decision as a new reply ("💬 New reply on T-00NN").
+The start file is `apps/shopnova/app.py` (Streamlit `st.navigation`).
 
 1. **Create the demo logins once, yourself** (the passwords never go into git, only bcrypt hashes in the git-ignored
    `config/accounts.yaml`; see `config/accounts.example.yaml` for the accounts):

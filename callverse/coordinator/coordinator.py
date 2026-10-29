@@ -23,6 +23,9 @@ Outcomes:
   ask_user       -> the client must confirm first
   ask_proof      -> R-DMG-01: a photo of the damage is needed first
   layer3_refused -> finance refused (recorded as decision "layer3")
+  layer3_pending -> T18, layer3 mode "queue" only: the refund waits for the ShopNova admin. NOTHING is recorded
+                    as decision (the proposal stays undecided, so the admin's decision is the one recorded later,
+                    by callverse/channels/approvals.py) and nothing is written
   escalate       -> a human colleague takes over
   refused        -> the proposal was already decided (a proposal is decided once); nothing written
 Every check is traced (coordinator_check) and so is the final decision (coordinator_decision).
@@ -35,7 +38,7 @@ What the user is told (T08): the decision carries `must_say` (the key fact, copi
 
 from callverse import trace
 from callverse.config import load_config
-from callverse.data.layer3 import layer3_decide
+from callverse.data.layer3 import layer3_decide, layer3_mode
 from callverse.data.writes import (create_refund, create_subscription, is_valid_amount, record_decision,
                                    record_proposal, set_order_status)
 from callverse.kb.policies import check_condition, get_policy, layer3_threshold
@@ -88,6 +91,9 @@ def user_words(outcome: str, action, rule_id, facts: dict, order_id) -> tuple[li
     if outcome == "layer3_refused":
         return ([f"We cannot approve a refund of {amount:.2f} TND for order {order_id}."],
                 "Our finance team reviewed it and did not approve it.")
+    if outcome == "layer3_pending":   # T18: no time promise
+        return ([f"Your refund of {amount:.2f} TND for order {order_id} needs approval from our finance team."],
+                "We will reply here as soon as it has been reviewed.")
     if outcome == "ask_user":
         if action == "refund" and amount is not None:
             return [f"Please confirm that you want a refund of {amount:.2f} TND for order {order_id}."], ""
@@ -301,6 +307,14 @@ def review(proposal: dict, case: dict) -> dict:
     if action == "refund":
         escalation = get_policy("R-ESC-01")
         if check_condition(escalation["condition"], facts):
+            if layer3_mode() == "queue":
+                # T18: the ShopNova admin decides later (Refund approvals). The stub is not called.
+                facts["layer3_decision"] = "pending"
+                trace.log("coordinator_check", "coordinator",
+                          {"check": "layer3", "rule_id": "R-ESC-01", "facts": facts, "result": "pending",
+                           "detail": "layer3 mode queue: waiting for the ShopNova admin"})
+                return done("layer3_pending", f"R-ESC-01: the refund of {facts['amount']} TND waits for the "
+                                              "ShopNova admin (Refund approvals)")
             finance = layer3_decide(order_id, facts["amount"], f"refund under {rule_id}")
             facts["layer3_decision"] = finance.get("decision")
             if not _check("layer3", finance.get("decision") == "approved", "R-ESC-01", facts,
@@ -318,7 +332,7 @@ def _finish(outcome, case, proposal_id, action, order_id, rule_id, facts, reason
     if outcome == "send_back" and case["send_backs"] >= load_config()["coordinator"]["max_send_backs"]:
         outcome, reason = "escalate", f"too many send-backs ({case['send_backs']}); last reason: {reason}"
 
-    if proposal_id is not None:
+    if proposal_id is not None and outcome != "layer3_pending":   # T18: pending = not decided yet
         stored = record_decision(proposal_id, RECORDED_AS.get(outcome, outcome), reason)
         if "error" in stored:   # e.g. already decided: never decide twice, never write
             outcome, reason = "refused", stored["error"]

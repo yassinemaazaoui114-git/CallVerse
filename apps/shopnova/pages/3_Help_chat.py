@@ -3,7 +3,9 @@
 The page shows the current ticket's messages (from callverse.db), the ticket number, the live steps while
 CallVerse works ("Checking your order…"), and a "New chat" button (the next message starts a new ticket).
 One input box only. After "Ask about this order" (My orders) a small label "About order N" is shown, and the
-channel adds that order number to a message that names none (F1).
+channel adds that order number to a message that names none (F1). The label stays for the whole chat, until
+"New chat" (T18 item 8: checked, no change needed). T18: "💬 New reply on T-00NN" for a reply on another ticket
+(e.g. the finance team's decision); showing a ticket marks its new reply as read.
 """
 
 import shopnova_ui as ui
@@ -39,10 +41,13 @@ about = st.session_state.get("chat_order")
 if about:
     st.caption(f"📦 About order {about}")
 
+ui.unread_notice(user, shown_ticket=ticket["id"] if ticket else None)   # T18: replies on the user's other tickets
 if ticket:
     for m in store.messages(ticket["id"]):
         with st.chat_message("user" if m["sender"] == "user" else "assistant"):
             st.write(m["text"])
+    if ticket["user_unread"]:
+        store.set_unread(ticket["id"], False)   # T18: the user has now seen the new reply
 
 
 def answer(text: str) -> None:
