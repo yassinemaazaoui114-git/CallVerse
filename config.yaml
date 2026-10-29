@@ -45,9 +45,23 @@ models:
   # The cv-* names are Ollama copies with a context of 8,192 tokens (Modelfile `PARAMETER num_ctx 8192`):
   # Ollama's default context (4,096) can cut a prompt silently. Measured in T13b: the largest single agent
   # prompt is ~2,300 tokens (~6,000 was the total of all calls in one turn), so 8,192 leaves room to spare.
-  agents_local:
+  # T16: this local list is written ONCE; agent_b_local below reuses it with a YAML alias (*agents_local).
+  agents_local: &agents_local
     - {provider: ollama,     model: "cv-qwen3.5-4b", temperature: 0, seed: 42, options: {reasoning_effort: none}}
     - {provider: ollama,     model: "cv-phi4-mini",  temperature: 0, seed: 42}
+  # T16 (option A, approved 2026-10-29): a TEMPORARY test setup, the final one is decided after the M2 benchmark.
+  # Agent B (refunds) has its own model list, so it can stay on Groq while Intake + Agent A run locally:
+  # the local model reads and routes well but almost never calls propose_refund (T13c/T13f).
+  # Used by Agent B's turns AND by its "ask Agent A" sub-call (callverse/agents/ask.py). Agent A's own turns
+  # and the Intake LLM fallback keep the "agents" list above.
+  # Switches: CALLVERSE_AGENTS_SET=local does NOT move B (B stays here, on Groq);
+  # CALLVERSE_AGENT_B_SET=local moves B (and its sub-call) to agent_b_local;
+  # CALLVERSE_FORCE_AGENT_B_MODEL=<model> keeps one model of B's list. CALLVERSE_FORCE_AGENTS_MODEL no longer
+  # affects B. No Gemini here (no third backup for B).
+  agent_b:
+    - {provider: groq,       model: "openai/gpt-oss-120b", options: {reasoning_effort: low}}
+    - {provider: groq,       model: "openai/gpt-oss-20b",  options: {reasoning_effort: low}}
+  agent_b_local: *agents_local   # the same entries as agents_local, so the two can never drift
   simulator: # M1, different family (used in task 4)
     # T08 (approved 2026-10-21): gemini-3.5-flash, the Flash model this key accepts that answers fast
     # (gemini-3.8-flash took 47-76 s per call in T07).

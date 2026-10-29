@@ -13,6 +13,9 @@ each other in a loop.
 from callverse import trace
 
 ASKABLE = ("A",)
+# T16: the sub-call runs on the ASKER's models. Only Agent B has ask_agent (allow-list), so it uses B's role:
+# Agent A's code and prompt are unchanged, only the model list of this one call.
+ASKER_ROLE_KEY = "agent_b"
 
 
 def ask_agent(agent: str, question: str, chat_fn=None) -> dict:
@@ -23,7 +26,9 @@ def ask_agent(agent: str, question: str, chat_fn=None) -> dict:
         return {"error": "give a non-empty question"}
 
     from callverse.agents.agent_a import AgentA   # imported here: agent_a -> registry -> this file
-    result = AgentA(chat_fn=chat_fn).run(question)
+    agent_a = AgentA(chat_fn=chat_fn)
+    agent_a.role_key = ASKER_ROLE_KEY            # this instance only; Agent A's own turns keep "agents"
+    result = agent_a.run(question)
     out = {"agent": agent, "answer": result["answer"], "facts": compact_facts(result["tool_calls"])}
     trace.log("ask_agent", "ask", {"to": agent, "question": question, **out})
     return out

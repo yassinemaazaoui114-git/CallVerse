@@ -129,6 +129,11 @@ def test_checker_global_and_expect_checks():
 
 def test_pause_between_messages_only_with_the_default_agents_set(monkeypatch):
     monkeypatch.delenv("CALLVERSE_AGENTS_SET", raising=False)
+    monkeypatch.delenv("CALLVERSE_AGENT_B_SET", raising=False)
     assert live.pause_seconds() == 5
+    # T16: Agent B has its own switch; the pause stops only when A AND B are local (more cases in
+    # tests/test_agent_b_model.py).
     monkeypatch.setenv("CALLVERSE_AGENTS_SET", "local")
+    assert live.pause_seconds() == 5
+    monkeypatch.setenv("CALLVERSE_AGENT_B_SET", "local")
     assert live.pause_seconds() == 0

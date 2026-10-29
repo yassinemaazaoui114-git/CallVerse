@@ -74,6 +74,12 @@ checks the cited rule, R-REF-05, the client's confirmation and Layer 3 (> 300 TN
 the platform writes), sends back (max 2, the agent corrects), asks the client, or escalates. Scenarios:
 `python -m scripts.run_scenario S0|S1|S2|S4`. The LLM layer waits on short rate limits and falls back
 gpt-oss-120b → gpt-oss-20b → Gemini Flash (force one with `CALLVERSE_FORCE_AGENTS_MODEL=<model>`).
+Model switches (T16, temporary test setup until the M2 benchmark): Agent B has its own list `models.agent_b`
+(Groq gpt-oss-120b → gpt-oss-20b, no Gemini), used by its turns and by its "ask Agent A" sub-call.
+`CALLVERSE_AGENTS_SET=local` moves Intake's LLM fallback and Agent A to the local test models but **not** B;
+`CALLVERSE_AGENT_B_SET=local` moves B too (`agent_b_local` = the same list as `agents_local`).
+`CALLVERSE_FORCE_AGENT_B_MODEL=<model>` forces B's model; `CALLVERSE_FORCE_AGENTS_MODEL` no longer affects B.
+No switch = A and B on Groq, as before.
 Final reply (T05 + T08): the SLM (`qwen2.5:3b` via Ollama, `callverse/slm/writer.py`) writes the user's reply
 from the Coordinator's decision only (`must_say`, `next_step`, facts), in the client's style; a rule check
 and templates keep it safe. The agent's own text stays in the trace. Without Ollama the template answers.
