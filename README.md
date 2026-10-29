@@ -87,16 +87,23 @@ sends one message per subscription. `python -m scripts.run_scenario S3` plays th
 
 ## Data
 
-The ShopNova database (`callverse/data/shopnova.db`, rebuilt by `python -m callverse.data.seed`) is **fictional**.
-Every row has two labels so AI-generated data is always visible:
+The ShopNova database (`callverse/data/shopnova.db`, rebuilt by `python -m callverse.data.seed`) holds two kinds of data
+(T15). Every row has labels so it is always visible what is real and what is AI-generated:
 
-- `ai_generated = 1` — written by an AI, not real. This is true for **all** seed data (users, products, orders,
-  refunds) and for the company profile (`callverse/data/company_profile.json`) and the policy texts.
-- `scripted = 1` — a hand-written demo case that must never change: orders **4505–4515** (4512 = main demo,
-  4515 = Layer 3 case) and the 4506 refund.
-- Generated data (`scripted = 0`): 20 users and 120 orders (ids 5001–5120), made by `generate_data()` in
-  `seed.py` with a fixed random seed, so every rebuild is identical.
-- Rows created while the system runs (refunds, subscriptions, events) get `0 / 0`.
+- **Scripted** (`source = 'scripted'`, `ai_generated = 1`): the hand-written demo data in `seed.py` — users 1–5,
+  products 1–6, orders **4505–4515** (`scripted = 1`; 4512 = main demo, 4515 = Layer 3 case) and the 4506 refund.
+  It must never change.
+- **Real** (`source = 'olist'`): **2,000 real orders** (ids 10001+) of the Olist Brazilian E-Commerce dataset
+  (CC BY-NC-SA 4.0, see `DATA_LICENCES.md`), with their real dates, statuses, payments (converted to TND) and review
+  scores, moved into the 90 days before the demo date. Olist has no names, so client names, emails, phones, product
+  names, stock, carriers and tracking numbers are generated (`ai_generated = 1` on users and products; see
+  `docs/platform_contract.md` §2 for every column). Refunds only where the real data shows a late delivery and a
+  1–2 star review (`source = 'generated'`).
+- How to rebuild the real sample: download the Kaggle dataset `olistbr/brazilian-ecommerce` by hand into
+  `data/raw/olist/` (never committed), then `python -m scripts.build_shopnova_sample` (fixed seed: same file every time).
+- The company profile (`callverse/data/company_profile.json`) and the policy texts are AI-written
+  (`ai_generated: true`); its `sells` and `delivery_promise_days` come from the real sample.
+- Rows created while the system runs (refunds, subscriptions, events) get `0 / 0` and `source = NULL`.
 
 `python -m scripts.data_summary` prints the counts per table, per status, and how many rows are generated or scripted.
 

@@ -1,28 +1,37 @@
-"""Creates the placeholder ShopNova SQLite database (callverse/data/shopnova.db).
+"""Creates the ShopNova SQLite database (callverse/data/shopnova.db).
 
-The tables follow the teammate's structure, so when the real mock database is ready
-we only swap the file; the tools do not change. The schema is described in
-docs/platform_contract.md section 2.
+Two kinds of data go in (T15):
+1. The SCRIPTED demo data written below by hand: users 1-5, products 1-6, orders 4505-4515, refund 1.
+   It never changes (the demo scenarios and tests rely on every value).
+2. The REAL sample: 2,000 real orders of the Olist dataset (ids 10001+, users 1001+, products 101+,
+   their reviews, and refunds made from real signals), read from callverse/data/real/shopnova_olist_sample.json.
+   That file is built by scripts/build_shopnova_sample.py and already contains everything, so seeding needs
+   no raw data, no random numbers and no network.
+The schema is described in docs/platform_contract.md section 2 (with which columns are real, which generated).
 
 Labels asked by the teacher, on every table:
-- ai_generated = 1 : the row is fictional data written by an AI (all seed rows below).
+- ai_generated = 1 : the row (or part of it, see the contract) is fictional data written by an AI / a generator.
 - scripted     = 1 : the row belongs to a demo scenario that must stay exactly as it is.
-Rows created later at run time (by the Coordinator's write functions) get 0 / 0.
+- source           : where the row comes from: "scripted" (written below), "olist" (real data) or
+                     "generated" (made by the builder from real signals); NULL = written at run time.
+- source_id        : the Olist id of a real row (order_id, customer_unique_id, product_id, review_id).
+Rows created later at run time (by the Coordinator's write functions) get 0 / 0 and source NULL.
 
 Run it directly:  python -m callverse.data.seed
 """
 
 import json
-import random
 import sqlite3
-from datetime import timedelta
+from functools import lru_cache
 from pathlib import Path
 
-from callverse.config import sim_start
 from callverse.data import db
 from callverse.kb.policies import notification_events
 
 DB_PATH = db.DEFAULT_DB_PATH  # kept for older imports; the file in use is db.db_path()
+# The real ShopNova sample (T15), derived from Olist (CC BY-NC-SA 4.0, see DATA_LICENCES.md).
+REAL_SAMPLE_PATH = Path(__file__).resolve().parent / "real" / "shopnova_olist_sample.json"
+SOURCES = ("scripted", "olist", "generated")
 
 # Allowed codes (also enforced by CHECK constraints in the schema below).
 ORDER_STATUSES = ("processing", "shipped", "stuck_at_depot", "out_for_delivery",
@@ -56,18 +65,24 @@ LABELS = """
     ai_generated INTEGER NOT NULL DEFAULT 0 CHECK (ai_generated IN (0, 1)),
     scripted     INTEGER NOT NULL DEFAULT 0 CHECK (scripted IN (0, 1))"""
 
+# T15: where a row comes from, on the tables that hold seed data (users, products, orders, refunds, reviews).
+SOURCE = f"""
+    source    TEXT CHECK (source IS NULL OR source IN {_in(SOURCES)}),  -- NULL = written at run time
+    source_id TEXT,                    -- Olist id of a real row, NULL otherwise"""
+
 SCHEMA = f"""
 CREATE TABLE users (
     id    INTEGER PRIMARY KEY,
     name  TEXT NOT NULL,
     email TEXT UNIQUE,
-    phone TEXT UNIQUE,{LABELS}
+    phone TEXT UNIQUE,
+    city  TEXT,                        -- one of company_profile.json cities_served (NULL for users 1-5){SOURCE},{LABELS}
 );
 CREATE TABLE products (
     id    INTEGER PRIMARY KEY,
     name  TEXT NOT NULL,
     price REAL NOT NULL,
-    stock INTEGER NOT NULL,{LABELS}
+    stock INTEGER NOT NULL,{SOURCE},{LABELS}
 );
 CREATE TABLE orders (
     id              INTEGER PRIMARY KEY,
@@ -80,7 +95,7 @@ CREATE TABLE orders (
     promised_date   TEXT,
     delivered_date  TEXT,                -- NULL = not delivered yet
     carrier         TEXT,
-    tracking_number TEXT,{LABELS}
+    tracking_number TEXT,{SOURCE},{LABELS}
 );
 CREATE TABLE refunds (
     id          INTEGER PRIMARY KEY,
@@ -89,7 +104,13 @@ CREATE TABLE refunds (
     status      TEXT NOT NULL CHECK (status IN {_in(REFUND_STATUSES)}),
     rule_id     TEXT,                -- policy rule that justified the refund, e.g. R-REF-03
     proposal_id TEXT,                -- the agent proposal the Coordinator approved
-    created_at  TEXT,                -- ISO date{LABELS}
+    created_at  TEXT,                -- ISO date{SOURCE},{LABELS}
+);
+CREATE TABLE reviews (                 -- T15: real Olist review scores (the Portuguese text is not kept)
+    id         INTEGER PRIMARY KEY,
+    order_id   INTEGER NOT NULL REFERENCES orders(id),
+    score      INTEGER NOT NULL CHECK (score BETWEEN 1 AND 5),
+    created_at TEXT NOT NULL,          -- ISO date{SOURCE},{LABELS}
 );
 CREATE TABLE subscriptions (
     id         INTEGER PRIMARY KEY,
@@ -121,8 +142,8 @@ CREATE TABLE proposals (               -- audit: every agent proposal and the Co
 """
 
 # ---------------------------------------------------------------------------
-# NOTE: all the data below is AI-GENERATED placeholder data (fictional people,
-# products and orders). It only exists until the teammate's mock database is ready.
+# SCRIPTED DATA: AI-written demo data (fictional people, products and orders), source = "scripted".
+# Do not change a value: the demo scenarios and the tests rely on it.
 # ---------------------------------------------------------------------------
 
 USERS = [
@@ -179,69 +200,31 @@ REFUNDS = [
 ]
 
 
+
 # ---------------------------------------------------------------------------
-# GENERATED DATA (ai_generated = 1, scripted = 0): 20 extra users (ids 6-25) and 120 orders
-# (ids 5001-5120) over the 60 days before the demo date, so the shop looks like a real one.
-# A fixed random seed makes the data identical on every rebuild. Generated orders only belong to
-# generated users, so the scripted clients' order histories stay exactly as written above.
+# REAL DATA (T15): 2,000 real Olist orders and what belongs to them. Built once by
+# scripts/build_shopnova_sample.py (fixed seed 2026); here we only load the file.
 # ---------------------------------------------------------------------------
-RANDOM_SEED = 2026
-FIRST_NAMES = ["Ahmed", "Mariem", "Omar", "Ines", "Hamza", "Nour", "Mehdi", "Rania", "Aziz", "Salma"]
-LAST_NAMES = ["Hammami", "Bouazizi", "Chaabane", "Dridi", "Ferchichi", "Khelifi", "Mejri", "Sassi"]
-# status: weight (out of 100). Mostly delivered, like a real shop.
-STATUS_WEIGHTS = {"delivered": 60, "shipped": 10, "processing": 7, "out_for_delivery": 5,
-                  "stuck_at_depot": 5, "cancelled": 6, "refunded": 7}
+@lru_cache(maxsize=1)
+def load_real_sample() -> dict:
+    """The real ShopNova sample {users, products, orders, reviews, refunds}, read once from its JSON file."""
+    return json.loads(REAL_SAMPLE_PATH.read_text(encoding="utf-8"))
 
 
-def generate_data() -> tuple[list, list, list]:
-    """Return (users, orders, refunds) of generated data, always the same (fixed seed)."""
-    rng = random.Random(RANDOM_SEED)
-    # The fixed START date from config.yaml, never the moving clock (the clock lives in the database, which
-    # does not exist yet while seeding; and a rebuilt database must be identical even after the clock moved).
-    today = sim_start()
-    users = []
-    for uid in range(6, 26):
-        first, last = rng.choice(FIRST_NAMES), rng.choice(LAST_NAMES)
-        users.append((uid, f"{first} {last}", f"{first}.{last}.{uid}@example.com".lower(),
-                      f"+216 {50 + uid} {100 + uid * 7:03d} {200 + uid * 3:03d}"))
+def _insert(con: sqlite3.Connection, table: str, rows: list[dict], skip: tuple = ()) -> None:
+    """Insert rows given as dicts {column: value}, leaving out the keys in `skip` (file-only information).
 
-    orders, refunds = [], []
-    for oid in range(5001, 5121):
-        status = rng.choices(list(STATUS_WEIGHTS), weights=list(STATUS_WEIGHTS.values()))[0]
-        items = [_item(rng.randint(1, len(PRODUCTS)), rng.choice([1, 1, 1, 2]))
-                 for _ in range(rng.choice([1, 1, 2, 3]))]
-        total = round(sum(i["price"] * i["qty"] for i in items), 2)
-
-        # How long ago the order was placed depends on how far it got (dates count back from the start date).
-        days_ago = {"processing": (1, 3), "shipped": (2, 7), "out_for_delivery": (3, 8),
-                    "stuck_at_depot": (6, 15)}.get(status, (8, 60))
-        order_date = today - timedelta(days=rng.randint(*days_ago))
-        promised = order_date + timedelta(days=rng.randint(3, 6))
-        delivered = None
-        if status in ("delivered", "refunded"):
-            # About 80% on time (or early), 20% 1-5 days late; never in the future, never before the order.
-            delay = rng.choices([-2, -1, 0, 1, 2, 3, 5], weights=[10, 20, 50, 8, 6, 4, 2])[0]
-            delivered = promised + timedelta(days=delay)
-            delivered = min(max(delivered, order_date + timedelta(days=1)), today)
-
-        # Cash on delivery (paid 0) only for orders not delivered yet; cancelled orders were never paid.
-        cash_on_delivery = status in ("processing", "shipped", "out_for_delivery") and rng.random() < 0.25
-        paid = 0.0 if cash_on_delivery or status == "cancelled" else total
-        has_carrier = status not in ("processing", "cancelled")
-        carrier = rng.choice(["Aramex", "Rapid-Poste"]) if has_carrier else None
-        tracking = (("ARX" if carrier == "Aramex" else "RP") + str(300000 + oid)) if has_carrier else None
-
-        orders.append((oid, rng.randint(6, 25), items, total, paid, status, order_date.isoformat(),
-                       promised.isoformat(), delivered.isoformat() if delivered else None, carrier, tracking))
-        if status == "refunded":  # item returned, refunded in full a few days after delivery
-            refund_day = min(delivered + timedelta(days=rng.randint(2, 6)), today)
-            refunds.append((len(REFUNDS) + len(refunds) + 1, oid, paid, "completed", "R-RET-01", None,
-                            refund_day.isoformat()))
-    return users, orders, refunds
+    `items` (a list) is stored as JSON text because SQLite has no list type.
+    """
+    for row in rows:
+        row = {k: (json.dumps(v) if k == "items" else v) for k, v in row.items() if k not in skip}
+        # The column names come from our own sample file, never from a client.
+        con.execute(f"INSERT INTO {table} ({', '.join(row)}) VALUES ({', '.join('?' * len(row))})",
+                    list(row.values()))
 
 
 def seed(db_path: Path | None = None) -> Path:
-    """(Re)create the database file from scratch with the placeholder data. Returns its path.
+    """(Re)create the database file from scratch with the scripted and the real data. Returns its path.
 
     Without db_path, the file in use (db.db_path()) is rebuilt.
     """
@@ -252,18 +235,29 @@ def seed(db_path: Path | None = None) -> Path:
     con = sqlite3.connect(db_path)
     try:
         con.executescript(SCHEMA)
-        # Every seed row is AI-generated (ai_generated = 1). The 11 scripted orders and the refund of
-        # order 4506 are demo cases (scripted = 1); users, products and generated data are not.
-        gen_users, gen_orders, gen_refunds = generate_data()
-        con.executemany("INSERT INTO users VALUES (?, ?, ?, ?, 1, 0)", USERS + gen_users)
-        con.executemany("INSERT INTO products VALUES (?, ?, ?, ?, 1, 0)", PRODUCTS)
+        # Scripted data: every row is AI-written (ai_generated = 1) and has source "scripted". The 11 orders and
+        # the refund of order 4506 are demo cases (scripted = 1); users 1-5 and products 1-6 are not (as before).
+        con.executemany("INSERT INTO users (id, name, email, phone, source, ai_generated, scripted)"
+                        " VALUES (?, ?, ?, ?, 'scripted', 1, 0)", USERS)
+        con.executemany("INSERT INTO products (id, name, price, stock, source, ai_generated, scripted)"
+                        " VALUES (?, ?, ?, ?, 'scripted', 1, 0)", PRODUCTS)
         # items is stored as JSON text because SQLite has no list type.
-        con.executemany("INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)",
+        con.executemany("INSERT INTO orders (id, user_id, items, total, paid, status, order_date, promised_date,"
+                        " delivered_date, carrier, tracking_number, source, ai_generated, scripted)"
+                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'scripted', 1, 1)",
                         [(o[0], o[1], json.dumps(o[2]), *o[3:]) for o in ORDERS])
-        con.executemany("INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)",
-                        [(o[0], o[1], json.dumps(o[2]), *o[3:]) for o in gen_orders])
-        con.executemany("INSERT INTO refunds VALUES (?, ?, ?, ?, ?, ?, ?, 1, 1)", REFUNDS)
-        con.executemany("INSERT INTO refunds VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0)", gen_refunds)
+        con.executemany("INSERT INTO refunds (id, order_id, amount, status, rule_id, proposal_id, created_at,"
+                        " source, ai_generated, scripted) VALUES (?, ?, ?, ?, ?, ?, ?, 'scripted', 1, 1)", REFUNDS)
+
+        # Real data: every row of the sample file already carries its labels (source, source_id, ai_generated;
+        # scripted = 0 by default). Its refunds have no id in the file: they get 2, 3, ... after refund 1.
+        # `category` (products) and `payment` (orders) stay in the file only: the schema has no column for them.
+        real = load_real_sample()
+        _insert(con, "users", real["users"])
+        _insert(con, "products", real["products"], skip=("category",))
+        _insert(con, "orders", real["orders"], skip=("payment",))
+        _insert(con, "reviews", real["reviews"])
+        _insert(con, "refunds", real["refunds"])
         con.commit()
     finally:
         con.close()

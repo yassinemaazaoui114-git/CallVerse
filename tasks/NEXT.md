@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Status | DONE |
-| Task file | tasks/T13f_slm_switch.md (merge T13e; SLM → qwen2.5:1.5b; reject copied instruction labels; practice re-run; agent + SLM loaded together) |
-| Approved by | Yassine — 2026-10-28 19:47 (items 1–6, all ⭐) |
+| Status | WAITING FOR REVIEW |
+| Task file | tasks/T15_shopnova_real_data.md (ShopNova on real Olist data: 2,000 real orders replace the 120 generated ones; scripted 4505–4515 unchanged) |
+| Approved by | Yassine — 2026-10-29 09:10 (items 1–20 + 4, all ⭐; Dali OK) |
 | Last done | T13f — reviewed by the Brain 2026-10-28: SLM qwen2.5:1.5b, label check, 19/24, 14.5 s/msg, both models loaded by default |
 
 Status values: READY · IN PROGRESS · WAITING FOR REVIEW · DONE

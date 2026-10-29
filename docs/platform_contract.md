@@ -10,19 +10,66 @@ Not built yet: policies + search, Agent B, Coordinator, notifications, Intake, S
 
 ## 2. Tables (same structure as the placeholder)
 Schema in `callverse/data/seed.py`. Every table also has two labels (0/1):
-`ai_generated` (fictional data written by an AI: all seed rows) and `scripted` (a demo case that must stay
-exactly as it is: the 11 scripted orders 4505–4515 and the 4506 refund). Generated data (20 users ids 6–25,
-120 orders ids 5001–5120 and their refunds) is `ai_generated = 1, scripted = 0`, built with a fixed random seed
-(identical on every rebuild). Rows written at run time get `0 / 0`. Company profile: `callverse/data/company_profile.json`.
-- `users(id, name, email, phone)`
-- `products(id, name, price, stock)`
-- `orders(id, user_id, items[JSON], total, paid, status, order_date, promised_date, delivered_date, carrier, tracking_number)`
+`ai_generated` (the row, or part of it — see the table below — was written by an AI or a generator) and `scripted`
+(a demo case that must stay exactly as it is: the 11 scripted orders 4505–4515 and the 4506 refund).
+Rows written at run time get `0 / 0`. Company profile: `callverse/data/company_profile.json`.
+
+**Two kinds of seed data (T15).**
+- **Scripted** (`source = 'scripted'`, written by hand in `seed.py`, all `ai_generated = 1`): users 1–5, products 1–6,
+  orders 4505–4515 (`scripted = 1`), refund 1 of order 4506 (`scripted = 1`).
+- **Real** (`source = 'olist'`): **2,000 real orders** of the Olist Brazilian E-Commerce dataset (CC BY-NC-SA 4.0,
+  see `DATA_LICENCES.md`), ids **10001+**; their clients (users **1001+**), products (**101+**) and review scores.
+  Built by `scripts/build_shopnova_sample.py` (fixed seed 2026) into `callverse/data/real/shopnova_olist_sample.json`;
+  `seed.py` only loads that file. Refunds made from real signals have `source = 'generated'`.
+  The old generated data (users 6–25, orders 5001–5120, `generate_data()`) is removed.
+
+**Schema additions (T15).** On `users`, `products`, `orders`, `refunds`, `reviews`:
+`source` (`scripted` | `olist` | `generated`; `NULL` = written at run time) and `source_id` (the Olist id of a real
+row: `order_id`, `customer_unique_id`, `product_id`, `review_id`; `NULL` otherwise; Olist reuses a few `review_id`s).
+`users.city` (one of the 8 `cities_served`; `NULL` for users 1–5). New table `reviews(id, order_id, score 1–5, created_at)`.
+
+**Real vs generated columns, per table (rows with `source = 'olist'` / `'generated'`).**
+
+| Table | Real (from Olist) | Generated | Row label |
+|---|---|---|---|
+| `orders` | `order_date` (purchase), `promised_date` (Olist estimated delivery), `delivered_date`, `status` (mapped, below), `total` and `paid` (Olist payments, converted), `items` (products, qty, unit prices, and one `Delivery` line = the real freight; converted), `user_id`/product links, `source_id` | `carrier`, `tracking_number` (orders past processing, as the old seed), the `refunded` status (see refunds) | `ai_generated = 0` |
+| `users` | that the client exists, which orders are theirs (one user per Olist `customer_unique_id`, so repeat buyers stay), `city` (from the real Brazilian state, fixed table below), `source_id` | `name` (Tunisian), `email`, `phone` | `ai_generated = 1` |
+| `products` | that the product exists, its category, `price` (median of its real item prices in the sample), `source_id` | `name` ("Audio item 0042", from the English category), `stock` | `ai_generated = 1` |
+| `reviews` | `score`, `created_at`, `order_id`, `source_id` (the Portuguese text is not kept) | — | `ai_generated = 0` |
+| `refunds` (`source = 'generated'`) | the signals: order delivered after its promised date **and** latest real review score 1–2 | the refund itself: full `amount` = paid, `status = completed`, `rule_id = R-RET-01`, `created_at` = delivery + 2–6 days; none above 300 TND (R-ESC-01) — those orders stay `delivered` | `ai_generated = 1` |
+
+How the real data was turned into ShopNova data (all in the builder script, with comments):
+- **Orders kept:** all items in electronics categories (`telefonia`, `telefonia_fixa`, `informatica_acessorios`,
+  `eletronicos`, `audio`, `pcs`, `pc_gamer`, `tablets_impressao_imagem`, `relogios_presentes`, `consoles_games`);
+  left out: 3 "delivered" orders without a delivery date, 12 orders whose real story lasts more than 90 days.
+- **Sample:** clients drawn at random (seed 2026), all their orders taken, until 2,000 orders or more.
+- **Dates:** each order moves by its own whole number of days so that everything that happened (purchase, delivery,
+  reviews) falls in the 90 days before `sim_today`; all real durations stay. A promised date may be after
+  `sim_today` (it is a promise, not an event).
+- **Status:** `delivered` → `delivered`; `shipped` → `shipped`, or `stuck_at_depot` if its promised date is before
+  `sim_today`; `canceled`/`unavailable` → `cancelled`; `created`/`approved`/`invoiced`/`processing` → `processing`.
+- **Money:** 1 BRL = 0.5625 TND (`currency` in `config.yaml`, Wise mid-market, 2026-10-29), rounded to 0.01.
+  `total` = items + delivery (= the Olist payments); for 8 orders with a voucher or instalment interest the total is
+  the converted payment and differs from the lines (listed in `tests/test_seed_data.py`).
+- **Payment:** Olist `boleto` → cash on delivery (`paid = 0` until delivered); card, debit card, voucher → card;
+  cancelled → `paid = 0`.
+- **Cities** (Brazilian state → `cities_served`): states ranked by their number of Olist customers, then given the
+  8 cities in profile order, round robin: SP, ES, PB, AC → Tunis; RJ, GO, PI, AP → Ariana; MG, PE, RN, RR → Ben Arous;
+  RS, CE, AL → Sousse; PR, PA, SE → Sfax; SC, MT, TO → Monastir; BA, MA, RO → Nabeul; DF, MS, AM → Bizerte.
+- **Company profile:** `delivery_promise_days` (min / median / max days from order to promise) and `sells` (the real
+  categories in English) are written by the builder from the sample.
+
+- `users(id, name, email, phone, city, source, source_id)`
+- `products(id, name, price, stock, source, source_id)`
+- `orders(id, user_id, items[JSON], total, paid, status, order_date, promised_date, delivered_date, carrier, tracking_number, source, source_id)`
+  - `items`: list of `{product_id, name, qty, price}`; real orders end with one `{"product_id": null, "name": "Delivery", "qty": 1, "price": <freight>}`
   - `status` codes: `processing`, `shipped`, `stuck_at_depot`, `out_for_delivery`, `delivered`, `refunded`, `cancelled`
   - allowed moves: `processing → shipped → out_for_delivery → delivered`, `shipped → stuck_at_depot`,
     `stuck_at_depot → out_for_delivery`,
     any status → `cancelled` or `refunded` (staying on the same status is refused)
-- `refunds(id, order_id, amount, status, rule_id, proposal_id, created_at)`
+- `refunds(id, order_id, amount, status, rule_id, proposal_id, created_at, source, source_id)`
   - `status`: `approved` (written by the Coordinator), `completed` (paid out, e.g. 4506), `refused`
+- `reviews(id, order_id, score, created_at, source, source_id)` — real Olist review scores 1–5 (no text)
 - `subscriptions(id, order_id, event, status waiting|sent, created_at, proposal_id)` — `proposal_id` = the approved
   `subscribe` proposal it came from
 - `events(id, order_id, event, at)` — one row each time an order reaches a notification event
@@ -31,8 +78,8 @@ exactly as it is: the 11 scripted orders 4505–4515 and the 4506 refund). Gener
   decision_reason, created_at, decided_at)` — audit of every agent proposal and the Coordinator's decision.
   `decision`: `NULL` (not decided yet) or `approve | send_back | ask_user | ask_proof | layer3 | escalate`.
   `refunds.proposal_id` refers to `proposals.id` (seed refunds predate the system and have `NULL`).
-- Dates are ISO `YYYY-MM-DD`. The generated seed data uses the fixed start date (`sim_today` in `config.yaml`,
-  read through `config.sim_start()`; written in one place only). Run-time writes use `sim_today()`, which follows the
+- Dates are ISO `YYYY-MM-DD`. The real sample is placed with the fixed start date (`sim_today` in `config.yaml`,
+  read through `config.sim_start()` by the builder; written in one place only). Run-time writes use `sim_today()`, which follows the
   simulation clock (§9): it is 2026-10-09 until the clock is moved.
 
 ## 3. How agents call tools
