@@ -16,3 +16,9 @@ numpy>=1.26
 fastapi>=0.110
 uvicorn>=0.29
 httpx>=0.27
+
+# ShopNova app (T17): Streamlit UI, demo logins (bcrypt hashes). Exact versions: latest stable on 2026-10-29,
+# checked together on Python 3.12 (pip check: no broken requirements).
+streamlit==1.66.1
+streamlit-authenticator==0.4.2
+bcrypt==5.0.0

@@ -19,3 +19,7 @@ __pycache__/
 
 # Raw downloaded datasets (Olist etc.) — never committed, downloaded by hand (T15)
 data/raw/
+
+# T17: demo logins (bcrypt hashes) and CallVerse's tickets database (callverse.db is also covered by *.db)
+config/accounts.yaml
+callverse/data/callverse.db

@@ -1,0 +1,17 @@
+# Demo accounts (T17): the SHAPE of config/accounts.yaml, without any password. Committed as documentation.
+# The real file is git-ignored and written by `python -m scripts.create_demo_accounts` (run by Yassine himself):
+# it adds `password: <bcrypt hash>` to each account and a random cookie key.
+# roles: user (ShopNova client, linked to its ShopNova user_id) · admin (ShopNova, T18) · supervisor (Console, T19).
+credentials:
+  usernames:
+    sara:       {name: Sara Ben Ali,         email: sara@example.com,    roles: [user],       user_id: 1}
+    youssef:    {name: Youssef Trabelsi,     email: youssef@example.com, roles: [user],       user_id: 2}
+    amira:      {name: Amira Gharbi,         email: amira@example.com,   roles: [user],       user_id: 3}
+    karim:      {name: Karim Jaziri,         email: karim@example.com,   roles: [user],       user_id: 4}
+    leila:      {name: Leila Mansour,        email: leila@example.com,   roles: [user],       user_id: 5}
+    admin:      {name: ShopNova Admin,       email: null,                roles: [admin],      user_id: null}
+    supervisor: {name: CallVerse Supervisor, email: null,                roles: [supervisor], user_id: null}
+cookie:
+  name: callverse_auth
+  key: "<random, written by the script>"
+  expiry_days: 1

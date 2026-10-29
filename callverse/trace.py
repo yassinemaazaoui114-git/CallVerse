@@ -45,3 +45,24 @@ def log(step: str, actor: str, data: dict) -> None:
     with open(path, "a", encoding="utf-8") as f:
         # default=str turns anything not JSON-friendly (dates...) into text instead of crashing.
         f.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
+    for listener in list(_listeners):
+        try:
+            listener(record)
+        except Exception:   # a listener (e.g. the web page showing live steps) must never break a run
+            pass
+
+
+# T17: listeners = functions called with each record just after it is written (live steps in the chat).
+# The trace file stays the reference; a listener only gets a copy of what was written.
+_listeners: list = []
+
+
+def add_listener(fn) -> None:
+    """Call fn(record) for every new trace line, until remove_listener(fn)."""
+    _listeners.append(fn)
+
+
+def remove_listener(fn) -> None:
+    """Stop calling fn (no error if it was not registered)."""
+    if fn in _listeners:
+        _listeners.remove(fn)
