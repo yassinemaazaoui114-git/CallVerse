@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T16_agent_b_model.md (Agent B on its own Groq model list; Intake + A + SLM stay local with CALLVERSE_AGENTS_SET=local) |
 | Approved by | Yassine — 2026-10-29 10:16 (items 1–7, all ⭐) |
 | Last done | T15 — reviewed and merged 2026-10-29 (42fc334): ShopNova on 2,000 real Olist orders |
