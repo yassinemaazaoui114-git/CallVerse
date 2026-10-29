@@ -4,6 +4,14 @@
 # Fixed "today" for the simulation, so demo runs are reproducible.
 sim_today: "2026-10-09"
 
+# T15: ShopNova's real orders come from the Olist dataset (Brazil, prices in reais, BRL). One FIXED rate turns
+# them into Tunisian dinars, so the sample is the same on every rebuild (no live lookup). Used only by
+# scripts/build_shopnova_sample.py.
+currency:
+  brl_to_tnd: 0.5625
+  rate_date: "2026-10-29"
+  rate_source: "Wise mid-market rate, read by the Brain on 2026-10-29"
+
 # OpenAI-compatible API endpoints. key_env = name of the variable in .env that holds the key.
 providers:
   groq:       {base_url: "https://api.groq.com/openai/v1", key_env: GROQ_API_KEY}
