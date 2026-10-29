@@ -1,19 +1,30 @@
 # CallVerse — prototype
 
 CallVerse is a university data-science project: a **digital twin of a fully AI customer relation center**.
-AI agents answer clients of a mock e-commerce company, **ShopNova**, using tools that read its database.
-This repo is the **prototype** (proof of concept): it shows *why* each model, agent and rule is where it is.
+AI agents answer the clients of a mock e-commerce company, **ShopNova** (electronics, Tunisia, prices in TND).
+Agents only read data through tools and **propose** actions; plain rules decide and write.
+This repo is the **prototype**: it shows *why* each model, agent and rule is where it is.
+Everything runs on one PC: big LLMs through APIs (Groq), small models locally (Ollama, CPU models).
 
-## The prototype flow
+## How it works
 
-```
-Client Simulator → Intake → Queues (rules) → Agent A / Agent B → Coordinator (rules) → SLM → reply
-```
+A client message goes through these steps (each one is traced in `traces/`, one JSON line per step):
 
-- **Agent A** — Status & Tracking ("where is my order?"). **Agent B** — Payment & Refund.
-- Agents only **read** data and **propose** actions. The **Coordinator** (plain rules, no LLM) checks
-  each proposal and is the only part that changes data.
-- More detail: [docs/architecture.md](docs/architecture.md).
+1. **Channel** — the ShopNova app's Help chat calls `callverse/channels/web_chat.py` (one ticket per chat, saved in
+   CallVerse's own database `callverse/data/callverse.db`); scripts can also send a message directly.
+2. **Intake** (no agent) — the reason by meaning (`BAAI/bge-small-en-v1.5`), emotion, sentiment, priority, the
+   client's style and the order number; a small LLM only when the reason is unclear.
+3. **Queues** (rules) — order status / late delivery → **Agent A** (Status & Tracking); refund / return / damaged
+   item → **Agent B** (Payment & Refund). Agent A hands money requests over to B.
+4. **Agents** (shared LLM `openai/gpt-oss-120b` on Groq) — read facts with their allowed tools only
+   (`callverse/tools/registry.py`), find the company rule with the policy search (RAG), and submit a **proposal**.
+5. **Coordinator** (rules, no LLM) — re-reads the facts, checks the cited rule, the refund limit and the client's
+   confirmation, then approves (only then the platform writes), sends back, asks the client or escalates.
+   Refunds above 300 TND need finance (Layer 3): a fixed rule by default, or the ShopNova admin in the app.
+6. **Reply writer** (SLM `qwen2.5:1.5b`, local) — writes the reply from the Coordinator's decision only, in the
+   client's style; a rule check and templates keep it correct.
+
+More detail: [docs/architecture.md](docs/architecture.md). Models and switches: `config.yaml` (the only place to change them).
 
 ## Setup (Windows, Python 3.12)
 
@@ -21,147 +32,136 @@ Client Simulator → Intake → Queues (rules) → Agent A / Agent B → Coordin
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-copy .env.example .env          # then paste your API keys into .env (never commit it)
-python -m callverse.data.seed   # creates the placeholder ShopNova database
-python -m scripts.run_demo "Hi, where is my order 4512?"
-python -m pytest -q             # run the tests
+copy .env.example .env          # then put your own API keys in .env (it is git-ignored: never commit it)
+python -m callverse.data.seed   # builds the ShopNova database (callverse/data/shopnova.db)
 ```
 
-On macOS/Linux: `source .venv/bin/activate` and `cp .env.example .env`.
-The demo re-seeds the database itself, so every run starts from the same data.
-Each run writes a trace file in `traces/` (one JSON line per step).
+- **`.env`**: the variable names are in `.env.example` (`GROQ_API_KEY` for the agents; `GOOGLE_API_KEY` for the
+  Gemini backup; `OPENROUTER_API_KEY` optional; `PLATFORM_COORDINATOR_TOKEN` only for the platform server's writes).
+- **Ollama** (<https://ollama.com>) runs the local models. Pull them once:
+  ```powershell
+  ollama pull qwen2.5:1.5b        # the reply writer (SLM)
+  ollama pull qwen2.5:3b          # its backup
+  ollama pull qwen3.5:4b          # local test model for Intake's fallback + Agent A (used by the ShopNova app)
+  ollama pull phi4-mini           # its backup
+  # the app uses copies with an 8,192-token context (Ollama's default 4,096 can cut a prompt):
+  Set-Content Modelfile.qwen "FROM qwen3.5:4b`nPARAMETER num_ctx 8192";  ollama create cv-qwen3.5-4b -f Modelfile.qwen
+  Set-Content Modelfile.phi  "FROM phi4-mini`nPARAMETER num_ctx 8192";   ollama create cv-phi4-mini  -f Modelfile.phi
+  ```
+  The Intake models (embeddings, emotion, sentiment) download by themselves on the first run (about 1 GB).
+- **Demo logins**, once, by yourself (only bcrypt hashes go into the git-ignored `config/accounts.yaml`):
+  ```powershell
+  python -m scripts.create_demo_accounts   # type a password twice per account, or Enter = random (shown once)
+  ```
+  Accounts (see `config/accounts.example.yaml`): `sara`, `youssef`, `amira`, `karim`, `leila` (ShopNova clients 1–5),
+  `admin` (ShopNova admin), `supervisor` (CallVerse Console, T19).
 
-## How we work: tasks
+## Start the apps
 
-- `tasks/NEXT.md` says which task is next, its status and who approved it.
-- Each task has a file `tasks/Txx_....md` (what to do, limits, checks). When it is done, the builder
-  writes `tasks/Txx_report.md` and the task waits for review.
-- Rules for the builder (Claude Code) are in [CLAUDE.md](CLAUDE.md).
+**ShopNova app** (the company's website, <http://127.0.0.1:8501>, this PC only). Start Ollama first, then:
+- **Desktop shortcut**: run `powershell -ExecutionPolicy Bypass -File .\scripts\make_desktop_shortcut.ps1` once, then
+  double-click **ShopNova** on the Desktop. It runs `ShopNova.bat`, which checks Ollama (if it does not answer, the
+  window says "Start Ollama first, then run ShopNova again."), starts the app and opens the browser.
+- Or double-click `ShopNova.bat`, or run `.\start_shopnova.ps1` in PowerShell (then open the address yourself).
 
-## Folder map
+What is in it: Shop (everyone; buying needs a login), My orders and Help chat (a logged-in client); as `admin` also
+Admin dashboard, Manage (products, orders, users, refunds, admin log) and Refund approvals. In the app a refund above
+300 TND waits for the admin (`CALLVERSE_LAYER3_MODE=queue`); the client gets the decision as a new reply.
+Models in the app: Intake + Agent A + reply writer local, Agent B on Groq. The app does not watch its files: **after a
+code change, restart it** (close the window or Ctrl+C, then start again).
+Clean demo data: `python -m callverse.data.seed` and delete `callverse/data/callverse.db` (the tickets).
+
+**Platform server** (ShopNova's data and tools as a small web API, <http://127.0.0.1:8000>):
+`python scripts/run_platform_server.py` — read-only dashboard at `/`, all endpoints at `/docs`. Writes stay off
+unless `PLATFORM_COORDINATOR_TOKEN` is set. Details: [docs/platform_contract.md](docs/platform_contract.md) §8.
+
+**Command line**: `python -m scripts.run_demo "Hi, where is my order 4512?"` (one message, all steps),
+`python -m scripts.run_scenario S1` (demo stories S0–S4), `python -m scripts.run_notifier` (delivery messages),
+`python -m scripts.quota_check` (one tiny call per model: is the free quota there before a long run?). Demo plan: [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md).
+
+## Run the tests
+
+```powershell
+python -m pytest -q             # 477 tests, 1 to 1.5 minutes
+```
+No API key, no API call and no Ollama needed: the tests use fake LLMs and a fresh copy of the database.
+`tests/data/` holds the held-out test sets: they are only for final evaluations, never for building or tuning.
+
+## Folders
 
 ```
-README.md  CLAUDE.md  config.yaml  .env.example  requirements.txt  .gitignore
+README.md  CLAUDE.md  config.yaml  .env.example  requirements.txt  DATA_LICENCES.md
+ShopNova.bat  start_shopnova.ps1  start_demo.ps1
 callverse/          the code
-  config.py           reads config.yaml (models, sim_today)
-  llm.py              one shared LLM layer for all agents (provider + backup chain from config.yaml)
-  trace.py            writes every step to traces/*.jsonl
-  data/               placeholder ShopNova database (seed.py)
-  tools/              tool functions + per-agent allow-lists (registry.py)
-  agents/             base agent loop + Agent A
-  tickets/            CallVerse's own tickets database (store.py -> data/callverse.db, T17)
-  channels/           web_chat.py: the one door from a company app into CallVerse (T17)
-  auth/               demo logins and roles (accounts.py, T17)
-apps/shopnova/      the ShopNova Streamlit app (app.py + Home.py + pages/, T17; admin pages T18)
+  config.py llm.py trace.py   settings (config.yaml), the one shared LLM layer, the trace
+  intake/             Intake: reasons, emotion, sentiment, priority, style
+  queues/             the rule router and the priority queue
+  agents/             Agent A, Agent B, the shared agent loop
+  tools/              read tools, proposal tools, per-agent allow-lists (registry.py)
+  kb/                 ShopNova's policies and the policy search (RAG)
+  coordinator/        the Coordinator (rules)
+  slm/                the reply writer, its rule check and templates
+  notifier/           delivery notifications (story S3)
+  data/               ShopNova data: seed, read views, the ONLY write functions (writes.py), clock, Layer 3
+  tickets/ channels/  CallVerse's tickets database, the web chat channel, refund approvals
+  auth/               demo logins, roles and permissions
+  server/             the platform server (FastAPI)
+  simulator/          Client Simulator (planned)
+apps/shopnova/      the ShopNova Streamlit app (app.py, Home.py, pages/)
 config/             accounts.example.yaml (the real accounts.yaml is not in git)
-  kb/ coordinator/ queues/ notifier/ intake/ slm/ simulator/   empty, filled by later tasks
-scripts/            runnable entry points (run_demo.py)
-tests/              pytest tests (no API key needed)
+scripts/            runnable entry points
+tests/              pytest tests (tests/data: held-out sets)
 tasks/              NEXT.md, task files, reports
-docs/               architecture.md, platform_contract.md, briefs_archive/
+docs/               design and contract documents
 traces/             run logs (not in git)
 ```
 
-## Status
+## Data and licences
 
-**Runs today:** shared LLM layer (Groq `gpt-oss-120b`, backup `gpt-oss-20b`), placeholder database,
-3 read tools (`get_user`, `get_order`, `get_tracking`), allow-list registry, Agent A, traces, tests.
-Intake (T03): message → ticket with reasons, emotion, priority, style
-(`python -m scripts.run_intake "<message>"`; first run downloads the local models, ~1 GB).
-Pipeline (T04): Intake → rule router → Agent A or B (refund/return/damaged cases go to B),
-priority queue (`python -m scripts.run_pipeline "<message>"` or `--batch`).
-Policy search + Agent B (T06): `search_policy` finds rules by meaning (M3, `callverse/kb/search.py`);
-Agent B (Payment & Refund) asks Agent A for delivery facts, cites the rule and submits a refund
-**proposal** (`propose_refund`, nothing paid). Route B now runs Agent B. Held-out check:
-`python -m scripts.eval_policy_search` (final evaluation only).
-Coordinator (T07): rules only, no LLM (`callverse/coordinator/coordinator.py`). It re-reads the facts,
-checks the cited rule, R-REF-05, the client's confirmation and Layer 3 (> 300 TND), then approves (only then
-the platform writes), sends back (max 2, the agent corrects), asks the client, or escalates. Scenarios:
-`python -m scripts.run_scenario S0|S1|S2|S4`. The LLM layer waits on short rate limits and falls back
-gpt-oss-120b → gpt-oss-20b → Gemini Flash (force one with `CALLVERSE_FORCE_AGENTS_MODEL=<model>`).
-Model switches (T16, temporary test setup until the M2 benchmark): Agent B has its own list `models.agent_b`
-(Groq gpt-oss-120b → gpt-oss-20b, no Gemini), used by its turns and by its "ask Agent A" sub-call.
-`CALLVERSE_AGENTS_SET=local` moves Intake's LLM fallback and Agent A to the local test models but **not** B;
-`CALLVERSE_AGENT_B_SET=local` moves B too (`agent_b_local` = the same list as `agents_local`).
-`CALLVERSE_FORCE_AGENT_B_MODEL=<model>` forces B's model; `CALLVERSE_FORCE_AGENTS_MODEL` no longer affects B.
-No switch = A and B on Groq, as before.
-Final reply (T05 + T08): the SLM (`qwen2.5:3b` via Ollama, `callverse/slm/writer.py`) writes the user's reply
-from the Coordinator's decision only (`must_say`, `next_step`, facts), in the client's style; a rule check
-and templates keep it safe. The agent's own text stays in the trace. Without Ollama the template answers.
+`callverse/data/shopnova.db` (rebuilt by `python -m callverse.data.seed`) holds two kinds of data, and every row says
+which one it is (`source`, `ai_generated`, `scripted`):
+- **Scripted** demo data written by hand (`seed.py`): clients 1–5, products 1–6, orders 4505–4515 (4512 = main demo,
+  4515 = Layer 3 case). It never changes.
+- **Real** data: 2,000 orders of the **Olist Brazilian E-Commerce dataset** (ids 10001+), with their real dates,
+  statuses, payments (converted to TND) and review scores; names, emails, phones, product names and stock are generated.
 
-Delivery notification (T09, story S3): Agent A proposes `propose_subscription` when the client asks to be
-told; the Coordinator approves (R-NOT-01) and the platform records it; after the simulation clock moves
-(`callverse/data/clock.py`), the notifier (`callverse/notifier/notifier.py`, `python -m scripts.run_notifier`)
-sends one message per subscription. `python -m scripts.run_scenario S3` plays the whole story.
+Olist is licensed **CC BY-NC-SA 4.0**: source, credit line and changes in [DATA_LICENCES.md](DATA_LICENCES.md).
+The raw files are never committed (`data/raw/`). `python -m scripts.data_summary` prints the counts.
 
-**Coming next:** Client Simulator (Brief #4).
+## Task history
 
-## Data
+How we work: `tasks/NEXT.md` says which task is next; each task has a file `tasks/Txx_*.md` and a report
+`tasks/Txx_report.md`. Rules for the builder (Claude Code): [CLAUDE.md](CLAUDE.md).
 
-The ShopNova database (`callverse/data/shopnova.db`, rebuilt by `python -m callverse.data.seed`) holds two kinds of data
-(T15). Every row has labels so it is always visible what is real and what is AI-generated:
+- **T01** Core: shared LLM layer, placeholder ShopNova database, read tools, allow-lists, Agent A, traces.
+- **T02** Repo restructured and the skeleton pushed to GitHub.
+- **T03** Intake: reasons by meaning, emotion, sentiment, priority, style.
+- **T04** Pipeline: Intake → rule router → Agent A (handover to B); T04a joined the platform and Intake into `main`.
+- **T05** Reply writer (SLM) with Ollama; T05b exact key sentences, calm opener, temperature 0.
+- **T06** Policy search (RAG) and Agent B (refund proposals).
+- **T07** Coordinator (rules; stories S1, S2, Layer 3) and the rate-limit fallback.
+- **T08** Coordinator joined to the reply writer: one correct, polite reply per client.
+- **T09** Story S3: delivery notification (subscription, simulation clock, notifier).
+- **T10** Live-typing test (whatever is typed in front of the teacher); T10b finished it on this PC + demo runbook.
+- **T11** Demo tools merged into `main`.
+- **T12** Unseen live-typing test, run once.
+- **T13** Local test models for the agents; T13b context benchmark; T13c stricter checker and safety net; T13d RAG
+  check; T13e small SLM test; T13f reply writer switched to `qwen2.5:1.5b`.
+- **T14** Reserved for core fixes (e.g. the cancellation rule, a second question in the same chat): not done yet.
+- **T15** ShopNova on real data: 2,000 Olist orders.
+- **T16** Agent B gets its own model setting (Groq), so refunds work while the rest runs locally.
+- **T17** ShopNova app, part 1: tickets, web chat channel, logins, Shop, My orders, Help chat.
+- **T18** ShopNova app, part 2: Admin dashboard, Manage, Refund approvals (the real Layer 3 queue).
 
-- **Scripted** (`source = 'scripted'`, `ai_generated = 1`): the hand-written demo data in `seed.py` — users 1–5,
-  products 1–6, orders **4505–4515** (`scripted = 1`; 4512 = main demo, 4515 = Layer 3 case) and the 4506 refund.
-  It must never change.
-- **Real** (`source = 'olist'`): **2,000 real orders** (ids 10001+) of the Olist Brazilian E-Commerce dataset
-  (CC BY-NC-SA 4.0, see `DATA_LICENCES.md`), with their real dates, statuses, payments (converted to TND) and review
-  scores, moved into the 90 days before the demo date. Olist has no names, so client names, emails, phones, product
-  names, stock, carriers and tracking numbers are generated (`ai_generated = 1` on users and products; see
-  `docs/platform_contract.md` §2 for every column). Refunds only where the real data shows a late delivery and a
-  1–2 star review (`source = 'generated'`).
-- How to rebuild the real sample: download the Kaggle dataset `olistbr/brazilian-ecommerce` by hand into
-  `data/raw/olist/` (never committed), then `python -m scripts.build_shopnova_sample` (fixed seed: same file every time).
-- The company profile (`callverse/data/company_profile.json`) and the policy texts are AI-written
-  (`ai_generated: true`); its `sells` and `delivery_promise_days` come from the real sample.
-- Rows created while the system runs (refunds, subscriptions, events) get `0 / 0` and `source = NULL`.
+The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 
-`python -m scripts.data_summary` prints the counts per table, per status, and how many rows are generated or scripted.
+## Docs
 
-## Run the platform server
-
-The ShopNova platform can run as a small web server **on this PC only** (`127.0.0.1`, not reachable from the network):
-
-```powershell
-python scripts/run_platform_server.py
-```
-
-- Dashboard (read-only): <http://127.0.0.1:8000/> — company profile, orders with AI-generated / scripted labels,
-  policies, refunds, subscriptions, events and the last trace lines.
-- All endpoints: <http://127.0.0.1:8000/docs> (FastAPI's API page). Agents call tools with `POST /tools/{name}`,
-  which checks their allow-list.
-- Writes (`/coordinator/*`, `/layer3/decide`, `/admin/reset`) are **off** unless you put a value in
-  `PLATFORM_COORDINATOR_TOKEN` in `.env` and send it in the `X-Coordinator-Token` header.
-- Demo through the HTTP endpoints, no second terminal needed: `python scripts/demo_platform_http.py`.
-
-Details: [docs/platform_contract.md](docs/platform_contract.md) section 8.
-
-## Run the ShopNova app (T17)
-
-The company's website, a Streamlit app **on this PC only** (<http://127.0.0.1:8501>): Shop (everyone; buying needs a
-login), My orders and Help chat (a logged-in client). The Help chat reaches CallVerse through one channel function
-(`callverse/channels/web_chat.py`); each chat is a ticket in CallVerse's own database `callverse/data/callverse.db`.
-T18: logged in as `admin`, the sidebar also shows **Admin dashboard**, **Manage** (products, orders, users, refunds,
-admin log) and **Refund approvals**: in the app, a refund above 300 TND waits there for the admin (the real Layer 3
-queue, `CALLVERSE_LAYER3_MODE=queue`); the client gets the decision as a new reply ("💬 New reply on T-00NN").
-The start file is `apps/shopnova/app.py` (Streamlit `st.navigation`).
-
-1. **Create the demo logins once, yourself** (the passwords never go into git, only bcrypt hashes in the git-ignored
-   `config/accounts.yaml`; see `config/accounts.example.yaml` for the accounts):
-   ```powershell
-   python -m scripts.create_demo_accounts   # type a password twice per account, or Enter = random (shown once)
-   ```
-   Accounts: `sara`, `youssef`, `amira`, `karim`, `leila` (= ShopNova users 1–5), `admin` (T18), `supervisor` (T19).
-2. **Start Ollama**, then the app:
-   ```powershell
-   .\start_shopnova.ps1   # checks Ollama, Intake + Agent A + SLM local, Agent B on Groq; Ctrl+C to stop
-   ```
-   The app does not watch its files (`fileWatcherType = "none"`, no more torchvision messages): **after a code
-   change, restart it** (Ctrl+C, then `.\start_shopnova.ps1`). From Claude Code's `!` prompt (bash), use
-   `! powershell -ExecutionPolicy Bypass -File .\start_shopnova.ps1`.
-3. Clean demo data again: `python -m callverse.data.seed` (ShopNova data) and delete `callverse/data/callverse.db` (tickets).
-
-## For the platform builder
-
-What the agents expect from the ShopNova mock platform (tables, tools, policies):
-[docs/platform_contract.md](docs/platform_contract.md).
+- [docs/architecture.md](docs/architecture.md) — the architecture and why each part is there
+- [docs/platform_contract.md](docs/platform_contract.md) — tables, tools, policies, Layer 3, server (the reference)
+- [docs/platform.md](docs/platform.md), [docs/platform_map.md](docs/platform_map.md),
+  [docs/platform_P01_P02_summary.md](docs/platform_P01_P02_summary.md) — the platform builder's notes
+- [docs/decision_format.md](docs/decision_format.md) — what the Coordinator gives the reply writer
+- [docs/ui_design.md](docs/ui_design.md) — the ShopNova app and the Console (design)
+- [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md) — how to run the demo
+- [DATA_LICENCES.md](DATA_LICENCES.md) — data sources and licences
