@@ -35,13 +35,16 @@ def category_name(category: str) -> str:
 
 
 def _all_products() -> list[dict]:
+    """The products on sale: T18, a product the admin deactivated (active = 0) is not shown (old orders keep
+    their own copy of the name and price in their items)."""
     with closing(connect()) as con:
-        rows = con.execute("SELECT id, name, price, stock, category FROM products ORDER BY id").fetchall()
+        rows = con.execute("SELECT id, name, price, stock, category FROM products WHERE active = 1"
+                           " ORDER BY id").fetchall()
     return [{**dict(r), "category": r["category"] or "other"} for r in rows]
 
 
 def product(product_id) -> dict | None:
-    """One product with its category, or None."""
+    """One product on sale with its category, or None (also None for a deactivated product)."""
     return next((p for p in _all_products() if p["id"] == product_id), None)
 
 

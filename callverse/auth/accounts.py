@@ -6,7 +6,7 @@
 - Roles (docs/ui_design.md section 4): user (ShopNova client), admin (ShopNova, T18), supervisor (Console, T19).
   Each "user" account is linked to its ShopNova user id (sara -> 1 ... leila -> 5).
 - require_role(role) is called at the top of every protected page AND again just before every write, so a
-  hidden button is never the only protection.
+  hidden button is never the only protection. T18: admin pages use require_permission(perm) the same way.
 - The role and the user id always come from the accounts FILE (looked up by the logged-in username), never
   from something the browser could change.
 """
@@ -23,6 +23,10 @@ EXAMPLE_PATH = PROJECT_ROOT / "config" / "accounts.example.yaml"
 _accounts_path = DEFAULT_ACCOUNTS_PATH
 
 ROLES = ("user", "admin", "supervisor")
+# T18 (option A, docs/ui_design.md section 4): what each role may do in the ShopNova back office, checked PER ACTION,
+# so a separate finance role can be added later in a few lines. user and supervisor: none of these.
+PERMISSIONS = {"admin": ("view_dashboard", "edit_catalogue", "edit_orders", "edit_users", "approve_refunds")}
+ALL_PERMISSIONS = tuple(sorted({p for perms in PERMISSIONS.values() for p in perms}))
 LOGIN_MESSAGE = "Please log in to see this page."
 NO_ACCOUNTS_MESSAGE = "No accounts yet: run `python -m scripts.create_demo_accounts` once (see README)."
 
@@ -87,6 +91,29 @@ def require_role(role: str) -> dict:
     """For Streamlit pages: the logged-in account with `role`, or show only "please log in" and stop the page."""
     import streamlit as st
     found = check_role(st.session_state, role)
+    if found is None:
+        st.info(LOGIN_MESSAGE if load_accounts() is not None else NO_ACCOUNTS_MESSAGE)
+        st.stop()
+    return found
+
+
+def check_permission(session, perm: str) -> dict | None:
+    """The logged-in account if its role has permission `perm` (PERMISSIONS above), else None (T18)."""
+    if perm not in ALL_PERMISSIONS:
+        raise ValueError(f"unknown permission '{perm}' (allowed: {', '.join(ALL_PERMISSIONS)})")
+    if session.get("authentication_status") is not True:
+        return None
+    found = account(session.get("username"))
+    if found is None or perm not in PERMISSIONS.get(found["role"], ()):
+        return None
+    return found
+
+
+def require_permission(perm: str) -> dict:
+    """For Streamlit pages: the logged-in account with `perm`, or show only "please log in" and stop the page.
+    Called at the top of every admin page AND again just before every admin write."""
+    import streamlit as st
+    found = check_permission(st.session_state, perm)
     if found is None:
         st.info(LOGIN_MESSAGE if load_accounts() is not None else NO_ACCOUNTS_MESSAGE)
         st.stop()

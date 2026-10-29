@@ -1,4 +1,4 @@
-# Start the ShopNova app (T17) on this PC: http://127.0.0.1:8501 (localhost only). Stop with Ctrl+C.
+# Start the ShopNova app (T17, T18: app.py + admin pages) on this PC: http://127.0.0.1:8501 (localhost only). Stop with Ctrl+C.
 #
 #   .\start_shopnova.ps1
 #
@@ -21,12 +21,14 @@ try {
 # 2. Intake + Agent A local, Agent B on Groq (its own model list).
 $env:CALLVERSE_AGENTS_SET = "local"
 Remove-Item Env:\CALLVERSE_AGENT_B_SET -ErrorAction SilentlyContinue
+# T18: the real Layer 3 queue: refunds above 300 TND wait for the ShopNova admin (Refund approvals page).
+$env:CALLVERSE_LAYER3_MODE = "queue"
 
 # 3. The app. Started from apps/shopnova so Streamlit reads apps/shopnova/.streamlit/config.toml (the style).
 Write-Host "ShopNova app: http://127.0.0.1:8501"
 Set-Location -Path "$PSScriptRoot\apps\shopnova"
 try {
-    streamlit run Home.py --server.address 127.0.0.1 --server.port 8501
+    streamlit run app.py --server.address 127.0.0.1 --server.port 8501
 } finally {
     Set-Location -Path $PSScriptRoot
 }

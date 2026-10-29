@@ -1,4 +1,4 @@
-﻿# NEXT TASK â€” Yassine's lane (core)
+# NEXT TASK â€” Yassine's lane (core)
 
 | Field | Value |
 |---|---|

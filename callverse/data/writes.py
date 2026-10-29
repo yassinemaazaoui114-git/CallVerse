@@ -4,7 +4,10 @@ Rule: only the Coordinator writes. These functions live here, OUTSIDE callverse/
 never put in the tool registry or in any agent allow-list, so no agent (and no LLM) can call them.
 The Coordinator calls them after its checks; scripts/advance_status.py calls set_order_status
 to play the carrier during demo S3. T17: create_order is called by the ShopNova app (a client buys),
-for the logged-in user only.
+for the logged-in user only. T18: the ShopNova ADMIN's writes (products, order status, users, the log of refund
+approvals) are at the end of this file; the app calls them after require_permission. Each one adds an
+`admin_actions` row (who, when, before, after) in the SAME transaction as the change, so a change without its
+log line cannot happen. Nothing is ever deleted (a product is deactivated, an order cancelled).
 
 Coordinator order: record_proposal -> checks -> record_decision("approve") -> create_refund / create_subscription.
 Both writes refuse unless their proposal_id is a recorded, approved proposal whose action and params match
@@ -22,11 +25,13 @@ Dates use the fixed simulation date (sim_today), so demo runs stay reproducible.
 
 import json
 import math
+import re
 from contextlib import closing
 from datetime import timedelta
 
 from callverse import trace
 from callverse.config import sim_today
+from callverse.data import clock
 from callverse.data.db import connect
 from callverse.data.seed import (ALWAYS_ALLOWED, COUNTED_REFUND_STATUSES, DECISIONS, NOTIFICATION_EVENTS,
                                  ORDER_STATUSES, PAYMENT_METHODS, STATUS_MOVES)
@@ -281,9 +286,12 @@ def create_order(user_id: int, product_id: int, quantity: int, payment: str) -> 
         con.execute("BEGIN IMMEDIATE")   # stock check and stock decrease happen together
         if con.execute("SELECT 1 FROM users WHERE id = ?", (user_id,)).fetchone() is None:
             return _refuse("create_order", args, f"user {user_id} not found")
-        product = con.execute("SELECT id, name, price, stock FROM products WHERE id = ?", (product_id,)).fetchone()
+        product = con.execute("SELECT id, name, price, stock, active FROM products WHERE id = ?",
+                              (product_id,)).fetchone()
         if product is None:
             return _refuse("create_order", args, f"product {product_id} not found")
+        if not product["active"]:   # T18: removed from the shop by the admin
+            return _refuse("create_order", args, f"product {product_id} is not on sale any more")
         if product["stock"] < quantity:
             return _refuse("create_order", args,
                            f"not enough stock for product {product_id}: {product['stock']} left, {quantity} asked")
@@ -328,17 +336,316 @@ def set_order_status(order_id: int, new_status: str) -> dict:
             return _refuse("set_order_status", args,
                            f"move {old_status} -> {new_status} is not allowed")
 
-        con.execute("UPDATE orders SET status = ? WHERE id = ?", (new_status, int(order_id)))
-        if new_status == "delivered":
-            con.execute("UPDATE orders SET delivered_date = ? WHERE id = ? AND delivered_date IS NULL",
-                        (today, int(order_id)))
-
-        event = None
-        if new_status in NOTIFICATION_EVENTS:
-            cur = con.execute("INSERT INTO events (order_id, event, at) VALUES (?, ?, ?)",
-                              (int(order_id), new_status, today))
-            event = dict(con.execute("SELECT * FROM events WHERE id = ?", (cur.lastrowid,)).fetchone())
+        event = _apply_status(con, int(order_id), new_status, today)
         con.commit()
 
     result = {"order_id": int(order_id), "old_status": old_status, "new_status": new_status, "event": event}
     return _done("set_order_status", args, result)
+
+
+def _apply_status(con, order_id: int, new_status: str, today: str) -> dict | None:
+    """Write a status change already checked by the caller (no commit). Returns the new events row or None.
+    Used by set_order_status and by the admin's admin_set_order_status (T18), so both write it the same way."""
+    con.execute("UPDATE orders SET status = ? WHERE id = ?", (new_status, order_id))
+    if new_status == "delivered":
+        con.execute("UPDATE orders SET delivered_date = ? WHERE id = ? AND delivered_date IS NULL",
+                    (today, order_id))
+    if new_status not in NOTIFICATION_EVENTS:
+        return None
+    cur = con.execute("INSERT INTO events (order_id, event, at) VALUES (?, ?, ?)", (order_id, new_status, today))
+    return dict(con.execute("SELECT * FROM events WHERE id = ?", (cur.lastrowid,)).fetchone())
+
+
+# ---------------------------------------------------------------------------
+# T18: the ShopNova ADMIN's writes. Called only by the ShopNova app's admin pages (after require_permission)
+# and by callverse/channels/approvals.py. Never in an agent allow-list (tests/test_admin_writes.py checks it).
+# All take `admin` = the admin's username, return the new row or {"error": ...}, and log an admin_actions row.
+# ---------------------------------------------------------------------------
+
+MAX_NAME_LEN = 100
+MAX_PRICE_TND = 100_000
+MAX_STOCK = 100_000
+PRODUCT_FIELDS = ("name", "category", "price", "stock")
+USER_FIELDS = ("name", "email", "phone", "city")
+# The admin may move an order like the carrier does (STATUS_MOVES), and cancel it while it is not shipped yet.
+# "refunded" is never set by hand: a refund goes only through Refund approvals (or the Coordinator).
+ADMIN_CANCEL_FROM = ("processing",)
+
+
+def _log_action(con, admin: str, action: str, table: str, target_id, before: dict | None, after: dict | None) -> None:
+    """Add the admin_actions row on the SAME connection (same transaction) as the change it describes."""
+    con.execute("INSERT INTO admin_actions (at, admin, action, target_table, target_id, before, after)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (clock.now().isoformat(timespec="seconds"), admin, action, table, str(target_id),
+                 None if before is None else json.dumps(before, ensure_ascii=False),
+                 None if after is None else json.dumps(after, ensure_ascii=False)))
+
+
+def _bad_admin(admin) -> str | None:
+    return None if isinstance(admin, str) and admin.strip() else "admin (username) is required"
+
+
+def _clean_name(name) -> tuple[str | None, str | None]:
+    """(name trimmed, None) or (None, reason): not empty, at most MAX_NAME_LEN characters."""
+    if not isinstance(name, str) or not name.strip():
+        return None, "name must not be empty"
+    if len(name.strip()) > MAX_NAME_LEN:
+        return None, f"name must be at most {MAX_NAME_LEN} characters"
+    return name.strip(), None
+
+
+def _clean_price(price) -> tuple[float | None, str | None]:
+    """A price in TND: a number > 0 and <= 100,000 with at most 2 decimals."""
+    if not is_valid_amount(price) or price > MAX_PRICE_TND:
+        return None, f"price must be a number above 0 and at most {MAX_PRICE_TND:,} TND"
+    if abs(round(float(price), 2) - float(price)) > 1e-9:
+        return None, "price must have at most 2 decimals"
+    return round(float(price), 2), None
+
+
+def _clean_stock(stock) -> tuple[int | None, str | None]:
+    if isinstance(stock, bool) or not isinstance(stock, int) or not 0 <= stock <= MAX_STOCK:
+        return None, f"stock must be a whole number from 0 to {MAX_STOCK:,}"
+    return stock, None
+
+
+def _clean_phone(phone) -> tuple[str | None, str | None]:
+    """8 Tunisian digits (spaces, dashes and a +216 / 216 prefix are allowed), stored as "+216 XX XXX XXX"."""
+    digits = re.sub(r"[\s\-]", "", phone) if isinstance(phone, str) else ""
+    digits = re.sub(r"^\+?216(?=\d{8}$)", "", digits)
+    if not re.fullmatch(r"\d{8}", digits):
+        return None, "phone must be 8 digits (e.g. 20 123 456)"
+    return f"+216 {digits[:2]} {digits[2:5]} {digits[5:]}", None
+
+
+def _clean_email(email) -> tuple[str | None, str | None]:
+    if not isinstance(email, str) or "@" not in email.strip() or len(email.strip()) > MAX_NAME_LEN:
+        return None, "email must contain '@'"
+    return email.strip(), None
+
+
+def _categories(con) -> list[str]:
+    """The existing product categories (an admin product must use one of them)."""
+    return [r[0] for r in con.execute("SELECT DISTINCT category FROM products WHERE category IS NOT NULL"
+                                      " ORDER BY category").fetchall()]
+
+
+def _cities() -> list[str]:
+    from callverse.tools.shopnova_tools import get_company_profile   # imported here like create_order
+    return get_company_profile().get("cities_served", [])
+
+
+def _check_product_fields(con, fields: dict) -> tuple[dict, str | None]:
+    """Check and clean the given product fields. Returns (clean fields, None) or ({}, reason)."""
+    clean = {}
+    for name, value in fields.items():
+        if name == "name":
+            value, reason = _clean_name(value)
+        elif name == "price":
+            value, reason = _clean_price(value)
+        elif name == "stock":
+            value, reason = _clean_stock(value)
+        elif name == "category":
+            reason = None if value in _categories(con) else f"category '{value}' is not one of the shop's categories"
+        else:
+            reason = f"field '{name}' cannot be changed (allowed: {', '.join(PRODUCT_FIELDS)})"
+        if reason:
+            return {}, reason
+        clean[name] = value
+    return clean, None
+
+
+def _check_user_fields(con, fields: dict, user_id: int | None) -> tuple[dict, str | None]:
+    """Check and clean the given user fields (email and phone unique among the OTHER users)."""
+    clean = {}
+    for name, value in fields.items():
+        if name == "name":
+            value, reason = _clean_name(value)
+        elif name == "email":
+            value, reason = _clean_email(value)
+            if not reason and con.execute("SELECT 1 FROM users WHERE lower(email) = lower(?) AND id IS NOT ?",
+                                          (value, user_id)).fetchone():
+                reason = f"email {value} is already used by another user"
+        elif name == "phone":
+            value, reason = _clean_phone(value)
+            if not reason and con.execute("SELECT 1 FROM users WHERE phone = ? AND id IS NOT ?",
+                                          (value, user_id)).fetchone():
+                reason = f"phone {value} is already used by another user"
+        elif name == "city":
+            reason = None if value in _cities() else f"city '{value}' is not a city ShopNova serves"
+        else:
+            reason = f"field '{name}' cannot be changed (allowed: {', '.join(USER_FIELDS)})"
+        if reason:
+            return {}, reason
+        clean[name] = value
+    return clean, None
+
+
+def _row(con, table: str, row_id) -> dict | None:
+    row = con.execute(f"SELECT * FROM {table} WHERE id = ?", (row_id,)).fetchone()   # table: our own names only
+    return dict(row) if row else None
+
+
+def create_product(admin: str, name: str, category: str, price: float, stock: int) -> dict:
+    """Add a product to the shop (active). New id = max + 1; source 'app', ai_generated 0, scripted 0."""
+    function, args = "create_product", {"admin": admin, "name": name, "category": category, "price": price,
+                                        "stock": stock}
+    if reason := _bad_admin(admin):
+        return _refuse(function, args, reason)
+    with closing(connect()) as con:
+        con.execute("BEGIN IMMEDIATE")   # the new id, the row and its log line are written together
+        clean, reason = _check_product_fields(con, {"name": name, "category": category, "price": price,
+                                                    "stock": stock})
+        if reason:
+            return _refuse(function, args, reason)
+        product_id = con.execute("SELECT COALESCE(MAX(id), 0) + 1 FROM products").fetchone()[0]
+        con.execute("INSERT INTO products (id, name, price, stock, category, active, source, ai_generated, scripted)"
+                    " VALUES (?, ?, ?, ?, ?, 1, 'app', 0, 0)",
+                    (product_id, clean["name"], clean["price"], clean["stock"], clean["category"]))
+        row = _row(con, "products", product_id)
+        _log_action(con, admin, function, "products", product_id, None, row)
+        con.commit()
+    return _done(function, args, row)
+
+
+def update_product(admin: str, product_id: int, **fields) -> dict:
+    """Change a product's name / category / price / stock. Old orders keep the price stored in their items."""
+    function, args = "update_product", {"admin": admin, "product_id": product_id, **fields}
+    if reason := _bad_admin(admin):
+        return _refuse(function, args, reason)
+    if not fields:
+        return _refuse(function, args, "nothing to change")
+    with closing(connect()) as con:
+        con.execute("BEGIN IMMEDIATE")
+        before = _row(con, "products", product_id)
+        if before is None:
+            return _refuse(function, args, f"product {product_id} not found")
+        clean, reason = _check_product_fields(con, fields)
+        if reason:
+            return _refuse(function, args, reason)
+        sets = ", ".join(f"{name} = ?" for name in clean)   # names checked against PRODUCT_FIELDS above
+        con.execute(f"UPDATE products SET {sets} WHERE id = ?", (*clean.values(), product_id))
+        row = _row(con, "products", product_id)
+        _log_action(con, admin, function, "products", product_id, before, row)
+        con.commit()
+    return _done(function, args, row)
+
+
+def _set_active(function: str, admin: str, product_id: int, active: int) -> dict:
+    args = {"admin": admin, "product_id": product_id}
+    if reason := _bad_admin(admin):
+        return _refuse(function, args, reason)
+    with closing(connect()) as con:
+        con.execute("BEGIN IMMEDIATE")
+        before = _row(con, "products", product_id)
+        if before is None:
+            return _refuse(function, args, f"product {product_id} not found")
+        if before["active"] == active:
+            return _refuse(function, args, f"product {product_id} is already {'active' if active else 'inactive'}")
+        con.execute("UPDATE products SET active = ? WHERE id = ?", (active, product_id))
+        row = _row(con, "products", product_id)
+        _log_action(con, admin, function, "products", product_id, before, row)
+        con.commit()
+    return _done(function, args, row)
+
+
+def deactivate_product(admin: str, product_id: int) -> dict:
+    """Remove a product from the shop (soft delete: the row stays, old orders still show it)."""
+    return _set_active("deactivate_product", admin, product_id, 0)
+
+
+def reactivate_product(admin: str, product_id: int) -> dict:
+    """Put a deactivated product back in the shop."""
+    return _set_active("reactivate_product", admin, product_id, 1)
+
+
+def admin_set_order_status(admin: str, order_id: int, new_status: str) -> dict:
+    """The admin moves an order: only the moves in STATUS_MOVES, or "cancelled" while it is "processing"
+    (not shipped yet; the stock goes back). "refunded" is never set by hand. Returns the updated order row."""
+    function, args = "admin_set_order_status", {"admin": admin, "order_id": order_id, "new_status": new_status}
+    if reason := _bad_admin(admin):
+        return _refuse(function, args, reason)
+    if new_status == "refunded":
+        return _refuse(function, args, "'refunded' is never set by hand: refunds go through Refund approvals")
+    if new_status not in ORDER_STATUSES:
+        return _refuse(function, args, f"unknown status '{new_status}' (allowed: {', '.join(ORDER_STATUSES)})")
+    with closing(connect()) as con:
+        con.execute("BEGIN IMMEDIATE")   # status, stock back and the log line together
+        before = _row(con, "orders", order_id)
+        if before is None:
+            return _refuse(function, args, f"order {order_id} not found")
+        old = before["status"]
+        if new_status == "cancelled":
+            if old not in ADMIN_CANCEL_FROM:
+                return _refuse(function, args, f"only an order that is not shipped yet ({', '.join(ADMIN_CANCEL_FROM)})"
+                                               f" can be cancelled; order {order_id} is {old}")
+        elif new_status not in STATUS_MOVES.get(old, ()):
+            return _refuse(function, args, f"move {old} -> {new_status} is not allowed")
+        _apply_status(con, int(order_id), new_status, sim_today().isoformat())
+        if new_status == "cancelled":
+            for item in json.loads(before["items"]):
+                if item.get("product_id") is not None:   # the "Delivery" line has no product
+                    con.execute("UPDATE products SET stock = stock + ? WHERE id = ?",
+                                (int(item["qty"]), item["product_id"]))
+        row = _row(con, "orders", order_id)
+        _log_action(con, admin, function, "orders", order_id, before, row)
+        con.commit()
+    return _done(function, args, row)
+
+
+def create_user(admin: str, name: str, email: str, phone: str, city: str) -> dict:
+    """Add a ShopNova client (no login is created). New id = max + 1; source 'app', ai_generated 0, scripted 0."""
+    function, args = "create_user", {"admin": admin, "name": name, "email": email, "phone": phone, "city": city}
+    if reason := _bad_admin(admin):
+        return _refuse(function, args, reason)
+    with closing(connect()) as con:
+        con.execute("BEGIN IMMEDIATE")
+        clean, reason = _check_user_fields(con, {"name": name, "email": email, "phone": phone, "city": city}, None)
+        if reason:
+            return _refuse(function, args, reason)
+        user_id = con.execute("SELECT COALESCE(MAX(id), 0) + 1 FROM users").fetchone()[0]
+        con.execute("INSERT INTO users (id, name, email, phone, city, source, ai_generated, scripted)"
+                    " VALUES (?, ?, ?, ?, ?, 'app', 0, 0)",
+                    (user_id, clean["name"], clean["email"], clean["phone"], clean["city"]))
+        row = _row(con, "users", user_id)
+        _log_action(con, admin, function, "users", user_id, None, row)
+        con.commit()
+    return _done(function, args, row)
+
+
+def update_user(admin: str, user_id: int, **fields) -> dict:
+    """Change a client's name / email / phone / city (same checks as create_user)."""
+    function, args = "update_user", {"admin": admin, "user_id": user_id, **fields}
+    if reason := _bad_admin(admin):
+        return _refuse(function, args, reason)
+    if not fields:
+        return _refuse(function, args, "nothing to change")
+    with closing(connect()) as con:
+        con.execute("BEGIN IMMEDIATE")
+        before = _row(con, "users", user_id)
+        if before is None:
+            return _refuse(function, args, f"user {user_id} not found")
+        clean, reason = _check_user_fields(con, fields, before["id"])
+        if reason:
+            return _refuse(function, args, reason)
+        sets = ", ".join(f"{name} = ?" for name in clean)   # names checked against USER_FIELDS above
+        con.execute(f"UPDATE users SET {sets} WHERE id = ?", (*clean.values(), before["id"]))
+        row = _row(con, "users", before["id"])
+        _log_action(con, admin, function, "users", before["id"], before, row)
+        con.commit()
+    return _done(function, args, row)
+
+
+def log_admin_action(admin: str, action: str, target_table: str, target_id, before: dict | None,
+                     after: dict | None) -> dict:
+    """Log an admin decision whose data change is written by another write function (T18: a refund approval
+    or refusal; the refund itself is written by create_refund, with its own safety net). Returns the log row."""
+    function, args = "log_admin_action", {"admin": admin, "action": action, "target_table": target_table,
+                                          "target_id": target_id}
+    if reason := _bad_admin(admin):
+        return _refuse(function, args, reason)
+    with closing(connect()) as con:
+        _log_action(con, admin, action, target_table, target_id, before, after)
+        con.commit()
+        row = dict(con.execute("SELECT * FROM admin_actions ORDER BY id DESC LIMIT 1").fetchone())
+    return _done(function, args, row)
