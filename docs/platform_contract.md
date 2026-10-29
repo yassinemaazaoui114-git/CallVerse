@@ -42,9 +42,11 @@ Note: the read tools return whole rows, so agents now also see `payment` in `get
 - New table `admin_actions(id, at, admin, action, target_table, target_id, before JSON, after JSON)`: one row per
   change made by the ShopNova admin (`at` = simulation clock), written in the SAME transaction as the change by the
   admin write functions of `writes.py`: `create_product`, `update_product`, `deactivate_product`,
-  `reactivate_product`, `admin_set_order_status` (STATUS_MOVES only, `cancelled` only from `processing` with the
-  stock put back, `refunded` never by hand), `create_user`, `update_user`; and `log_admin_action` for a refund
-  approval / refusal (the refund itself is written by `create_refund`). None of them is in any agent allow-list.
+  `reactivate_product`, `admin_set_order_status` (STATUS_MOVES only, `cancelled` only from `processing` and only
+  when `paid` = 0 — else "This order is paid: it must be refunded first." — with the stock put back, `refunded`
+  never by hand), `create_user`, `update_user`; and `admin_decide_refund` for a refund approval / refusal (one
+  transaction: the proposal's decision + the refund with `create_refund`'s safety nets + R-REF-03 `refunded` + the
+  log row; if any part fails, nothing is written). None of them is in any agent allow-list.
   Admin products / users get `source = 'app'`, `ai_generated = 0`, `scripted = 0`.
 - In CallVerse's own tickets DB (`callverse.db`, not ShopNova's): `tickets.user_unread` (0/1, added on connect if
   missing) and the `approvals` rows are now used (the real Layer 3 queue, §7).
@@ -218,10 +220,11 @@ env `CALLVERSE_LAYER3_MODE=queue` (set by `start_shopnova.ps1` and the ShopNova 
 In queue mode the Coordinator returns the new outcome **`layer3_pending`** at step 6 (the stub is not called, the
 proposal stays undecided, nothing is written; the user is told "Your refund of X TND for order N needs approval
 from our finance team. We will reply here as soon as it has been reviewed."). The web chat channel creates the
-`approvals` row (pending) and sets the ticket to "Waiting for finance"; a new message about the same order gets a
-fixed reply with no agent call. `callverse/channels/approvals.py` `decide(approval_id, admin, approve, reason)`
-re-checks the data, records the decision on the proposal (`approve` or `layer3`), writes the refund with
-`create_refund` (+ `refunded` for R-REF-03), logs `admin_actions`, and posts a new reply (SLM) on the ticket.
+`approvals` row (pending) and sets the ticket to "Waiting for finance"; a new message about the same order (the
+user's own) gets a fixed reply with no agent call, checked before the quota check. `callverse/channels/approvals.py`
+`decide(approval_id, admin, approve, reason)` re-checks the data, then `admin_decide_refund` writes in ONE
+transaction the decision on the proposal (`approve` or `layer3`), the refund (+ `refunded` for R-REF-03) and the
+`admin_actions` row; then the approval is closed and a new reply (SLM) is posted on the ticket.
 Agent IDs: `A`, `B` (`C`, `D` later). Vector store: small numpy index (cosine) on `bge-small-en-v1.5`,
 swappable for Chroma/FAISS.
 Demo: S1 refund approved · S2 wrong amount sent back then corrected · S3 delivery notification after

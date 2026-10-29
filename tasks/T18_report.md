@@ -116,6 +116,22 @@ reply in the chat with a "💬 New reply" notice. Every admin change is logged w
 3. Should the refund + its admin_actions row become one transaction (e.g. an optional log argument in `create_refund`)?
 4. Duplicate guard: also answer it before the quota check (it needs no agent), or keep the order as in the task?
 
+## 5b. Follow-up after the Brain's review (approved by Yassine)
+| Item | What | Files |
+|---|---|---|
+| 1 | New `writes.admin_decide_refund(admin, proposal_id, approve, reason)`: ONE transaction (`BEGIN IMMEDIATE`) for the proposal's decision + the refund (create_refund's safety nets, moved into `_refund_problem` / `_insert_refund`, same behaviour) + R-REF-03 `refunded` + the `admin_actions` row; refuse = decision `layer3` + log row. Any failure → nothing written. `log_admin_action` removed. `approvals.decide` uses it; a failed write now leaves the approval **pending** and returns the reason to the admin (the old "escalate + approval refused" path is gone: it would have been a write) | `callverse/data/writes.py`, `callverse/channels/approvals.py` |
+| 2 | `admin_set_order_status` refuses `cancelled` when `paid > 0`: "This order is paid: it must be refunded first."; Manage offers Cancel only for unpaid orders | `writes.py`, `pages/5_Manage.py` |
+| 3 | Duplicate guard BEFORE the quota check: the order number is read with the plain regex extractor (no model); only the user's OWN order gets the reply (another client's order goes on to the identity check, nothing is said about it). The guard after Intake stays as a backup | `callverse/channels/web_chat.py` |
+| 4 | Reply writer's prompts unchanged (its `layer3_pending` guide → T14) | — |
+
+Tests: **477 / 477 pass** (472 − 1 replaced + 6 new): forced failure of the log write (approve and refuse) → no
+refund, order still `stuck_at_depot`, proposal undecided, no log row, approval pending, no message, and a retry then
+works; a safety-net refusal also leaves the decision unwritten; paid order 4511 not cancelled (status, stock, log
+unchanged; the cancel test now uses unpaid 4514); with B's quota used up, a message about 4515 with a pending
+approval gets the "already with our finance team" reply with 0 quota checks, no Intake and no LLM call (also via
+"About order N"); Sara asking about Youssef's 4515 does not get that reply. Docs: `docs/platform_contract.md`.
+Questions 1–4 above are answered by this follow-up.
+
 ## 6. Next step
 Yassine: start `.\start_shopnova.ps1`, log in as `youssef`, send the 4515 refund message, then as `admin` approve it in
 Refund approvals and check the "💬 New reply" notice as `youssef`. Then the Brain reviews; after the OK, merge into

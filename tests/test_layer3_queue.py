@@ -244,14 +244,53 @@ def test_a_second_decision_is_refused():
     assert not store.close_approval(a["id"], "refused", "admin", "late click")      # closes only a PENDING row
 
 
-def test_platform_refusal_gives_the_extra_check_message(monkeypatch):
+def broken_log(*args, **kwargs):
+    raise sqlite3.OperationalError("disk I/O error (forced by the test)")
+
+
+@pytest.mark.parametrize("approve, reason", [(True, ""), (False, "Not justified.")])
+def test_a_failed_log_write_leaves_nothing(monkeypatch, approve, reason):
+    """T18 follow-up: decision + refund + order status + admin_actions row are ONE transaction."""
     a = pending_approval()
-    monkeypatch.setattr(writes, "create_refund", lambda *args: {"error": "safety net: test refusal"})
-    out = approvals.decide(a["id"], "admin", True)
-    assert out["outcome"] == "escalate" and out["ticket"]["status"] == "Open"
-    approval = store.get_approval(a["id"])
-    assert approval["status"] == "refused" and "test refusal" in approval["reason"]
-    assert "passed on for review" in store.messages(a["ticket_id"])[-1]["text"]
+    messages = len(store.messages(a["ticket_id"]))
+    monkeypatch.setattr(writes, "_log_action", broken_log)
+    out = approvals.decide(a["id"], "admin", approve, reason)
+    assert "nothing was written" in out["error"] and "forced by the test" in out["error"]
+    assert get_refunds(4515)["refunds"] == [] and get_order(4515)["status"] == "stuck_at_depot"
+    assert proposal_row(a["proposal_id"])["decision"] is None and admin_log() == []
+    assert store.get_approval(a["id"])["status"] == "pending"
+    assert len(store.messages(a["ticket_id"])) == messages
+    monkeypatch.undo()                                     # the admin can try again: now it works
+    assert approvals.decide(a["id"], "admin", approve, reason)["outcome"] in ("approve", "layer3_refused")
+
+
+def test_a_safety_net_refusal_also_leaves_the_decision_unwritten():
+    # Called directly (no re-check before): 400 TND > paid 378 -> create_refund's R-REF-05 net refuses.
+    pid = writes.record_proposal({**refund_4515(400.0), "params": {"order_id": 4515, "amount": 400.0}})["id"]
+    out = writes.admin_decide_refund("admin", pid, True)
+    assert "R-REF-05" in out["error"]
+    assert proposal_row(pid)["decision"] is None and get_refunds(4515)["refunds"] == [] and admin_log() == []
+
+
+def test_duplicate_guard_comes_before_the_quota_check(monkeypatch):
+    a = pending_approval()
+    quota_calls = []
+    monkeypatch.setattr(web_chat, "agent_b_ready", lambda: quota_calls.append(1) or False)   # B's quota used up
+    monkeypatch.setattr(web_chat.intake, "process", lambda *a, **k: pytest.fail("Intake must not run"))
+    out = web_chat.send(2, "shopnova", "Any news about my refund for order 4515?", chat_fn=no_llm)
+    assert out["reply"] == web_chat.ALREADY_PENDING_REPLY.format(order_id=4515)
+    assert quota_calls == [] and [s["step"] for s in store.steps(out["ticket_id"])] == ["approval_pending"]
+    # The same reply also with the "About order N" button (the channel adds the number).
+    out = web_chat.send(2, "shopnova", "Any news?", about_order=4515, chat_fn=no_llm)
+    assert out["outcome"] == "approval_pending" and quota_calls == []
+    assert store.get_approval(a["id"])["status"] == "pending"
+
+
+def test_duplicate_guard_says_nothing_about_another_users_order(monkeypatch):
+    pending_approval()                                     # order 4515 is Youssef's (user 2)
+    monkeypatch.setattr(web_chat, "agent_b_ready", lambda: False)
+    out = web_chat.send(1, "shopnova", "Any news about the refund for order 4515?", chat_fn=no_llm)   # Sara
+    assert out["outcome"] == "busy" and "finance" not in out["reply"]
 
 
 def test_unread_notice_is_cleared_without_moving_the_reopen_window():

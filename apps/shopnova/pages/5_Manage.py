@@ -101,15 +101,17 @@ with products_tab:
 with orders_tab:
     if allowed("edit_orders"):
         table("orders", admin_reads.orders_page)
-        st.markdown("**Change an order's status** (only the allowed moves; cancel only before shipping; "
-                    "refunds go through Refund approvals)")
+        st.markdown("**Change an order's status** (only the allowed moves; cancel only before shipping and when "
+                    "nothing is paid; refunds go through Refund approvals)")
         oid = st.number_input("Order id", min_value=1, value=4511, step=1, key="order_edit_id")
         order = admin_reads.order_row(int(oid))
         if order is None:
             st.caption("No order with this id.")
         else:
             moves = list(STATUS_MOVES.get(order["status"], ())) + (
-                ["cancelled"] if order["status"] in writes.ADMIN_CANCEL_FROM else [])
+                ["cancelled"] if order["status"] in writes.ADMIN_CANCEL_FROM and not order["paid"] else [])
+            if order["status"] in writes.ADMIN_CANCEL_FROM and order["paid"]:
+                st.caption(writes.PAID_CANCEL_MESSAGE)
             st.caption(f"Order {order['id']} · user {order['user_id']} · status **{order['status']}** · "
                        f"total {ui.tnd(order['total'])}")
             if not moves:

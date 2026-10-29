@@ -62,7 +62,7 @@ def test_unknown_permission_is_an_error(accounts_file):
 
 def test_no_admin_write_is_in_any_allow_list():
     admin_writes = {"create_product", "update_product", "deactivate_product", "reactivate_product",
-                    "admin_set_order_status", "create_user", "update_user", "log_admin_action"}
+                    "admin_set_order_status", "create_user", "update_user", "admin_decide_refund"}
     listed = {name for names in registry.ALLOW_LISTS.values() for name in names}
     assert not admin_writes & listed and not admin_writes & set(registry.TOOL_FUNCTIONS)
     assert all(callable(getattr(writes, name)) for name in admin_writes)
@@ -147,18 +147,27 @@ def test_inactive_product_is_hidden_and_cannot_be_bought():
 # ---------- orders ----------
 
 def test_cancel_only_from_processing_and_the_stock_goes_back():
-    # 4511: processing, items = 1 x USB-C Charger (3) + 1 x Phone Case (2)
-    stock = dict(q("SELECT id, stock FROM products WHERE id IN (2, 3)"))
-    out = writes.admin_set_order_status(ADMIN, 4511, "cancelled")
+    # 4514: processing, cash on delivery (paid 0.00), items = 1 x Bluetooth Speaker (5)
+    stock = q("SELECT stock FROM products WHERE id = 5")[0][0]
+    out = writes.admin_set_order_status(ADMIN, 4514, "cancelled")
     assert out["status"] == "cancelled"
-    assert dict(q("SELECT id, stock FROM products WHERE id IN (2, 3)")) == {2: stock[2] + 1, 3: stock[3] + 1}
+    assert q("SELECT stock FROM products WHERE id = 5")[0][0] == stock + 1
     log = last_log()
     assert log["action"] == "admin_set_order_status" and json.loads(log["before"])["status"] == "processing"
 
     logs = log_count()
     assert "not shipped yet" in writes.admin_set_order_status(ADMIN, 4510, "cancelled")["error"]   # shipped
-    assert "not allowed" in writes.admin_set_order_status(ADMIN, 4511, "shipped")["error"]         # cancelled
+    assert "not allowed" in writes.admin_set_order_status(ADMIN, 4514, "shipped")["error"]         # cancelled
     assert log_count() == logs and q("SELECT status FROM orders WHERE id = 4510")[0][0] == "shipped"
+
+
+def test_a_paid_order_is_never_cancelled():
+    # 4511: processing but paid by card (54.40 TND): it must be refunded first.
+    stock = dict(q("SELECT id, stock FROM products WHERE id IN (2, 3)"))
+    out = writes.admin_set_order_status(ADMIN, 4511, "cancelled")
+    assert out["error"] == "This order is paid: it must be refunded first."
+    assert q("SELECT status FROM orders WHERE id = 4511")[0][0] == "processing"
+    assert dict(q("SELECT id, stock FROM products WHERE id IN (2, 3)")) == stock and log_count() == 0
 
 
 def test_refunded_is_never_set_by_hand_and_moves_follow_status_moves():

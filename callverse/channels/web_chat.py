@@ -18,8 +18,8 @@ same pipeline as before (callverse/pipeline.py, not changed). What send() adds a
 5. the reply saved and the ticket updated (status, main reason, priority, lead agent).
 T18 (real Layer 3 queue, layer3 mode "queue"): on the Coordinator's "layer3_pending", an `approvals` row is created
 (pending) and the ticket becomes "Waiting for finance"; the admin decides later (callverse/channels/approvals.py).
-Duplicate guard: if Intake's order already has a PENDING approval, the user is told it is still with finance and
-NO agent runs (step "approval_pending").
+Duplicate guard: if the message's order (the user's own) already has a PENDING approval, the user is told it is
+still with finance and NO agent runs (step "approval_pending"); checked before the quota check (T18 follow-up).
 It never crashes: any error gives the pipeline's own "extra check" (escalate) reply and an error step.
 
 One message at a time (a lock): the pipeline has one trace and one set of local models; a demo has few users.
@@ -185,6 +185,27 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
                 "reply_source": source, "steps": len(store.steps(tid)),
                 "seconds": round(time.perf_counter() - start, 2)}
 
+    def already_pending(order_id, **fields):
+        """T18 duplicate guard: this order's refund already waits for finance -> the fixed reply, no agent call.
+        Returns the channel's result, or None when the order has no pending approval."""
+        waiting = store.pending_approval_for_order(order_id)
+        if not waiting:
+            return None
+        channel_step("approval_pending", {"order_id": waiting["order_id"], "approval_id": waiting["id"],
+                                          "approval_ticket": waiting["ticket_id"]})
+        same = waiting["ticket_id"] == tid
+        return finish(ALREADY_PENDING_REPLY.format(order_id=waiting["order_id"]),
+                      "Waiting for finance" if same else "Solved", "approval_pending", "channel", **fields)
+
+    # 1b. T18 follow-up: the duplicate guard comes BEFORE the quota check (it needs no agent and no model). The
+    # order number is read with the plain extractor (no model); only the user's OWN order gets this reply, so it
+    # never tells anything about another client's order (that case goes on to the identity check below).
+    typed_order = extract.extract(text)["order_id"]
+    if typed_order is not None and not _not_users_order(typed_order, user_id):
+        guarded = already_pending(typed_order)
+        if guarded:
+            return guarded
+
     # 2. Quota check: no pipeline call at all when Agent B has no model left.
     try:
         ready = agent_b_ready()
@@ -207,15 +228,11 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
                 return finish(NOT_YOUR_ORDER_REPLY, "Waiting for user", "not_your_order", "channel",
                               main_reason=intake_ticket["main_reason"],
                               priority=intake_ticket.get("priority_label"))
-            # T18 duplicate guard: this order's refund already waits for finance -> no agent call at all.
-            waiting = store.pending_approval_for_order(intake_ticket["order_id"])
-            if waiting:
-                channel_step("approval_pending", {"order_id": waiting["order_id"], "approval_id": waiting["id"],
-                                                  "approval_ticket": waiting["ticket_id"]})
-                same = waiting["ticket_id"] == tid
-                return finish(ALREADY_PENDING_REPLY.format(order_id=waiting["order_id"]),
-                              "Waiting for finance" if same else "Solved", "approval_pending", "channel",
-                              main_reason=intake_ticket["main_reason"], priority=intake_ticket.get("priority_label"))
+            # The same guard again on Intake's order (Intake may find an order the plain extractor did not).
+            guarded = already_pending(intake_ticket["order_id"], main_reason=intake_ticket["main_reason"],
+                                      priority=intake_ticket.get("priority_label"))
+            if guarded:
+                return guarded
             # 4. The pipeline, as it is.
             out = pipeline.handle_ticket(intake_ticket, chat_fn=chat_fn, slm_chat_fn=slm_chat_fn)
             decision = out["decision"]

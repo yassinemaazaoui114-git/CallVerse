@@ -4,8 +4,8 @@ Rule: only the Coordinator writes. These functions live here, OUTSIDE callverse/
 never put in the tool registry or in any agent allow-list, so no agent (and no LLM) can call them.
 The Coordinator calls them after its checks; scripts/advance_status.py calls set_order_status
 to play the carrier during demo S3. T17: create_order is called by the ShopNova app (a client buys),
-for the logged-in user only. T18: the ShopNova ADMIN's writes (products, order status, users, the log of refund
-approvals) are at the end of this file; the app calls them after require_permission. Each one adds an
+for the logged-in user only. T18: the ShopNova ADMIN's writes (products, order status, users, the refund
+decisions of Refund approvals) are at the end of this file; the app calls them after require_permission. Each one adds an
 `admin_actions` row (who, when, before, after) in the SAME transaction as the change, so a change without its
 log line cannot happen. Nothing is ever deleted (a product is deactivated, an order cancelled).
 
@@ -160,41 +160,48 @@ def create_refund(order_id: int, amount: float, rule_id: str, proposal_id: str) 
     - R-REF-05: refused if amount > paid - refunded_total (approved and completed refunds count).
     """
     args = {"order_id": order_id, "amount": amount, "rule_id": rule_id, "proposal_id": proposal_id}
-    if not is_valid_amount(amount):
-        return _refuse("create_refund", args, "amount must be a finite number above 0")
-
     with closing(connect()) as con:
-        proposal, reason = _approved_proposal(con, proposal_id, "refund", order_id)
+        reason = _refund_problem(con, order_id, amount, proposal_id)
         if reason:
             return _refuse("create_refund", args, reason)
-        if con.execute("SELECT 1 FROM refunds WHERE proposal_id = ?", (str(proposal_id),)).fetchone():
-            return _refuse("create_refund", args, f"safety net: proposal {proposal_id} was already used for a refund")
-        approved_amount = proposal["params"].get("amount")
-        if not is_valid_amount(approved_amount) or round(float(approved_amount), 2) != round(float(amount), 2):
-            return _refuse("create_refund", args,
-                           f"safety net: amount {amount} does not match the approved amount {approved_amount}"
-                           f" of proposal {proposal_id}")
-
-        order = con.execute("SELECT paid FROM orders WHERE id = ?", (int(order_id),)).fetchone()
-        if order is None:
-            return _refuse("create_refund", args, f"order {order_id} not found")
-        marks = ", ".join("?" for _ in COUNTED_REFUND_STATUSES)
-        refunded_total = con.execute(
-            f"SELECT COALESCE(SUM(amount), 0) FROM refunds WHERE order_id = ? AND status IN ({marks})",
-            (int(order_id), *COUNTED_REFUND_STATUSES)).fetchone()[0]
-        left = round(order["paid"] - refunded_total, 2)
-        if round(float(amount), 2) > left:
-            return _refuse("create_refund", args,
-                           f"safety net R-REF-05: amount {amount} > paid {order['paid']} - refunded {refunded_total}"
-                           f" = {left} TND")
-        cur = con.execute(
-            "INSERT INTO refunds (order_id, amount, status, rule_id, proposal_id, created_at)"
-            " VALUES (?, ?, 'approved', ?, ?, ?)",
-            (int(order_id), round(float(amount), 2), rule_id, proposal_id, sim_today().isoformat()),
-        )
+        row = _insert_refund(con, order_id, amount, rule_id, proposal_id)
         con.commit()
-        row = dict(con.execute("SELECT * FROM refunds WHERE id = ?", (cur.lastrowid,)).fetchone())
     return _done("create_refund", args, row)
+
+
+def _refund_problem(con, order_id: int, amount: float, proposal_id: str) -> str | None:
+    """create_refund's safety nets (see above), on the caller's connection. None = the refund may be written.
+    Also used by admin_decide_refund (T18 follow-up), inside its single transaction."""
+    if not is_valid_amount(amount):
+        return "amount must be a finite number above 0"
+    proposal, reason = _approved_proposal(con, proposal_id, "refund", order_id)
+    if reason:
+        return reason
+    if con.execute("SELECT 1 FROM refunds WHERE proposal_id = ?", (str(proposal_id),)).fetchone():
+        return f"safety net: proposal {proposal_id} was already used for a refund"
+    approved_amount = proposal["params"].get("amount")
+    if not is_valid_amount(approved_amount) or round(float(approved_amount), 2) != round(float(amount), 2):
+        return (f"safety net: amount {amount} does not match the approved amount {approved_amount}"
+                f" of proposal {proposal_id}")
+    order = con.execute("SELECT paid FROM orders WHERE id = ?", (int(order_id),)).fetchone()
+    if order is None:
+        return f"order {order_id} not found"
+    marks = ", ".join("?" for _ in COUNTED_REFUND_STATUSES)
+    refunded_total = con.execute(
+        f"SELECT COALESCE(SUM(amount), 0) FROM refunds WHERE order_id = ? AND status IN ({marks})",
+        (int(order_id), *COUNTED_REFUND_STATUSES)).fetchone()[0]
+    left = round(order["paid"] - refunded_total, 2)
+    if round(float(amount), 2) > left:
+        return f"safety net R-REF-05: amount {amount} > paid {order['paid']} - refunded {refunded_total} = {left} TND"
+    return None
+
+
+def _insert_refund(con, order_id: int, amount: float, rule_id: str, proposal_id: str) -> dict:
+    """Insert the refunds row (status "approved") on the caller's connection, no commit. Returns the row."""
+    cur = con.execute("INSERT INTO refunds (order_id, amount, status, rule_id, proposal_id, created_at)"
+                      " VALUES (?, ?, 'approved', ?, ?, ?)",
+                      (int(order_id), round(float(amount), 2), rule_id, proposal_id, sim_today().isoformat()))
+    return dict(con.execute("SELECT * FROM refunds WHERE id = ?", (cur.lastrowid,)).fetchone())
 
 
 def mark_subscription_sent(subscription_id: int) -> dict:
@@ -370,6 +377,7 @@ USER_FIELDS = ("name", "email", "phone", "city")
 # The admin may move an order like the carrier does (STATUS_MOVES), and cancel it while it is not shipped yet.
 # "refunded" is never set by hand: a refund goes only through Refund approvals (or the Coordinator).
 ADMIN_CANCEL_FROM = ("processing",)
+PAID_CANCEL_MESSAGE = "This order is paid: it must be refunded first."
 
 
 def _log_action(con, admin: str, action: str, table: str, target_id, before: dict | None, after: dict | None) -> None:
@@ -561,7 +569,8 @@ def reactivate_product(admin: str, product_id: int) -> dict:
 
 def admin_set_order_status(admin: str, order_id: int, new_status: str) -> dict:
     """The admin moves an order: only the moves in STATUS_MOVES, or "cancelled" while it is "processing"
-    (not shipped yet; the stock goes back). "refunded" is never set by hand. Returns the updated order row."""
+    (not shipped yet; the stock goes back) AND nothing was paid (T18 follow-up: a paid order must be refunded
+    first, so cancelling never keeps a client's money). "refunded" is never set by hand. Returns the order row."""
     function, args = "admin_set_order_status", {"admin": admin, "order_id": order_id, "new_status": new_status}
     if reason := _bad_admin(admin):
         return _refuse(function, args, reason)
@@ -579,6 +588,8 @@ def admin_set_order_status(admin: str, order_id: int, new_status: str) -> dict:
             if old not in ADMIN_CANCEL_FROM:
                 return _refuse(function, args, f"only an order that is not shipped yet ({', '.join(ADMIN_CANCEL_FROM)})"
                                                f" can be cancelled; order {order_id} is {old}")
+            if before["paid"] > 0:
+                return _refuse(function, args, PAID_CANCEL_MESSAGE)
         elif new_status not in STATUS_MOVES.get(old, ()):
             return _refuse(function, args, f"move {old} -> {new_status} is not allowed")
         _apply_status(con, int(order_id), new_status, sim_today().isoformat())
@@ -636,16 +647,61 @@ def update_user(admin: str, user_id: int, **fields) -> dict:
     return _done(function, args, row)
 
 
-def log_admin_action(admin: str, action: str, target_table: str, target_id, before: dict | None,
-                     after: dict | None) -> dict:
-    """Log an admin decision whose data change is written by another write function (T18: a refund approval
-    or refusal; the refund itself is written by create_refund, with its own safety net). Returns the log row."""
-    function, args = "log_admin_action", {"admin": admin, "action": action, "target_table": target_table,
-                                          "target_id": target_id}
-    if reason := _bad_admin(admin):
-        return _refuse(function, args, reason)
-    with closing(connect()) as con:
-        _log_action(con, admin, action, target_table, target_id, before, after)
-        con.commit()
-        row = dict(con.execute("SELECT * FROM admin_actions ORDER BY id DESC LIMIT 1").fetchone())
-    return _done(function, args, row)
+def admin_decide_refund(admin: str, proposal_id: str, approve: bool, reason: str = "",
+                        approval_id: int | None = None) -> dict:
+    """The admin's Layer 3 decision on a refund proposal, written in ONE transaction (T18 follow-up): if any part
+    fails, NOTHING is written.
+
+    Approve: the proposal's decision "approve" + the refund (create_refund's own safety nets, run here on the same
+    transaction) + for R-REF-03 the order status "refunded" + the admin_actions row "approve_refund".
+    Refuse (reason required): the decision "layer3" + the admin_actions row "refuse_refund"; nothing is paid.
+    Returns {"proposal_id", "decision", "refund" (row or None), "order_status" (new status or None), "log" (row)}.
+    """
+    function = "admin_decide_refund"
+    args = {"admin": admin, "proposal_id": proposal_id, "approve": approve, "reason": reason,
+            "approval_id": approval_id}
+    if bad := _bad_admin(admin):
+        return _refuse(function, args, bad)
+    reason = (reason or "").strip()
+    if not approve and not reason:
+        return _refuse(function, args, "a reason is required to refuse")
+    decision = "approve" if approve else "layer3"
+    note = (f"R-ESC-01: {'approved' if approve else 'refused'} by the ShopNova admin ({admin})"
+            + (f": {reason}" if reason else ""))
+    try:
+        with closing(connect()) as con:
+            con.execute("BEGIN IMMEDIATE")   # everything below is committed together, or not at all
+            row = con.execute("SELECT * FROM proposals WHERE id = ?", (str(proposal_id),)).fetchone()
+            if row is None:
+                return _refuse(function, args, f"proposal {proposal_id} not found")
+            if row["decision"] is not None:
+                return _refuse(function, args, f"proposal {proposal_id} already decided: {row['decision']}")
+            if row["action"] != "refund":
+                return _refuse(function, args, f"proposal {proposal_id} is not a refund")
+            params = json.loads(row["params"])
+            order_id, amount = params.get("order_id"), params.get("amount")
+            con.execute("UPDATE proposals SET decision = ?, decision_reason = ?, decided_at = ? WHERE id = ?",
+                        (decision, note, sim_today().isoformat(), str(proposal_id)))
+            refund, status = None, None
+            if approve:
+                problem = _refund_problem(con, order_id, amount, proposal_id)   # sees the "approve" just set
+                if problem:
+                    return _refuse(function, args, problem)               # closing without commit = rollback
+                refund = _insert_refund(con, order_id, amount, row["rule_id"], proposal_id)
+                if row["rule_id"] == "R-REF-03":   # full refund of a late order, as the Coordinator's path
+                    if _row(con, "orders", order_id)["status"] != "refunded":
+                        _apply_status(con, int(order_id), "refunded", sim_today().isoformat())
+                    status = "refunded"
+                _log_action(con, admin, "approve_refund", "refunds", refund["id"], None,
+                            {"refund": refund, "order_status": status, "proposal_id": proposal_id,
+                             "approval_id": approval_id, "reason": reason or None})
+            else:
+                _log_action(con, admin, "refuse_refund", "proposals", proposal_id, None,
+                            {"decision": decision, "amount": amount, "order_id": order_id,
+                             "approval_id": approval_id, "reason": reason})
+            log = dict(con.execute("SELECT * FROM admin_actions ORDER BY id DESC LIMIT 1").fetchone())
+            con.commit()
+    except Exception as e:   # any failure: the transaction is not committed, so nothing is written
+        return _refuse(function, args, f"nothing was written: {type(e).__name__}: {e}")
+    return _done(function, args, {"proposal_id": str(proposal_id), "decision": decision, "refund": refund,
+                                  "order_status": status, "log": log})
