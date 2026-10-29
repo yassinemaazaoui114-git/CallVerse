@@ -49,6 +49,11 @@ callverse/          the code
   data/               placeholder ShopNova database (seed.py)
   tools/              tool functions + per-agent allow-lists (registry.py)
   agents/             base agent loop + Agent A
+  tickets/            CallVerse's own tickets database (store.py -> data/callverse.db, T17)
+  channels/           web_chat.py: the one door from a company app into CallVerse (T17)
+  auth/               demo logins and roles (accounts.py, T17)
+apps/shopnova/      the ShopNova Streamlit app (Home.py + pages/, T17)
+config/             accounts.example.yaml (the real accounts.yaml is not in git)
   kb/ coordinator/ queues/ notifier/ intake/ slm/ simulator/   empty, filled by later tasks
 scripts/            runnable entry points (run_demo.py)
 tests/              pytest tests (no API key needed)
@@ -130,6 +135,27 @@ python scripts/run_platform_server.py
 - Demo through the HTTP endpoints, no second terminal needed: `python scripts/demo_platform_http.py`.
 
 Details: [docs/platform_contract.md](docs/platform_contract.md) section 8.
+
+## Run the ShopNova app (T17)
+
+The company's website, a Streamlit app **on this PC only** (<http://127.0.0.1:8501>): Shop (everyone; buying needs a
+login), My orders and Help chat (a logged-in client). The Help chat reaches CallVerse through one channel function
+(`callverse/channels/web_chat.py`); each chat is a ticket in CallVerse's own database `callverse/data/callverse.db`.
+
+1. **Create the demo logins once, yourself** (the passwords never go into git, only bcrypt hashes in the git-ignored
+   `config/accounts.yaml`; see `config/accounts.example.yaml` for the accounts):
+   ```powershell
+   python -m scripts.create_demo_accounts   # type a password twice per account, or Enter = random (shown once)
+   ```
+   Accounts: `sara`, `youssef`, `amira`, `karim`, `leila` (= ShopNova users 1–5), `admin` (T18), `supervisor` (T19).
+2. **Start Ollama**, then the app:
+   ```powershell
+   .\start_shopnova.ps1   # checks Ollama, Intake + Agent A + SLM local, Agent B on Groq; Ctrl+C to stop
+   ```
+   The app does not watch its files (`fileWatcherType = "none"`, no more torchvision messages): **after a code
+   change, restart it** (Ctrl+C, then `.\start_shopnova.ps1`). From Claude Code's `!` prompt (bash), use
+   `! powershell -ExecutionPolicy Bypass -File .\start_shopnova.ps1`.
+3. Clean demo data again: `python -m callverse.data.seed` (ShopNova data) and delete `callverse/data/callverse.db` (tickets).
 
 ## For the platform builder
 

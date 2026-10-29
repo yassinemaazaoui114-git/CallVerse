@@ -24,9 +24,17 @@ Rows written at run time get `0 / 0`. Company profile: `callverse/data/company_p
   The old generated data (users 6–25, orders 5001–5120, `generate_data()`) is removed.
 
 **Schema additions (T15).** On `users`, `products`, `orders`, `refunds`, `reviews`:
-`source` (`scripted` | `olist` | `generated`; `NULL` = written at run time) and `source_id` (the Olist id of a real
+`source` (`scripted` | `olist` | `generated` | `app`; `app` = an order a client placed in the ShopNova app
+(`create_order`, T17); `NULL` = written at run time by the Coordinator) and `source_id` (the Olist id of a real
 row: `order_id`, `customer_unique_id`, `product_id`, `review_id`; `NULL` otherwise; Olist reuses a few `review_id`s).
 `users.city` (one of the 8 `cities_served`; `NULL` for users 1–5). New table `reviews(id, order_id, score 1–5, created_at)`.
+
+**Schema additions (T17 follow-up, Q2).** `products.category` (Olist's English category, e.g. `audio`; real
+products from the sample file, products 1–6 from `seed.SCRIPTED_CATEGORIES`: 1 audio, 2 telephony, 3 electronics,
+4 watches_gifts, 5 audio, 6 computers_accessories) and `orders.payment` (`card` | `cash_on_delivery`, required; real
+orders from the Olist mapping — boleto → cash on delivery; scripted: 4514 `cash_on_delivery`, all others `card`).
+All other values of the scripted rows are unchanged (`tests/test_seed_data.py`: the md5 of the old columns is the same).
+Note: the read tools return whole rows, so agents now also see `payment` in `get_order`.
 
 **Real vs generated columns, per table (rows with `source = 'olist'` / `'generated'`).**
 
@@ -60,8 +68,8 @@ How the real data was turned into ShopNova data (all in the builder script, with
   categories in English) are written by the builder from the sample.
 
 - `users(id, name, email, phone, city, source, source_id)`
-- `products(id, name, price, stock, source, source_id)`
-- `orders(id, user_id, items[JSON], total, paid, status, order_date, promised_date, delivered_date, carrier, tracking_number, source, source_id)`
+- `products(id, name, price, stock, category, source, source_id)`
+- `orders(id, user_id, items[JSON], total, paid, status, order_date, promised_date, delivered_date, carrier, tracking_number, payment, source, source_id)`
   - `items`: list of `{product_id, name, qty, price}`; real orders end with one `{"product_id": null, "name": "Delivery", "qty": 1, "price": <freight>}`
   - `status` codes: `processing`, `shipped`, `stuck_at_depot`, `out_for_delivery`, `delivered`, `refunded`, `cancelled`
   - allowed moves: `processing → shipped → out_for_delivery → delivered`, `shipped → stuck_at_depot`,
@@ -130,6 +138,13 @@ create_subscription(order_id, event, proposal_id) -> dict       # subscriptions 
                                                                 # "approve", action "subscribe", params.order_id =
                                                                 # order_id, params.event = event, not used before
 set_order_status(order_id, new_status) -> dict                  # {"order_id","old_status","new_status","event"}
+create_order(user_id, product_id, quantity, payment) -> dict    # T17: called by the ShopNova app only (logged-in
+                                                                # client), never by the Coordinator or an agent;
+                                                                # user and product exist, stock >= quantity,
+                                                                # quantity 1-10, payment card | cash_on_delivery;
+                                                                # "processing", promised = today + 25 days,
+                                                                # paid = total (card) or 0, stock decreases,
+                                                                # source "app", ai_generated 0, scripted 0
 ```
 `set_order_status` refuses unknown status codes and moves outside the allowed list (§2); when the new status is a notification event it inserts one
 `events` row (returned as `event`, else `None`); `delivered` also fills `delivered_date` if empty.

@@ -35,7 +35,7 @@ def test_s1_refund_is_approved_and_written():
     assert d["outcome"] == "approve" and d["proposal_id"] == "P-0001"
     assert d["facts"] == {"order_status": "refunded", "days_late": 6, "amount_tnd": 59.90}   # SLM format (T08)
     assert d["must_say"] == ["Your refund of 59.90 TND is approved."]
-    assert d["next_step"] == "Your order 4512 is now cancelled."
+    assert d["next_step"] == "Your order 4512 is now refunded."   # T17 F3: the status the data has
     rows = get_refunds(4512)["refunds"]
     assert len(rows) == 1 and rows[0]["amount"] == 59.90 and rows[0]["rule_id"] == "R-REF-03"
     assert rows[0]["status"] == "approved" and rows[0]["proposal_id"] == "P-0001"

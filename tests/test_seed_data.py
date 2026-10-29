@@ -201,6 +201,33 @@ def test_scripted_rows_unchanged_since_main():
         assert {r[0] for r in _q(f"SELECT source FROM {t} WHERE {where}")} == {"scripted"}, t
 
 
+# T17 follow-up Q2: the two new columns of the scripted rows (the md5 above covers only the OLD columns, so it
+# did not change; these exact values pin the new ones).
+SCRIPTED_CATEGORY = {1: "audio", 2: "telephony", 3: "electronics", 4: "watches_gifts", 5: "audio",
+                     6: "computers_accessories"}
+
+
+def test_new_columns_category_and_payment():
+    assert dict(_q("SELECT id, category FROM products WHERE id BETWEEN 1 AND 6")) == SCRIPTED_CATEGORY
+    payments = dict(_q("SELECT id, payment FROM orders WHERE id BETWEEN 4505 AND 4515"))
+    assert payments == {oid: ("cash_on_delivery" if oid == 4514 else "card") for oid in range(4505, 4516)}
+    sample = load_real_sample()
+    assert dict(_q("SELECT id, category FROM products WHERE source = 'olist'")) ==         {p["id"]: p["category"] for p in sample["products"]}
+    assert dict(_q("SELECT id, payment FROM orders WHERE source = 'olist'")) ==         {o["id"]: o["payment"] for o in sample["orders"]}
+    assert _q("SELECT COUNT(*) FROM products WHERE category IS NULL")[0][0] == 0
+    # every cash-on-delivery order that is not delivered has paid nothing yet (the old rule, now visible)
+    assert _q("SELECT COUNT(*) FROM orders WHERE payment = 'cash_on_delivery' AND delivered_date IS NULL"
+              " AND paid != 0")[0][0] == 0
+
+
+def test_payment_and_source_codes_are_checked():
+    import pytest
+    with closing(sqlite3.connect(db.db_path())) as con, pytest.raises(sqlite3.IntegrityError):
+        con.execute("UPDATE orders SET payment = 'paypal' WHERE id = 4512")
+    with closing(sqlite3.connect(db.db_path())) as con:
+        con.execute("UPDATE orders SET source = 'app' WHERE id = 10001")   # follow-up Q1: 'app' is allowed
+
+
 def test_delivery_line():
     # T15 follow-up item 1: each real order has ONE "Delivery" line (the real Olist freight), no product;
     # scripted orders have none.

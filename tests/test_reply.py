@@ -35,13 +35,16 @@ def tool_call_reply(name, arguments):
 # ---------- 1. decision -> user words (the T08 table) ----------
 
 @pytest.mark.parametrize("outcome, action, rule, facts, must, next_step", [
-    ("approve", "refund", "R-REF-03", {"amount_tnd": 59.9}, "Your refund of 59.90 TND is approved.",
-     "Your order 4512 is now cancelled."),
+    ("approve", "refund", "R-REF-03", {"amount_tnd": 59.9, "order_status": "refunded"},
+     "Your refund of 59.90 TND is approved.", "Your order 4512 is now refunded."),
+    # T17 F3: the status is said from the facts; if the order did not move, nothing is said about it
+    ("approve", "refund", "R-REF-03", {"amount_tnd": 59.9, "order_status": "stuck_at_depot"},
+     "Your refund of 59.90 TND is approved.", ""),
     ("approve", "refund", "R-RET-01", {"amount_tnd": 20.0}, "Your refund of 20.00 TND is approved.",
      "The refund is paid once we receive the returned item."),
     ("approve", "refund", "R-DMG-01", {"amount_tnd": 20.0}, "Your refund of 20.00 TND is approved.", ""),
-    ("approve", "refund", "R-REF-03", {"amount_tnd": 378.0, "layer3_decision": "approved"},
-     "Your refund of 378.00 TND is approved after a check by our finance team.", "Your order 4512 is now cancelled."),
+    ("approve", "refund", "R-REF-03", {"amount_tnd": 378.0, "layer3_decision": "approved", "order_status": "refunded"},
+     "Your refund of 378.00 TND is approved after a check by our finance team.", "Your order 4512 is now refunded."),
     ("layer3_refused", "refund", "R-REF-03", {"amount_tnd": 600.0},
      "We cannot approve a refund of 600.00 TND for order 4512.", "Our finance team reviewed it and did not approve it."),
     ("approve", "subscribe", "R-NOT-01", {"event": "out_for_delivery"},
@@ -147,7 +150,7 @@ def test_rule_not_searched_is_a_warning_only():
 # ---------- 4. writer code fixes ----------
 
 DECISION = {"outcome": "approve", "action": "refund", "order_id": 4512, "facts": {"amount_tnd": 59.9},
-            "must_say": ["Your refund of 59.90 TND is approved."], "next_step": "Your order 4512 is now cancelled.",
+            "must_say": ["Your refund of 59.90 TND is approved."], "next_step": "Your order 4512 is now refunded.",
             "style": {"formality": "neutral", "length": "short", "shouting": False, "sentiment": "neutral"}}
 
 

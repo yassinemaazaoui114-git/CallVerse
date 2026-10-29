@@ -9,56 +9,31 @@ or another error. Exit code 0 = all OK, 2 = a daily limit, 1 = another problem.
 
 T13: with CALLVERSE_AGENTS_SET=local only the LOCAL test models are checked (no API ping, no quota used);
 if CALLVERSE_FORCE_AGENTS_MODEL is also set, only that local model (the one the run will use).
+
+T17: the script checks the agents list AND Agent B's own list (agent_b, T16). The check itself is in
+callverse/quota.py (T17 follow-up, Q6), also used by the ShopNova chat (callverse/channels/web_chat.py).
 """
 
-import os
+import os  # noqa: F401  (kept: the tests check os.environ through this module)
 import sys
 
-from callverse import llm, trace
-from callverse.config import load_config
+from callverse import llm, trace  # noqa: F401  (kept: the tests replace llm.chat / trace.log through this module)
+# T17 follow-up (Q6): the logic lives in callverse/quota.py; this script only prints its results.
+from callverse.quota import check_models, force_env, models_to_check  # noqa: F401
 
 FORCE_ENV = "CALLVERSE_FORCE_AGENTS_MODEL"
-
-
-def models_to_check(cfg: dict) -> list[dict]:
-    """Default set: every model of models.agents (as before). Local set: the local models the run will use."""
-    if llm.model_set("agents") == "local":
-        return llm.models_for("agents", cfg)
-    return cfg["models"]["agents"]
-
-
-def check_models() -> list[dict]:
-    """[{model, status: ok | daily_limit | error, detail}] for every agents model to check."""
-    results = []
-    # T13: keep the caller's forced model. Before, it was removed after the check, so a forced run
-    # (e.g. one local candidate alone) silently went back to the full chain.
-    forced_before = os.environ.get(FORCE_ENV)
-    for entry in models_to_check(load_config()):
-        model = entry["model"]
-        before = len(llm.DAILY_LIMIT_HITS)
-        os.environ[FORCE_ENV] = model
-        try:
-            llm.chat("agents", [{"role": "user", "content": "Say OK."}])
-            status, detail = "ok", ""
-        except Exception as e:
-            daily = len(llm.DAILY_LIMIT_HITS) > before
-            status, detail = ("daily_limit" if daily else "error"), f"{type(e).__name__}: {str(e)[:160]}"
-        finally:
-            if forced_before is None:
-                os.environ.pop(FORCE_ENV, None)
-            else:
-                os.environ[FORCE_ENV] = forced_before
-        results.append({"model": model, "status": status, "detail": detail})
-    trace.log("quota_check", "quota", {"results": results})
-    return results
 
 
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     trace.start_run()
-    results = check_models()
-    for r in results:
-        print(f"{r['model']:<24} {r['status'].upper():<12} {r['detail']}")
+    results = []
+    for role_key in ("agents", "agent_b"):
+        print(f"[{role_key}]")
+        role_results = check_models(role_key)
+        results += role_results
+        for r in role_results:
+            print(f"{r['model']:<24} {r['status'].upper():<12} {r['detail']}")
     if any(r["status"] == "daily_limit" for r in results):
         print("STOP: a daily limit is reached. Do not start a long run now.")
         sys.exit(2)

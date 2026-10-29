@@ -1,0 +1,21 @@
+# ShopNova app (T17): the approved style (warm and light: cream, navy, coral) and localhost only.
+# Streamlit reads this file from the folder it is started in: start_shopnova.ps1 starts it from apps/shopnova/.
+[theme]
+base = "light"
+primaryColor = "#FF6B4A"
+backgroundColor = "#FBF7F2"
+secondaryBackgroundColor = "#F3ECE3"
+textColor = "#1F2A44"
+font = "sans serif"
+
+[server]
+address = "127.0.0.1"
+port = 8501
+headless = true
+# T17 follow-up (F2): no file watcher. It scanned the installed libraries (torchvision messages in the console).
+# So after a code change the app must be restarted (Ctrl+C, then .\start_shopnova.ps1 again).
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false
+serverAddress = "127.0.0.1"

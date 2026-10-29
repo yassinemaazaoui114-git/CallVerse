@@ -3,7 +3,8 @@
 Rule: only the Coordinator writes. These functions live here, OUTSIDE callverse/tools/, and are
 never put in the tool registry or in any agent allow-list, so no agent (and no LLM) can call them.
 The Coordinator calls them after its checks; scripts/advance_status.py calls set_order_status
-to play the carrier during demo S3.
+to play the carrier during demo S3. T17: create_order is called by the ShopNova app (a client buys),
+for the logged-in user only.
 
 Coordinator order: record_proposal -> checks -> record_decision("approve") -> create_refund / create_subscription.
 Both writes refuse unless their proposal_id is a recorded, approved proposal whose action and params match
@@ -22,12 +23,13 @@ Dates use the fixed simulation date (sim_today), so demo runs stay reproducible.
 import json
 import math
 from contextlib import closing
+from datetime import timedelta
 
 from callverse import trace
 from callverse.config import sim_today
 from callverse.data.db import connect
 from callverse.data.seed import (ALWAYS_ALLOWED, COUNTED_REFUND_STATUSES, DECISIONS, NOTIFICATION_EVENTS,
-                                 ORDER_STATUSES, STATUS_MOVES)
+                                 ORDER_STATUSES, PAYMENT_METHODS, STATUS_MOVES)
 
 
 def _refuse(function: str, args: dict, reason: str) -> dict:
@@ -242,6 +244,63 @@ def create_subscription(order_id: int, event: str, proposal_id: str | None = Non
         con.commit()
         row = dict(con.execute("SELECT * FROM subscriptions WHERE id = ?", (cur.lastrowid,)).fetchone())
     return _done("create_subscription", args, row)
+
+
+MAX_ORDER_QTY = 10
+
+
+def create_order(user_id: int, product_id: int, quantity: int, payment: str) -> dict:
+    """A client buys one product in the ShopNova app (T17): a new "processing" order; the stock goes down.
+
+    NOT a Coordinator write and never in an agent allow-list: only the ShopNova app calls it, for the user
+    who is logged in (the app checks the login first). Checks: the user exists; the product exists and has
+    enough stock; quantity is a whole number 1-10; payment is card or cash_on_delivery.
+    - paid = total for card, 0 for cash on delivery (paid when delivered, like order 4514); the method is
+      stored in the `payment` column (T17 follow-up Q2);
+    - order_date = sim today, promised_date = today + the profile's median delivery promise (25 days);
+    - items = one line {product_id, name, qty, price} like the other orders, price = the unit price. No
+      "Delivery" line: the shop's delivery fee is 0 for now (the real Olist orders carry their real freight);
+    - labels: ai_generated = 0, scripted = 0, source = 'app' (T17 follow-up Q1, docs/platform_contract.md).
+    """
+    args = {"user_id": user_id, "product_id": product_id, "quantity": quantity, "payment": payment}
+    if isinstance(quantity, bool) or not isinstance(quantity, int) or not 1 <= quantity <= MAX_ORDER_QTY:
+        return _refuse("create_order", args, f"quantity must be a whole number from 1 to {MAX_ORDER_QTY}")
+    if payment not in PAYMENT_METHODS:
+        return _refuse("create_order", args, f"payment '{payment}' is not allowed ({', '.join(PAYMENT_METHODS)})")
+    for name in ("user_id", "product_id"):
+        if isinstance(args[name], bool) or not isinstance(args[name], int):
+            return _refuse("create_order", args, f"{name} must be a whole number")
+
+    from callverse.tools.shopnova_tools import get_company_profile   # imported here like clock._apply
+    promise_days = get_company_profile().get("delivery_promise_days", {}).get("median")
+    if not isinstance(promise_days, int):
+        return _refuse("create_order", args, "company profile has no delivery promise (median days)")
+    today = sim_today()
+
+    with closing(connect()) as con:
+        con.execute("BEGIN IMMEDIATE")   # stock check and stock decrease happen together
+        if con.execute("SELECT 1 FROM users WHERE id = ?", (user_id,)).fetchone() is None:
+            return _refuse("create_order", args, f"user {user_id} not found")
+        product = con.execute("SELECT id, name, price, stock FROM products WHERE id = ?", (product_id,)).fetchone()
+        if product is None:
+            return _refuse("create_order", args, f"product {product_id} not found")
+        if product["stock"] < quantity:
+            return _refuse("create_order", args,
+                           f"not enough stock for product {product_id}: {product['stock']} left, {quantity} asked")
+        total = round(product["price"] * quantity, 2)
+        items = [{"product_id": product["id"], "name": product["name"], "qty": quantity, "price": product["price"]}]
+        order_id = con.execute("SELECT COALESCE(MAX(id), 0) + 1 FROM orders").fetchone()[0]
+        con.execute(
+            "INSERT INTO orders (id, user_id, items, total, paid, status, order_date, promised_date, delivered_date,"
+            " carrier, tracking_number, payment, source, source_id, ai_generated, scripted)"
+            " VALUES (?, ?, ?, ?, ?, 'processing', ?, ?, NULL, NULL, NULL, ?, 'app', NULL, 0, 0)",
+            (order_id, user_id, json.dumps(items), total, total if payment == "card" else 0.0,
+             today.isoformat(), (today + timedelta(days=promise_days)).isoformat(), payment))
+        con.execute("UPDATE products SET stock = stock - ? WHERE id = ?", (quantity, product_id))
+        con.commit()
+        row = dict(con.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone())
+    row["items"] = json.loads(row["items"])
+    return _done("create_order", args, row)
 
 
 def set_order_status(order_id: int, new_status: str) -> dict:
