@@ -1,5 +1,6 @@
 """Shared test setup (pytest loads this file automatically)."""
 
+import shutil
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -14,14 +15,25 @@ from callverse.data import db  # noqa: E402
 from callverse.data.seed import seed  # noqa: E402
 
 
+@pytest.fixture(scope="session")
+def seeded_template(tmp_path_factory):
+    """Seed the database ONCE per test session into a template file (T15: 2,000 real orders take ~0.2 s to load).
+
+    Each test then gets a fresh copy of this file, which is exactly what seed() would build (seeding is fixed).
+    """
+    template = tmp_path_factory.mktemp("template") / "shopnova_template.db"
+    seed(template)
+    return template
+
+
 @pytest.fixture(autouse=True)
-def fresh_env(tmp_path):
-    """Before each test: build a fresh placeholder DB in a temp folder and write traces there too.
+def fresh_env(tmp_path, seeded_template):
+    """Before each test: a fresh copy of the seeded DB in a temp folder, and traces written there too.
 
     The real database (callverse/data/shopnova.db) and the real traces/ folder are never touched.
     """
+    shutil.copyfile(seeded_template, tmp_path / "shopnova_test.db")
     db.use_db(tmp_path / "shopnova_test.db")
-    seed()
     trace.start_run("test", trace_dir=tmp_path)   # proposals live in this fresh DB: ids restart at P-0001
     yield
     db.use_db(db.DEFAULT_DB_PATH)  # put the default back after the test

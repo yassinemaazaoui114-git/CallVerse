@@ -39,12 +39,13 @@ def test_tracking_4512():
 
 def test_orders_filters_and_summary():
     assert len(client.get("/orders", params={"scripted": 1}).json()) == 11
-    assert len(client.get("/orders", params={"limit": 500}).json()) == 131
+    # T15: 11 scripted + 2,000 real Olist orders (was 11 + 120 generated = 131), so limit 500 is now reached.
+    assert len(client.get("/orders", params={"limit": 500}).json()) == 500   # the maximum limit
     assert len(client.get("/orders").json()) == 50                     # default limit
     stuck = client.get("/orders", params={"status": "stuck_at_depot", "limit": 500}).json()
     assert stuck and all(o["status"] == "stuck_at_depot" for o in stuck)
     s = client.get("/summary").json()
-    assert s["orders_total"] == 131 and s["scripted_orders"]["count"] == 11
+    assert s["orders_total"] == 11 + 2000 and s["scripted_orders"]["count"] == 11
 
 
 def test_other_reads_return_what_the_functions_return():

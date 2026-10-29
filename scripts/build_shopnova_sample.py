@@ -6,11 +6,13 @@ Output: callverse/data/real/shopnova_olist_sample.json  (committed; callverse/da
 
 What it does, in order (every rule is one of the 20 + 4 items agreed with Yassine on 2026-10-29):
   1. Keep only orders whose items ALL belong to electronics-shop categories (CATEGORIES below).
-  2. Draw 2,000 of them at random (fixed seed 2026), keeping Olist's real status mix.
+  2. Draw clients at random (fixed seed 2026) and take all their orders, until 2,000 orders or more
+     (Olist's real status mix is kept).
   3. Move each order into the 90 days before sim_today, keeping its real durations (shift_days).
   4. Translate Olist statuses, payments and prices (BRL -> TND) to ShopNova's codes.
   5. Fill the gaps Olist does not have (client names, carrier, tracking number, stock, product names) with
-     generated values, and add refunds only where the real data says so (late + review score 1-2).
+     generated values, and add refunds only where the real data says so (late + review score 1-2, <= 300 TND).
+  6. Update two fields of callverse/data/company_profile.json from the sample: delivery_promise_days, sells.
 Every row says where it comes from: `source` = "olist" (real) or "generated", plus the Olist id in `source_id`.
 
 Same input -> same output, byte for byte (fixed seed, sorted inputs). No LLM, no API, no network.
@@ -40,6 +42,8 @@ RANDOM_SEED = 2026
 SAMPLE_SIZE = 2000
 WINDOW_DAYS = 90            # every order sits in the 90 days before sim_today
 FIRST_ORDER_ID, FIRST_USER_ID, FIRST_PRODUCT_ID = 10001, 1001, 101
+REFUND_LIMIT_TND = 300      # R-ESC-01: a refund above this needs finance approval, so no generated refund above it
+PROFILE_PATH = PROJECT_ROOT / "callverse" / "data" / "company_profile.json"
 
 # The files and columns we read. If one is missing or different, the script stops (task stop rule).
 FILES = {
@@ -179,8 +183,20 @@ def main() -> None:
         else:
             eligible.append(o)
 
-    # ---- 2. The random sample (real status mix kept: no status is favoured) ----------------------------------
-    sample = rng.sample(eligible, SAMPLE_SIZE)
+    # ---- 2. The random sample, drawn BY CLIENT (follow-up item 5) ---------------------------------------------
+    # Clients (customer_unique_id) are drawn in random order and ALL their eligible orders are taken, until the
+    # client that brings the total to 2,000 or more; so real repeat buyers keep all their orders. No status is
+    # favoured: the real status mix is kept.
+    orders_of_client = defaultdict(list)
+    for o in eligible:
+        orders_of_client[customers[o["customer_id"]]["customer_unique_id"]].append(o)
+    clients = sorted(orders_of_client)
+    rng.shuffle(clients)
+    sample = []
+    for client in clients:
+        sample += orders_of_client[client]
+        if len(sample) >= SAMPLE_SIZE:
+            break
 
     # ---- 3. Dates: one shift (whole days) per order -----------------------------------------------------------
     # The order's real story (purchase -> last event) lasts `span` days. Its new purchase date is drawn at random
@@ -225,9 +241,19 @@ def main() -> None:
             line = lines.setdefault((pid, price), {"product_id": pid, "name": None, "qty": 0, "price": price})
             line["qty"] += 1
 
+        # Delivery (follow-up item 1): Olist's real freight of the order, as one extra line without a product.
+        freight_brl = sum(float(i["freight_value"]) for i in items_of[o["order_id"]])
+        lines["delivery"] = {"product_id": None, "name": "Delivery", "qty": 1, "price": tnd(freight_brl, rate)}
+
         payments = payments_of[o["order_id"]]
         cash_on_delivery = any(p["payment_type"] == "boleto" for p in payments)  # boleto -> cash on delivery
-        total = tnd(sum(float(p["payment_value"]) for p in payments), rate)
+        paid_brl = sum(float(p["payment_value"]) for p in payments)
+        items_brl = sum(float(i["price"]) for i in items_of[o["order_id"]]) + freight_brl
+        lines_tnd = round(sum(line["price"] * line["qty"] for line in lines.values()), 2)
+        # Total = what the client paid (Olist payments), converted. When the payments equal items + delivery
+        # (all orders but a few with a voucher or instalment interest), the total is the sum of the converted
+        # lines, so lines and total add up exactly (it differs from the converted payment by rounding only).
+        total = lines_tnd if abs(paid_brl - items_brl) < 0.011 else tnd(paid_brl, rate)
         promised = moved(o["order_estimated_delivery_date"], o["order_id"])
 
         status = STATUS_MAP[o["order_status"]]
@@ -266,7 +292,8 @@ def main() -> None:
     name_of = {p["id"]: p["name"] for p in products}
     for o in orders:
         for line in o["items"]:
-            line["name"] = name_of[line["product_id"]]
+            if line["product_id"] is not None:      # the Delivery line has no product
+                line["name"] = name_of[line["product_id"]]
 
     # Users: a generated Tunisian name, email and phone like the old seed; city from the real state.
     users = []
@@ -291,9 +318,10 @@ def main() -> None:
         # Refund only on REAL signals: delivered late AND the client's (latest) real review is 1 or 2 stars.
         # Rule R-RET-01 (return within 14 days of delivery): the item was delivered, the unhappy client sent
         # it back and got the money back. (R-REF-03 is for orders NOT delivered; R-DMG-01 needs a photo.)
+        # Never above 300 TND (follow-up item 8): R-ESC-01 would need finance approval, so those stay delivered.
         scores = scores_of[o["id"]]
         late = o["delivered_date"] is not None and o["delivered_date"] > o["promised_date"]
-        if late and scores and scores[-1] <= 2:
+        if late and scores and scores[-1] <= 2 and o["paid"] <= REFUND_LIMIT_TND:
             refund_day = min(date.fromisoformat(o["delivered_date"]) + timedelta(days=rng.randint(2, 6)), today)
             refunds.append({"id": None, "order_id": o["id"], "amount": o["paid"], "status": "completed",
                             "rule_id": "R-RET-01", "proposal_id": None, "created_at": refund_day.isoformat(),
@@ -315,7 +343,28 @@ def main() -> None:
     for r in refunds:
         del r["id"]
     write_json(sample_file)
+    update_company_profile(sample_file)
     report(sample_file, eligible, excluded, olist_status_of)
+
+
+def update_company_profile(data: dict) -> None:
+    """Follow-up item 4: two fields of company_profile.json come from the sample, the rest stays as it is.
+
+    - delivery_promise_days: min / median / max days from order to promised date (real Olist durations).
+    - sells: the real product categories in English, most sold first.
+    """
+    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    days = sorted((date.fromisoformat(o["promised_date"]) - date.fromisoformat(o["order_date"])).days
+                  for o in data["orders"])
+    median = statistics.median(days)
+    median = int(median) if median == int(median) else median     # 25, not 25.0
+    profile["delivery_promise_days"] = {"min": days[0], "median": median, "max": days[-1]}
+    category_of = {p["id"]: p["category"] for p in data["products"]}
+    lines = Counter(category_of[i["product_id"]] for o in data["orders"] for i in o["items"] if i["product_id"])
+    profile["sells"] = [c.replace("_", " ") for c, _ in sorted(lines.items(), key=lambda kv: (-kv[1], kv[0]))]
+    # Same layout as the hand-written file: one field per line.
+    body = ",\n".join(f"  {json.dumps(k)}: {json.dumps(v, ensure_ascii=False)}" for k, v in profile.items())
+    PROFILE_PATH.write_text("{\n" + body + "\n}\n", encoding="utf-8", newline="\n")
 
 
 def write_json(data: dict) -> None:
@@ -331,14 +380,15 @@ def write_json(data: dict) -> None:
 def report(data: dict, eligible: list, excluded: Counter, olist_status_of: dict) -> None:
     """Print the numbers the T15 report asks for."""
     orders, reviews, users, products = data["orders"], data["reviews"], data["users"], data["products"]
-    print(f"Written: {OUT_PATH} ({OUT_PATH.stat().st_size:,} bytes)")
+    print(f"Written: {OUT_PATH} ({OUT_PATH.stat().st_size:,} bytes), {len(orders)} orders")
     print(f"Eligible electronics orders: {len(eligible)}; excluded before sampling: {dict(excluded)}")
     print("Categories (products | order lines):")
     line_cat = Counter()
     cat_of = {p["id"]: p["category"] for p in products}
     for o in orders:
         for line in o["items"]:
-            line_cat[cat_of[line["product_id"]]] += 1
+            if line["product_id"] is not None:      # not the Delivery line
+                line_cat[cat_of[line["product_id"]]] += 1
     for c, n in Counter(p["category"] for p in products).most_common():
         print(f"  {c:<24}{n:>5} | {line_cat[c]:>5}")
     print("Status (Olist original -> ShopNova):")
@@ -360,8 +410,11 @@ def report(data: dict, eligible: list, excluded: Counter, olist_status_of: dict)
     print(f"Products: {len(products)}")
     totals = sorted(o["total"] for o in orders)
     print(f"Total TND min / median / max: {totals[0]} / {statistics.median(totals)} / {totals[-1]}")
-    off = sum(abs(sum(i["price"] * i["qty"] for i in o["items"]) - o["total"]) > 0.005 for o in orders)
-    print(f"Orders whose total (payments) != sum of item prices (freight etc.): {off}")
+    off = [(o["id"], o["source_id"], round(sum(i["price"] * i["qty"] for i in o["items"]), 2), o["total"])
+           for o in orders if abs(sum(i["price"] * i["qty"] for i in o["items"]) - o["total"]) > 0.005]
+    print(f"Orders whose total (payments) != items + delivery: {len(off)}  (id, olist id, lines, total): {off}")
+    fees = sorted(i["price"] for o in orders for i in o["items"] if i["product_id"] is None)
+    print(f"Delivery line TND min / median / max: {fees[0]} / {statistics.median(fees):.2f} / {fees[-1]}")
     dates = [o["order_date"] for o in orders]
     print(f"Order dates: {min(dates)} .. {max(dates)}; last delivered: {max(o['delivered_date'] for o in delivered)}; "
           f"last review: {max(r['created_at'] for r in reviews)}")

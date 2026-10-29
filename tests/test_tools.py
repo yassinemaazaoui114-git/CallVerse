@@ -52,8 +52,13 @@ def test_labels_on_seed_data():
     from callverse.data import db
     with closing(sqlite3.connect(db.db_path())) as con:
         assert con.execute("SELECT COUNT(*) FROM orders WHERE ai_generated = 1 AND scripted = 1").fetchone()[0] == 11
+        # T15: real Olist rows are ai_generated = 0 by design (orders, reviews); before T15 every seed row was 1.
+        # What must hold now: scripted and generated rows are ai_generated = 1, and a 0 only ever means real data.
         for table in ("users", "products", "orders", "refunds"):
-            assert con.execute(f"SELECT COUNT(*) FROM {table} WHERE ai_generated = 0").fetchone()[0] == 0
+            assert con.execute(f"SELECT COUNT(*) FROM {table} WHERE source IN ('scripted', 'generated')"
+                               " AND ai_generated = 0").fetchone()[0] == 0, table
+            assert con.execute(f"SELECT COUNT(*) FROM {table} WHERE ai_generated = 0"
+                               " AND source IS NOT 'olist'").fetchone()[0] == 0, table
 
 
 
