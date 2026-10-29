@@ -84,6 +84,21 @@ CATEGORIES = {
     "consoles_games": "Console and games",
 }
 
+# English category (Olist's translation file) -> natural name written in company_profile.json "sells"
+# (approved by the Brain after T15 review; Olist's literal names like "watches_gifts" read badly).
+SELLS_NAMES = {
+    "computers_accessories": "computer accessories",
+    "watches_gifts": "watches",
+    "telephony": "phones and accessories",
+    "electronics": "electronics",
+    "consoles_games": "game consoles and games",
+    "audio": "audio",
+    "fixed_telephony": "landline phones",
+    "computers": "computers",
+    "tablets_printing_image": "tablets, printers and cameras",
+    "pc_gamer": "gaming PCs",
+}
+
 # Olist order status -> ShopNova status ("shipped" may still become stuck_at_depot, see step 4 in main()).
 STATUS_MAP = {
     "delivered": "delivered",
@@ -361,7 +376,7 @@ def update_company_profile(data: dict) -> None:
     profile["delivery_promise_days"] = {"min": days[0], "median": median, "max": days[-1]}
     category_of = {p["id"]: p["category"] for p in data["products"]}
     lines = Counter(category_of[i["product_id"]] for o in data["orders"] for i in o["items"] if i["product_id"])
-    profile["sells"] = [c.replace("_", " ") for c, _ in sorted(lines.items(), key=lambda kv: (-kv[1], kv[0]))]
+    profile["sells"] = [SELLS_NAMES[c] for c, _ in sorted(lines.items(), key=lambda kv: (-kv[1], kv[0]))]
     # Same layout as the hand-written file: one field per line.
     body = ",\n".join(f"  {json.dumps(k)}: {json.dumps(v, ensure_ascii=False)}" for k, v in profile.items())
     PROFILE_PATH.write_text("{\n" + body + "\n}\n", encoding="utf-8", newline="\n")
