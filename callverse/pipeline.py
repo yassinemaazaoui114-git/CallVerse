@@ -126,7 +126,8 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
 
     case = new_case(ticket["ticket_id"])
     if company != companies.DEFAULT:   # the gate checks that a proposal is about the ticket's own booking
-        case.update(order_id=ticket.get("order_id"), booking_type=ticket.get("booking_type"))
+        case.update(order_id=ticket.get("order_id"), booking_type=ticket.get("booking_type"),
+                    main_reason=ticket.get("main_reason"), user_message=ticket.get("text"))
     result = new_agent().run(message)
     if ticket.get("order_id") is not None and not result["tool_calls"] and not result.get("proposal"):
         # T10 safety net (the S4 slip): Intake found an order id, but the agent used no tool at all

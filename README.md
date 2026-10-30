@@ -75,13 +75,13 @@ Clean demo data: `python -m callverse.data.seed` and delete `callverse/data/call
 - **Desktop shortcut**: the same `make_desktop_shortcut.ps1` also makes **CallVerse Console** (runs `Console.bat`).
 - Or double-click `Console.bat`, or run `.\start_console.ps1`. It loads **no model** (no Ollama needed).
 
-What is in it (read only: it opens `callverse.db` and `shopnova.db` in SQLite read-only mode, it never writes):
+What is in it (read only: it opens `callverse.db`, `shopnova.db` and `atlas.db` in SQLite read-only mode, it never writes):
 **Live tickets** (every ticket of every company, newest first, filters, refreshed every 10 s; click a row),
 **Ticket detail** (the conversation, then per message how CallVerse worked: Intake → route → tools and rule
 searches → proposal → each Coordinator check ✅/❌ and the decision → Layer 3 → reply writer → writes; tokens by
 model and seconds), **Agents** (one card per agent: tickets, proposals, approved / sent back / escalated, errors,
 time, tokens, models) and **Dashboard** (tickets per day / company, % solved by the AI alone, % escalated, % sent to
-finance, reply time and late replies > 30 s, finance decisions and TND paid, review score, tokens per ticket, system
+finance, reply time and late replies > 30 s, finance decisions, TND paid per company, review score, tokens per ticket, system
 tokens, Groq tokens used today out of 200,000). Times there are the computer's time (`*_real` columns, T19); the
 company rules keep the simulation clock. Only real tickets from the apps are shown: chat in ShopNova first.
 Dali's `/demo` page (platform server) is **replaced by the CallVerse Console**; its files will be removed after

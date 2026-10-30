@@ -213,6 +213,9 @@ def test_dashboard_numbers_on_known_tickets(known_tickets):
     assert (d["late"], d["late_pct"]) == (1, 33.3)                           # 45 s > 30 s
     assert (d["finance_approved"], d["finance_refused"], d["finance_pending"]) == (1, 0, 0)
     assert (d["refunds_paid"], d["refunds_tnd"], d["finance_tnd"]) == (2, 437.9, 378.0)
+    assert (d["compensations_paid"], d["compensations_tnd"]) == (0, 0)       # ShopNova has no compensations
+    assert d["money_per_company"] == [{"company": "shopnova", "refunds_paid": 2, "refunds_tnd": 437.9,
+                                       "compensations_paid": 0, "compensations_tnd": 0, "finance_tnd": 378.0}]
     assert (d["tokens_avg"], d["tokens_max"], d["tokens_total"]) == (1175, 3100, 4700)   # 1100, 3100, 500, 0
     assert d["system_tokens"] == 120                                         # shown apart, never in a ticket
     assert d["groq_today"] == {"tickets": 4000, "system": 50, "total": 4050, "limit": 200000}
@@ -260,6 +263,14 @@ def test_every_step_kind_has_a_description(known_tickets):
 
 
 # ---------- read only ----------
+
+def test_dashboard_page_shows_the_money_per_company(known_tickets):
+    at = run(PAGES["dashboard"], "supervisor")
+    assert not at.exception
+    assert "Money per company" in [s.value for s in at.subheader]
+    assert any(m.label == "Compensation paid" for m in at.metric)
+    assert at.dataframe[0].value["company"].tolist() == ["shopnova"]
+
 
 def test_console_connections_cannot_write(known_tickets):
     writes = [(store.db_path(), "INSERT INTO system_tokens (purpose, tokens, at) VALUES ('x', 1, 'now')"),

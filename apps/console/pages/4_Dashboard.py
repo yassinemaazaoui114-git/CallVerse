@@ -30,16 +30,25 @@ c5.metric("Average reply time", ui.seconds_text(d["avg_reply_s"]),
           help=f"{d['replies_timed']} timed replies ({d['replies_untimed']} older replies without a time)")
 c6.metric(f"Late replies (> {d['late_s']:.0f} s)", f"{d['late']} · {d['late_pct']}%")
 
-c1, c2, c3, c4, c5 = st.columns(5)
+c1, c2, c3, c4, c5, c6 = st.columns(6)
 c1.metric("Finance: approved / refused", f"{d['finance_approved']} / {d['finance_refused']}",
           help=f"{d['finance_pending']} still waiting")
 c2.metric("Refunds paid", f"{d['refunds_tnd']:,.2f} TND",
-          help=f"{d['refunds_paid']} refund(s) of these tickets; {d['finance_tnd']:,.2f} TND after a finance approval")
-c3.metric("Satisfaction (reviews)", "—" if d["review_avg"] is None else f"{d['review_avg']} / 5",
+          help=f"{d['refunds_paid']} refund(s) of these tickets; {d['finance_tnd']:,.2f} TND of the money paid came "
+               "after a finance approval")
+c3.metric("Compensation paid", f"{d['compensations_tnd']:,.2f} TND",
+          help=f"{d['compensations_paid']} compensation(s) of these tickets")
+c4.metric("Satisfaction (reviews)", "—" if d["review_avg"] is None else f"{d['review_avg']} / 5",
           help=f"Average of {d['reviews']:,} ShopNova review scores")
-c4.metric("Tokens per ticket (avg / max)", f"{d['tokens_avg']:,} / {d['tokens_max']:,}")
-c5.metric("System tokens (apart)", f"{d['system_tokens']:,}", help="Quota-check pings: tokens spent for no ticket")
+c5.metric("Tokens per ticket (avg / max)", f"{d['tokens_avg']:,} / {d['tokens_max']:,}")
+c6.metric("System tokens (apart)", f"{d['system_tokens']:,}", help="Quota-check pings: tokens spent for no ticket")
 st.caption("Satisfaction = ShopNova's real Olist review scores (not per ticket yet: agent F will measure it later).")
+
+st.subheader("Money per company")
+st.dataframe([{"company": c["company"], "refunds": c["refunds_paid"], "refunds TND": c["refunds_tnd"],
+               "compensations": c["compensations_paid"], "compensation TND": c["compensations_tnd"],
+               "after finance TND": c["finance_tnd"]} for c in d["money_per_company"]],
+             hide_index=True, width="stretch")
 
 g = d["groq_today"]
 st.progress(min(1.0, g["total"] / g["limit"]) if g["limit"] else 0.0,

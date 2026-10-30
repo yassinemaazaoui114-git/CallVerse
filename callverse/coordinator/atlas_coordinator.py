@@ -15,7 +15,7 @@ has three possible actions: refund, compensation, cancel_hotel. review() checks,
      A hotel cancellation: the booking is confirmed, arrival is after today, and the rule is the one of its deposit;
   4. the AMOUNT IS COMPUTED BY THIS FILE from the rules (below), then AT-REF-01 (refund limit) is always checked,
      a compensation is paid once per booking, and AT-FLT-06 (extraordinary cause) blocks a compensation;
-  5. the client confirmed, else ask the client;
+  5. the client confirmed, else ask the client. Decided by THIS file (client_confirmed), not by the agent's flag;
   6. finance: AT-ESC-01 (a refund above 1,500 TND, and every compensation);
   7. approve, then (only then) callverse/data/atlas/writes.py writes.
 
@@ -59,6 +59,11 @@ FLIGHT_WORDS = {"scheduled": "is scheduled", "on_time": "was on time", "delayed"
                 "cancelled": "is cancelled"}
 
 ESCALATE_SENTENCE = "Your request has been passed on to a colleague who will help you with it."
+
+CONFIRMING_REASONS = ("refund_request", "compensation_request", "cancellation")   # Intake reasons that ask for an action
+ACTION_WORDS = {"refund": "a refund", "compensation": "a compensation", "cancel_hotel": "a hotel cancellation"}
+ACTION_TOOLS = {"refund": "propose_refund", "compensation": "propose_compensation",
+                "cancel_hotel": "propose_hotel_cancellation"}
 
 
 def _rule(rule_id) -> dict | None:
@@ -180,6 +185,29 @@ def reply_facts(checked: dict, action) -> dict:
 
 def _name(action) -> str:
     return "compensation" if action == "compensation" else "refund"
+
+
+def client_confirmed(proposal: dict, case: dict) -> bool:
+    """True when Intake's main reason says the client asks for money or a cancellation AND the agent's user_quote is
+    really in the client's message (upper / lower case and outer spaces do not count). An empty quote confirms nothing.
+
+    Why code and not the agent's user_confirmed? In T21's live proof the model said false on "please refund me" while
+    quoting those very words. Both checks read what Intake and the client gave, not what the model concluded.
+    """
+    quote = proposal.get("user_quote")
+    if case.get("main_reason") not in CONFIRMING_REASONS or not isinstance(quote, str) or not quote.strip():
+        return False
+    return quote.strip().lower() in (case.get("user_message") or "").lower()
+
+
+def wrong_rule_reason(rule_id: str, action: str, allowed: dict) -> str:
+    """The send-back for a rule that cannot justify this action. If it justifies another action, say which one and
+    its tool: the agent has the right rule and the wrong tool, and a list of rules would lead it further away."""
+    others = [a for a, rules in allowed.items() if a != action and rule_id in rules]
+    if not others:
+        return f"rule {rule_id} cannot justify a {action}; use one of {allowed[action]}"
+    return (f"{rule_id} justifies {' or '.join(ACTION_WORDS[a] for a in others)}: "
+            f"use {' or '.join(ACTION_TOOLS[a] for a in others)}")
 
 
 def _cancel_next_step(rule_id, amount) -> str:
@@ -337,7 +365,7 @@ def review(proposal: dict, case: dict) -> dict:
         return done("send_back", f"rule {rule_id} does not exist")
     if not _check("rule_fits_action", rule_id in allowed[action], rule_id, {"action": action},
                   f"rules that can justify '{action}': {allowed[action]}"):
-        return done("send_back", f"rule {rule_id} cannot justify a {action}; use one of {allowed[action]}")
+        return done("send_back", wrong_rule_reason(rule_id, action, allowed))
     searched = case.get("searched_rules")
     if searched is not None and rule_id not in searched:
         trace.log("rule_not_searched", "coordinator", {"rule_id": rule_id, "searched": sorted(searched),
@@ -373,8 +401,9 @@ def review(proposal: dict, case: dict) -> dict:
         return done("refused", stored["error"])
 
     # 5. The client must have asked for it.
-    if not _check("user_confirmed", proposal.get("user_confirmed") is True, None,
-                  {"user_quote": proposal.get("user_quote")}, "user_confirmed must be true"):
+    if not _check("user_confirmed", client_confirmed(proposal, case), None,
+                  {"user_quote": proposal.get("user_quote"), "main_reason": case.get("main_reason"),
+                   "agent_said": proposal.get("user_confirmed")}, "a request reason + the quote is in the message"):
         return done("ask_user", "the client has not confirmed the request yet")
 
     # 6. Finance (Layer 3) decides first when AT-ESC-01 says so.

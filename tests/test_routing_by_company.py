@@ -8,6 +8,7 @@ import hashlib
 import json
 import shutil
 import sqlite3
+from contextlib import closing
 from types import SimpleNamespace
 
 import pytest
@@ -20,6 +21,7 @@ from callverse.channels import approvals, web_chat
 from callverse.console import reads as console
 from callverse.coordinator import atlas_coordinator as gate
 from callverse.coordinator.coordinator import new_case
+from callverse.coordinator.coordinator import review as shopnova_review
 from callverse.data.atlas import db as atlas_db
 from callverse.data.atlas import reads, writes
 from callverse.data.atlas.seed import seed
@@ -32,6 +34,7 @@ from callverse.tickets import store
 from callverse.tools import proposal_tools, registry
 
 PRACTICE = json.loads(open("tests/dev/atlas_practice_messages.json", encoding="utf-8").read())["messages"]
+CLIENT_QUOTE = "as the client wrote it"
 
 
 @pytest.fixture(scope="module")
@@ -79,18 +82,28 @@ def text(answer):
     return SimpleNamespace(content=answer, tool_calls=None)
 
 
+def quoting_the_client(reply, messages):
+    """A scripted proposal quotes the client's real words, as the real agent does (the Coordinator checks the quote)."""
+    for call in reply.tool_calls or []:
+        arguments = json.loads(call.function.arguments)
+        if arguments.get("user_quote") == CLIENT_QUOTE:
+            arguments["user_quote"] = messages[1]["content"].split("\n\n")[0]
+            call.function.arguments = json.dumps(arguments)
+    return reply
+
+
 def scripted(*steps):
     """A fake LLM that gives these replies in order, then a final text."""
     replies = iter(steps)
 
     def fake(role_key, messages, tools=None):
-        return next(replies, None) or text("It is sent for checking.")
+        return quoting_the_client(next(replies, None) or text("It is sent for checking."), messages)
     return fake
 
 
 def proposal_args(booking_type, booking_id, rule_id, confirmed=True):
     return {"booking_type": booking_type, "booking_id": booking_id, "rule_id": rule_id, "facts_used": {"read": True},
-            "user_confirmed": confirmed, "user_quote": "as the client wrote it"}
+            "user_confirmed": confirmed, "user_quote": CLIENT_QUOTE}
 
 
 def propose(tool, booking_type, booking_id, rule_id, confirmed=True):
@@ -107,7 +120,8 @@ def proposal(action, booking_type, booking_id, rule_id, confirmed=True):
 
 
 def case_for(booking_type, booking_id):
-    return {**new_case("T-1"), "order_id": booking_id, "booking_type": booking_type}
+    return {**new_case("T-1"), "order_id": booking_id, "booking_type": booking_type, "main_reason": "refund_request",
+            "user_message": f"Please: {CLIENT_QUOTE}."}
 
 
 def review(action, booking_type, booking_id, rule_id, confirmed=True):
@@ -559,9 +573,82 @@ def test_an_unknown_action_is_sent_back():
 
 
 def test_an_unconfirmed_request_asks_the_client():
-    decision = review("refund", "flight", 7005, "AT-FLT-01", confirmed=False)
+    case = {**case_for("flight", 7005), "main_reason": "booking_status"}
+    decision = gate.review(proposal("refund", "flight", 7005, "AT-FLT-01"), case)
     assert decision["outcome"] == "ask_user" and not rows_for("refunds", 7005)
     assert decision["must_say"] == ["Please confirm that you want a refund of 1500.00 TND for booking 7005."]
+
+
+def test_the_code_confirms_what_the_agent_left_false():
+    assert review("refund", "flight", 7005, "AT-FLT-01", confirmed=False)["outcome"] == "approve"
+    assert rows_for("refunds", 7005)[0]["amount"] == 1500.00
+
+
+def test_the_agents_true_is_not_enough():
+    case = {**case_for("flight", 7005), "user_message": "My flight was cancelled."}
+    decision = gate.review(proposal("refund", "flight", 7005, "AT-FLT-01", confirmed=True), case)
+    assert decision["outcome"] == "ask_user" and not rows_for("refunds", 7005)
+
+
+@pytest.mark.parametrize("reason", ["refund_request", "compensation_request", "cancellation"])
+def test_a_request_reason_with_a_real_quote_confirms(reason):
+    assert gate.client_confirmed({"user_quote": "refund me"}, {"main_reason": reason, "user_message": "Please refund me."})
+
+
+@pytest.mark.parametrize("reason", ["booking_status", "delay_disruption", "rebooking", "special_assistance", "other", None])
+def test_any_other_reason_does_not_confirm(reason):
+    assert not gate.client_confirmed({"user_quote": "refund me", "user_confirmed": True},
+                                     {"main_reason": reason, "user_message": "Please refund me."})
+
+
+@pytest.mark.parametrize("quote", ["REFUND ME", "  refund me  ", "Please refund me."])
+def test_the_quote_ignores_case_and_outer_spaces(quote):
+    assert gate.client_confirmed({"user_quote": quote}, {"main_reason": "refund_request", "user_message": "Please refund me."})
+
+
+@pytest.mark.parametrize("quote", ["", "   ", None, 7005, "refund me twice"])
+def test_an_empty_or_invented_quote_confirms_nothing(quote):
+    assert not gate.client_confirmed({"user_quote": quote, "user_confirmed": True},
+                                     {"main_reason": "refund_request", "user_message": "Please refund me."})
+
+
+def test_a_case_without_a_message_confirms_nothing():
+    assert not gate.client_confirmed({"user_quote": "refund me"}, {"main_reason": "refund_request"})
+
+
+def test_shopnova_still_uses_the_agents_flag():
+    args = {"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90}, "rule_id": "R-REF-03",
+            "facts_used": {"days_late": 6}, "user_quote": "words the client never wrote"}
+    assert shopnova_review({**args, "user_confirmed": False}, new_case("T-1"))["outcome"] == "ask_user"
+    assert shopnova_review({**args, "user_confirmed": True}, new_case("T-2"))["outcome"] == "approve"
+
+
+def test_a_shopnova_case_gets_no_atlas_confirmation(queue):
+    chat = scripted(tool_call("propose_refund", {"order_id": 4512, "amount": 59.90, "rule_id": "R-REF-03",
+                                                 "facts_used": {"days_late": 6}, "user_confirmed": False,
+                                                 "user_quote": "I want a refund"}))
+    out = web_chat.send(1, "shopnova", "My order 4512 is late, I want a refund", chat_fn=chat)
+    assert out["outcome"] == "ask_user"
+
+
+@pytest.mark.parametrize("action, rule_id, hint", [
+    ("compensation", "AT-HOT-04", "AT-HOT-04 justifies a refund: use propose_refund"),
+    ("refund", "AT-FLT-02", "AT-FLT-02 justifies a compensation: use propose_compensation"),
+    ("refund", "AT-HOT-03", "AT-HOT-03 justifies a hotel cancellation: use propose_hotel_cancellation"),
+    ("compensation", "AT-HOT-02",
+     "AT-HOT-02 justifies a refund or a hotel cancellation: use propose_refund or propose_hotel_cancellation")])
+def test_a_rule_of_another_action_names_that_action_and_its_tool(action, rule_id, hint):
+    decision = review(action, "hotel", 7003, rule_id)
+    assert decision["outcome"] == "send_back" and decision["reason"] == hint
+
+
+def test_a_rule_of_no_action_keeps_the_list_of_rules():
+    assert review("refund", "flight", 7005, "AT-FLT-05")["reason"].startswith("rule AT-FLT-05 cannot justify a refund; use one of")
+
+
+def test_the_hint_only_names_real_actions_and_tools():
+    assert set(gate.ACTION_TOOLS) == set(gate.ACTION_WORDS) == set(companies.get("atlas")["allowed_rules"])
+    assert set(gate.ACTION_TOOLS.values()) <= set(tool_names("B", "atlas"))
 
 
 def test_three_send_backs_become_escalate():
@@ -1071,10 +1158,11 @@ def test_a_handover_from_a_to_b_stays_at_atlas(queue):
     def fake(role_key, messages, tools=None):
         if "Agent B" in messages[0]["content"] or "Agent A" in messages[0]["content"]:
             assert "Atlas Travel" in messages[0]["content"]
-        return next(steps, None) or text("It is sent for checking.")
+        return quoting_the_client(next(steps, None) or text("It is sent for checking."), messages)
     ticket = {**intake.process("Is booking 7008 ok?", use_llm=False, company="atlas"), "main_reason": "booking_status"}
     out = pipeline.handle_ticket(ticket, chat_fn=fake)
-    assert out["handover"] == "B" and out["decision"]["outcome"] == "approve"
+    # B did the work at Atlas. Its reason is not a request, so the client is asked first: nothing is paid yet.
+    assert out["handover"] == "B" and out["decision"]["outcome"] == "ask_user" and not rows_for("refunds", 7008)
     assert out["handover_text"] == "Your request is passed on for a refund check."
 
 
@@ -1083,6 +1171,32 @@ def test_a_sent_back_agent_corrects_its_proposal(queue):
                     text("Sorry."), tool_call("propose_refund", proposal_args("flight", 7008, "AT-FLT-01")))
     out = send(4, "My flight 7008 was cancelled, please refund me.", chat)
     assert out["outcome"] == "approve" and rows_for("refunds", 7008)[0]["amount"] == 690.00
+
+
+def test_a_refund_rule_cited_for_a_compensation_ends_as_a_refund(queue):
+    chat = scripted(tool_call("propose_compensation", proposal_args("hotel", 7003, "AT-HOT-04", confirmed=False)),
+                    text("Sorry."), tool_call("propose_refund", proposal_args("hotel", 7003, "AT-HOT-04", confirmed=False)))
+    seen = []
+
+    def spy(role_key, messages, tools=None):
+        seen.append(messages[1]["content"])
+        return chat(role_key, messages, tools)
+    message = next(m["text"] for m in PRACTICE if m["id"] == "a08")
+    assert send(3, message, spy)["outcome"] == "approve"
+    assert rows_for("refunds", 7003)[0]["amount"] == 72.00 and not rows_for("compensations", 7003)
+    assert any("AT-HOT-04 justifies a refund: use propose_refund" in m for m in seen)
+
+
+def test_the_client_was_not_asked_again_on_a_clear_request(queue):
+    chat = propose("propose_refund", "flight", 7008, "AT-FLT-01", confirmed=False)
+    out = send(4, "My flight 7008 was cancelled, please refund me.", chat)
+    assert out["outcome"] == "approve" and rows_for("refunds", 7008)[0]["amount"] == 690.00
+
+
+def test_the_intake_note_is_not_the_clients_words(queue):
+    args = {**proposal_args("flight", 7008, "AT-FLT-01"), "user_quote": "main reason = refund_request"}
+    out = send(4, "My flight 7008 was cancelled, please refund me.", scripted(tool_call("propose_refund", args)))
+    assert out["outcome"] == "ask_user" and not rows_for("refunds", 7008)
 
 
 def test_a_proposal_on_another_clients_booking_never_pays(queue):
@@ -1124,6 +1238,66 @@ def test_console_timeline_of_an_atlas_ticket(queue):
     proposal_detail = next(console.describe_step(s)[2] for turn in detail["turns"] for s in turn["steps"]
                            if console.kind_of(s) == "proposal")
     assert "flight booking 7004" in proposal_detail and "None" not in proposal_detail.split("·")[0]
+
+
+def shopnova_refund_ticket() -> dict:
+    """A ShopNova ticket with a refund of 59.90 paid, saved the way the channel saves it. Returns the decision."""
+    ticket = store.create_ticket("shopnova", 1)
+    message_id = store.add_message(ticket["id"], "user", "My order 4512 is late, I want a refund.")
+    decision = shopnova_review({"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90},
+                                "rule_id": "R-REF-03", "facts_used": {"days_late": 6}, "user_confirmed": True,
+                                "user_quote": "I want a refund"}, new_case(ticket["id"]))
+    store.add_step(ticket["id"], message_id, "coordinator", "coordinator", {"trace_step": "coordinator_decision", **decision})
+    return decision
+
+
+def test_console_money_totals_include_atlas_per_company(queue):
+    shopnova_refund_ticket()
+    send(1, "Booking 7005: my flight was cancelled and I want my money back.",
+         propose("propose_refund", "flight", 7005, "AT-FLT-01"))
+    _, approval = pending_compensation()
+    approvals.decide(approval["id"], "atlas_admin", True)
+    d = console.dashboard()
+    assert d["money_per_company"] == [
+        {"company": "atlas", "refunds_paid": 1, "refunds_tnd": 1500.00, "compensations_paid": 1,
+         "compensations_tnd": 839.50, "finance_tnd": 839.50},
+        {"company": "shopnova", "refunds_paid": 1, "refunds_tnd": 59.90, "compensations_paid": 0,
+         "compensations_tnd": 0, "finance_tnd": 0}]
+    assert (d["refunds_paid"], d["refunds_tnd"]) == (2, 1559.90)
+    assert (d["compensations_paid"], d["compensations_tnd"], d["finance_tnd"]) == (1, 839.50, 839.50)
+
+
+def test_console_counts_a_hotel_cancellation_refund(queue):
+    send(1, "Please cancel my hotel booking 7011, I can't travel anymore.",
+         propose("propose_hotel_cancellation", "hotel", 7011, "AT-HOT-02"))
+    assert console.dashboard()["money_per_company"][0]["refunds_tnd"] == 220.00
+
+
+def test_console_does_not_count_a_pending_compensation(queue):
+    pending_compensation()
+    d = console.dashboard()
+    assert (d["compensations_paid"], d["compensations_tnd"], d["finance_pending"]) == (0, 0, 1)
+
+
+def test_console_never_counts_one_companys_money_for_the_other():
+    decision = shopnova_refund_ticket()
+    sql("INSERT INTO refunds (booking_type, booking_id, amount, status, proposal_id) VALUES ('flight', 4512, 999, "
+        "'approved', ?)", decision["proposal_id"])   # the same proposal id and number, in the other company's data
+    assert [c["company"] for c in console.dashboard()["money_per_company"]] == ["shopnova"]
+    assert console.dashboard()["refunds_tnd"] == 59.90
+
+
+def test_console_opens_atlas_read_only():
+    with closing(console.connect_ro(atlas_db.db_path())) as con, pytest.raises(sqlite3.OperationalError, match="readonly"):
+        con.execute("DELETE FROM refunds")
+
+
+def test_console_money_works_without_the_atlas_file(tmp_path, queue):
+    send(1, "Booking 7005: my flight was cancelled and I want my money back.",
+         propose("propose_refund", "flight", 7005, "AT-FLT-01"))
+    missing = tmp_path / "no_atlas.db"
+    atlas_db.use_db(missing)
+    assert console.dashboard()["refunds_tnd"] == 0 and not missing.exists()
 
 
 def test_console_filter_keeps_shopnova_tickets_apart(queue):
