@@ -1,15 +1,15 @@
 """Creates the Atlas Travel SQLite database (callverse/data/atlas.db).
 
 Two kinds of data go in (T20):
-1. The SCRIPTED demo data written below by hand: users 1-5 and bookings 7001-7010 (one flight per flight booking,
+1. The SCRIPTED demo data written below by hand: users 1-5 and bookings 7001-7012 (one flight per flight booking,
    with the same id as the booking). It never changes (the tests pin every value).
 2. The REAL sample: 2,000 hotel bookings (ids 20001+), 2,000 flights (ids 1+), the flight bookings generated on them
    (ids 30001+), their generated users (ids 101+) and refunds, read from callverse/data/real/atlas_sample.json.
    That file is built by scripts/build_atlas_sample.py and already contains everything, so seeding needs no raw
    data, no random numbers and no network.
 
-Labels: `source`, `source_id`, `ai_generated`, `scripted` (see callverse/data/atlas/schema.py). No code uses this
-database yet except the read functions in reads.py.
+Labels: `source`, `source_id`, `ai_generated`, `scripted` (see callverse/data/atlas/schema.py). T21: the center reads
+it with reads.py and changes it only with writes.py.
 
 Run it directly:  python -m callverse.data.atlas.seed
 """
@@ -53,9 +53,15 @@ HOTEL_BOOKINGS = [
     # Deposit paid, so the refund limit AT-REF-01 leaves room for it.
     (7003, 3, 1, "2026-08-25", "2026-10-01", 3, 2, 0, "BB", "D", "A", "refundable",
      120.00, 360.00, 360.00, "stayed", None, 0),
-    # 7009: refundable, cancelled 5 days before arrival, above 300 TND -> needs finance (AT-HOT-02 + AT-ESC-01).
+    # 7009: refundable, cancelled 5 days before arrival -> a full refund, below the 1,500 TND limit (AT-HOT-02).
     (7009, 4, 2, "2026-09-10", "2026-10-12", 3, 2, 0, "BB", "E", "E", "refundable",
      150.00, 450.00, 450.00, "cancelled", "2026-10-07", 0),
+    # 7011: confirmed, refundable, 11 days before arrival -> the client can cancel, 220.00 TND back (T21, AT-HOT-02).
+    (7011, 1, 1, "2026-09-25", "2026-10-20", 2, 2, 0, "BB", "A", "A", "refundable",
+     110.00, 220.00, 220.00, "confirmed", None, 0),
+    # 7012: confirmed, non-refundable -> the client can cancel, nothing back (T21, AT-HOT-03).
+    (7012, 2, 2, "2026-09-15", "2026-10-25", 4, 2, 0, "HB", "D", "D", "non_refundable",
+     100.00, 400.00, 400.00, "confirmed", None, 0),
 ]
 
 FLIGHT_COLUMNS = ("id", "carrier", "carrier_name", "flight_number", "origin", "origin_city", "destination",

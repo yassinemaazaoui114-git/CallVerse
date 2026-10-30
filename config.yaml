@@ -95,7 +95,7 @@ intake:
   reason_threshold: 0.66
   # main_reason = the first reason of this list found in the ticket (T04, approved).
   # Money and damage come first: they need Agent B even when the client also asks "where is it?".
-  main_reason_order: [damaged_item, refund_request, return_item, late_delivery, order_status, other]
+  main_reason_order: &shopnova_reason_order [damaged_item, refund_request, return_item, late_delivery, order_status, other]
 
   priority:
     # severity (0-1) = base for the reason + bonuses, capped at 1
@@ -120,7 +120,7 @@ intake:
 # main_reason -> agent. Layer L1 = the first-line agents A and B.
 queues:
   layer: L1
-  routes:
+  routes: &shopnova_routes
     order_status: A
     late_delivery: A
     refund_request: B
@@ -129,7 +129,7 @@ queues:
     other: A
   # Sentence that announces a handover to Agent B, per reason (T06, Brain decision).
   # Agent A hands over only for money requests, so its handovers use refund_request.
-  handover_texts:
+  handover_texts: &shopnova_handover_texts
     refund_request: "Your request is passed on for a refund check."
     return_item: "Your request is passed on for a returns check."
     damaged_item: "Your request is passed on for a damage check."
@@ -138,7 +138,7 @@ queues:
 coordinator:
   # Which rules can justify each action. Rules such as R-REF-05 (limit) or R-ESC-01 (finance) are
   # always checked, but they cannot be the reason FOR a refund.
-  allowed_rules:
+  allowed_rules: &shopnova_allowed_rules
     refund: [R-REF-03, R-RET-01, R-DMG-01]
     subscribe: [R-NOT-01, R-DEL-02]
   # A case may be sent back to the agent this many times; the next send-back becomes "escalate".
@@ -176,7 +176,7 @@ slm:
     # sentences, at most 45 words", "The next step is: ..."). The keyword 'instruction-label' never appears in a
     # decision, so these are always rejected.
     - ['\b(?:tone|length|style|formality|emotion|outcome|decision|facts)\s*:', 'instruction-label']
-    - ['\bnext step is\s*:|\b(?:next_step|must_say|order_number)\b', 'instruction-label']
+    - ['\bnext step is\s*:|\b(?:next_step|must_say|order_number|booking_number)\b', 'instruction-label']
     - ['\bat most \d+ words\b|\b\d+ (?:or|to) \d+ sentences\b', 'instruction-label']
   # Warm-up (T09): one tiny call at start-up loads the model into memory, with a longer timeout, so the
   # first real reply is not slowed by the model load (T08: 62 s timeout on the first reply).
@@ -193,10 +193,86 @@ server:
   demo_enabled: false
 
 # CallVerse Console (T19, apps/console, port 8502, read only). The companies listed here are always shown in its
-# filters, even before their first ticket (Atlas is added here later); companies found in callverse.db are added.
+# filters, even before their first ticket; companies found in callverse.db are added.
 # late_reply_s: a reply slower than this counts as "late" on the Dashboard. groq_daily_tokens: the free daily quota
 # shown as "Groq tokens used today" (the Console only shows it; it never stops anything).
 console:
-  companies: [shopnova]
+  companies: [shopnova, atlas]
   late_reply_s: 30
   groq_daily_tokens: 200000
+
+# T21: the companies of the center. One entry per company: callverse/companies.py reads it, and the shared code
+# (Intake, router, rule search, reply writer) asks it instead of assuming ShopNova. The company comes from the
+# channel (web_chat.send), never from the message text. A ticket without a company is a ShopNova ticket.
+# shopnova = today's values: the aliases (*name) point at the blocks above, so they are written in one place only.
+# The allow-lists are not here: they stay in code, in callverse/tools/registry.py (a locked decision).
+companies:
+  shopnova:
+    name: "ShopNova"
+    description: "an online shop in Tunisia"
+    data_module: callverse.data.db
+    coordinator: callverse.coordinator.coordinator
+    rules_file: callverse/kb/policies_shopnova.json
+    profile_file: callverse/data/company_profile.json
+    policy_cache: callverse/kb/policy_vectors.npz
+    reasons: [order_status, late_delivery, refund_request, return_item, damaged_item, other]
+    reason_examples: callverse/intake/data/reason_examples.json
+    reason_cache: callverse/intake/data/reason_vectors.npz
+    reason_threshold: 0.66
+    main_reason_order: *shopnova_reason_order
+    routes: *shopnova_routes
+    handover_texts: *shopnova_handover_texts
+    finance_rule: R-ESC-01
+    allowed_rules: *shopnova_allowed_rules
+  atlas:
+    name: "Atlas Travel"
+    description: "a travel agency in Tunis that sells hotel stays and flights"
+    data_module: callverse.data.atlas.db
+    coordinator: callverse.coordinator.atlas_coordinator
+    rules_file: callverse/kb/policies_atlas.json
+    profile_file: callverse/data/atlas_profile.json
+    policy_cache: callverse/kb/policy_vectors_atlas.npz
+    reasons: [booking_status, delay_disruption, cancellation, refund_request, compensation_request, rebooking,
+              special_assistance, other]
+    reason_examples: callverse/intake/data/reason_examples_atlas.json
+    reason_cache: callverse/intake/data/reason_vectors_atlas.npz
+    # Chosen by leave-one-out on the EXAMPLES only (python -m scripts.choose_threshold atlas), like ShopNova's in T03.
+    reason_threshold: 0.68
+    # Things only a human can do today come first: they must reach a colleague, not an agent.
+    main_reason_order: [special_assistance, rebooking, compensation_request, refund_request, cancellation,
+                        delay_disruption, booking_status, other]
+    priority:
+      severity_base:
+        special_assistance: 0.7
+        rebooking: 0.6
+        delay_disruption: 0.5
+        refund_request: 0.5
+        cancellation: 0.4
+        compensation_request: 0.4
+        booking_status: 0.2
+        other: 0.2
+      # [hours before departure / arrival, time pressure]: the first line that fits wins, else 0 (past trips: 0).
+      time_pressure_hours: [[24, 1.0], [72, 0.5]]
+    # escalate = no agent: the ticket goes to a human colleague (rebooking and assistance wait for agent C).
+    routes:
+      booking_status: A
+      delay_disruption: A
+      other: A
+      refund_request: B
+      compensation_request: B
+      cancellation: B
+      rebooking: escalate
+      special_assistance: escalate
+    handover_texts:
+      refund_request: "Your request is passed on for a refund check."
+      compensation_request: "Your request is passed on for a compensation check."
+      cancellation: "Your request is passed on for a cancellation check."
+    finance_rule: AT-ESC-01
+    # Finance stub (tests only, layer3 mode "stub"): a refund above AT-ESC-01's limit is approved up to this amount
+    # and refused above it. Its own value: ShopNova's 500 is below Atlas's 1,500 limit, so nothing could be approved.
+    stub_max_approve_tnd: 2000
+    # Which rules can justify each action. AT-REF-01, AT-ESC-01 and AT-FLT-06 are always checked, never a reason FOR one.
+    allowed_rules:
+      refund: [AT-FLT-01, AT-FLT-04, AT-HOT-02, AT-HOT-04]
+      compensation: [AT-FLT-02, AT-FLT-03]
+      cancel_hotel: [AT-HOT-01, AT-HOT-02, AT-HOT-03]

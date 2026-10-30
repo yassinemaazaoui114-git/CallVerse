@@ -3,7 +3,7 @@
 Same ideas as ShopNova's schema (callverse/data/seed.py):
 - every table says where a row comes from: `source`, `source_id`, `ai_generated`, `scripted`;
 - the allowed codes below are also enforced by CHECK constraints, so a wrong code cannot be stored;
-- `proposals` has the same columns as ShopNova's, ready for the Coordinator in a later task.
+- `proposals` has the same columns as ShopNova's; the Coordinator uses it since T21 (ids AP-0001, ...).
 
 Atlas sells two things, so a refund points at a booking with two columns: `booking_type` + `booking_id`.
 """

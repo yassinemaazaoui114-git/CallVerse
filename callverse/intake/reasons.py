@@ -20,6 +20,9 @@ gave 47/60 (see tasks/T03_report.md).
 
 The example vectors are computed once and cached in data/reason_vectors.npz (git-ignored).
 The cache is rebuilt automatically when the examples file or the model changes.
+
+T21: every company has its own reasons, examples, threshold and cache (config.yaml companies:). Same model, same
+method. The default is ShopNova, so old callers keep working.
 """
 
 import hashlib
@@ -30,11 +33,10 @@ from pathlib import Path
 
 import numpy as np
 
+from callverse import companies
 from callverse.config import load_config
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
-EXAMPLES_PATH = DATA_DIR / "reason_examples.json"
-CACHE_PATH = DATA_DIR / "reason_vectors.npz"
 
 REASONS = ["order_status", "late_delivery", "refund_request", "return_item", "damaged_item", "other"]
 
@@ -51,27 +53,28 @@ def embed(texts: list[str]) -> np.ndarray:
     return get_model().encode(texts, normalize_embeddings=True, convert_to_numpy=True)
 
 
-def load_examples() -> dict[str, list[str]]:
-    """{reason: [example texts]} from the examples file (keys starting with "_" are notes, skipped)."""
-    data = json.loads(EXAMPLES_PATH.read_text(encoding="utf-8"))
-    return {reason: data[reason] for reason in REASONS}
+def load_examples(company: str = companies.DEFAULT) -> dict[str, list[str]]:
+    """{reason: [example texts]} from the company's examples file (keys starting with "_" are notes, skipped)."""
+    data = json.loads(companies.path(company, "reason_examples").read_text(encoding="utf-8"))
+    return {reason: data[reason] for reason in companies.get(company)["reasons"]}
 
 
-@lru_cache(maxsize=1)
-def example_vectors() -> dict[str, np.ndarray]:
-    """{reason: matrix of example vectors}, read from the cache when it is still valid."""
+@lru_cache(maxsize=4)
+def example_vectors(company: str = companies.DEFAULT) -> dict[str, np.ndarray]:
+    """{reason: matrix of example vectors}, read from the company's cache when it is still valid."""
     model_name = load_config()["intake"]["embedding_model"]
+    examples_path, cache_path = companies.path(company, "reason_examples"), companies.path(company, "reason_cache")
     # Fingerprint of the examples file + model name: if either changes, the cache is outdated.
-    fingerprint = hashlib.sha256(EXAMPLES_PATH.read_bytes() + model_name.encode()).hexdigest()
+    fingerprint = hashlib.sha256(examples_path.read_bytes() + model_name.encode()).hexdigest()
 
-    if CACHE_PATH.exists():
-        cache = np.load(CACHE_PATH)
+    if cache_path.exists():
+        cache = np.load(cache_path)
         if str(cache["fingerprint"]) == fingerprint:
-            return {reason: cache[reason] for reason in REASONS}
+            return {reason: cache[reason] for reason in companies.get(company)["reasons"]}
 
-    examples = load_examples()
+    examples = load_examples(company)
     vectors = {reason: embed(texts) for reason, texts in examples.items()}
-    np.savez(CACHE_PATH, fingerprint=np.array(fingerprint), **vectors)
+    np.savez(cache_path, fingerprint=np.array(fingerprint), **vectors)
     return vectors
 
 
@@ -92,8 +95,8 @@ def reason_scores(vector: np.ndarray, vectors: dict[str, np.ndarray], top_k: int
     return scores
 
 
-def match_reasons(text: str, threshold: float | None = None) -> dict:
-    """Find the reasons in a message.
+def match_reasons(text: str, threshold: float | None = None, company: str = companies.DEFAULT) -> dict:
+    """Find the reasons in a message, among the reasons of this company.
 
     Returns {"reasons": [{reason, score, sentence}, ...] best first, "needs_llm": bool,
              "sentence_scores": [...] (every sentence's scores, for the trace)}.
@@ -102,8 +105,8 @@ def match_reasons(text: str, threshold: float | None = None) -> dict:
     "other" is dropped when a specific reason is also found ("other" means "none of the above").
     """
     cfg = load_config()["intake"]
-    threshold = cfg["reason_threshold"] if threshold is None else threshold
-    vectors = example_vectors()
+    threshold = companies.get(company)["reason_threshold"] if threshold is None else threshold
+    vectors = example_vectors(company)
 
     sentences = split_sentences(text)
     sentence_vectors = embed(sentences) if sentences else []
@@ -125,7 +128,7 @@ def match_reasons(text: str, threshold: float | None = None) -> dict:
     return {"reasons": found, "needs_llm": not found, "sentence_scores": sentence_scores}
 
 
-def leave_one_out(thresholds: list[float]) -> list[dict]:
+def leave_one_out(thresholds: list[float], company: str = companies.DEFAULT) -> list[dict]:
     """Choose the threshold on the EXAMPLES only (the test set is never used here).
 
     For each example: hide it, score it against the remaining examples (its own vector removed),
@@ -134,11 +137,11 @@ def leave_one_out(thresholds: list[float]) -> list[dict]:
     exact (right reason), wrong (wrong reason), needs_llm (no reason passed -> M2 call).
     """
     top_k = load_config()["intake"]["top_k"]
-    vectors = example_vectors()
+    vectors = example_vectors(company)
 
     # Scores of every example against every reason, with the example itself left out.
     rows = []
-    for true_reason in REASONS:
+    for true_reason in companies.get(company)["reasons"]:
         for i in range(len(vectors[true_reason])):
             vector = vectors[true_reason][i]
             others = {r: (np.delete(m, i, axis=0) if r == true_reason else m) for r, m in vectors.items()}

@@ -32,6 +32,7 @@ from pathlib import Path
 
 from callverse.config import load_config
 from callverse.data import db as shopnova_db
+from callverse.data.atlas import db as atlas_db
 from callverse.tickets import store
 
 NO_TICKETS = "No tickets yet — chat in the ShopNova app to see them here."
@@ -43,8 +44,8 @@ PERIODS = {"All": None, "Last 7 days": 7, "Last 30 days": 30}
 # The Agents page cards, in the order of the pipeline.
 AGENTS = {"intake": "Intake", "A": "Agent A", "B": "Agent B", "coordinator": "Coordinator", "writer": "Reply writer"}
 
-# The company's own data file, per company (the user's name, refunds, reviews). Atlas: one line here later.
-COMPANY_DBS = {"shopnova": shopnova_db.db_path}
+# The company's own data file, per company (the user's name, refunds, reviews).
+COMPANY_DBS = {"shopnova": shopnova_db.db_path, "atlas": atlas_db.db_path}
 
 # Steps counted as errors on the Agents page: a refused tool or proposal, a model that failed (the next one of
 # its list was used), a write the platform refused, an error in the pipeline.
@@ -359,6 +360,8 @@ def describe_step(step: dict) -> tuple[str, str, str]:
         action = d.get("action", "refund")
         what = (f"{d.get('amount')} TND on order {d.get('order_id')}" if action == "refund"
                 else f"{d.get('event')} on order {d.get('order_id')}")
+        if d.get("booking_id") is not None:   # T21: an Atlas proposal has no amount: the Coordinator computes it
+            what = f"{d.get('booking_type')} booking {d.get('booking_id')}"
         return ("📝", f"Proposal: {action}",
                 f"{what} · rule {d.get('rule_id')} · client confirmed: {d.get('user_confirmed')} · "
                 f"facts {_short(d.get('facts_used'), 100)}")
@@ -378,8 +381,8 @@ def describe_step(step: dict) -> tuple[str, str, str]:
     if kind == "send_back_to_agent":
         return "↩️", f"Sent back to Agent {d.get('agent')}", _short(d.get("note") or "", 160)
     if kind == "layer3_decision":
-        if d.get("by") == "ShopNova admin":
-            return "🏦", f"Layer 3: the ShopNova admin decided **{d.get('outcome')}**", f"by {d.get('admin')}"
+        if d.get("by") in ("ShopNova admin", "Atlas admin"):
+            return "🏦", f"Layer 3: the {d['by']} decided **{d.get('outcome')}**", f"by {d.get('admin')}"
         result = d.get("result") or {}
         return "🏦", f"Layer 3 (fixed rule): {result.get('decision')}", _short(d.get("args") or {}, 100)
     if kind == "approval":

@@ -104,7 +104,7 @@ def test_counts():
     assert _count("hotel_bookings", REAL_HOTELS) == 2000
     assert _count("flights", "source = 'usdot_2015'") == 2000
     assert _count("flight_bookings", "source = 'generated'") == 2000
-    assert _count("hotel_bookings", "scripted = 1") + _count("flight_bookings", "scripted = 1") == 10
+    assert _count("hotel_bookings", "scripted = 1") + _count("flight_bookings", "scripted = 1") == 12
     assert _count("users", "scripted = 1") == 5
     assert _count("users") == 4005
     assert _count("hotels") == 2
@@ -336,6 +336,8 @@ def test_main_delay_cause(delays, expected):
     (7002, "non_refundable", "cancelled", 380.00, 380.00, 7),
     (7003, "refundable", "stayed", 360.00, 360.00, None),
     (7009, "refundable", "cancelled", 450.00, 450.00, 5),
+    (7011, "refundable", "confirmed", 220.00, 220.00, None),      # T21: the cancel action
+    (7012, "non_refundable", "confirmed", 400.00, 400.00, None),
 ])
 def test_scripted_hotel_bookings(booking_id, deposit, status, total, paid, days_before):
     b = reads.get_hotel_booking(booking_id)
@@ -364,7 +366,7 @@ def test_scripted_assistance_request():
 
 
 def test_scripted_bookings_are_labelled():
-    assert _count("hotel_bookings", "scripted = 1 AND source = 'scripted' AND ai_generated = 1") == 4
+    assert _count("hotel_bookings", "scripted = 1 AND source = 'scripted' AND ai_generated = 1") == 6
     assert _count("flight_bookings", "scripted = 1 AND source = 'scripted' AND ai_generated = 1") == 6
     assert _count("flights", "scripted = 1 AND source = 'scripted' AND ai_generated = 1") == 6
 
@@ -454,10 +456,11 @@ def test_refund_limit():
     assert not rule("AT-REF-01", {**facts, "amount": 72.00, "refunded_total": 300.00})
 
 
-def test_finance_above_300():
-    assert rule("AT-ESC-01", {"amount": 450.00})                      # 7009's refund
-    assert rule("AT-ESC-01", {"amount": 839.50})                      # the smallest compensation
-    assert not rule("AT-ESC-01", {"amount": 300})
+def test_finance_limit_is_1500_and_every_compensation():            # T21: the limit moved from 300 TND
+    assert not rule("AT-ESC-01", {"action": "refund", "amount": 450.00})      # 7009's refund is now automatic
+    assert not rule("AT-ESC-01", {"action": "refund", "amount": 1500.00})     # "above": exactly 1,500 is automatic
+    assert rule("AT-ESC-01", {"action": "refund", "amount": 1500.01})
+    assert rule("AT-ESC-01", {"action": "compensation", "amount": 839.50})    # the smallest compensation
 
 
 # ---- Generated refunds -----------------------------------------------------------------------------------------
@@ -574,7 +577,7 @@ def test_user_bookings():
 
 def test_summary():
     s = reads.summary()
-    assert sum(s["hotel_bookings"].values()) == 2004
+    assert sum(s["hotel_bookings"].values()) == 2006
     assert sum(s["flights"].values()) == 2006
     assert sum(s["flight_bookings"].values()) == 2006
     assert s["flights"]["scheduled"] == 1
@@ -583,10 +586,15 @@ def test_summary():
     assert s["refunds"] == _count("refunds")
 
 
-def test_atlas_is_read_by_no_agent():
+def test_no_agent_can_write_atlas_data():                            # T21: agents read Atlas now, they never write
+    from callverse.data.atlas import writes
     from callverse.tools import registry
-    source = open(registry.__file__, encoding="utf-8").read()
-    assert "atlas" not in source.lower()
+    listed = {name for lists in (registry.ATLAS_ALLOW_LISTS, registry.ALLOW_LISTS) for names in lists.values()
+              for name in names}
+    assert not listed & {"record_proposal", "record_decision", "create_refund", "create_compensation",
+                         "cancel_hotel_booking", "admin_decide", "set_proposal_amount"}
+    functions = {f for f in registry.ATLAS_TOOL_FUNCTIONS.values()}
+    assert not functions & {writes.create_refund, writes.create_compensation, writes.cancel_hotel_booking}
 
 
 # ---- Company profile -------------------------------------------------------------------------------------------

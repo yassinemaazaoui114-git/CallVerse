@@ -1,8 +1,8 @@
 """Atlas Travel READ functions: they look up facts in atlas.db. They never change anything (T20).
 
-They are not in any agent's allow-list yet; a later task will wrap them as tools. Their results are already what a
-tool may show: the names of the facts match the conditions in callverse/kb/policies_atlas.json, and the fields in
-HIDDEN below (where a row comes from, the client's city, how they pay) are removed from every result.
+T21: callverse/tools/atlas_tools.py gives them to the agents as tools, through the allow-lists of the registry. Their
+results are what a tool may show: the names of the facts match the conditions in callverse/kb/policies_atlas.json, and
+the fields in HIDDEN below (where a row comes from, the client's city, how they pay) are removed from every result.
 If nothing is found they return {"error": ...}, like ShopNova's read tools.
 """
 
@@ -60,7 +60,8 @@ def get_hotel_booking(booking_id: int) -> dict:
     """One hotel booking with the facts the rules need.
 
     days_before_arrival = arrival_date - cancelled_date (None if not cancelled);
-    room_changed = the room assigned is not the one reserved.
+    room_changed = the room assigned is not the one reserved;
+    hours_before_arrival = from the start of today in the simulation to the arrival date (negative for a past stay).
     """
     rows = _fetch("SELECT b.*, h.name AS hotel_name FROM hotel_bookings b JOIN hotels h ON h.id = b.hotel_id"
                   " WHERE b.id = ?", int(booking_id))
@@ -71,6 +72,7 @@ def get_hotel_booking(booking_id: int) -> dict:
     booking["days_before_arrival"] = (
         (date.fromisoformat(booking["arrival_date"]) - date.fromisoformat(cancelled)).days if cancelled else None)
     booking["room_changed"] = booking["room_assigned"] != booking["room_reserved"]
+    booking["hours_before_arrival"] = (date.fromisoformat(booking["arrival_date"]) - sim_today()).days * 24
     booking["refunded_total"] = get_refunds("hotel", booking["id"])["refunded_total"]
     return booking
 
@@ -99,6 +101,35 @@ def get_flight_booking(booking_id: int) -> dict:
     return {**booking, **flight,
             "hours_before_departure": round((departure - start_of_today).total_seconds() / 3600, 2),
             "refunded_total": get_refunds("flight", booking["id"])["refunded_total"]}
+
+
+def booking_type(booking_id: int) -> str | None:
+    """"hotel" or "flight" for a booking number, None if it is neither. The client only gives a number: this lookup
+    says which table it is in (the ids are unique across the two tables, a test checks it)."""
+    if _fetch("SELECT 1 FROM hotel_bookings WHERE id = ?", int(booking_id)):
+        return "hotel"
+    if _fetch("SELECT 1 FROM flight_bookings WHERE id = ?", int(booking_id)):
+        return "flight"
+    return None
+
+
+def find_booking(booking_id: int) -> dict:
+    """A booking of either type, with its booking_type, or {"error": ...}."""
+    kind = booking_type(booking_id)
+    if kind is None:
+        return {"error": f"booking {booking_id} not found"}
+    read = get_hotel_booking if kind == "hotel" else get_flight_booking
+    return {"booking_type": kind, **read(booking_id)}
+
+
+def get_compensations(booking_type: str, booking_id: int) -> dict:
+    """The compensations of a booking and their total (a compensation is paid once per booking)."""
+    rows = _fetch("SELECT * FROM compensations WHERE booking_type = ? AND booking_id = ? ORDER BY id",
+                  booking_type, int(booking_id))
+    compensations = [_public(r) for r in rows]
+    total = sum(r["amount"] for r in compensations if r["status"] in COUNTED_REFUND_STATUSES)
+    return {"booking_type": booking_type, "booking_id": int(booking_id), "compensations": compensations,
+            "compensated_total": round(total, 2)}
 
 
 def user_bookings(user_id: int) -> dict:

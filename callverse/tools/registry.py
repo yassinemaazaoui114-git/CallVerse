@@ -9,12 +9,16 @@ Four kinds of tools:
 - search_policy (kb/search.py): find company rules by meaning;
 - proposal tools (proposal_tools.py): only write a PROPOSAL for the Coordinator, never act;
 - ask_agent (agents/ask.py): ask another agent (Agent A) a question.
+
+T21: the allow-lists are per COMPANY and agent. Each company has its own table of tools, so a tool of one company simply
+does not exist for an agent working on a ticket of the other. run_tool() gets the company from the agent (which got it
+from the ticket); the model can never choose it.
 """
 
 from callverse import trace
 from callverse.agents import ask
 from callverse.kb import search
-from callverse.tools import proposal_tools, shopnova_tools
+from callverse.tools import atlas_tools, proposal_tools, shopnova_tools
 
 # All tools that exist in the prototype (name -> function / schema).
 TOOL_FUNCTIONS = {
@@ -51,18 +55,42 @@ ALLOW_LISTS = {
 }
 
 
-def schemas_for(agent: str) -> list[dict]:
+# T21: Atlas Travel. No write function is here: proposal tools only propose (no amount), and no agent can reach
+# callverse/data/atlas/writes.py. Agent A reads; Agent B reads, proposes and can ask Agent A.
+ATLAS_AGENT_A = ["get_user", "get_hotel_booking", "get_flight_booking", "get_flight", "get_company_profile",
+                 "search_policy"]
+ATLAS_AGENT_B = ["get_hotel_booking", "get_flight_booking", "get_refunds", "search_policy", "propose_refund",
+                 "propose_compensation", "propose_hotel_cancellation", "ask_agent"]
+
+ATLAS_ALLOW_LISTS = {
+    "A": ATLAS_AGENT_A,
+    "B": ATLAS_AGENT_B,
+    "INTAKE": ["get_hotel_booking", "get_flight_booking"],
+}
+ATLAS_TOOL_FUNCTIONS = {**atlas_tools.FUNCTIONS, **proposal_tools.ATLAS_FUNCTIONS, "ask_agent": ask.ask_agent}
+ATLAS_TOOL_SCHEMAS = {**atlas_tools.SCHEMAS, **proposal_tools.ATLAS_SCHEMAS, "ask_agent": ask.ATLAS_SCHEMA}
+
+# Company -> (its allow-lists, its tool functions, its tool schemas).
+COMPANY_TOOLS = {
+    "shopnova": (ALLOW_LISTS, TOOL_FUNCTIONS, TOOL_SCHEMAS),
+    "atlas": (ATLAS_ALLOW_LISTS, ATLAS_TOOL_FUNCTIONS, ATLAS_TOOL_SCHEMAS),
+}
+
+
+def schemas_for(agent: str, company: str = "shopnova") -> list[dict]:
     """Tool schemas sent to the LLM for this agent: the model only SEES the tools it is allowed to use."""
-    return [TOOL_SCHEMAS[name] for name in ALLOW_LISTS.get(agent, [])]
+    allow_lists, _, schemas = COMPANY_TOOLS[company]
+    return [schemas[name] for name in allow_lists.get(agent, [])]
 
 
-def run_tool(agent: str, name: str, args: dict, chat_fn=None) -> dict:
-    """Run tool `name` for `agent` if it is on the agent's allow-list; otherwise refuse.
+def run_tool(agent: str, name: str, args: dict, chat_fn=None, company: str = "shopnova") -> dict:
+    """Run tool `name` for `agent` if it is on the agent's allow-list for this company; otherwise refuse.
 
     The result (or the refusal) is logged to the trace and returned as a dict,
     so it can be sent back to the model. chat_fn is only passed to tools that run an agent.
     """
-    allowed = ALLOW_LISTS.get(agent, [])
+    allow_lists, functions, _ = COMPANY_TOOLS[company]
+    allowed = allow_lists.get(agent, [])
     if name not in allowed:
         result = {"error": f"tool '{name}' is not allowed for agent {agent}"}
         trace.log("tool_refused", "registry", {"agent": agent, "tool": name, "args": args,
@@ -72,8 +100,9 @@ def run_tool(agent: str, name: str, args: dict, chat_fn=None) -> dict:
     call_args = dict(args)
     if name in RUNS_AN_AGENT:
         call_args["chat_fn"] = chat_fn   # set by our code, so the model cannot choose it
+        call_args["company"] = company   # the same: the agent asked works for the same company
     try:
-        result = TOOL_FUNCTIONS[name](**call_args)
+        result = functions[name](**call_args)
     except Exception as e:  # bad arguments from the model, etc.: report it instead of crashing
         result = {"error": f"{type(e).__name__}: {e}"}
 

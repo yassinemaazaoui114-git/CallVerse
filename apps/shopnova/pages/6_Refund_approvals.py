@@ -35,7 +35,7 @@ if "approval_result" in st.session_state:
         st.success(f"Approval {approval_id}: {out['approval']['status']}. Ticket {out['ticket']['id']} is now "
                    f"{out['ticket']['status']}; the client got a new reply.")
 
-pending = store.approvals("pending")
+pending = store.approvals("pending", company="shopnova")   # T21: Atlas's cases are not this admin's
 st.subheader(f"Waiting ({len(pending)})")
 if not pending:
     st.caption("No refund is waiting for approval.")
@@ -57,7 +57,7 @@ for a in pending:
                   use_container_width=True)
         b2.button("Refuse", key=f"refuse_{a['id']}", on_click=decide, args=(a["id"], False), use_container_width=True)
 
-decided = [a for a in store.approvals() if a["status"] != "pending"]
+decided = [a for a in store.approvals(company="shopnova") if a["status"] != "pending"]
 st.subheader(f"Decided ({len(decided)})")
 if decided:
     st.dataframe([{k: a[k] for k in ("id", "ticket_id", "order_id", "amount", "status", "decided_by", "decided_at",

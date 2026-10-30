@@ -24,15 +24,20 @@ It never crashes: any error gives the pipeline's own "extra check" (escalate) re
 T19: an escalate outcome (the Coordinator's or an error's) sets the ticket to "Escalated" (a human colleague looks);
 a new message on it continues the same ticket. Each assistant message keeps how long the reply took (seconds).
 
+T21: the same door for every company. The company comes from the app calling send(), never from the text. The identity
+check uses the company's data (at Atlas: the booking must be this user's), the pending guard is per company and booking,
+and the ticket keeps its company. Atlas has no app yet: tests and T21's live proof call send() directly.
+
 One message at a time (a lock): the pipeline has one trace and one set of local models; a demo has few users.
 """
 
 import threading
 import time
 
-from callverse import pipeline, trace
+from callverse import companies, pipeline, trace
 from callverse import quota
-from callverse.coordinator.coordinator import escalate_decision, user_words
+from callverse.coordinator.coordinator import user_words
+from callverse.data.atlas import reads as atlas_reads
 from callverse.intake import extract, intake
 from callverse.tickets import store
 from callverse.tools.shopnova_tools import get_order
@@ -41,6 +46,10 @@ BUSY_REPLY = "Our assistant is busy, please try again later."
 NOT_YOUR_ORDER_REPLY = "This order is not on your account."
 ALREADY_PENDING_REPLY = ("Your refund request for order {order_id} is already with our finance team. "
                          "We will reply here as soon as it has been reviewed.")
+# T21: the same two sentences for a company that has bookings.
+NOT_YOUR_BOOKING_REPLY = "This booking is not on your account."
+BOOKING_ALREADY_PENDING_REPLY = ("Your request for booking {order_id} is already with our finance team. "
+                                 "We will reply here as soon as it has been reviewed.")
 QUOTA_CACHE_SECONDS = 300   # B's quota is checked at most once per 5 minutes (one tiny Groq call)
 
 # Decision outcome -> ticket status (item 11). Final decisions solve the ticket; a question waits for the user.
@@ -66,6 +75,7 @@ STEP_KINDS = {
     "pipeline_error": "error",
 }
 ORDER_TOOLS = ("get_order", "get_tracking", "get_refunds", "get_user")
+BOOKING_TOOLS = ("get_hotel_booking", "get_flight_booking", "get_flight")
 
 _lock = threading.Lock()
 _quota_cache: dict = {}   # {"at": monotonic seconds, "ok": bool}
@@ -93,6 +103,8 @@ def live_text(record: dict) -> str | None:
         return "Reading your message…"
     if step == "tool_call" and data.get("tool") in ORDER_TOOLS:
         return "Checking your order…"
+    if step == "tool_call" and data.get("tool") in BOOKING_TOOLS:
+        return "Checking your booking…"
     if (step == "tool_call" and data.get("tool") == "search_policy") or step in ("coordinator_check",
                                                                                  "layer3_decision"):
         return "Checking the rules…"
@@ -120,17 +132,18 @@ def step_row(record: dict) -> tuple[str, str | None, dict] | None:
 def _escalate_reply(ticket: dict, reason: str, slm_chat_fn=None) -> str:
     """The pipeline's own "extra check" reply (the SLM or its template); a fixed sentence if even that fails."""
     try:
-        _, reply, _ = pipeline.final_reply(ticket, escalate_decision(ticket.get("order_id"), reason), slm_chat_fn)
+        _, reply, _ = pipeline.final_reply(ticket, pipeline.gate(ticket).escalate_decision(ticket.get("order_id"), reason),
+                                           slm_chat_fn)
         return reply
     except Exception:
         return user_words("escalate", None, None, {}, None)[0][0]
 
 
-def _not_users_order(order_id, user_id: int) -> bool:
+def _not_users_order(order_id, user_id: int, company: str = companies.DEFAULT) -> bool:
     """True when the message names an order that is not on this user's account (or does not exist)."""
     if order_id is None:
         return False
-    order = get_order(order_id)
+    order = atlas_reads.find_booking(order_id) if company == "atlas" else get_order(order_id)
     return "error" in order or order.get("user_id") != int(user_id)
 
 
@@ -190,20 +203,21 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
     def already_pending(order_id, **fields):
         """T18 duplicate guard: this order's refund already waits for finance -> the fixed reply, no agent call.
         Returns the channel's result, or None when the order has no pending approval."""
-        waiting = store.pending_approval_for_order(order_id)
+        waiting = store.pending_approval_for_order(order_id, company)
         if not waiting:
             return None
         channel_step("approval_pending", {"order_id": waiting["order_id"], "approval_id": waiting["id"],
                                           "approval_ticket": waiting["ticket_id"]})
         same = waiting["ticket_id"] == tid
-        return finish(ALREADY_PENDING_REPLY.format(order_id=waiting["order_id"]),
+        pending_reply = BOOKING_ALREADY_PENDING_REPLY if company == "atlas" else ALREADY_PENDING_REPLY
+        return finish(pending_reply.format(order_id=waiting["order_id"]),
                       "Waiting for finance" if same else "Solved", "approval_pending", "channel", **fields)
 
     # 1b. T18 follow-up: the duplicate guard comes BEFORE the quota check (it needs no agent and no model). The
     # order number is read with the plain extractor (no model); only the user's OWN order gets this reply, so it
     # never tells anything about another client's order (that case goes on to the identity check below).
-    typed_order = extract.extract(text)["order_id"]
-    if typed_order is not None and not _not_users_order(typed_order, user_id):
+    typed_order = extract.extract(text, company)["order_id"]
+    if typed_order is not None and not _not_users_order(typed_order, user_id, company):
         guarded = already_pending(typed_order)
         if guarded:
             return guarded
@@ -224,10 +238,11 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
         intake_ticket = None
         try:
             # 3. Identity check: Intake first (it reads the message, no agent yet).
-            intake_ticket = {**intake.process(text, chat_fn=chat_fn), "ticket_id": tid}
-            if _not_users_order(intake_ticket["order_id"], user_id):
+            intake_ticket = {**intake.process(text, chat_fn=chat_fn, **companies.extra_args(company)), "ticket_id": tid}
+            if _not_users_order(intake_ticket["order_id"], user_id, company):
                 channel_step("identity", {"order_id": intake_ticket["order_id"], "result": "not this user's order"})
-                return finish(NOT_YOUR_ORDER_REPLY, "Waiting for user", "not_your_order", "channel",
+                return finish(NOT_YOUR_BOOKING_REPLY if company == "atlas" else NOT_YOUR_ORDER_REPLY,
+                              "Waiting for user", "not_your_order", "channel",
                               main_reason=intake_ticket["main_reason"],
                               priority=intake_ticket.get("priority_label"))
             # The same guard again on Intake's order (Intake may find an order the plain extractor did not).
@@ -241,7 +256,8 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
             if decision["outcome"] == "layer3_pending":
                 # T18: the refund waits for the ShopNova admin (Refund approvals page).
                 approval = store.create_approval(tid, decision["order_id"], decision["facts"]["amount_tnd"],
-                                                 decision["proposal_id"])
+                                                 decision["proposal_id"], company, decision.get("booking_type"),
+                                                 "compensation" if decision.get("action") == "compensation" else "refund")
                 channel_step("approval", {"approval_id": approval["id"], "order_id": approval["order_id"],
                                           "amount": approval["amount"], "proposal_id": approval["proposal_id"],
                                           "status": "pending"})
@@ -250,11 +266,13 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
         except Exception as e:
             reason = f"error in the channel: {type(e).__name__}: {e}"
             channel_step("error", {"error": reason})
-            reply = _escalate_reply(intake_ticket or {"ticket_id": tid, "order_id": None}, reason, slm_chat_fn)
+            reply = _escalate_reply(intake_ticket or {"ticket_id": tid, "order_id": None, "company": company}, reason,
+                                    slm_chat_fn)
             return finish(reply, STATUS_BY_OUTCOME["escalate"], "escalate", "channel")
 
         outcome = out["decision"]["outcome"]
         lead = "B" if out["handover"] == "B" else out["route"]["agent"]
+        lead = None if lead == "escalate" else lead   # T21: no agent worked on it, a colleague takes it
         return finish(out["final_reply"], STATUS_BY_OUTCOME.get(outcome, "Open"), outcome, out["reply_source"],
                       main_reason=intake_ticket["main_reason"], priority=intake_ticket.get("priority_label"),
                       lead_agent=lead)

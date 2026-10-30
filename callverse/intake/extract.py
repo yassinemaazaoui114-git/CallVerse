@@ -14,6 +14,11 @@ ORDER_RE = re.compile(r"(?<![\d.,/+-])#?(\d{4,6})(?![\d]|[.,/-]\d)")
 # Words that, just before the number, make us sure it is an order number ("order 4512", "#4512", "commande 4512").
 ORDER_CONTEXT_RE = re.compile(r"(order|commande|parcel|package|n°|no\.?|number|#)\s*#?\s*$", re.IGNORECASE)
 
+# T21: the same for a travel client ("booking 7005", "reservation 20417", "flight booking 30588", "flight 7004").
+BOOKING_CONTEXT_RE = re.compile(r"(order|booking|reservation|réservation|flight|commande|n°|no\.?|number|#)\s*#?\s*$",
+                                re.IGNORECASE)
+CONTEXT_WORDS = {"atlas": BOOKING_CONTEXT_RE}   # a company not listed here uses ORDER_CONTEXT_RE
+
 # A number followed by a currency is an amount, never an order number ("1500 TND").
 CURRENCY_AFTER_RE = re.compile(r"^\s*(tnd|dt|dinars?|eur|€|\$)", re.IGNORECASE)
 
@@ -24,8 +29,8 @@ EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 PHONE_RE = re.compile(r"(?:(?:\+|00)216[\s.-]?|(?<!\d))\d{2}[\s.-]?\d{3}[\s.-]?\d{3}(?!\d)")
 
 
-def find_order_id(text: str) -> int | None:
-    """Return the order number in the text, or None.
+def find_order_id(text: str, context_re: re.Pattern = ORDER_CONTEXT_RE) -> int | None:
+    """Return the order number in the text, or None. context_re = the words that announce the number.
 
     If several numbers match, one with an order word just before it ("order 4512", "#4512") wins;
     otherwise the first one. Numbers followed by a currency are skipped (they are amounts).
@@ -34,7 +39,7 @@ def find_order_id(text: str) -> int | None:
     for m in ORDER_RE.finditer(text):
         if CURRENCY_AFTER_RE.match(text[m.end():]):
             continue
-        has_context = m.group(0).startswith("#") or bool(ORDER_CONTEXT_RE.search(text[:m.start()]))
+        has_context = m.group(0).startswith("#") or bool(context_re.search(text[:m.start()]))
         candidates.append((has_context, int(m.group(1))))
     if not candidates:
         return None
@@ -57,6 +62,8 @@ def find_phone(text: str) -> str | None:
     return f"+216 {digits[:2]} {digits[2:5]} {digits[5:]}"
 
 
-def extract(text: str) -> dict:
-    """All three at once: {"order_id", "email", "phone"} (None when not found)."""
-    return {"order_id": find_order_id(text), "email": find_email(text), "phone": find_phone(text)}
+def extract(text: str, company: str = "shopnova") -> dict:
+    """All three at once: {"order_id", "email", "phone"} (None when not found). order_id = the number of the case:
+    an order at ShopNova, a booking at Atlas."""
+    return {"order_id": find_order_id(text, CONTEXT_WORDS.get(company, ORDER_CONTEXT_RE)), "email": find_email(text),
+            "phone": find_phone(text)}

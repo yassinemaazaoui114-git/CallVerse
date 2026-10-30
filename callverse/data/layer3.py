@@ -14,12 +14,14 @@ and then, if approved, writes the refund with create_refund(). It is in no agent
 T18: layer3_mode() says who plays finance. "stub" (config default) = the rule above. "queue" (env var
 CALLVERSE_LAYER3_MODE=queue) = the ShopNova admin decides later on the Refund approvals page
 (callverse/channels/approvals.py); the Coordinator then returns "layer3_pending" and does not call the stub.
+
+T21: atlas_layer3_decide = the same stub for Atlas Travel (tests only: the real path is the queue).
 """
 
 import os
 from contextlib import closing
 
-from callverse import trace
+from callverse import companies, trace
 from callverse.config import load_config
 from callverse.data.db import connect
 from callverse.data.writes import is_valid_amount
@@ -61,5 +63,21 @@ def layer3_decide(order_id: int, amount: float, reason: str) -> dict:
             result = {"order_id": int(order_id), "amount": amount, "decision": decision,
                       "by": by, "rule_id": "R-ESC-01", "reason": reason}
 
+    trace.log("layer3_decision", "layer3", {"args": args, "result": result})
+    return result
+
+
+def atlas_layer3_decide(booking_type: str, booking_id: int, action: str, amount: float, reason: str) -> dict:
+    """Atlas's finance stub. The Coordinator only comes here for a case above AT-ESC-01's limit:
+    a refund up to the stub maximum is approved, above it refused; a compensation is always refused.
+    Only DECIDES: it writes nothing."""
+    args = {"booking_type": booking_type, "booking_id": booking_id, "action": action, "amount": amount, "reason": reason}
+    if not is_valid_amount(amount):
+        result = {"error": "amount must be a finite number above 0"}
+    else:
+        max_approve = float(companies.get("atlas")["stub_max_approve_tnd"])
+        decision = "approved" if action == "refund" and amount <= max_approve else "refused"
+        result = {"booking_type": booking_type, "booking_id": int(booking_id), "amount": amount, "decision": decision,
+                  "by": "finance", "rule_id": "AT-ESC-01", "reason": reason}
     trace.log("layer3_decision", "layer3", {"args": args, "result": result})
     return result

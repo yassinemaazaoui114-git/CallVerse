@@ -13,7 +13,7 @@ MAX_WORDS = 120
 
 # A number in text: 59.90, 59,90, 2026, 6, 03 ... (dates "2026-10-03" give 2026, 10 and 03).
 NUMBER_RE = re.compile(r"\d+(?:[.,]\d+)?")
-RULE_ID_RE = re.compile(r"\bR-[A-Z]{3}-\d{2}\b")
+RULE_ID_RE = re.compile(r"\b(?:R|AT)-[A-Z]{3}-\d{2}\b")
 PLACEHOLDER_RE = re.compile(r"\[[^\]]{1,40}\]|\{[^}]{1,40}\}|<[^>]{1,40}>|\bX{3,}\b")
 CURRENCY_RE = re.compile(r"[$€£]|\b(?:USD|EUR|dollars?|euros?)\b", re.IGNORECASE)
 # Carrier / company names: a name in the reply that is not in the decision is an invented fact.
@@ -95,7 +95,8 @@ def check_reply(reply: str, decision: dict) -> dict:
         if match and keyword not in approved_text:
             problems.append(f"forbidden promise: '{match.group(0)}'")
 
-    refund_ok = decision.get("outcome") == "approve" and decision.get("action") == "refund"
+    # T21: an approved hotel cancellation can carry its refund.
+    refund_ok = decision.get("outcome") == "approve" and decision.get("action") in ("refund", "cancel_hotel")
     if not refund_ok and (m := REFUND_PROMISE.search(text)):
         problems.append(f"promises a refund that is not approved: '{m.group(0)}'")
 

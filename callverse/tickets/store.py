@@ -12,6 +12,8 @@ Tables (docs/ui_design.md section 3):
               copied from the trace, so the Console can replay it without reading trace files.
 - approvals : refunds waiting for finance (T18: created by the channel on "layer3_pending", decided by the
               ShopNova admin through callverse/channels/approvals.py).
+              T21: an approval says which company it belongs to (`company`), and at Atlas also `booking_type` and
+              `action` (refund / compensation). `order_id` is the number of the case: the booking at Atlas.
 - system_tokens : tokens CallVerse spent for itself, not for a ticket (T17 follow-up Q5: the quota check's
               "Say OK." pings), so the Console can show them apart from the tokens per ticket.
 
@@ -105,7 +107,10 @@ CREATE TABLE IF NOT EXISTS approvals (
     status      TEXT NOT NULL CHECK (status IN {_in(APPROVAL_STATUSES)}),
     decided_by  TEXT,
     decided_at  TEXT,
-    reason      TEXT
+    reason      TEXT,
+    company      TEXT NOT NULL DEFAULT 'shopnova',  -- T21
+    booking_type TEXT,                              -- T21: hotel / flight (Atlas)
+    action       TEXT NOT NULL DEFAULT 'refund'     -- T21: refund / compensation
 );
 CREATE TABLE IF NOT EXISTS system_tokens (
     id       INTEGER PRIMARY KEY,
@@ -151,7 +156,10 @@ def connect() -> sqlite3.Connection:
 # T19: columns added to a callverse.db made before T19: (table, column, type).
 NEW_COLUMNS = [("tickets", "created_real", "TEXT"), ("tickets", "updated_real", "TEXT"),
                ("messages", "at_real", "TEXT"), ("messages", "seconds", "REAL"),
-               ("steps", "at_real", "TEXT"), ("system_tokens", "at_real", "TEXT")]
+               ("steps", "at_real", "TEXT"), ("system_tokens", "at_real", "TEXT"),
+               # T21: old approvals are ShopNova refunds, which is what the defaults say.
+               ("approvals", "company", "TEXT NOT NULL DEFAULT 'shopnova'"), ("approvals", "booking_type", "TEXT"),
+               ("approvals", "action", "TEXT NOT NULL DEFAULT 'refund'")]
 
 
 def _columns(con: sqlite3.Connection, table: str) -> set[str]:
@@ -313,11 +321,13 @@ def unread_tickets(company: str, user_id: int) -> list[dict]:
 
 # ---------- approvals (T18: the real Layer 3 queue) ----------
 
-def create_approval(ticket_id: str, order_id: int, amount: float, proposal_id: str | None) -> dict:
-    """A refund waiting for the ShopNova admin (status "pending")."""
+def create_approval(ticket_id: str, order_id: int, amount: float, proposal_id: str | None,
+                    company: str = "shopnova", booking_type: str | None = None, action: str = "refund") -> dict:
+    """A case waiting for the company's finance (status "pending")."""
     with closing(connect()) as con:
-        cur = con.execute("INSERT INTO approvals (ticket_id, order_id, amount, proposal_id, status)"
-                          " VALUES (?, ?, ?, ?, 'pending')", (str(ticket_id), int(order_id), float(amount), proposal_id))
+        cur = con.execute("INSERT INTO approvals (ticket_id, order_id, amount, proposal_id, status, company,"
+                          " booking_type, action) VALUES (?, ?, ?, ?, 'pending', ?, ?, ?)",
+                          (str(ticket_id), int(order_id), float(amount), proposal_id, company, booking_type, action))
         con.commit()
     return get_approval(cur.lastrowid)
 
@@ -328,24 +338,25 @@ def get_approval(approval_id: int) -> dict | None:
     return dict(row) if row else None
 
 
-def approvals(status: str | None = None) -> list[dict]:
-    """All approvals (or those with one status): pending ones oldest first, the others newest first."""
+def approvals(status: str | None = None, company: str | None = None) -> list[dict]:
+    """All approvals (or those with one status): pending ones oldest first, the others newest first.
+    company: only that company's (T21: one company's admin never sees another's cases)."""
     with closing(connect()) as con:
         if status is None:
             rows = con.execute("SELECT * FROM approvals ORDER BY status != 'pending', "
                                "CASE WHEN status = 'pending' THEN id ELSE -id END").fetchall()
         else:
             rows = con.execute("SELECT * FROM approvals WHERE status = ? ORDER BY id", (status,)).fetchall()
-    return [dict(r) for r in rows]
+    return [dict(r) for r in rows if company is None or r["company"] == company]
 
 
-def pending_approval_for_order(order_id) -> dict | None:
-    """The pending approval of this order, if there is one (the channel's duplicate guard)."""
+def pending_approval_for_order(order_id, company: str = "shopnova") -> dict | None:
+    """The pending approval of this order of this company, if there is one (the channel's duplicate guard)."""
     if order_id is None:
         return None
     with closing(connect()) as con:
-        row = con.execute("SELECT * FROM approvals WHERE order_id = ? AND status = 'pending' ORDER BY id LIMIT 1",
-                          (int(order_id),)).fetchone()
+        row = con.execute("SELECT * FROM approvals WHERE order_id = ? AND company = ? AND status = 'pending'"
+                          " ORDER BY id LIMIT 1", (int(order_id), company)).fetchone()
     return dict(row) if row else None
 
 

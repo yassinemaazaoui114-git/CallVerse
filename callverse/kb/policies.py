@@ -17,6 +17,8 @@ import json
 import operator
 from pathlib import Path
 
+from callverse import companies
+
 POLICIES_PATH = Path(__file__).resolve().parent / "policies_shopnova.json"
 REQUIRED_FIELDS = ("id", "title", "text", "condition")
 
@@ -37,9 +39,9 @@ def load_policies(path: str | Path = POLICIES_PATH) -> list[dict]:
     return rules
 
 
-def get_policy(rule_id: str) -> dict | None:
-    """One rule by id, or None if it does not exist."""
-    return next((r for r in load_policies() if r["id"] == rule_id), None)
+def get_policy(rule_id: str, company: str = companies.DEFAULT) -> dict | None:
+    """One rule of this company by id, or None if it does not exist (a company never sees another's rules)."""
+    return next((r for r in load_policies(companies.path(company, "rules_file")) if r["id"] == rule_id), None)
 
 
 def notification_events() -> list[str]:

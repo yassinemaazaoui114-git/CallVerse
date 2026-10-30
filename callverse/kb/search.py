@@ -16,20 +16,19 @@ How it works:
 Why a small numpy index and not a vector database? 8 rules fit in a tiny matrix: one multiplication
 gives every score. Chroma/FAISS would add a library for no gain (they can replace it later).
 The tool version (search_policy_tool) is what agents A and B call through the registry.
+
+T21: one index per company, with its own cache file. An agent only ever searches its ticket's company.
 """
 
 import hashlib
 from functools import lru_cache
-from pathlib import Path
 
 import numpy as np
 
-from callverse import trace
+from callverse import companies, trace
 from callverse.config import load_config
 from callverse.intake.reasons import embed   # reuse Intake's M3 loader: one model in memory, not two
-from callverse.kb.policies import POLICIES_PATH, load_policies
-
-CACHE_PATH = Path(__file__).resolve().parent / "policy_vectors.npz"
+from callverse.kb.policies import load_policies
 
 
 def policy_text(rule: dict) -> str:
@@ -37,20 +36,21 @@ def policy_text(rule: dict) -> str:
     return f"{rule['title']}. {rule['text']}"
 
 
-@lru_cache(maxsize=1)
-def policy_vectors() -> np.ndarray:
-    """One vector per rule (same order as load_policies()), read from the cache when it is still valid."""
+@lru_cache(maxsize=4)
+def policy_vectors(company: str = companies.DEFAULT) -> np.ndarray:
+    """One vector per rule of this company (same order as its rules file), read from its cache when still valid."""
     model_name = load_config()["intake"]["embedding_model"]
+    rules_path, cache_path = companies.path(company, "rules_file"), companies.path(company, "policy_cache")
     # Fingerprint of the policy file + model name: if either changes, the cache is outdated.
-    fingerprint = hashlib.sha256(POLICIES_PATH.read_bytes() + model_name.encode()).hexdigest()
+    fingerprint = hashlib.sha256(rules_path.read_bytes() + model_name.encode()).hexdigest()
 
-    if CACHE_PATH.exists():
-        cache = np.load(CACHE_PATH)
+    if cache_path.exists():
+        cache = np.load(cache_path)
         if str(cache["fingerprint"]) == fingerprint:
             return cache["vectors"]
 
-    vectors = embed([policy_text(r) for r in load_policies()])
-    np.savez(CACHE_PATH, fingerprint=np.array(fingerprint), vectors=vectors)
+    vectors = embed([policy_text(r) for r in load_policies(rules_path)])
+    np.savez(cache_path, fingerprint=np.array(fingerprint), vectors=vectors)
     return vectors
 
 
@@ -76,6 +76,19 @@ def search_policy(query: str, k: int = 3) -> list[dict]:
 # the 2 best rules, each text cut to about 300 characters. The full text stays in the policy file.
 TOOL_K = 2
 TOOL_TEXT_CHARS = 300
+
+
+def company_search_tool(company: str, query: str, k: int = TOOL_K) -> dict:
+    """The tool for another company than ShopNova: the same search, in that company's own rules and index.
+    `company` is set by our code (atlas_tools.py): the model never chooses it."""
+    if not isinstance(query, str) or not query.strip():
+        return {"error": "give a non-empty query"}
+    rules = load_policies(companies.path(company, "rules_file"))
+    k = max(1, min(int(k), len(rules)))
+    results = rank(embed([query])[0], policy_vectors(company), rules, k)
+    trace.log("policy_search", "kb", {"company": company, "query": query, "k": k,
+                                      "results": [{"id": r["id"], "score": r["score"]} for r in results]})
+    return {"results": [{**r, "text": r["text"][:TOOL_TEXT_CHARS]} for r in results]}
 
 
 def search_policy_tool(query: str, k: int = TOOL_K) -> dict:

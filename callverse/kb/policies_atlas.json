@@ -93,8 +93,8 @@
   {
     "id": "AT-ESC-01",
     "title": "Large amounts need finance approval",
-    "text": "Any refund or compensation above 300 TND must be approved by the Atlas Travel finance team (Layer 3) before it is paid. Do not promise the client such an amount; say that it needs approval.",
-    "condition": "amount > 300",
+    "text": "A refund above 1,500 TND, and every compensation, must be approved by the Atlas Travel finance team (Layer 3) before it is paid. Do not promise the client such an amount; say that it needs approval.",
+    "condition": "action == 'compensation' or amount > 1500",
     "ai_generated": true
   }
 ]

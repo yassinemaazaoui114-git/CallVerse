@@ -29,6 +29,11 @@ OPENING = {
 }
 
 
+def case_word(decision: dict) -> str:
+    """What the company calls the number of a case: "order", or "booking" at Atlas (T21)."""
+    return decision.get("case_word") or "order"
+
+
 def _greeting(style: dict) -> str:
     return "Hi" if (style or {}).get("formality") == "casual" else "Hello"
 
@@ -54,7 +59,7 @@ def render(decision: dict) -> str:
     style = decision.get("style") or {}
     order = decision.get("order_id")
 
-    about = f" about your order {order}" if order is not None else ""
+    about = f" about your {case_word(decision)} {order}" if order is not None else ""
     opener = calm_opener(style)
     first = f"{OPENING[outcome].capitalize()}{about}."
     if outcome == "approve" and decision.get("action") == "subscribe":

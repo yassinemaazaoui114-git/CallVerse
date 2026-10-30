@@ -23,6 +23,10 @@ ticket to "Waiting for finance". The Refund approvals page then calls decide():
 6. the ticket becomes Solved with user_unread = 1 (the "New reply" notice).
 T19: the new assistant message keeps how long the decision took (seconds, from the click to the written reply).
 The trace lines of a decision are saved as steps of the ticket (like the channel does), for the Console.
+
+T21: the same queue for Atlas Travel (a refund above 1,500 TND, every compensation, rule AT-ESC-01). The approval says
+which company it is, and decide() takes Atlas's path: its re-check (atlas_coordinator.recheck: the amount is computed
+again from the rules) and its one transaction (atlas writes.admin_decide).
 """
 
 import threading
@@ -31,9 +35,11 @@ import time
 from callverse import pipeline, trace
 from callverse.channels.web_chat import step_row
 # The Coordinator's own fact reader and reply sentences: the re-check and the message use exactly its rules.
+from callverse.coordinator import atlas_coordinator
 from callverse.coordinator.coordinator import _read_facts, slm_facts, user_words
 from callverse.config import load_config
 from callverse.data import admin_reads, writes
+from callverse.data.atlas import writes as atlas_writes
 from callverse.kb.policies import check_condition, get_policy
 from callverse.tickets import store
 from callverse.tools.shopnova_tools import get_order
@@ -72,7 +78,8 @@ def recheck(proposal: dict) -> tuple[dict, str | None]:
 def _reply_ticket(ticket_id: str, order_id) -> dict:
     """The ticket as the reply writer needs it: the style Intake saved in the ticket's last intake step."""
     intake = next((s["data"] for s in reversed(store.steps(ticket_id)) if s["step"] == "intake"), {})
-    return {"ticket_id": ticket_id, "order_id": order_id, "main_reason": intake.get("main_reason"),
+    return {"ticket_id": ticket_id, "company": store.get_ticket(ticket_id)["company"], "order_id": order_id,
+            "main_reason": intake.get("main_reason"),
             "style": intake.get("style"), "emotion": intake.get("emotion"), "sentiment": intake.get("sentiment")}
 
 
@@ -88,7 +95,8 @@ def decide(approval_id: int, admin: str, approve: bool, reason: str | None = Non
             return {"error": f"approval {approval_id} is already {approval['status']}"}
         if not approve and not reason:
             return {"error": "a reason is required to refuse"}
-        proposal = admin_reads.proposal(approval["proposal_id"])
+        atlas = approval["company"] == "atlas"
+        proposal = (atlas_writes.get_proposal if atlas else admin_reads.proposal)(approval["proposal_id"])
         if proposal is None:
             return {"error": f"proposal {approval['proposal_id']} not found"}
         if proposal["decision"] is not None:
@@ -97,7 +105,7 @@ def decide(approval_id: int, admin: str, approve: bool, reason: str | None = Non
         records = []
         trace.add_listener(records.append)
         try:
-            out = _decide(approval, proposal, admin, approve, reason, slm_chat_fn)
+            out = (_decide_atlas if atlas else _decide)(approval, proposal, admin, approve, reason, slm_chat_fn)
         finally:
             trace.remove_listener(records.append)
         if "error" not in out:   # a refused re-check or a failed write leaves nothing, not even steps
@@ -108,6 +116,36 @@ def decide(approval_id: int, admin: str, approve: bool, reason: str | None = Non
                 if row:
                     store.add_step(approval["ticket_id"], message_id, *row)
         return out
+
+
+def _decide_atlas(approval: dict, proposal: dict, admin: str, approve: bool, reason: str, slm_chat_fn) -> dict:
+    """Atlas's decision: the same steps as _decide below, with Atlas's re-check, write and sentences."""
+    start = time.perf_counter()
+    params = proposal["params"]
+    if approve:
+        facts, problem = atlas_coordinator.recheck(proposal)
+        if problem:
+            trace.log("layer3_recheck_failed", "layer3", {"approval_id": approval["id"], "reason": problem})
+            return {"error": problem, "recheck_failed": True}   # nothing written; the approval stays pending
+    else:
+        facts = atlas_coordinator.read_facts(params.get("booking_type"), params.get("booking_id")) or {}
+    # One transaction in Atlas's data: the decision + the refund, the compensation or the cancellation, or nothing.
+    written = atlas_writes.admin_decide(admin, proposal["id"], approve, reason, approval_id=approval["id"])
+    if "error" in written:
+        return {"error": written["error"]}   # nothing written; the approval stays pending
+    store.close_approval(approval["id"], "approved" if approve else "refused", admin, reason or None)
+    # decision["reason"] is a fixed text: the admin's reason never reaches the SLM or the user.
+    decision = atlas_coordinator.finance_decision(proposal, facts, approve, written["booking_status"])
+    trace.log("layer3_decision", "layer3", {**decision, "approval_id": approval["id"], "admin": admin,
+                                            "by": "Atlas admin"})
+    _, reply, source = pipeline.final_reply(_reply_ticket(approval["ticket_id"], approval["order_id"]), decision,
+                                            slm_chat_fn)
+    store.add_message(approval["ticket_id"], "assistant", reply, seconds=round(time.perf_counter() - start, 2))
+    store.update_ticket(approval["ticket_id"], status="Solved")
+    store.set_unread(approval["ticket_id"], True)
+    return {"approval": store.get_approval(approval["id"]), "outcome": decision["outcome"], "reply": reply,
+            "reply_source": source, "refund": written["refund"], "compensation": written["compensation"],
+            "ticket": store.get_ticket(approval["ticket_id"])}
 
 
 def _decide(approval: dict, proposal: dict, admin: str, approve: bool, reason: str, slm_chat_fn) -> dict:

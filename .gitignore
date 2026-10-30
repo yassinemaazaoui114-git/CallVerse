@@ -6,8 +6,10 @@ traces/
 *.db
 # cached example embeddings of the intake (rebuilt automatically)
 callverse/intake/data/reason_vectors.npz
+callverse/intake/data/reason_vectors_atlas.npz
 # cached policy embeddings of the policy search (rebuilt automatically)
 callverse/kb/policy_vectors.npz
+callverse/kb/policy_vectors_atlas.npz
 
 # Live-check results (T10)
 out/

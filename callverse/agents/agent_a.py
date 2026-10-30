@@ -12,6 +12,8 @@ Answers are plain text, no Markdown: the SLM and the voice channel need clean te
 How the handover signal works: the prompt asks the model to end its reply with the tag
 [HANDOVER: B]. postprocess() removes the tag from the text shown to the client and
 returns handover="B" in the result, so the next part of the system can route the request.
+
+T21: the same class works for Atlas Travel with its own short prompt and tools (flights and hotel stays).
 """
 
 import re
@@ -40,13 +42,28 @@ Your job: tell clients where their order is and whether it is late.
 - Write plain text only, no Markdown: no bold or asterisks, no headings, no lists.
 - Be short and polite. Answer in the language of the client's message (English message -> English answer)."""
 
+ATLAS_PROMPT = """You are Agent A - Status & Tracking of Atlas Travel (hotel stays and flights, Tunisia). Today is {today}. Amounts in TND.
+Your job: tell clients the status of their hotel and flight bookings.
+- Answer ONLY from tool results: get_flight_booking or get_hotel_booking for a booking (the Intake note gives the
+  type), get_flight for a flight, get_user for a client, get_company_profile for general questions, search_policy for rules.
+- Never invent booking data, dates, delays, flights or rules. Missing information or a tool error: say so
+  and ask for the missing detail (e.g. the booking number).
+- Never promise actions your tools cannot do ("we will keep you updated", "we will contact the airline").
+- You cannot give refunds or compensation and you cannot change a booking. If the client asks for money back,
+  compensation or a cancellation, promise nothing: say the request is passed on for checking and end your reply
+  with the exact tag [HANDOVER: B].
+- Write plain text only, no Markdown: no bold or asterisks, no headings, no lists.
+- Be short and polite. Answer in the language of the client's message (English message -> English answer)."""
+
+PROMPTS = {"shopnova": SYSTEM_PROMPT, "atlas": ATLAS_PROMPT}
+
 
 class AgentA(BaseAgent):
     agent_id = "A"
     name = "Agent A - Status & Tracking"
 
     def system_prompt(self) -> str:
-        return SYSTEM_PROMPT.format(today=sim_today().isoformat())
+        return PROMPTS[self.company].format(today=sim_today().isoformat())
 
     def run(self, user_message: str, history: list[dict] | None = None) -> dict:
         """Normal agent turn, plus the last subscription proposal the tool accepted (T09), or None."""
