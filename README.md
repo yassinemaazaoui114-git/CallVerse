@@ -71,6 +71,18 @@ Models in the app: Intake + Agent A + reply writer local, Agent B on Groq. The a
 code change, restart it** (close the window or Ctrl+C, then start again).
 Clean demo data: `python -m callverse.data.seed` and delete `callverse/data/callverse.db` (the tickets).
 
+**Atlas Travel app** (the second company's website, <http://127.0.0.1:8503>, this PC only; T22). Start Ollama first.
+- **Accounts, once**: `python -m scripts.create_demo_accounts`. It adds only the missing accounts (`hedi`, `sonia`,
+  `tarek`, `lobna`, `nizar`, `atlas_admin`), asks a password for those only and keeps every existing password.
+- **Desktop shortcut**: the same `make_desktop_shortcut.ps1` also makes **Atlas Travel** (runs `Atlas.bat`).
+- Or double-click `Atlas.bat`, or run `.\start_atlas.ps1`.
+
+What is in it: Home, My bookings and Help chat (an Atlas client); as `atlas_admin` Admin dashboard, Approvals and
+Records (read only). A refund above 1,500 TND and every compensation wait in Approvals; each decision is logged in
+`atlas.db` (`admin_actions`) in one transaction with the money. Every account has a company: a ShopNova account cannot
+use the Atlas app, and an Atlas account cannot use ShopNova's. Same models as the ShopNova app; restart it after a code
+change. Clean demo data: `python -m callverse.data.atlas.seed` and delete `callverse/data/callverse.db`.
+
 **CallVerse Console** (the center's own screen, <http://127.0.0.1:8502>, this PC only; T19). Login: `supervisor`.
 - **Desktop shortcut**: the same `make_desktop_shortcut.ps1` also makes **CallVerse Console** (runs `Console.bat`).
 - Or double-click `Console.bat`, or run `.\start_console.ps1`. It loads **no model** (no Ollama needed).
@@ -98,7 +110,7 @@ unless `PLATFORM_COORDINATOR_TOKEN` is set. Details: [docs/platform_contract.md]
 ## Run the tests
 
 ```powershell
-python -m pytest -q --ignore=tests/data   # 640 tests, about 3 minutes
+python -m pytest -q --ignore=tests/data   # 1043 tests, about 2 minutes
 ```
 No API key, no API call and no Ollama needed: the tests use fake LLMs and a fresh copy of the database.
 `tests/data/` holds the held-out test sets: they are only for final evaluations, never for building or tuning.
@@ -107,7 +119,7 @@ No API key, no API call and no Ollama needed: the tests use fake LLMs and a fres
 
 ```
 README.md  CLAUDE.md  config.yaml  .env.example  requirements.txt  DATA_LICENCES.md
-ShopNova.bat  start_shopnova.ps1  Console.bat  start_console.ps1  start_demo.ps1
+ShopNova.bat  start_shopnova.ps1  Console.bat  start_console.ps1  Atlas.bat  start_atlas.ps1  start_demo.ps1
 callverse/          the code
   config.py llm.py trace.py   settings (config.yaml), the one shared LLM layer, the trace
   companies.py        the companies of the center: each one's reasons, routes, rules, gate
@@ -120,7 +132,8 @@ callverse/          the code
   slm/                the reply writer, its rule check and templates
   notifier/           delivery notifications (story S3)
   data/               ShopNova data: seed, read views, the ONLY write functions (writes.py), clock, Layer 3
-    atlas/            Atlas Travel data: schema, seed, database access, read functions, its write functions
+    atlas/            Atlas Travel data: schema, seed, database access, read functions, its write functions,
+                      the Atlas app's read views (atlas_app_reads.py)
   tickets/ channels/  CallVerse's tickets database, the web chat channel, refund approvals
   console/            the Console's read-only queries (reads.py: all its SQL)
   auth/               demo logins, roles and permissions
@@ -128,6 +141,8 @@ callverse/          the code
   simulator/          Client Simulator (planned)
 apps/shopnova/      the ShopNova Streamlit app (app.py, Home.py, pages/)
 apps/console/       the CallVerse Console Streamlit app (app.py, pages/: Live tickets, Ticket detail, Agents, Dashboard)
+apps/atlas/         the Atlas Travel Streamlit app (app.py, Home.py, pages/: My bookings, Help chat, Admin dashboard,
+                    Approvals, Records)
 config/             accounts.example.yaml (the real accounts.yaml is not in git)
 scripts/            runnable entry points
 tests/              pytest tests (tests/data: held-out sets)
@@ -150,7 +165,7 @@ The raw files are never committed (`data/raw/`). `python -m scripts.data_summary
 
 **Atlas Travel** (the second sector: hotel stays and flights) has its own database, `callverse/data/atlas.db`, and goes
 through the same center as ShopNova (T21): Intake, router, agents A / B, Coordinator, reply writer, tickets, Console.
-It has no app yet (T22).
+Its website is the Atlas Travel app (T22, see above).
 - **Real** data: 2,000 bookings of **Hotel Booking Demand** (CC BY 4.0, ids 20001+) and 2,000 flights of the
   **US DOT 2015 Flight Delays** (CC0, ids 1+), moved to 2026, prices in TND.
 - **Generated:** one Tunisian user per booking (ids 101+) and one flight booking per flight (ids 30001+).
@@ -167,14 +182,10 @@ The built sample is committed, so only the second command is needed, and the tes
 
 What works for Atlas (T21): 8 reasons of its own, booking status and delay questions (Agent A), refunds, compensation
 and hotel cancellation (Agent B). The company comes from the channel, never from the text. Agents propose without any
-amount: the Coordinator computes it from the rules, and it decides by code whether the client asked. A refund above 1,500 TND and every compensation wait for finance
-(`approvals.decide`); rebooking and special assistance go straight to a colleague until agent C exists.
-To try it (Ollama running, `CALLVERSE_AGENTS_SET=local`, `CALLVERSE_LAYER3_MODE=queue`):
-```python
-from callverse.channels import web_chat
-web_chat.send(1, "atlas", "Please cancel my hotel booking 7011, I can't travel anymore.")   # 1 = Hedi
-```
-Clean data afterwards: `python -m callverse.data.atlas.seed` and delete `callverse/data/callverse.db`.
+amount: the Coordinator computes it from the rules, and it decides by code whether the client asked (T22: that decision
+and its reason are stored on the proposal, next to the agent's own flag, and shown in the Console and in Approvals). A
+refund above 1,500 TND and every compensation wait for finance (Approvals page, `approvals.decide`); rebooking and
+special assistance go straight to a colleague until agent C exists.
 
 ## Task history
 
@@ -206,6 +217,8 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   read functions (no app or agent yet).
 - **T21** Routing by company, part A: Atlas Travel through the same center (own reasons, agents' prompts and tools,
   rule search, amounts by code, writes, approvals); ShopNova unchanged.
+- **T22** Routing by company, part B: the Atlas Travel app (My bookings, Help chat, Admin dashboard, Approvals, Records),
+  accounts with a company, Atlas admin log, the code's confirmation decision stored and shown.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 
