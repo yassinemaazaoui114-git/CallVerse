@@ -29,6 +29,13 @@ def _fetch(sql: str, *params) -> list:
         return con.execute(sql, params).fetchall()
 
 
+def confirmation_words(confirmed: int | None, reason: str | None) -> str:
+    """The code's confirmation decision of a proposal in plain words (T22): the Approvals page and the Console."""
+    if confirmed is None:
+        return "not checked"
+    return f"{'yes' if confirmed else 'no'} ({reason})"
+
+
 def get_user(email: str | None = None, phone: str | None = None, user_id: int | None = None) -> dict:
     """Find a client by email, phone or user id (give one of them)."""
     if user_id is not None:

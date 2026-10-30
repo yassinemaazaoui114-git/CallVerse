@@ -3,8 +3,12 @@
 - The accounts live in config/accounts.yaml (git-ignored): streamlit-authenticator's format, passwords as
   bcrypt HASHES only. Yassine creates it himself with scripts/create_demo_accounts.py; Claude Code never sees
   a password. config/accounts.example.yaml (committed) shows the same accounts without any password.
-- Roles (docs/ui_design.md section 4): user (ShopNova client), admin (ShopNova, T18), supervisor (Console, T19).
-  Each "user" account is linked to its ShopNova user id (sara -> 1 ... leila -> 5).
+- Roles (docs/ui_design.md section 4): user (a company's client), admin (a company's back office, T18), supervisor
+  (Console, T19). Each "user" account is linked to its user id in its company's data (sara -> 1 ... leila -> 5,
+  hedi -> 1 ... nizar -> 5: the same numbers, two different databases).
+- T22: every account has a company (shopnova / atlas; the supervisor has none: it serves the whole center). Each app
+  says which company it is, and an account of another company is refused: ShopNova's admin can never approve an Atlas
+  case, and Sara (user 1) can never see the bookings of Hedi (user 1 too). No company in an old accounts file = shopnova.
 - require_role(role) is called at the top of every protected page AND again just before every write, so a
   hidden button is never the only protection. T18: admin pages use require_permission(perm) the same way.
 - The role and the user id always come from the accounts FILE (looked up by the logged-in username), never
@@ -16,6 +20,7 @@ from pathlib import Path
 
 import yaml
 
+from callverse import companies
 from callverse.config import PROJECT_ROOT
 
 DEFAULT_ACCOUNTS_PATH = PROJECT_ROOT / "config" / "accounts.yaml"
@@ -30,7 +35,7 @@ ALL_PERMISSIONS = tuple(sorted({p for perms in PERMISSIONS.values() for p in per
 LOGIN_MESSAGE = "Please log in to see this page."
 NO_ACCOUNTS_MESSAGE = "No accounts yet: run `python -m scripts.create_demo_accounts` once (see README)."
 
-# The demo accounts: (username, name, email, role, ShopNova user id). The 5 users are the scripted users 1-5.
+# The demo accounts: (username, name, email, role, user id). The users are the scripted users 1-5 of their company.
 DEMO_ACCOUNTS = [
     ("sara",       "Sara Ben Ali",       "sara@example.com",    "user",       1),
     ("youssef",    "Youssef Trabelsi",   "youssef@example.com", "user",       2),
@@ -39,7 +44,21 @@ DEMO_ACCOUNTS = [
     ("leila",      "Leila Mansour",      "leila@example.com",   "user",       5),
     ("admin",      "ShopNova Admin",     None,                  "admin",      None),
     ("supervisor", "CallVerse Supervisor", None,                "supervisor", None),
+    ("hedi",       "Hedi Karoui",        "hedi@example.com",    "user",       1),      # T22: Atlas Travel's accounts
+    ("sonia",      "Sonia Belhaj",       "sonia@example.com",   "user",       2),
+    ("tarek",      "Tarek Mzali",        "tarek@example.com",   "user",       3),
+    ("lobna",      "Lobna Cherif",       "lobna@example.com",   "user",       4),
+    ("nizar",      "Nizar Haddad",       "nizar@example.com",   "user",       5),
+    ("atlas_admin", "Atlas Admin",       None,                  "admin",      None),
 ]
+ATLAS_ACCOUNTS = ("hedi", "sonia", "tarek", "lobna", "nizar", "atlas_admin")   # T22
+
+
+def demo_company(username: str, role: str) -> str | None:
+    """The company a NEW demo account gets (the account script writes it in the file)."""
+    if role == "supervisor":
+        return None
+    return "atlas" if username in ATLAS_ACCOUNTS else companies.DEFAULT
 
 
 def use_accounts(path: str | Path) -> None:
@@ -70,50 +89,64 @@ def account(username: str | None) -> dict | None:
             "user_id": entry.get("user_id")}
 
 
-def check_role(session, role: str) -> dict | None:
-    """The logged-in account if it has `role`, else None. session = st.session_state (or a dict in tests).
+def company_of(found: dict) -> str | None:
+    """The company of an account given by account(), from the file. The supervisor has none; no company in an old
+    file = shopnova."""
+    if found["role"] == "supervisor":
+        return None
+    return load_accounts()["credentials"]["usernames"][found["username"]].get("company") or companies.DEFAULT
 
-    Logged in = streamlit-authenticator set authentication_status True after a password (or cookie) check.
+
+def _in_company(found: dict, company: str) -> bool:
+    """True if this account belongs to the app's company. The supervisor serves the whole center."""
+    return found["role"] == "supervisor" or company_of(found) == company
+
+
+def check_role(session, role: str, company: str = companies.DEFAULT) -> dict | None:
+    """The logged-in account if it has `role` in the app's `company`, else None. session = st.session_state (or a
+    dict in tests). Logged in = streamlit-authenticator set authentication_status True after a password (or cookie)
+    check.
     """
     if role not in ROLES:
         raise ValueError(f"unknown role '{role}' (allowed: {', '.join(ROLES)})")
     if session.get("authentication_status") is not True:
         return None
     found = account(session.get("username"))
-    if found is None or found["role"] != role:
+    if found is None or found["role"] != role or not _in_company(found, company):
         return None
     if role == "user" and not isinstance(found["user_id"], int):
-        return None   # a client account must be linked to a ShopNova user
+        return None   # a client account must be linked to a user of its company
     return found
 
 
-def require_role(role: str) -> dict:
-    """For Streamlit pages: the logged-in account with `role`, or show only "please log in" and stop the page."""
+def require_role(role: str, company: str = companies.DEFAULT) -> dict:
+    """For Streamlit pages: the logged-in account with `role` in `company`, or show only "please log in" and stop."""
     import streamlit as st
-    found = check_role(st.session_state, role)
+    found = check_role(st.session_state, role, company)
     if found is None:
         st.info(LOGIN_MESSAGE if load_accounts() is not None else NO_ACCOUNTS_MESSAGE)
         st.stop()
     return found
 
 
-def check_permission(session, perm: str) -> dict | None:
-    """The logged-in account if its role has permission `perm` (PERMISSIONS above), else None (T18)."""
+def check_permission(session, perm: str, company: str = companies.DEFAULT) -> dict | None:
+    """The logged-in account if its role has permission `perm` (PERMISSIONS above) in the app's `company`, else
+    None (T18)."""
     if perm not in ALL_PERMISSIONS:
         raise ValueError(f"unknown permission '{perm}' (allowed: {', '.join(ALL_PERMISSIONS)})")
     if session.get("authentication_status") is not True:
         return None
     found = account(session.get("username"))
-    if found is None or perm not in PERMISSIONS.get(found["role"], ()):
+    if found is None or perm not in PERMISSIONS.get(found["role"], ()) or not _in_company(found, company):
         return None
     return found
 
 
-def require_permission(perm: str) -> dict:
-    """For Streamlit pages: the logged-in account with `perm`, or show only "please log in" and stop the page.
+def require_permission(perm: str, company: str = companies.DEFAULT) -> dict:
+    """For Streamlit pages: the logged-in account with `perm` in `company`, or show only "please log in" and stop.
     Called at the top of every admin page AND again just before every admin write."""
     import streamlit as st
-    found = check_permission(st.session_state, perm)
+    found = check_permission(st.session_state, perm, company)
     if found is None:
         st.info(LOGIN_MESSAGE if load_accounts() is not None else NO_ACCOUNTS_MESSAGE)
         st.stop()

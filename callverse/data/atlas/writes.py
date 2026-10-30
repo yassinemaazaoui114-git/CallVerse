@@ -12,7 +12,8 @@ Safety nets, which hold even if the Coordinator has a bug:
 - a refund never exceeds paid - refunded, and one rule pays one booking once (the 20 % of AT-HOT-04 cannot be
   claimed twice just because money is still left to refund);
 - a compensation is paid once per booking;
-- a hotel cancellation and its refund are ONE transaction: both are written, or neither.
+- a hotel cancellation and its refund are ONE transaction: both are written, or neither;
+- T22: each finance decision and its admin log line are ONE transaction too: no change without its line.
 
 Each function returns the new row as a dict, or {"error": ...} if it refuses (it never raises), and writes one trace
 line, "db_write" or "db_write_refused" (the same helpers as ShopNova).
@@ -25,7 +26,7 @@ from datetime import date
 from callverse.config import sim_today
 from callverse.data.atlas.db import connect
 from callverse.data.seed import COUNTED_REFUND_STATUSES, DECISIONS
-from callverse.data.writes import _done, _proposal_row, _refuse, is_valid_amount
+from callverse.data.writes import _done, _log_action, _proposal_row, _refuse, is_valid_amount
 
 ACTIONS = ("refund", "compensation", "cancel_hotel")
 COUNTED = ", ".join(f"'{s}'" for s in COUNTED_REFUND_STATUSES)   # our own fixed codes, never from a client
@@ -82,6 +83,20 @@ def set_proposal_amount(proposal_id: str, amount: float) -> dict:
         con.execute("UPDATE proposals SET params = ? WHERE id = ?", (json.dumps(params), str(proposal_id)))
         con.commit()
     return _done("atlas.set_proposal_amount", args, get_proposal(proposal_id))
+
+
+def set_proposal_confirmation(proposal_id: str, confirmed: bool, reason: str) -> dict:
+    """Store the code's confirmation decision (T22). It is only a record: the Coordinator has already decided, from
+    atlas_coordinator.confirmation. The agent's own flag `user_confirmed` stays as it was."""
+    args = {"proposal_id": proposal_id, "confirmed": confirmed, "reason": reason}
+    with closing(connect()) as con:
+        updated = con.execute("UPDATE proposals SET confirmed_by_code = ?, confirmation_reason = ? WHERE id = ?",
+                              (1 if confirmed else 0, reason, str(proposal_id))).rowcount
+        con.commit()
+    if not updated:
+        return _refuse("atlas.set_proposal_confirmation", args, f"proposal {proposal_id} not found")
+    return _done("atlas.set_proposal_confirmation", args, {"id": str(proposal_id), "confirmed_by_code": int(confirmed),
+                                                           "confirmation_reason": reason})
 
 
 def record_decision(proposal_id: str, decision: str, reason: str) -> dict:
@@ -268,10 +283,10 @@ def admin_decide(admin: str, proposal_id: str, approve: bool, reason: str = "", 
     """Finance's decision on a proposal that waits for it, written in ONE transaction: if any part fails, NOTHING is
     written (like ShopNova's admin_decide_refund). The safety nets above run again here, on the same transaction.
 
-    Approve: the decision "approve" + the refund, the compensation, or the cancellation with its refund.
-    Refuse (reason required): the decision "layer3"; nothing is paid. The admin's name and reason stay in the
-    proposal's decision_reason (Atlas has no admin_actions table yet).
-    Returns {"proposal_id", "decision", "refund", "compensation", "booking_status"}.
+    Approve: the decision "approve" + the refund, the compensation, or the cancellation with its refund + the
+    admin_actions row "approve_refund" / "approve_compensation" / "approve_cancel_hotel" (T22).
+    Refuse (reason required): the decision "layer3" + the admin_actions row "refuse_...". Nothing is paid.
+    Returns {"proposal_id", "decision", "refund", "compensation", "booking_status", "log" (row)}.
     """
     function = "atlas.admin_decide"
     args = {"admin": admin, "proposal_id": proposal_id, "approve": approve, "reason": reason,
@@ -298,7 +313,7 @@ def admin_decide(admin: str, proposal_id: str, approve: bool, reason: str = "", 
             booking_type, booking_id, amount = params.get("booking_type"), params.get("booking_id"), params.get("amount")
             con.execute("UPDATE proposals SET decision = ?, decision_reason = ?, decided_at = ? WHERE id = ?",
                         (decision, note, sim_today().isoformat(), str(proposal_id)))
-            refund, compensation, status = None, None, None
+            refund, compensation, status, before = None, None, None, None
             if approve and row["action"] == "refund":
                 if problem := _refund_problem(con, booking_type, booking_id, amount, proposal_id):
                     return _refuse(function, args, problem)                  # closing without commit = rollback
@@ -312,10 +327,25 @@ def admin_decide(admin: str, proposal_id: str, approve: bool, reason: str = "", 
                 proposal, problem = _cancel_problem(con, booking_id, proposal_id)
                 if problem:
                     return _refuse(function, args, problem)
+                before = {"booking_status": "confirmed"}   # _cancel_problem: only a confirmed booking gets here
                 cancelled = _apply_cancel(con, booking_id, proposal)
                 refund, status = cancelled["refund"], cancelled["status"]
+            common = {"booking_type": booking_type, "booking_id": booking_id, "amount": amount,
+                      "proposal_id": str(proposal_id), "approval_id": approval_id, "reason": reason or None}
+            if not approve:
+                _log_action(con, admin, f"refuse_{row['action']}", "proposals", proposal_id, None,
+                            {**common, "decision": decision})
+            elif compensation:
+                _log_action(con, admin, "approve_compensation", "compensations", compensation["id"], None,
+                            {**common, "compensation": compensation})
+            elif status:   # a cancellation with or without a refund: the changed row is the booking
+                _log_action(con, admin, "approve_cancel_hotel", "hotel_bookings", booking_id, before,
+                            {**common, "booking_status": status, "refund": refund})
+            else:
+                _log_action(con, admin, "approve_refund", "refunds", refund["id"], None, {**common, "refund": refund})
+            log = dict(con.execute("SELECT * FROM admin_actions ORDER BY id DESC LIMIT 1").fetchone())
             con.commit()
     except Exception as e:   # any failure: the transaction is not committed, so nothing is written
         return _refuse(function, args, f"nothing was written: {type(e).__name__}: {e}")
     return _done(function, args, {"proposal_id": str(proposal_id), "decision": decision, "refund": refund,
-                                  "compensation": compensation, "booking_status": status})
+                                  "compensation": compensation, "booking_status": status, "log": log})

@@ -34,6 +34,7 @@ from pathlib import Path
 from callverse.config import load_config
 from callverse.data import db as shopnova_db
 from callverse.data.atlas import db as atlas_db
+from callverse.data.atlas.reads import confirmation_words
 from callverse.tickets import store
 
 NO_TICKETS = "No tickets yet — chat in the ShopNova app to see them here."
@@ -294,6 +295,8 @@ def ticket_detail(ticket_id: str) -> dict | None:
         s["data"] = json.loads(s["data"])
     for s, who in zip(steps, actors(steps)):
         s["actor"] = who
+    if ticket["company"] == "atlas":
+        _add_confirmations(steps)
     turns = []
     for m in messages:
         if m["sender"] == "user":
@@ -309,6 +312,18 @@ def ticket_detail(ticket_id: str) -> dict | None:
     approvals = [a for a in _approvals() if a["ticket_id"] == ticket_id]
     return {"ticket": ticket, "user": _user_label(ticket, _all_names([ticket])), "turns": turns,
             "approvals": approvals}
+
+
+def _add_confirmations(steps: list[dict]) -> None:
+    """T22: give each Atlas proposal step the code's confirmation decision, read from the proposal's row in atlas.db.
+    The proposal step comes before the Coordinator gives the proposal its id: the next decision step names it."""
+    for i, step in enumerate(steps):
+        if kind_of(step) != "proposal":
+            continue
+        decided = next((s["data"] for s in steps[i + 1:] if kind_of(s) == "coordinator_decision"), {})
+        rows = _read(atlas_db.db_path(), "SELECT confirmed_by_code, confirmation_reason FROM proposals WHERE id = ?",
+                     (str(decided.get("proposal_id")),))
+        step["confirmation"] = rows[0] if rows else {}
 
 
 def _short(value, size: int = 140) -> str:
@@ -367,9 +382,13 @@ def describe_step(step: dict) -> tuple[str, str, str]:
                 else f"{d.get('event')} on order {d.get('order_id')}")
         if d.get("booking_id") is not None:   # T21: an Atlas proposal has no amount: the Coordinator computes it
             what = f"{d.get('booking_type')} booking {d.get('booking_id')}"
+        confirmed = f"client confirmed: {d.get('user_confirmed')}"
+        if d.get("booking_id") is not None:   # T22: at Atlas the code decides, not the agent's flag
+            found = step.get("confirmation") or {}
+            confirmed = "Confirmed by code: " + confirmation_words(found.get("confirmed_by_code"),
+                                                                   found.get("confirmation_reason"))
         return ("📝", f"Proposal: {action}",
-                f"{what} · rule {d.get('rule_id')} · client confirmed: {d.get('user_confirmed')} · "
-                f"facts {_short(d.get('facts_used'), 100)}")
+                f"{what} · rule {d.get('rule_id')} · {confirmed} · facts {_short(d.get('facts_used'), 100)}")
     if kind == "proposal_refused":
         return "⛔", "Proposal refused by the tool", "; ".join(d.get("problems") or [])
     if kind == "coordinator_check":

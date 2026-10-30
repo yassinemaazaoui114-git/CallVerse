@@ -1,0 +1,20 @@
+# Atlas Travel app (T22): the travel style (sky blue, white, an orange accent) and localhost only.
+# Streamlit reads this file from the folder it is started in: start_atlas.ps1 starts it from apps/atlas/.
+[theme]
+base = "light"
+primaryColor = "#F97316"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#E0F2FE"
+textColor = "#0C4A6E"
+font = "sans serif"
+
+[server]
+address = "127.0.0.1"
+port = 8503
+headless = true
+# No file watcher, like the ShopNova app: after a code change the app must be restarted.
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false
+serverAddress = "127.0.0.1"
