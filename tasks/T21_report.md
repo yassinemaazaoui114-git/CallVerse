@@ -186,3 +186,17 @@ Groq total **14,699** (14,602 + 97 for one quota check), `gpt-oss-120b` only, Ge
 
 ## Next step
 Decide question 1 before merging, then review and merge `feature/t21-routing-by-company`.
+
+---
+
+# Last fix before the merge (approved by Yassine, 2026-10-30)
+
+**Question 1 answered: a negative sentence no longer confirms.** `client_confirmed` now says no when the quoted sentence has one of these whole words, in any case: not, don't, dont, do not, never, no longer, doesn't, didn't. The client is then asked (ask_user). ShopNova is unchanged (test). Question 2 goes to T22, and a plain "yes" not confirming is accepted for now.
+
+**Choices in the code:**
+- The check reads the **whole sentence of the client's message around the quote**, not only the quote. Otherwise a quote of "refund booking 7008" would hide the "Do not" before it.
+- A typographic apostrophe (don’t) counts like a straight one, since phones often type it.
+
+**Known limit, accepted by the list of words:** a request with one of these words in the same sentence, such as "My flight did not leave, refund me.", now asks the client first. That costs one more question and moves no money. Words outside the list, such as "can't" or "won't", do not stop a confirmation.
+
+**Not re-run live:** no live re-check was asked for this fix. Tests show that a04's and a08's messages still confirm, offline only.

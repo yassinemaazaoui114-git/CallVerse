@@ -612,6 +612,69 @@ def test_an_empty_or_invented_quote_confirms_nothing(quote):
                                      {"main_reason": "refund_request", "user_message": "Please refund me."})
 
 
+@pytest.mark.parametrize("message", ["Please do not cancel my booking 7011.",
+                                     "Do not refund booking 7008, I don't want my money back."])
+def test_a_negative_sentence_does_not_confirm(message):
+    for reason in ("cancellation", "refund_request"):
+        assert not gate.client_confirmed({"user_quote": message, "user_confirmed": True},
+                                         {"main_reason": reason, "user_message": message})
+
+
+@pytest.mark.parametrize("sentence", [
+    "I do not want a refund", "I don't want a refund", "I dont want a refund", "NEVER refund me", "I no longer want a refund",
+    "It doesn't need a refund", "I didn't ask for a refund", "I am not asking for a refund", "I don’t want a refund"])
+def test_every_negative_word_stops_the_confirmation(sentence):
+    assert not gate.client_confirmed({"user_quote": sentence}, {"main_reason": "refund_request", "user_message": sentence})
+
+
+def test_a_fragment_cannot_hide_the_negative_word():
+    case = {"main_reason": "refund_request", "user_message": "Do not refund booking 7008, I don't want my money back."}
+    assert not gate.client_confirmed({"user_quote": "refund booking 7008"}, case)
+    assert not gate.client_confirmed({"user_quote": "my money back"}, case)
+
+
+@pytest.mark.parametrize("message", ["Notify me and refund me.", "I want a refund, it is a notable problem.",
+                                     "Refund my nonrefundable extras.", "Please refund me, I knot my tie."])
+def test_a_negative_word_inside_another_word_does_not_count(message):
+    assert gate.client_confirmed({"user_quote": message}, {"main_reason": "refund_request", "user_message": message})
+
+
+def test_only_the_quoted_sentence_counts():
+    case = {"main_reason": "refund_request", "user_message": "I do not like this hotel. Please refund me!"}
+    assert gate.client_confirmed({"user_quote": "Please refund me"}, case)
+    assert not gate.client_confirmed({"user_quote": "I do not like this hotel"}, case)
+
+
+def test_a_quote_with_its_full_stop_stops_at_that_sentence():
+    case = {"main_reason": "refund_request", "user_message": "Refund booking 7008. I will not fly with you again."}
+    assert gate.client_confirmed({"user_quote": "Refund booking 7008."}, case)
+
+
+def test_a_quote_over_two_sentences_keeps_both():
+    case = {"main_reason": "refund_request", "user_message": "Do not wait. Refund me now."}
+    assert not gate.client_confirmed({"user_quote": "wait. Refund me"}, case)
+
+
+@pytest.mark.parametrize("message_id, quote", [("a04", "My flight 7008 was cancelled, please refund me."),
+                                               ("a08", "I want something back."), ("a09", None), ("a10", None)])
+def test_the_practice_requests_still_confirm(message_id, quote):
+    message = next(m["text"] for m in PRACTICE if m["id"] == message_id)
+    assert gate.client_confirmed({"user_quote": quote or message}, {"main_reason": "refund_request", "user_message": message})
+
+
+def test_a_negative_request_asks_the_client_and_pays_nothing(queue):
+    message = "Please do not cancel my booking 7011."
+    out = send(1, message, propose("propose_hotel_cancellation", "hotel", 7011, "AT-HOT-02"))
+    assert out["outcome"] == "ask_user" and not rows_for("refunds", 7011)
+    assert reads.get_hotel_booking(7011)["status"] == "confirmed"
+
+
+def test_a_shopnova_negative_sentence_still_uses_the_agents_flag():
+    args = {"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90}, "rule_id": "R-REF-03",
+            "facts_used": {"days_late": 6}, "user_confirmed": True, "user_quote": "I do not want to wait, refund me"}
+    assert shopnova_review(args, new_case("T-1"))["outcome"] == "approve"
+
+
 def test_a_case_without_a_message_confirms_nothing():
     assert not gate.client_confirmed({"user_quote": "refund me"}, {"main_reason": "refund_request"})
 

@@ -29,6 +29,7 @@ The outcomes are ShopNova's, and so is what the pipeline does with them. AT-FLT-
 information only: they justify no action.
 """
 
+import re
 from datetime import date
 
 from callverse import companies, trace
@@ -61,6 +62,9 @@ FLIGHT_WORDS = {"scheduled": "is scheduled", "on_time": "was on time", "delayed"
 ESCALATE_SENTENCE = "Your request has been passed on to a colleague who will help you with it."
 
 CONFIRMING_REASONS = ("refund_request", "compensation_request", "cancellation")   # Intake reasons that ask for an action
+# A quoted sentence with one of these whole words is not a request: the client is asked first.
+NEGATIVE_WORDS = re.compile(r"\b(?:not|don't|dont|do not|never|no longer|doesn't|didn't)\b", re.IGNORECASE)
+SENTENCE_ENDS = ".!?\n"
 ACTION_WORDS = {"refund": "a refund", "compensation": "a compensation", "cancel_hotel": "a hotel cancellation"}
 ACTION_TOOLS = {"refund": "propose_refund", "compensation": "propose_compensation",
                 "cancel_hotel": "propose_hotel_cancellation"}
@@ -189,15 +193,30 @@ def _name(action) -> str:
 
 def client_confirmed(proposal: dict, case: dict) -> bool:
     """True when Intake's main reason says the client asks for money or a cancellation AND the agent's user_quote is
-    really in the client's message (upper / lower case and outer spaces do not count). An empty quote confirms nothing.
+    really in the client's message (upper / lower case and outer spaces do not count), in a sentence that is not
+    negative (quoted_sentence). An empty quote confirms nothing.
 
     Why code and not the agent's user_confirmed? In T21's live proof the model said false on "please refund me" while
     quoting those very words. Both checks read what Intake and the client gave, not what the model concluded.
+    Why the negative words? The matcher reads "Please do not cancel my booking" as a cancellation, by meaning.
     """
     quote = proposal.get("user_quote")
     if case.get("main_reason") not in CONFIRMING_REASONS or not isinstance(quote, str) or not quote.strip():
         return False
-    return quote.strip().lower() in (case.get("user_message") or "").lower()
+    sentence = quoted_sentence(quote.strip().lower(), (case.get("user_message") or "").lower())
+    return sentence is not None and NEGATIVE_WORDS.search(sentence.replace("’", "'")) is None
+
+
+def quoted_sentence(quote: str, message: str) -> str | None:
+    """The whole sentence of the message around the quote, or None if the quote is not in the message. The whole
+    sentence, because a quote of "refund booking 7008" must not hide the "Do not" just before it."""
+    start = message.find(quote)
+    if start < 0:
+        return None
+    end = start + len(quote)
+    before = max(message.rfind(mark, 0, start) for mark in SENTENCE_ENDS)
+    after = [i for i in (message.find(mark, end - 1) for mark in SENTENCE_ENDS) if i >= 0]   # the quote's own "." counts
+    return message[before + 1:min(after, default=len(message))]
 
 
 def wrong_rule_reason(rule_id: str, action: str, allowed: dict) -> str:
@@ -403,7 +422,7 @@ def review(proposal: dict, case: dict) -> dict:
     # 5. The client must have asked for it.
     if not _check("user_confirmed", client_confirmed(proposal, case), None,
                   {"user_quote": proposal.get("user_quote"), "main_reason": case.get("main_reason"),
-                   "agent_said": proposal.get("user_confirmed")}, "a request reason + the quote is in the message"):
+                   "agent_said": proposal.get("user_confirmed")}, "a request reason + the quote is in the message, not negative"):
         return done("ask_user", "the client has not confirmed the request yet")
 
     # 6. Finance (Layer 3) decides first when AT-ESC-01 says so.
