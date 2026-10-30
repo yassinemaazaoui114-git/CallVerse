@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T20_atlas_real_data.md (Atlas Travel company data on real datasets: Hotel Booking Demand + US DOT 2015 flights; rules AT-…) |
 | Approved by | Yassine — 2026-10-30 09:18 (18 build items + 13 rules + 3 choices, all ⭐) |
 | Last done | T19 — CallVerse Console, merged into main da597f3 (NEXT DONE 4580146, pushed); tests 510/510 |
