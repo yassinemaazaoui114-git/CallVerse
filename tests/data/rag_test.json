@@ -1,0 +1,276 @@
+{
+ "_note": "HELD-OUT rule-search TEST set (Brain, 2026-10-30, AI-generated): 30 questions (12 ShopNova, 18 Atlas) + 5 'no rule fits'. LOCKED: run ONCE at the end of T23 on the chosen method + model only. Never used to tune anything. Do not read it before the final run.",
+ "questions": [
+  {
+   "id": "rt01",
+   "company": "shopnova",
+   "question": "You said it would arrive by Monday, it's Wednesday now, what can you do?",
+   "expected": [
+    "R-DEL-02"
+   ]
+  },
+  {
+   "id": "rt02",
+   "company": "shopnova",
+   "question": "Order is a week late and nothing has moved, I want a full refund.",
+   "expected": [
+    "R-REF-03"
+   ]
+  },
+  {
+   "id": "rt03",
+   "company": "shopnova",
+   "question": "Is there a guaranteed delivery date on orders?",
+   "expected": [
+    "R-DEL-01"
+   ]
+  },
+  {
+   "id": "rt04",
+   "company": "shopnova",
+   "question": "I'd like to return a charger I got 5 days ago, never used.",
+   "expected": [
+    "R-RET-01"
+   ]
+  },
+  {
+   "id": "rt05",
+   "company": "shopnova",
+   "question": "My order arrived broken, what do you need from me?",
+   "expected": [
+    "R-DMG-01"
+   ]
+  },
+  {
+   "id": "rt06",
+   "company": "shopnova",
+   "question": "What's the most I can be refunded on an order?",
+   "expected": [
+    "R-REF-05"
+   ]
+  },
+  {
+   "id": "rt07",
+   "company": "shopnova",
+   "question": "I'm owed 600 TND, can the assistant approve that alone?",
+   "expected": [
+    "R-ESC-01"
+   ]
+  },
+  {
+   "id": "rt08",
+   "company": "shopnova",
+   "question": "Please notify me once the parcel has been delivered.",
+   "expected": [
+    "R-NOT-01"
+   ]
+  },
+  {
+   "id": "rt09",
+   "company": "shopnova",
+   "question": "Delivery is one day late, what will happen?",
+   "expected": [
+    "R-DEL-02"
+   ]
+  },
+  {
+   "id": "rt10",
+   "company": "shopnova",
+   "question": "The bag I received is torn, can I get a replacement?",
+   "expected": [
+    "R-DMG-01"
+   ]
+  },
+  {
+   "id": "rt11",
+   "company": "shopnova",
+   "question": "Can I still send back an item after three weeks?",
+   "expected": [
+    "R-RET-01"
+   ]
+  },
+  {
+   "id": "rt12",
+   "company": "shopnova",
+   "question": "I want a message when my order ships.",
+   "expected": [
+    "R-NOT-01"
+   ]
+  },
+  {
+   "id": "rt13",
+   "company": "atlas",
+   "question": "The airline cancelled my flight, what are my options?",
+   "expected": [
+    "AT-FLT-01"
+   ]
+  },
+  {
+   "id": "rt14",
+   "company": "atlas",
+   "question": "What compensation is paid for a cancelled flight of 3,000 km?",
+   "expected": [
+    "AT-FLT-02"
+   ]
+  },
+  {
+   "id": "rt15",
+   "company": "atlas",
+   "question": "We got in four hours late on a short flight, do I get compensated?",
+   "expected": [
+    "AT-FLT-03"
+   ]
+  },
+  {
+   "id": "rt16",
+   "company": "atlas",
+   "question": "The departure was pushed back by more than five hours, can I cancel and be refunded?",
+   "expected": [
+    "AT-FLT-04"
+   ]
+  },
+  {
+   "id": "rt17",
+   "company": "atlas",
+   "question": "Is there a meal voucher when a flight is delayed?",
+   "expected": [
+    "AT-FLT-05"
+   ]
+  },
+  {
+   "id": "rt18",
+   "company": "atlas",
+   "question": "Bad weather caused the delay, can I claim compensation?",
+   "expected": [
+    "AT-FLT-06"
+   ]
+  },
+  {
+   "id": "rt19",
+   "company": "atlas",
+   "question": "Is wheelchair help at the airport free?",
+   "expected": [
+    "AT-AST-01"
+   ]
+  },
+  {
+   "id": "rt20",
+   "company": "atlas",
+   "question": "Do I pay anything if I cancel a hotel booked with no deposit?",
+   "expected": [
+    "AT-HOT-01"
+   ]
+  },
+  {
+   "id": "rt21",
+   "company": "atlas",
+   "question": "I cancelled my refundable booking a week before arrival, refund?",
+   "expected": [
+    "AT-HOT-02"
+   ]
+  },
+  {
+   "id": "rt22",
+   "company": "atlas",
+   "question": "My booking was non-refundable and I had to cancel, any money back?",
+   "expected": [
+    "AT-HOT-03"
+   ]
+  },
+  {
+   "id": "rt23",
+   "company": "atlas",
+   "question": "I was put in another room type, not the one on my booking.",
+   "expected": [
+    "AT-HOT-04"
+   ]
+  },
+  {
+   "id": "rt24",
+   "company": "atlas",
+   "question": "I missed my hotel arrival completely, is there a refund?",
+   "expected": [
+    "AT-HOT-05"
+   ]
+  },
+  {
+   "id": "rt25",
+   "company": "atlas",
+   "question": "Is there a limit on how much you can refund me?",
+   "expected": [
+    "AT-REF-01"
+   ]
+  },
+  {
+   "id": "rt26",
+   "company": "atlas",
+   "question": "Who approves a compensation of 1,343 dinars?",
+   "expected": [
+    "AT-ESC-01"
+   ]
+  },
+  {
+   "id": "rt27",
+   "company": "atlas",
+   "question": "A security alert at the airport cancelled the flight, will I be compensated?",
+   "expected": [
+    "AT-FLT-06",
+    "AT-FLT-02"
+   ]
+  },
+  {
+   "id": "rt28",
+   "company": "atlas",
+   "question": "Our delay is over three hours on a 2,000 km flight, can we eat something?",
+   "expected": [
+    "AT-FLT-05"
+   ]
+  },
+  {
+   "id": "rt29",
+   "company": "atlas",
+   "question": "I cancelled my refundable hotel only one day before arriving, do I get money back?",
+   "expected": [
+    "AT-HOT-02"
+   ]
+  },
+  {
+   "id": "rt30",
+   "company": "atlas",
+   "question": "My father needs special help on the plane, how early must we ask?",
+   "expected": [
+    "AT-AST-01"
+   ]
+  },
+  {
+   "id": "rt31",
+   "company": "shopnova",
+   "question": "Do you have a physical shop in Tunis?",
+   "expected": []
+  },
+  {
+   "id": "rt32",
+   "company": "shopnova",
+   "question": "Can I pay in instalments?",
+   "expected": []
+  },
+  {
+   "id": "rt33",
+   "company": "atlas",
+   "question": "How much luggage can I take?",
+   "expected": []
+  },
+  {
+   "id": "rt34",
+   "company": "atlas",
+   "question": "Can I choose my seat in advance?",
+   "expected": []
+  },
+  {
+   "id": "rt35",
+   "company": "atlas",
+   "question": "Is parking free at the resort?",
+   "expected": []
+  }
+ ]
+}

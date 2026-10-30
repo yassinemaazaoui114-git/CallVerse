@@ -1,0 +1,205 @@
+{
+ "_note": "HELD-OUT Atlas Intake TEST set (Brain, 2026-10-30, AI-generated): 5 messages per reason. LOCKED: run ONCE, at the very end of T23, on the chosen model only. Never used to tune anything. Do not read it before the final run.",
+ "messages": [
+  {
+   "id": "at01",
+   "text": "Can you tell me the details of my upcoming flight booking?",
+   "reason": "booking_status"
+  },
+  {
+   "id": "at02",
+   "text": "Is my stay at the resort still confirmed for the 20th?",
+   "reason": "booking_status"
+  },
+  {
+   "id": "at03",
+   "text": "Which airline am I flying with on my booking?",
+   "reason": "booking_status"
+  },
+  {
+   "id": "at04",
+   "text": "I'd like to check the dates of my hotel reservation.",
+   "reason": "booking_status"
+  },
+  {
+   "id": "at05",
+   "text": "What time do I need to be at the airport for my flight?",
+   "reason": "booking_status"
+  },
+  {
+   "id": "at06",
+   "text": "Our flight has been delayed three times already, this is ridiculous.",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "at07",
+   "text": "Why hasn't my plane taken off yet, it was due an hour ago?",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "at08",
+   "text": "There's a big delay on my flight to Boston, any news?",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "at09",
+   "text": "We arrived very late last night because of a delay, what's going on with your airline?",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "at10",
+   "text": "The departure keeps changing on the board, is my flight delayed?",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "at11",
+   "text": "I'd like to cancel the room I reserved in Lisbon.",
+   "reason": "cancellation"
+  },
+  {
+   "id": "at12",
+   "text": "Something urgent came up, I need to cancel my hotel booking.",
+   "reason": "cancellation"
+  },
+  {
+   "id": "at13",
+   "text": "Please call off my reservation, I'm not travelling.",
+   "reason": "cancellation"
+  },
+  {
+   "id": "at14",
+   "text": "What's the procedure to cancel my stay at the resort?",
+   "reason": "cancellation"
+  },
+  {
+   "id": "at15",
+   "text": "Cancel booking 21877 for me please.",
+   "reason": "cancellation"
+  },
+  {
+   "id": "at16",
+   "text": "My flight got cancelled and I want a full refund.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "at17",
+   "text": "Please refund the deposit I paid for the hotel.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "at18",
+   "text": "I'd like my money back, the trip didn't happen.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "at19",
+   "text": "The hotel gave me a worse room, I want some of my money refunded.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "at20",
+   "text": "I was overcharged for my booking and want a refund.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "at21",
+   "text": "My flight was cancelled at the last minute, I want compensation.",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "at22",
+   "text": "How do I get the delay payment the passenger rules talk about?",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "at23",
+   "text": "I arrived over three hours late, please pay my compensation.",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "at24",
+   "text": "I demand compensation for the disruption to my flight.",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "at25",
+   "text": "Does a four hour delay give me a right to money?",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "at26",
+   "text": "Could you switch my flight to tomorrow morning?",
+   "reason": "rebooking"
+  },
+  {
+   "id": "at27",
+   "text": "I want to change my travel dates, can you rebook me?",
+   "reason": "rebooking"
+  },
+  {
+   "id": "at28",
+   "text": "My flight was cancelled, find me another one please.",
+   "reason": "rebooking"
+  },
+  {
+   "id": "at29",
+   "text": "Please move my hotel booking to next month.",
+   "reason": "rebooking"
+  },
+  {
+   "id": "at30",
+   "text": "Is there an earlier flight I can change to?",
+   "reason": "rebooking"
+  },
+  {
+   "id": "at31",
+   "text": "My wife is in a wheelchair, we need assistance at both airports.",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "at32",
+   "text": "I'm blind and travelling alone, can I get help at the airport?",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "at33",
+   "text": "Do you provide help for passengers with reduced mobility?",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "at34",
+   "text": "My child has special needs, can staff help us during boarding?",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "at35",
+   "text": "I need a wheelchair because I broke my ankle.",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "at36",
+   "text": "What's the best season to visit Portugal?",
+   "reason": "other"
+  },
+  {
+   "id": "at37",
+   "text": "Do I need a visa for the United States?",
+   "reason": "other"
+  },
+  {
+   "id": "at38",
+   "text": "How do I update my phone number in my profile?",
+   "reason": "other"
+  },
+  {
+   "id": "at39",
+   "text": "Do you have any discounts for students?",
+   "reason": "other"
+  },
+  {
+   "id": "at40",
+   "text": "Hello, can I talk to someone?",
+   "reason": "other"
+  }
+ ]
+}
