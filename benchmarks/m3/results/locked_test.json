@@ -1,0 +1,212 @@
+{
+ "intake_settings": {
+  "model": "bge-base",
+  "name": "BAAI/bge-base-en-v1.5",
+  "revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "top_k": 1,
+  "thresholds": {
+   "shopnova": 0.7,
+   "atlas": 0.51
+  }
+ },
+ "intake": {
+  "shopnova": {
+   "n": 341,
+   "accuracy": 0.3314,
+   "macro_f1": 0.3852,
+   "critical_errors": 38,
+   "needs_llm_rate": 0.3343,
+   "per_reason": {
+    "order_status": {
+     "precision": 0.403,
+     "recall": 0.51,
+     "f1": 0.45,
+     "support": 49
+    },
+    "late_delivery": {
+     "precision": 0.312,
+     "recall": 0.37,
+     "f1": 0.339,
+     "support": 27
+    },
+    "refund_request": {
+     "precision": 0.597,
+     "recall": 0.69,
+     "f1": 0.64,
+     "support": 58
+    },
+    "return_item": {
+     "precision": 0.543,
+     "recall": 0.568,
+     "f1": 0.556,
+     "support": 44
+    },
+    "damaged_item": {
+     "precision": 0.25,
+     "recall": 0.154,
+     "f1": 0.19,
+     "support": 13
+    },
+    "other": {
+     "precision": 0.917,
+     "recall": 0.073,
+     "f1": 0.136,
+     "support": 150
+    }
+   },
+   "counts": {
+    "order_status": 49,
+    "late_delivery": 27,
+    "refund_request": 58,
+    "return_item": 44,
+    "damaged_item": 13,
+    "other": 150
+   }
+  },
+  "atlas": {
+   "n": 40,
+   "accuracy": 0.975,
+   "macro_f1": 0.9747,
+   "critical_errors": 0,
+   "needs_llm_rate": 0.0,
+   "per_reason": {
+    "booking_status": {
+     "precision": 1.0,
+     "recall": 0.8,
+     "f1": 0.889,
+     "support": 5
+    },
+    "delay_disruption": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 5
+    },
+    "cancellation": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 5
+    },
+    "refund_request": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 5
+    },
+    "compensation_request": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 5
+    },
+    "rebooking": {
+     "precision": 0.833,
+     "recall": 1.0,
+     "f1": 0.909,
+     "support": 5
+    },
+    "special_assistance": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 5
+    },
+    "other": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 5
+    }
+   },
+   "counts": {
+    "booking_status": 5,
+    "delay_disruption": 5,
+    "cancellation": 5,
+    "refund_request": 5,
+    "compensation_request": 5,
+    "rebooking": 5,
+    "special_assistance": 5,
+    "other": 5
+   }
+  },
+  "avg_macro_f1": 0.68
+ },
+ "rag_method": "dense bge-base+prompt",
+ "rag": {
+  "all": {
+   "n": 30,
+   "top1": 0.9667,
+   "top2": 0.9667,
+   "mrr": 0.9778,
+   "top1_count": 29,
+   "top2_count": 29
+  },
+  "shopnova": {
+   "n": 12,
+   "top1": 1.0,
+   "top2": 1.0,
+   "mrr": 1.0,
+   "top1_count": 12,
+   "top2_count": 12
+  },
+  "atlas": {
+   "n": 18,
+   "top1": 0.9444,
+   "top2": 0.9444,
+   "mrr": 0.963,
+   "top1_count": 17,
+   "top2_count": 17
+  },
+  "no_rule": [
+   {
+    "id": "rt31",
+    "top": "R-ESC-01",
+    "top_score": 0.4666,
+    "lowest_correct_hit": 0.591,
+    "gap": 0.1244
+   },
+   {
+    "id": "rt32",
+    "top": "R-NOT-01",
+    "top_score": 0.5003,
+    "lowest_correct_hit": 0.591,
+    "gap": 0.0907
+   },
+   {
+    "id": "rt33",
+    "top": "AT-REF-01",
+    "top_score": 0.5474,
+    "lowest_correct_hit": 0.5617,
+    "gap": 0.0143
+   },
+   {
+    "id": "rt34",
+    "top": "AT-AST-01",
+    "top_score": 0.6069,
+    "lowest_correct_hit": 0.5617,
+    "gap": -0.0452
+   },
+   {
+    "id": "rt35",
+    "top": "AT-HOT-01",
+    "top_score": 0.5534,
+    "lowest_correct_hit": 0.5617,
+    "gap": 0.0083
+   }
+  ],
+  "no_rule_separable": 4,
+  "misses": [
+   {
+    "id": "rt18",
+    "expected": [
+     "AT-FLT-06"
+    ],
+    "top2": [
+     "AT-FLT-03",
+     "AT-FLT-04"
+    ]
+   }
+  ]
+ }
+}
