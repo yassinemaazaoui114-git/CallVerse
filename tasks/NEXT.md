@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T21_routing_by_company.md (routing by company, part A: Atlas through the same center — Intake travel reasons, company-aware agents/tools/rule search, amounts by code, Atlas writes, AT-ESC-01 = 1,500 TND + every compensation) |
 | Approved by | Yassine — 2026-10-30 10:20 (19 items, all ⭐) + implementation choices |
 | Last done | T20 — Atlas Travel company data on real datasets, merged into main 6f75551 (pushed); tests 640/640 |
