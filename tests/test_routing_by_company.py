@@ -1055,11 +1055,17 @@ def test_a_booking_that_does_not_exist_is_not_on_the_account(queue):
 
 
 def test_a_shopnova_order_number_means_nothing_at_atlas(queue):
-    assert send(1, "Where is order 4512?", no_llm)["outcome"] == "not_your_order"
+    # Intake runs before the identity check and finds no Atlas reason here, so its fallback is called (as at ShopNova).
+    # That is the only LLM call allowed: no agent runs on a number that is not on this account.
+    def only_the_fallback(role_key, messages, tools=None):
+        assert tools is None and messages[0]["content"] == llm_fallback.ATLAS_PROMPT
+        return text('{"reasons": ["booking_status"], "order_id": null}')
+    assert send(1, "Where is order 4512?", only_the_fallback)["outcome"] == "not_your_order"
 
 
 def test_a_handover_from_a_to_b_stays_at_atlas(queue):
-    steps = iter([text("Passed on for checking. [HANDOVER: B]"),
+    # A reads first: with no tool at all, the T10 safety net would run A once more (as at ShopNova).
+    steps = iter([tool_call("get_flight_booking", {"booking_id": 7008}), text("Passed on for checking. [HANDOVER: B]"),
                   tool_call("propose_refund", proposal_args("flight", 7008, "AT-FLT-01"))])
 
     def fake(role_key, messages, tools=None):
