@@ -1,0 +1,935 @@
+{
+ "models": {
+  "bge-small": {
+   "model": "bge-small",
+   "top_k": 5,
+   "avg_macro_f1": 0.6473,
+   "avg_accuracy": 0.5991,
+   "companies": {
+    "shopnova": {
+     "threshold": 0.69,
+     "n": 328,
+     "accuracy": 0.3232,
+     "macro_f1": 0.4108,
+     "critical_errors": 26,
+     "needs_llm_rate": 0.4055,
+     "per_reason": {
+      "order_status": {
+       "precision": 0.275,
+       "recall": 0.378,
+       "f1": 0.318,
+       "support": 37
+      },
+      "late_delivery": {
+       "precision": 0.355,
+       "recall": 0.423,
+       "f1": 0.386,
+       "support": 26
+      },
+      "refund_request": {
+       "precision": 0.735,
+       "recall": 0.746,
+       "f1": 0.741,
+       "support": 67
+      },
+      "return_item": {
+       "precision": 0.707,
+       "recall": 0.763,
+       "f1": 0.734,
+       "support": 38
+      },
+      "damaged_item": {
+       "precision": 0.5,
+       "recall": 0.2,
+       "f1": 0.286,
+       "support": 10
+      },
+      "other": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 150
+      }
+     }
+    },
+    "atlas": {
+     "threshold": 0.54,
+     "n": 40,
+     "accuracy": 0.875,
+     "macro_f1": 0.8838,
+     "critical_errors": 1,
+     "needs_llm_rate": 0.025,
+     "per_reason": {
+      "booking_status": {
+       "precision": 0.8,
+       "recall": 0.8,
+       "f1": 0.8,
+       "support": 5
+      },
+      "delay_disruption": {
+       "precision": 1.0,
+       "recall": 0.8,
+       "f1": 0.889,
+       "support": 5
+      },
+      "cancellation": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "refund_request": {
+       "precision": 0.714,
+       "recall": 1.0,
+       "f1": 0.833,
+       "support": 5
+      },
+      "compensation_request": {
+       "precision": 1.0,
+       "recall": 0.8,
+       "f1": 0.889,
+       "support": 5
+      },
+      "rebooking": {
+       "precision": 0.833,
+       "recall": 1.0,
+       "f1": 0.909,
+       "support": 5
+      },
+      "special_assistance": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "other": {
+       "precision": 1.0,
+       "recall": 0.6,
+       "f1": 0.75,
+       "support": 5
+      }
+     }
+    }
+   },
+   "by_top_k": {
+    "1": {
+     "avg_macro_f1": 0.6006,
+     "thresholds": {
+      "shopnova": 0.72,
+      "atlas": 0.51
+     }
+    },
+    "3": {
+     "avg_macro_f1": 0.6205,
+     "thresholds": {
+      "shopnova": 0.7,
+      "atlas": 0.61
+     }
+    },
+    "5": {
+     "avg_macro_f1": 0.6473,
+     "thresholds": {
+      "shopnova": 0.69,
+      "atlas": 0.54
+     }
+    }
+   },
+   "p50_ms": 14.52,
+   "p95_ms": 25.68,
+   "peak_rss_mb": 1025.0,
+   "rss_before_model_mb": 823.0,
+   "parameters_m": 33.4,
+   "disk_mb": 134.5,
+   "licence": "MIT"
+  },
+  "minilm": {
+   "model": "minilm",
+   "top_k": 1,
+   "avg_macro_f1": 0.6427,
+   "avg_accuracy": 0.6405,
+   "companies": {
+    "shopnova": {
+     "threshold": 0.42,
+     "n": 328,
+     "accuracy": 0.3811,
+     "macro_f1": 0.382,
+     "critical_errors": 42,
+     "needs_llm_rate": 0.2652,
+     "per_reason": {
+      "order_status": {
+       "precision": 0.273,
+       "recall": 0.405,
+       "f1": 0.326,
+       "support": 37
+      },
+      "late_delivery": {
+       "precision": 0.276,
+       "recall": 0.308,
+       "f1": 0.291,
+       "support": 26
+      },
+      "refund_request": {
+       "precision": 0.725,
+       "recall": 0.746,
+       "f1": 0.735,
+       "support": 67
+      },
+      "return_item": {
+       "precision": 0.478,
+       "recall": 0.579,
+       "f1": 0.524,
+       "support": 38
+      },
+      "damaged_item": {
+       "precision": 0.091,
+       "recall": 0.1,
+       "f1": 0.095,
+       "support": 10
+      },
+      "other": {
+       "precision": 0.935,
+       "recall": 0.193,
+       "f1": 0.32,
+       "support": 150
+      }
+     }
+    },
+    "atlas": {
+     "threshold": 0.42,
+     "n": 40,
+     "accuracy": 0.9,
+     "macro_f1": 0.9034,
+     "critical_errors": 2,
+     "needs_llm_rate": 0.025,
+     "per_reason": {
+      "booking_status": {
+       "precision": 0.833,
+       "recall": 1.0,
+       "f1": 0.909,
+       "support": 5
+      },
+      "delay_disruption": {
+       "precision": 1.0,
+       "recall": 0.6,
+       "f1": 0.75,
+       "support": 5
+      },
+      "cancellation": {
+       "precision": 0.833,
+       "recall": 1.0,
+       "f1": 0.909,
+       "support": 5
+      },
+      "refund_request": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "compensation_request": {
+       "precision": 0.833,
+       "recall": 1.0,
+       "f1": 0.909,
+       "support": 5
+      },
+      "rebooking": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "special_assistance": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "other": {
+       "precision": 1.0,
+       "recall": 0.6,
+       "f1": 0.75,
+       "support": 5
+      }
+     }
+    }
+   },
+   "by_top_k": {
+    "1": {
+     "avg_macro_f1": 0.6427,
+     "thresholds": {
+      "shopnova": 0.42,
+      "atlas": 0.42
+     }
+    },
+    "3": {
+     "avg_macro_f1": 0.611,
+     "thresholds": {
+      "shopnova": 0.41,
+      "atlas": 0.41
+     }
+    },
+    "5": {
+     "avg_macro_f1": 0.5723,
+     "thresholds": {
+      "shopnova": 0.41,
+      "atlas": 0.41
+     }
+    }
+   },
+   "p50_ms": 6.89,
+   "p95_ms": 10.5,
+   "peak_rss_mb": 1023.0,
+   "rss_before_model_mb": 823.0,
+   "parameters_m": 22.7,
+   "disk_mb": 91.6,
+   "licence": "Apache-2.0"
+  },
+  "bge-base": {
+   "model": "bge-base",
+   "top_k": 1,
+   "avg_macro_f1": 0.6906,
+   "avg_accuracy": 0.6594,
+   "companies": {
+    "shopnova": {
+     "threshold": 0.7,
+     "n": 328,
+     "accuracy": 0.3689,
+     "macro_f1": 0.4314,
+     "critical_errors": 25,
+     "needs_llm_rate": 0.3598,
+     "per_reason": {
+      "order_status": {
+       "precision": 0.347,
+       "recall": 0.459,
+       "f1": 0.395,
+       "support": 37
+      },
+      "late_delivery": {
+       "precision": 0.379,
+       "recall": 0.423,
+       "f1": 0.4,
+       "support": 26
+      },
+      "refund_request": {
+       "precision": 0.738,
+       "recall": 0.716,
+       "f1": 0.727,
+       "support": 67
+      },
+      "return_item": {
+       "precision": 0.625,
+       "recall": 0.658,
+       "f1": 0.641,
+       "support": 38
+      },
+      "damaged_item": {
+       "precision": 0.222,
+       "recall": 0.2,
+       "f1": 0.211,
+       "support": 10
+      },
+      "other": {
+       "precision": 1.0,
+       "recall": 0.12,
+       "f1": 0.214,
+       "support": 150
+      }
+     }
+    },
+    "atlas": {
+     "threshold": 0.51,
+     "n": 40,
+     "accuracy": 0.95,
+     "macro_f1": 0.9497,
+     "critical_errors": 1,
+     "needs_llm_rate": 0.0,
+     "per_reason": {
+      "booking_status": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "delay_disruption": {
+       "precision": 0.8,
+       "recall": 0.8,
+       "f1": 0.8,
+       "support": 5
+      },
+      "cancellation": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "refund_request": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "compensation_request": {
+       "precision": 0.833,
+       "recall": 1.0,
+       "f1": 0.909,
+       "support": 5
+      },
+      "rebooking": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "special_assistance": {
+       "precision": 1.0,
+       "recall": 0.8,
+       "f1": 0.889,
+       "support": 5
+      },
+      "other": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      }
+     }
+    }
+   },
+   "by_top_k": {
+    "1": {
+     "avg_macro_f1": 0.6906,
+     "thresholds": {
+      "shopnova": 0.7,
+      "atlas": 0.51
+     }
+    },
+    "3": {
+     "avg_macro_f1": 0.6812,
+     "thresholds": {
+      "shopnova": 0.6,
+      "atlas": 0.48
+     }
+    },
+    "5": {
+     "avg_macro_f1": 0.6774,
+     "thresholds": {
+      "shopnova": 0.58,
+      "atlas": 0.45
+     }
+    }
+   },
+   "p50_ms": 34.87,
+   "p95_ms": 54.84,
+   "peak_rss_mb": 1393.0,
+   "rss_before_model_mb": 823.0,
+   "parameters_m": 109.5,
+   "disk_mb": 439.0,
+   "licence": "MIT"
+  },
+  "qwen3-0.6b": {
+   "model": "qwen3-0.6b",
+   "top_k": 1,
+   "avg_macro_f1": 0.657,
+   "avg_accuracy": 0.6522,
+   "companies": {
+    "shopnova": {
+     "threshold": 0.6,
+     "n": 328,
+     "accuracy": 0.3293,
+     "macro_f1": 0.3393,
+     "critical_errors": 41,
+     "needs_llm_rate": 0.1616,
+     "per_reason": {
+      "order_status": {
+       "precision": 0.159,
+       "recall": 0.378,
+       "f1": 0.224,
+       "support": 37
+      },
+      "late_delivery": {
+       "precision": 0.25,
+       "recall": 0.346,
+       "f1": 0.29,
+       "support": 26
+      },
+      "refund_request": {
+       "precision": 0.8,
+       "recall": 0.657,
+       "f1": 0.721,
+       "support": 67
+      },
+      "return_item": {
+       "precision": 0.452,
+       "recall": 0.368,
+       "f1": 0.406,
+       "support": 38
+      },
+      "damaged_item": {
+       "precision": 0.075,
+       "recall": 0.3,
+       "f1": 0.12,
+       "support": 10
+      },
+      "other": {
+       "precision": 0.96,
+       "recall": 0.16,
+       "f1": 0.274,
+       "support": 150
+      }
+     }
+    },
+    "atlas": {
+     "threshold": 0.44,
+     "n": 40,
+     "accuracy": 0.975,
+     "macro_f1": 0.9747,
+     "critical_errors": 0,
+     "needs_llm_rate": 0.0,
+     "per_reason": {
+      "booking_status": {
+       "precision": 0.833,
+       "recall": 1.0,
+       "f1": 0.909,
+       "support": 5
+      },
+      "delay_disruption": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "cancellation": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "refund_request": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "compensation_request": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "rebooking": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "special_assistance": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "other": {
+       "precision": 1.0,
+       "recall": 0.8,
+       "f1": 0.889,
+       "support": 5
+      }
+     }
+    }
+   },
+   "by_top_k": {
+    "1": {
+     "avg_macro_f1": 0.657,
+     "thresholds": {
+      "shopnova": 0.6,
+      "atlas": 0.44
+     }
+    },
+    "3": {
+     "avg_macro_f1": 0.6544,
+     "thresholds": {
+      "shopnova": 0.61,
+      "atlas": 0.55
+     }
+    },
+    "5": {
+     "avg_macro_f1": 0.6412,
+     "thresholds": {
+      "shopnova": 0.57,
+      "atlas": 0.43
+     }
+    }
+   },
+   "p50_ms": 90.32,
+   "p95_ms": 146.81,
+   "peak_rss_mb": 2352.0,
+   "rss_before_model_mb": 823.0,
+   "parameters_m": 595.8,
+   "disk_mb": 1207.5,
+   "licence": "Apache-2.0"
+  }
+ },
+ "today": {
+  "top_k": 3,
+  "avg_macro_f1": 0.571,
+  "avg_accuracy": 0.5503,
+  "companies": {
+   "shopnova": {
+    "threshold": 0.66,
+    "n": 328,
+    "accuracy": 0.3506,
+    "macro_f1": 0.3849,
+    "critical_errors": 58,
+    "needs_llm_rate": 0.2256,
+    "per_reason": {
+     "order_status": {
+      "precision": 0.279,
+      "recall": 0.459,
+      "f1": 0.347,
+      "support": 37
+     },
+     "late_delivery": {
+      "precision": 0.344,
+      "recall": 0.423,
+      "f1": 0.379,
+      "support": 26
+     },
+     "refund_request": {
+      "precision": 0.6,
+      "recall": 0.761,
+      "f1": 0.671,
+      "support": 67
+     },
+     "return_item": {
+      "precision": 0.519,
+      "recall": 0.737,
+      "f1": 0.609,
+      "support": 38
+     },
+     "damaged_item": {
+      "precision": 0.2,
+      "recall": 0.3,
+      "f1": 0.24,
+      "support": 10
+     },
+     "other": {
+      "precision": 0.714,
+      "recall": 0.033,
+      "f1": 0.064,
+      "support": 150
+     }
+    }
+   },
+   "atlas": {
+    "threshold": 0.68,
+    "n": 40,
+    "accuracy": 0.75,
+    "macro_f1": 0.7571,
+    "critical_errors": 1,
+    "needs_llm_rate": 0.15,
+    "per_reason": {
+     "booking_status": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
+      "support": 5
+     },
+     "delay_disruption": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75,
+      "support": 5
+     },
+     "cancellation": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+     },
+     "refund_request": {
+      "precision": 0.833,
+      "recall": 1.0,
+      "f1": 0.909,
+      "support": 5
+     },
+     "compensation_request": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
+      "support": 5
+     },
+     "rebooking": {
+      "precision": 0.833,
+      "recall": 1.0,
+      "f1": 0.909,
+      "support": 5
+     },
+     "special_assistance": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.889,
+      "support": 5
+     },
+     "other": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 5
+     }
+    }
+   }
+  }
+ },
+ "baselines": {
+  "tfidf": {
+   "model": "tfidf",
+   "top_k": 3,
+   "avg_macro_f1": 0.5522,
+   "avg_accuracy": 0.535,
+   "companies": {
+    "shopnova": {
+     "threshold": 0.27,
+     "n": 328,
+     "accuracy": 0.1951,
+     "macro_f1": 0.2294,
+     "critical_errors": 76,
+     "needs_llm_rate": 0.4116,
+     "per_reason": {
+      "order_status": {
+       "precision": 0.25,
+       "recall": 0.216,
+       "f1": 0.232,
+       "support": 37
+      },
+      "late_delivery": {
+       "precision": 0.667,
+       "recall": 0.231,
+       "f1": 0.343,
+       "support": 26
+      },
+      "refund_request": {
+       "precision": 0.378,
+       "recall": 0.254,
+       "f1": 0.304,
+       "support": 67
+      },
+      "return_item": {
+       "precision": 0.263,
+       "recall": 0.553,
+       "f1": 0.356,
+       "support": 38
+      },
+      "damaged_item": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 10
+      },
+      "other": {
+       "precision": 0.632,
+       "recall": 0.08,
+       "f1": 0.142,
+       "support": 150
+      }
+     }
+    },
+    "atlas": {
+     "threshold": 0.19,
+     "n": 40,
+     "accuracy": 0.875,
+     "macro_f1": 0.8751,
+     "critical_errors": 2,
+     "needs_llm_rate": 0.025,
+     "per_reason": {
+      "booking_status": {
+       "precision": 1.0,
+       "recall": 0.8,
+       "f1": 0.889,
+       "support": 5
+      },
+      "delay_disruption": {
+       "precision": 1.0,
+       "recall": 0.8,
+       "f1": 0.889,
+       "support": 5
+      },
+      "cancellation": {
+       "precision": 0.714,
+       "recall": 1.0,
+       "f1": 0.833,
+       "support": 5
+      },
+      "refund_request": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "compensation_request": {
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0,
+       "support": 5
+      },
+      "rebooking": {
+       "precision": 0.833,
+       "recall": 1.0,
+       "f1": 0.909,
+       "support": 5
+      },
+      "special_assistance": {
+       "precision": 0.833,
+       "recall": 1.0,
+       "f1": 0.909,
+       "support": 5
+      },
+      "other": {
+       "precision": 1.0,
+       "recall": 0.4,
+       "f1": 0.571,
+       "support": 5
+      }
+     }
+    }
+   },
+   "by_top_k": {
+    "1": {
+     "avg_macro_f1": 0.4786,
+     "thresholds": {
+      "shopnova": 0.36,
+      "atlas": 0.14
+     }
+    },
+    "3": {
+     "avg_macro_f1": 0.5522,
+     "thresholds": {
+      "shopnova": 0.27,
+      "atlas": 0.19
+     }
+    },
+    "5": {
+     "avg_macro_f1": 0.549,
+     "thresholds": {
+      "shopnova": 0.0,
+      "atlas": 0.14
+     }
+    }
+   },
+   "p50_ms": 0.15,
+   "p95_ms": 0.23
+  },
+  "majority": {
+   "avg_macro_f1": 0.0662,
+   "avg_accuracy": 0.2912,
+   "companies": {
+    "shopnova": {
+     "always": "other",
+     "n": 328,
+     "accuracy": 0.4573,
+     "macro_f1": 0.1046,
+     "critical_errors": 115,
+     "needs_llm_rate": 0.0,
+     "per_reason": {
+      "order_status": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 37
+      },
+      "late_delivery": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 26
+      },
+      "refund_request": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 67
+      },
+      "return_item": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 38
+      },
+      "damaged_item": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 10
+      },
+      "other": {
+       "precision": 0.457,
+       "recall": 1.0,
+       "f1": 0.628,
+       "support": 150
+      }
+     }
+    },
+    "atlas": {
+     "always": "booking_status",
+     "n": 40,
+     "accuracy": 0.125,
+     "macro_f1": 0.0278,
+     "critical_errors": 15,
+     "needs_llm_rate": 0.0,
+     "per_reason": {
+      "booking_status": {
+       "precision": 0.125,
+       "recall": 1.0,
+       "f1": 0.222,
+       "support": 5
+      },
+      "delay_disruption": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 5
+      },
+      "cancellation": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 5
+      },
+      "refund_request": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 5
+      },
+      "compensation_request": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 5
+      },
+      "rebooking": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 5
+      },
+      "special_assistance": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 5
+      },
+      "other": {
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0,
+       "support": 5
+      }
+     }
+    }
+   }
+  }
+ },
+ "skipped": {
+  "embeddinggemma": "GatedRepoError: 401 Client Error. (Request ID: Root=1-6ae51ab7-5d55822c42ef694e56e8447a;dae3df98-6a41-4afe-9ff5-00b18ee4c15d)\n\nCannot access gated repo for url https://huggingface.co/google/embeddinggemma-300m/resolve/57c266a740f537b4dc058e1b0cda161fd15afa75/modules.json.\nAccess to model google/embeddinggemma-300m "
+ }
+}
