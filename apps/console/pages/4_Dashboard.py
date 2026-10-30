@@ -52,21 +52,21 @@ with left:
     st.altair_chart(alt.Chart(alt.Data(values=d["per_day"])).mark_bar().encode(
         x=alt.X("day:N", title=None), y=alt.Y("tickets:Q", title="tickets"),
         color=alt.Color("company:N", scale=alt.Scale(scheme="tealblues")),
-        tooltip=["day:N", "company:N", "tickets:Q"]), use_container_width=True)
+        tooltip=["day:N", "company:N", "tickets:Q"]), width="stretch")
 with right:
     st.subheader("Per company")
     st.altair_chart(alt.Chart(alt.Data(values=d["per_company"])).mark_bar(color=ui.TEAL).encode(
         x=alt.X("tickets:Q", title="tickets"), y=alt.Y("company:N", title=None),
-        tooltip=["company:N", "tickets:Q"]), use_container_width=True)
+        tooltip=["company:N", "tickets:Q"]), width="stretch")
 
 left, right = st.columns(2)
 with left:
     st.subheader("Tokens per ticket")
     st.altair_chart(alt.Chart(alt.Data(values=d["tokens_per_ticket"])).mark_bar(color=ui.TEAL).encode(
         x=alt.X("ticket:N", title=None, sort=None), y=alt.Y("tokens:Q", title="tokens"),
-        tooltip=["ticket:N", "tokens:Q"]), use_container_width=True)
+        tooltip=["ticket:N", "tokens:Q"]), width="stretch")
 with right:
     st.subheader("Tickets by status")
     st.altair_chart(alt.Chart(alt.Data(values=d["by_status"])).mark_bar(color=ui.AMBER).encode(
         x=alt.X("tickets:Q", title="tickets"), y=alt.Y("status:N", sort="-x", title=None),
-        tooltip=["status:N", "tickets:Q"]), use_container_width=True)
+        tooltip=["status:N", "tickets:Q"]), width="stretch")

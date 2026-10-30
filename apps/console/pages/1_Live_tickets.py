@@ -34,7 +34,7 @@ def tickets_table() -> None:
         return
     # A new key after each click: the old selection is forgotten, so coming back here does not open it again.
     n = st.session_state.setdefault("live_table_n", 0)
-    event = st.dataframe(rows, hide_index=True, use_container_width=True, on_select="rerun",
+    event = st.dataframe(rows, hide_index=True, width="stretch", on_select="rerun",
                          selection_mode="single-row", key=f"live_table_{n}")
     if event.selection.rows:
         ui.open_ticket(rows[event.selection.rows[0]]["id"])

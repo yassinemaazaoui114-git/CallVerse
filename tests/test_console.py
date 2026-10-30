@@ -241,6 +241,16 @@ def test_agents_cards_on_known_tickets(known_tickets):
     assert cards["A"]["tickets"] == 0
 
 
+def test_router_and_ask_agent_steps_belong_to_no_agent():
+    step = lambda kind, saved_by, **data: {"step": kind, "agent": saved_by, "message_id": 1, "data": data}  # noqa: E731
+    steps = [step("intake", "intake", trace_step="intake_ticket", emotion={"label": "sadness", "score": 0.711}),
+             step("route", "B", trace_step="route", agent="B"),
+             step("tool_call", "A", trace_step="ask_agent", agent="A", to="A"),
+             step("tool_call", "B", trace_step="tool_call", agent="B", tool="ask_agent")]
+    assert reads.actors(steps) == ["intake", None, None, "B"]
+    assert "emotion sadness (0.71)" in reads.describe_step(steps[0])[2]
+
+
 def test_every_step_kind_has_a_description(known_tickets):
     for ticket_id in known_tickets:
         for turn in reads.ticket_detail(ticket_id)["turns"]:

@@ -200,6 +200,8 @@ def _actor(step: dict, intake_done: bool) -> str | None:
     kind, data, who = step["step"], step["data"], step.get("agent")
     if kind == "intake":
         return "intake"
+    if kind == "route" or kind_of(step) == "ask_agent":
+        return None   # the router is a rule, not an agent; "ask_agent" names the agent ASKED (B's tool call says who asked)
     if kind == "llm":
         role = data.get("role")
         if role == "agents":
@@ -315,13 +317,22 @@ def _args(args) -> str:
 AGENT_LABEL = {"A": "Agent A", "B": "Agent B", "INTAKE": "Intake"}
 
 
+def _label(value) -> str:
+    """Intake's emotion / sentiment: {"label": "sadness", "score": 0.71} -> "sadness (0.71)"; text stays text."""
+    if isinstance(value, dict):
+        score = value.get("score")
+        return f"{value.get('label')}" + (f" ({score:.2f})" if isinstance(score, (int, float)) else "")
+    return str(value)
+
+
 def describe_step(step: dict) -> tuple[str, str, str]:
     """(icon, title, detail) of one step, in plain words, for the Ticket detail timeline."""
     kind, d = kind_of(step), step["data"]
     who = AGENT_LABEL.get(d.get("agent"), d.get("agent") or "")
     if kind == "intake_ticket":
         return ("📥", "Intake read the message",
-                f"reason **{d.get('main_reason')}** · emotion {d.get('emotion')} · sentiment {d.get('sentiment')} · "
+                f"reason **{d.get('main_reason')}** · emotion {_label(d.get('emotion'))} · "
+                f"sentiment {_label(d.get('sentiment'))} · "
                 f"priority **{d.get('priority_label')}** · order {d.get('order_id')}"
                 + (" · LLM fallback used" if d.get("needs_llm") else "")
                 + (f" · {d['seconds']} s" if d.get("seconds") is not None else ""))
