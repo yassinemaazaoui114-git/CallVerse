@@ -1,0 +1,14 @@
+{
+  "name": "Atlas Travel",
+  "domain": "travel",
+  "description": "Atlas Travel is a travel agency based in Tunis that sells hotel stays in Portugal and flights in the United States to Tunisian travellers. Its customer relation center is fully run by AI agents.",
+  "hotels": ["Atlas City Hotel — Lisbon", "Atlas Resort Hotel — Algarve"],
+  "airlines": ["Alaska Airlines Inc.", "American Airlines Inc.", "American Eagle Airlines Inc.", "Atlantic Southeast Airlines", "Delta Air Lines Inc.", "Frontier Airlines Inc.", "Hawaiian Airlines Inc.", "JetBlue Airways", "Skywest Airlines Inc.", "Southwest Airlines Co.", "Spirit Air Lines", "US Airways Inc.", "United Air Lines Inc.", "Virgin America"],
+  "cities_served": ["Tunis", "Ariana", "Ben Arous", "Sousse", "Sfax", "Monastir", "Nabeul", "Bizerte"],
+  "currency": "TND",
+  "payment_methods": ["card", "pay_at_hotel"],
+  "support_channels": ["chat", "email", "phone"],
+  "support_languages": ["French", "Arabic", "English"],
+  "facts": {"hotel_cancellation_rate": 0.3745, "hotel_no_show_rate": 0.015, "flight_delay_rate": 0.1895, "flight_cancellation_rate": 0.018, "average_stay_tnd": 1225.41, "average_flight_price_tnd": 1156.74},
+  "ai_generated": true
+}

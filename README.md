@@ -98,7 +98,7 @@ unless `PLATFORM_COORDINATOR_TOKEN` is set. Details: [docs/platform_contract.md]
 ## Run the tests
 
 ```powershell
-python -m pytest -q --ignore=tests/data   # 510 tests, about 2 minutes
+python -m pytest -q --ignore=tests/data   # 633 tests, about 3 minutes
 ```
 No API key, no API call and no Ollama needed: the tests use fake LLMs and a fresh copy of the database.
 `tests/data/` holds the held-out test sets: they are only for final evaluations, never for building or tuning.
@@ -114,11 +114,12 @@ callverse/          the code
   queues/             the rule router and the priority queue
   agents/             Agent A, Agent B, the shared agent loop
   tools/              read tools, proposal tools, per-agent allow-lists (registry.py)
-  kb/                 ShopNova's policies and the policy search (RAG)
+  kb/                 ShopNova's policies and the policy search (RAG); Atlas Travel's rules (policies_atlas.json)
   coordinator/        the Coordinator (rules)
   slm/                the reply writer, its rule check and templates
   notifier/           delivery notifications (story S3)
   data/               ShopNova data: seed, read views, the ONLY write functions (writes.py), clock, Layer 3
+    atlas/            Atlas Travel data: schema, seed, database access, read functions (no app or agent yet)
   tickets/ channels/  CallVerse's tickets database, the web chat channel, refund approvals
   console/            the Console's read-only queries (reads.py: all its SQL)
   auth/               demo logins, roles and permissions
@@ -146,6 +147,22 @@ which one it is (`source`, `ai_generated`, `scripted`):
 Olist is licensed **CC BY-NC-SA 4.0**: source, credit line and changes in [DATA_LICENCES.md](DATA_LICENCES.md).
 The raw files are never committed (`data/raw/`). `python -m scripts.data_summary` prints the counts.
 
+**Atlas Travel** (the second sector: hotel stays and flights) has its own database, `callverse/data/atlas.db`. Nothing
+uses it yet: no app, no agent, no routing by company.
+- **Real** data: 2,000 bookings of **Hotel Booking Demand** (CC BY 4.0, ids 20001+) and 2,000 flights of the
+  **US DOT 2015 Flight Delays** (CC0, ids 1+), moved to 2026, prices in TND.
+- **Generated:** one Tunisian user per booking (ids 101+) and one flight booking per flight (ids 30001+).
+- **Scripted** demo data (`callverse/data/atlas/seed.py`): users 1–5, bookings 7001–7010, one for each rule case.
+- Rules: `callverse/kb/policies_atlas.json` (ids `AT-…`). Profile: `callverse/data/atlas_profile.json`.
+
+To rebuild: download `hotel_bookings.csv` (Kaggle `jessemostipak/hotel-booking-demand`) and `flights.csv`,
+`airlines.csv`, `airports.csv` (Kaggle `usdot/flight-delays`) into `data/raw/atlas/`, then:
+```powershell
+python -m scripts.build_atlas_sample   # about 30 s: makes atlas_sample.json and atlas_profile.json (same bytes each run)
+python -m callverse.data.atlas.seed    # builds atlas.db (also built by itself on first use)
+```
+The built sample is committed, so only the second command is needed, and the tests need no raw file.
+
 ## Task history
 
 How we work: `tasks/NEXT.md` says which task is next; each task has a file `tasks/Txx_*.md` and a report
@@ -172,6 +189,8 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
 - **T18** ShopNova app, part 2: Admin dashboard, Manage, Refund approvals (the real Layer 3 queue).
 - **T19** CallVerse Console: Live tickets, Ticket detail, Agents, Dashboard (read only); computer-time columns and
   reply seconds in `callverse.db`; new ticket status "Escalated"; replaces Dali's `/demo` page.
+- **T20** Atlas Travel's company data on real datasets (hotels + flights): its own database, rules `AT-…`, profile,
+  read functions (no app or agent yet).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

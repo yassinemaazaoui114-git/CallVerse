@@ -1,0 +1,100 @@
+[
+  {
+    "id": "AT-FLT-01",
+    "title": "Cancelled flight: refund or new flight",
+    "text": "If Atlas Travel's flight is cancelled, the client chooses one: a full refund of the ticket, or a new flight (the next one or a later date).",
+    "condition": "cancelled == 1",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-FLT-02",
+    "title": "Compensation for a cancelled flight",
+    "text": "A client whose flight is cancelled is also paid compensation: 839.50 TND for a flight of 1,500 km or less, 1,343.20 TND for 1,500 to 3,500 km, 2,014.80 TND for more than 3,500 km. It is not paid if the client was told 14 days or more before departure, or if the cause is extraordinary (rule AT-FLT-06).",
+    "condition": "cancelled == 1 and notice_days < 14 and not (cancellation_reason in ['weather', 'air_system', 'security'])",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-FLT-03",
+    "title": "Compensation for a long delay",
+    "text": "A client who arrives 3 hours or more late is paid the same amounts as for a cancellation: 839.50 TND for a flight of 1,500 km or less, 1,343.20 TND for 1,500 to 3,500 km. For more than 3,500 km: 1,007.40 TND for a delay of 3 to 4 hours, 2,014.80 TND for 4 hours or more. It is not paid if the cause is extraordinary (rule AT-FLT-06).",
+    "condition": "flight_status == 'delayed' and arrival_delay_min >= 180 and not (main_delay_cause in ['weather', 'air_system', 'security'])",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-FLT-04",
+    "title": "Delay of 5 hours or more at departure",
+    "text": "If a flight leaves 5 hours or more late, the client may cancel the trip and get a full refund.",
+    "condition": "flight_status in ['on_time', 'delayed'] and departure_delay_min >= 300",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-FLT-05",
+    "title": "Meals while waiting",
+    "text": "A client waiting for a delayed flight gets a meal voucher after 2 hours for a flight of 1,500 km or less, after 3 hours for 1,500 to 3,500 km, after 4 hours for more than 3,500 km. If the new departure is the next day, the client also gets a hotel night.",
+    "condition": "flight_status in ['on_time', 'delayed'] and (distance_km <= 1500 and departure_delay_min >= 120 or 1500 < distance_km <= 3500 and departure_delay_min >= 180 or distance_km > 3500 and departure_delay_min >= 240)",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-FLT-06",
+    "title": "Extraordinary causes",
+    "text": "Weather, air traffic control (air system) and security problems are extraordinary causes: no compensation is paid. The refund or the new flight still apply. The cause is read from the flight's recorded cause, never from what the client says.",
+    "condition": "cancellation_reason in ['weather', 'air_system', 'security'] or main_delay_cause in ['weather', 'air_system', 'security']",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-AST-01",
+    "title": "Special assistance",
+    "text": "Special assistance, for example a wheelchair, is free. The client must request it at least 48 hours before departure.",
+    "condition": "hours_before_departure >= 48",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-HOT-01",
+    "title": "Hotel booking without deposit",
+    "text": "With no deposit, the client pays at the hotel. Cancelling before arrival is free, and there is nothing to refund.",
+    "condition": "deposit_type == 'no_deposit' and status == 'cancelled' and days_before_arrival > 0",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-HOT-02",
+    "title": "Refundable deposit",
+    "text": "With a refundable deposit, the client gets a full refund if the booking is cancelled at least 2 days before arrival. After that there is no refund.",
+    "condition": "deposit_type == 'refundable' and status == 'cancelled' and days_before_arrival >= 2",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-HOT-03",
+    "title": "Non-refundable booking",
+    "text": "A non-refundable booking is not refunded after cancelling.",
+    "condition": "deposit_type == 'non_refundable' and status == 'cancelled'",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-HOT-04",
+    "title": "Room different from the one booked",
+    "text": "If the client stayed in a different room from the one booked, 20 % of the stay is refunded.",
+    "condition": "status == 'stayed' and room_changed",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-HOT-05",
+    "title": "No-show",
+    "text": "A client who does not arrive at the hotel gets no refund.",
+    "condition": "status == 'no_show'",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-REF-01",
+    "title": "Refund limit",
+    "text": "A refund can never be more than the amount paid minus what was already refunded. This limit is for refunds only: compensation is a fixed amount (rules AT-FLT-02 and AT-FLT-03).",
+    "condition": "amount <= paid_tnd - refunded_total",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-ESC-01",
+    "title": "Large amounts need finance approval",
+    "text": "Any refund or compensation above 300 TND must be approved by the Atlas Travel finance team (Layer 3) before it is paid. Do not promise the client such an amount; say that it needs approval.",
+    "condition": "amount > 300",
+    "ai_generated": true
+  }
+]
