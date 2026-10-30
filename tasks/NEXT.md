@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Status | WAITING FOR REVIEW |
+| Status | DONE |
 | Task file | tasks/T20_atlas_real_data.md (Atlas Travel company data on real datasets: Hotel Booking Demand + US DOT 2015 flights; rules AT-…) |
 | Approved by | Yassine — 2026-10-30 09:18 (18 build items + 14 rules + 3 choices, all ⭐) |
-| Last done | T19 — CallVerse Console, merged into main da597f3 (NEXT DONE 4580146, pushed); tests 510/510 |
+| Last done | T20 — reviewed by the Brain and merged into main 2026-10-30 (merge 6f75551): Atlas Travel company data on real datasets (hotels + flights), 14 rules AT-, profile, read functions; tests 640/640 |
 
 Before starting: main is at 4580146 or later, and Yassine has put the raw files in data/raw/atlas/ (hotel_bookings.csv, flights.csv, airlines.csv, airports.csv).
 
