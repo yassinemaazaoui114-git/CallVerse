@@ -26,7 +26,8 @@ a new message on it continues the same ticket. Each assistant message keeps how 
 
 T21: the same door for every company. The company comes from the app calling send(), never from the text. The identity
 check uses the company's data (at Atlas: the booking must be this user's), the pending guard is per company and booking,
-and the ticket keeps its company. Atlas has no app yet: tests and T21's live proof call send() directly.
+and the ticket keeps its company. T22: the Atlas Travel app calls send(company="atlas"), and its "Ask about this booking"
+adds " (booking N)" the same way as ShopNova's " (order N)".
 
 One message at a time (a lock): the pipeline has one trace and one set of local models; a demo has few users.
 """
@@ -147,11 +148,12 @@ def _not_users_order(order_id, user_id: int, company: str = companies.DEFAULT) -
     return "error" in order or order.get("user_id") != int(user_id)
 
 
-def with_order(text: str, about_order: int | None) -> str:
-    """F1: add " (order N)" when the user asks about order N but typed no order number; else the text as it is."""
-    if about_order is None or extract.extract(text)["order_id"] is not None:
+def with_order(text: str, about_order: int | None, company: str = companies.DEFAULT) -> str:
+    """F1: add " (order N)" when the user asks about order N but typed no order number; else the text as it is.
+    T22: at Atlas the word is "booking", and Atlas's words announce the number ("flight 7004")."""
+    if about_order is None or extract.extract(text, company)["order_id"] is not None:
         return text
-    return f"{text} (order {int(about_order)})"
+    return f"{text} ({'booking' if company == 'atlas' else 'order'} {int(about_order)})"
 
 
 def send(user_id: int, company: str, text: str, ticket_id: str | None = None, on_step=None,
@@ -163,7 +165,7 @@ def send(user_id: int, company: str, text: str, ticket_id: str | None = None, on
     chat_fn / slm_chat_fn: fake LLMs for the tests (as in pipeline.handle_ticket); None = the real models.
     """
     with _lock:
-        return _send(user_id, company, with_order(text, about_order), ticket_id, on_step, chat_fn, slm_chat_fn)
+        return _send(user_id, company, with_order(text, about_order, company), ticket_id, on_step, chat_fn, slm_chat_fn)
 
 
 def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> dict:

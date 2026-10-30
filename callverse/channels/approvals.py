@@ -27,6 +27,8 @@ The trace lines of a decision are saved as steps of the ticket (like the channel
 T21: the same queue for Atlas Travel (a refund above 1,500 TND, every compensation, rule AT-ESC-01). The approval says
 which company it is, and decide() takes Atlas's path: its re-check (atlas_coordinator.recheck: the amount is computed
 again from the rules) and its one transaction (atlas writes.admin_decide).
+T22: the Atlas app passes company="atlas": an approval of another company is "not found" for it. The Atlas admin log
+line is written in that same one transaction.
 """
 
 import threading
@@ -83,13 +85,15 @@ def _reply_ticket(ticket_id: str, order_id) -> dict:
             "style": intake.get("style"), "emotion": intake.get("emotion"), "sentiment": intake.get("sentiment")}
 
 
-def decide(approval_id: int, admin: str, approve: bool, reason: str | None = None, slm_chat_fn=None) -> dict:
+def decide(approval_id: int, admin: str, approve: bool, reason: str | None = None, slm_chat_fn=None,
+           company: str | None = None) -> dict:
     """The admin approves or refuses a pending refund (see the steps at the top of this file).
-    slm_chat_fn: a fake SLM for the tests (None = the real reply writer)."""
+    slm_chat_fn: a fake SLM for the tests (None = the real reply writer).
+    company: the admin's company, if given: another company's approval is not found (T22)."""
     reason = (reason or "").strip()
     with _lock:
         approval = store.get_approval(approval_id)
-        if approval is None:
+        if approval is None or company not in (None, approval["company"]):
             return {"error": f"approval {approval_id} not found"}
         if approval["status"] != "pending":
             return {"error": f"approval {approval_id} is already {approval['status']}"}

@@ -3,7 +3,9 @@
 Same ideas as ShopNova's schema (callverse/data/seed.py):
 - every table says where a row comes from: `source`, `source_id`, `ai_generated`, `scripted`;
 - the allowed codes below are also enforced by CHECK constraints, so a wrong code cannot be stored;
-- `proposals` has the same columns as ShopNova's; the Coordinator uses it since T21 (ids AP-0001, ...).
+- `proposals` has ShopNova's columns; the Coordinator uses it since T21 (ids AP-0001, ...). T22 adds the code's own
+  confirmation decision (CONFIRMATION_COLUMNS), next to the agent's flag `user_confirmed`, kept for the record;
+- `admin_actions`: T22, the same log as ShopNova's: who decided what, when, before / after.
 
 Atlas sells two things, so a refund points at a booking with two columns: `booking_type` + `booking_id`.
 """
@@ -29,6 +31,23 @@ EXTRAORDINARY_CAUSES = ("weather", "air_system", "security")
 SOURCE = f"""
     source    TEXT CHECK (source IS NULL OR source IN {_in(SOURCES)}),  -- NULL = written at run time
     source_id TEXT,                    -- id of the row in the real dataset, NULL otherwise"""
+
+# T22: db.py adds these two to an atlas.db made before T22 (name, SQL type).
+CONFIRMATION_COLUMNS = (("confirmed_by_code", "INTEGER CHECK (confirmed_by_code IN (0, 1))"),   # NULL = not checked
+                        ("confirmation_reason", "TEXT"))                                        # e.g. "negative sentence"
+
+ADMIN_ACTIONS = """
+CREATE TABLE IF NOT EXISTS admin_actions (  -- T22: every decision of the Atlas admin, same columns as ShopNova's
+    id           INTEGER PRIMARY KEY,
+    at           TEXT NOT NULL,        -- simulation clock, ISO
+    admin        TEXT NOT NULL,        -- the admin's username
+    action       TEXT NOT NULL,        -- e.g. "approve_compensation", "refuse_refund"
+    target_table TEXT NOT NULL,        -- e.g. "compensations"
+    target_id    TEXT NOT NULL,        -- the changed row's id
+    before       TEXT,                 -- JSON of the row before (NULL for a new row)
+    after        TEXT                  -- JSON of the row after
+);
+"""
 
 SCHEMA = f"""
 CREATE TABLE users (
@@ -129,9 +148,11 @@ CREATE TABLE proposals (               -- same columns as ShopNova's; empty at s
     decision        TEXT CHECK (decision IS NULL OR decision IN {_in(DECISIONS)}),
     decision_reason TEXT,
     created_at      TEXT NOT NULL,
-    decided_at      TEXT,{LABELS}
+    decided_at      TEXT,{LABELS},
+    {', '.join(f"{name} {kind}" for name, kind in CONFIRMATION_COLUMNS)}
 );
+{ADMIN_ACTIONS}
 """
 
 TABLES = ("users", "hotels", "hotel_bookings", "flights", "flight_bookings", "refunds", "compensations",
-          "assistance_requests", "proposals")
+          "assistance_requests", "proposals", "admin_actions")

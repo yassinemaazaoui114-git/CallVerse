@@ -15,7 +15,8 @@ has three possible actions: refund, compensation, cancel_hotel. review() checks,
      A hotel cancellation: the booking is confirmed, arrival is after today, and the rule is the one of its deposit;
   4. the AMOUNT IS COMPUTED BY THIS FILE from the rules (below), then AT-REF-01 (refund limit) is always checked,
      a compensation is paid once per booking, and AT-FLT-06 (extraordinary cause) blocks a compensation;
-  5. the client confirmed, else ask the client. Decided by THIS file (client_confirmed), not by the agent's flag;
+  5. the client confirmed, else ask the client. Decided by THIS file (confirmation), not by the agent's flag;
+     T22: the decision and its reason are stored on the proposal, next to the agent's flag;
   6. finance: AT-ESC-01 (a refund above 1,500 TND, and every compensation);
   7. approve, then (only then) callverse/data/atlas/writes.py writes.
 
@@ -191,20 +192,31 @@ def _name(action) -> str:
     return "compensation" if action == "compensation" else "refund"
 
 
-def client_confirmed(proposal: dict, case: dict) -> bool:
-    """True when Intake's main reason says the client asks for money or a cancellation AND the agent's user_quote is
-    really in the client's message (upper / lower case and outer spaces do not count), in a sentence that is not
-    negative (quoted_sentence). An empty quote confirms nothing.
+def confirmation(proposal: dict, case: dict) -> tuple[bool, str]:
+    """(confirmed, short reason). True when Intake's main reason says the client asks for money or a cancellation AND
+    the agent's user_quote is really in the client's message (upper / lower case and outer spaces do not count), in a
+    sentence that is not negative (quoted_sentence). An empty quote confirms nothing.
 
     Why code and not the agent's user_confirmed? In T21's live proof the model said false on "please refund me" while
     quoting those very words. Both checks read what Intake and the client gave, not what the model concluded.
     Why the negative words? The matcher reads "Please do not cancel my booking" as a cancellation, by meaning.
     """
-    quote = proposal.get("user_quote")
-    if case.get("main_reason") not in CONFIRMING_REASONS or not isinstance(quote, str) or not quote.strip():
-        return False
+    quote, reason = proposal.get("user_quote"), case.get("main_reason")
+    if reason not in CONFIRMING_REASONS:
+        return False, "the message asks for no action"
+    if not isinstance(quote, str) or not quote.strip():
+        return False, "no quote"
     sentence = quoted_sentence(quote.strip().lower(), (case.get("user_message") or "").lower())
-    return sentence is not None and NEGATIVE_WORDS.search(sentence.replace("’", "'")) is None
+    if sentence is None:
+        return False, "quote not in the message"
+    if NEGATIVE_WORDS.search(sentence.replace("’", "'")):
+        return False, "negative sentence"
+    return True, f"{reason.replace('_', ' ')} + quote found"
+
+
+def client_confirmed(proposal: dict, case: dict) -> bool:
+    """Only the yes or no of confirmation()."""
+    return confirmation(proposal, case)[0]
 
 
 def quoted_sentence(quote: str, message: str) -> str | None:
@@ -420,7 +432,9 @@ def review(proposal: dict, case: dict) -> dict:
         return done("refused", stored["error"])
 
     # 5. The client must have asked for it.
-    if not _check("user_confirmed", client_confirmed(proposal, case), None,
+    confirmed, confirm_reason = confirmation(proposal, case)
+    writes.set_proposal_confirmation(proposal_id, confirmed, confirm_reason)
+    if not _check("user_confirmed", confirmed, None,
                   {"user_quote": proposal.get("user_quote"), "main_reason": case.get("main_reason"),
                    "agent_said": proposal.get("user_confirmed")}, "a request reason + the quote is in the message, not negative"):
         return done("ask_user", "the client has not confirmed the request yet")

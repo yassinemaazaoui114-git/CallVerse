@@ -1,6 +1,7 @@
-# Create two Desktop shortcuts (the project root's .bat files). Run it once yourself:
+# Create three Desktop shortcuts (the project root's .bat files). Run it once yourself:
 #   "ShopNova"          -> ShopNova.bat  (the company's app, http://127.0.0.1:8501)
 #   "CallVerse Console" -> Console.bat   (the center's read-only screen, http://127.0.0.1:8502; T19)
+#   "Atlas Travel"      -> Atlas.bat     (the second company's app, http://127.0.0.1:8503; T22)
 #
 #   powershell -ExecutionPolicy Bypass -File .\scripts\make_desktop_shortcut.ps1
 #
@@ -26,6 +27,7 @@ function New-Shortcut($name, $bat, $description, $icon) {
     Write-Host "Shortcut created: $link"
 }
 
-# Standard Windows icons: a globe for ShopNova, a monitor for the Console.
+# Standard Windows icons: a globe for ShopNova, a monitor for the Console, a star for Atlas Travel.
 New-Shortcut "ShopNova" "ShopNova.bat" "Start the ShopNova app (http://127.0.0.1:8501)" "$env:SystemRoot\System32\shell32.dll,14"
 New-Shortcut "CallVerse Console" "Console.bat" "Start the CallVerse Console (http://127.0.0.1:8502)" "$env:SystemRoot\System32\shell32.dll,15"
+New-Shortcut "Atlas Travel" "Atlas.bat" "Start the Atlas Travel app (http://127.0.0.1:8503)" "$env:SystemRoot\System32\shell32.dll,43"

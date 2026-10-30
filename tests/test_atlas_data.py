@@ -63,19 +63,20 @@ def test_all_tables_exist():
     assert names == set(schema.TABLES)
 
 
-@pytest.mark.parametrize("table", [t for t in schema.TABLES if t != "proposals"])
+@pytest.mark.parametrize("table", [t for t in schema.TABLES if t not in ("proposals", "admin_actions")])
 def test_every_table_has_the_labels(table):
     columns = {r[1] for r in _q(f"PRAGMA table_info({table})")}
     assert {"source", "source_id", "ai_generated", "scripted"} <= columns
 
 
-def test_proposals_have_the_same_columns_as_shopnova():
+def test_proposals_have_shopnova_columns_plus_the_code_confirmation():
     con = sqlite3.connect(":memory:")
     from callverse.data.seed import SCHEMA as SHOPNOVA_SCHEMA
     con.executescript(SHOPNOVA_SCHEMA)
     shopnova = [r[1] for r in con.execute("PRAGMA table_info(proposals)")]
     con.close()
-    assert [r[1] for r in _q("PRAGMA table_info(proposals)")] == shopnova
+    added = [name for name, _ in schema.CONFIRMATION_COLUMNS]
+    assert [r[1] for r in _q("PRAGMA table_info(proposals)")] == shopnova + added
 
 
 @pytest.mark.parametrize("table, column, allowed", [

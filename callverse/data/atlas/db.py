@@ -2,10 +2,15 @@
 
 Normally that is callverse/data/atlas.db. The tests call use_db(<temporary file>) first,
 so they never touch the real database.
+
+T22: an atlas.db made before T22 keeps working: connect() adds what is missing (the admin log, the two confirmation
+columns of the proposals), and never changes a row.
 """
 
 import sqlite3
 from pathlib import Path
+
+from callverse.data.atlas.schema import ADMIN_ACTIONS, CONFIRMATION_COLUMNS
 
 DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "atlas.db"
 
@@ -30,4 +35,10 @@ def connect() -> sqlite3.Connection:
         seed()
     con = sqlite3.connect(_db_path)
     con.row_factory = sqlite3.Row  # rows behave like dicts: row["name"]
+    con.executescript(ADMIN_ACTIONS)
+    columns = {r["name"] for r in con.execute("PRAGMA table_info(proposals)")}
+    for name, kind in CONFIRMATION_COLUMNS:
+        if name not in columns:
+            con.execute(f"ALTER TABLE proposals ADD COLUMN {name} {kind}")   # names from our own list only
+            con.commit()
     return con
