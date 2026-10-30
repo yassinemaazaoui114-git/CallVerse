@@ -71,6 +71,22 @@ Models in the app: Intake + Agent A + reply writer local, Agent B on Groq. The a
 code change, restart it** (close the window or Ctrl+C, then start again).
 Clean demo data: `python -m callverse.data.seed` and delete `callverse/data/callverse.db` (the tickets).
 
+**CallVerse Console** (the center's own screen, <http://127.0.0.1:8502>, this PC only; T19). Login: `supervisor`.
+- **Desktop shortcut**: the same `make_desktop_shortcut.ps1` also makes **CallVerse Console** (runs `Console.bat`).
+- Or double-click `Console.bat`, or run `.\start_console.ps1`. It loads **no model** (no Ollama needed).
+
+What is in it (read only: it opens `callverse.db` and `shopnova.db` in SQLite read-only mode, it never writes):
+**Live tickets** (every ticket of every company, newest first, filters, refreshed every 10 s; click a row),
+**Ticket detail** (the conversation, then per message how CallVerse worked: Intake → route → tools and rule
+searches → proposal → each Coordinator check ✅/❌ and the decision → Layer 3 → reply writer → writes; tokens by
+model and seconds), **Agents** (one card per agent: tickets, proposals, approved / sent back / escalated, errors,
+time, tokens, models) and **Dashboard** (tickets per day / company, % solved by the AI alone, % escalated, % sent to
+finance, reply time and late replies > 30 s, finance decisions and TND paid, review score, tokens per ticket, system
+tokens, Groq tokens used today out of 200,000). Times there are the computer's time (`*_real` columns, T19); the
+company rules keep the simulation clock. Only real tickets from the apps are shown: chat in ShopNova first.
+Dali's `/demo` page (platform server) is **replaced by the CallVerse Console**; its files will be removed after
+Dali's OK.
+
 **Platform server** (ShopNova's data and tools as a small web API, <http://127.0.0.1:8000>):
 `python scripts/run_platform_server.py` — read-only dashboard at `/`, all endpoints at `/docs`. Writes stay off
 unless `PLATFORM_COORDINATOR_TOKEN` is set. Details: [docs/platform_contract.md](docs/platform_contract.md) §8.
@@ -82,7 +98,7 @@ unless `PLATFORM_COORDINATOR_TOKEN` is set. Details: [docs/platform_contract.md]
 ## Run the tests
 
 ```powershell
-python -m pytest -q             # 477 tests, 1 to 1.5 minutes
+python -m pytest -q --ignore=tests/data   # 509 tests, about 2.5 minutes
 ```
 No API key, no API call and no Ollama needed: the tests use fake LLMs and a fresh copy of the database.
 `tests/data/` holds the held-out test sets: they are only for final evaluations, never for building or tuning.
@@ -91,7 +107,7 @@ No API key, no API call and no Ollama needed: the tests use fake LLMs and a fres
 
 ```
 README.md  CLAUDE.md  config.yaml  .env.example  requirements.txt  DATA_LICENCES.md
-ShopNova.bat  start_shopnova.ps1  start_demo.ps1
+ShopNova.bat  start_shopnova.ps1  Console.bat  start_console.ps1  start_demo.ps1
 callverse/          the code
   config.py llm.py trace.py   settings (config.yaml), the one shared LLM layer, the trace
   intake/             Intake: reasons, emotion, sentiment, priority, style
@@ -104,10 +120,12 @@ callverse/          the code
   notifier/           delivery notifications (story S3)
   data/               ShopNova data: seed, read views, the ONLY write functions (writes.py), clock, Layer 3
   tickets/ channels/  CallVerse's tickets database, the web chat channel, refund approvals
+  console/            the Console's read-only queries (reads.py: all its SQL)
   auth/               demo logins, roles and permissions
   server/             the platform server (FastAPI)
   simulator/          Client Simulator (planned)
 apps/shopnova/      the ShopNova Streamlit app (app.py, Home.py, pages/)
+apps/console/       the CallVerse Console Streamlit app (app.py, pages/: Live tickets, Ticket detail, Agents, Dashboard)
 config/             accounts.example.yaml (the real accounts.yaml is not in git)
 scripts/            runnable entry points
 tests/              pytest tests (tests/data: held-out sets)
@@ -152,6 +170,8 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
 - **T16** Agent B gets its own model setting (Groq), so refunds work while the rest runs locally.
 - **T17** ShopNova app, part 1: tickets, web chat channel, logins, Shop, My orders, Help chat.
 - **T18** ShopNova app, part 2: Admin dashboard, Manage, Refund approvals (the real Layer 3 queue).
+- **T19** CallVerse Console: Live tickets, Ticket detail, Agents, Dashboard (read only); computer-time columns and
+  reply seconds in `callverse.db`; new ticket status "Escalated"; replaces Dali's `/demo` page.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

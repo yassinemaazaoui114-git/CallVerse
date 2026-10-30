@@ -1,0 +1,20 @@
+# CallVerse Console (T19): the approved style (dark control room: navy / charcoal, teal accents) and localhost only.
+# Streamlit reads this file from the folder it is started in: start_console.ps1 starts it from apps/console/.
+[theme]
+base = "dark"
+primaryColor = "#2DD4BF"
+backgroundColor = "#0B1220"
+secondaryBackgroundColor = "#152033"
+textColor = "#E2E8F0"
+font = "sans serif"
+
+[server]
+address = "127.0.0.1"
+port = 8502
+headless = true
+# No file watcher (like ShopNova, T17 follow-up F2): after a code change, restart the Console.
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false
+serverAddress = "127.0.0.1"

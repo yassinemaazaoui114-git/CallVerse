@@ -15,12 +15,20 @@ Tables (docs/ui_design.md section 3):
 - system_tokens : tokens CallVerse spent for itself, not for a ticket (T17 follow-up Q5: the quota check's
               "Say OK." pings), so the Console can show them apart from the tokens per ticket.
 
+T19 (the Console): two clocks. The simulation clock does not move, so every ticket would have the same time.
+- created_at / updated_at / at = SIMULATION time: the company rules use it (the 3-day reopen window).
+- created_real / updated_real / at_real = the COMPUTER's time (local, ISO): the Console uses it for ages, tickets
+  per day, reply speed and "Groq tokens used today". messages.seconds = how long an assistant reply took.
+  Old rows (before T19) have NULL there; the Console shows "—" for them.
+- New status "Escalated": the Coordinator (or an error) passed the ticket to a human colleague.
+
 The ticket rule (T17 item 11), in ticket_for_message():
 - one chat = one ticket. "Solved" when the decision is final; "Waiting for user" when we asked something;
-- a new message on a Solved ticket within 3 days (simulation clock) reopens it ("Open");
+- a new message on a Solved ticket within 3 days (simulation clock) reopens it ("Open"); a new message on an
+  Escalated ticket continues it (like Open);
 - after 3 days, on a Closed ticket, or after "New chat" (no ticket id): a new ticket.
 
-All times come from the simulation clock (callverse/data/clock.py), never the computer clock.
+The rule times come from the simulation clock (callverse/data/clock.py); the *_real columns are only for the Console.
 The tests call use_db(<temporary file>) first, like callverse/data/db.py.
 """
 
@@ -35,7 +43,7 @@ from callverse.data import clock
 DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "data" / "callverse.db"
 _db_path = DEFAULT_DB_PATH
 
-STATUSES = ("New", "Open", "Waiting for user", "Waiting for finance", "Solved", "Closed")
+STATUSES = ("New", "Open", "Waiting for user", "Waiting for finance", "Escalated", "Solved", "Closed")   # T19: Escalated
 SENDERS = ("user", "assistant", "system")
 APPROVAL_STATUSES = ("pending", "approved", "refused")
 REOPEN_DAYS = 3   # a Solved ticket can be reopened for 3 days (simulation clock), then a new ticket starts
@@ -48,8 +56,10 @@ def _in(values) -> str:
     return "(" + ", ".join(f"'{v}'" for v in values) + ")"
 
 
-SCHEMA = f"""
-CREATE TABLE IF NOT EXISTS tickets (
+# The tickets table alone ({name} = the table name): connect() also uses it to rebuild an old tickets table
+# whose status check does not know "Escalated" yet (SQLite cannot change a CHECK in place).
+TICKETS_TABLE = f"""
+CREATE TABLE IF NOT EXISTS {{name}} (
     id          TEXT PRIMARY KEY,            -- "T-0001", "T-0002", ...
     company     TEXT NOT NULL,               -- e.g. "shopnova"
     user_id     INTEGER NOT NULL,            -- the company's user id (users.id in shopnova.db)
@@ -60,14 +70,21 @@ CREATE TABLE IF NOT EXISTS tickets (
     created_at  TEXT NOT NULL,               -- simulation time, ISO
     updated_at  TEXT NOT NULL,
     closed_at   TEXT,
-    user_unread INTEGER NOT NULL DEFAULT 0       -- T18: 1 = a reply the user has not opened yet (e.g. finance's)
+    user_unread INTEGER NOT NULL DEFAULT 0,      -- T18: 1 = a reply the user has not opened yet (e.g. finance's)
+    created_real TEXT,                       -- T19: the computer's time (local ISO), for the Console
+    updated_real TEXT
 );
+"""
+
+SCHEMA = TICKETS_TABLE.format(name="tickets") + f"""
 CREATE TABLE IF NOT EXISTS messages (
     id        INTEGER PRIMARY KEY,
     ticket_id TEXT NOT NULL REFERENCES tickets(id),
     sender    TEXT NOT NULL CHECK (sender IN {_in(SENDERS)}),
     text      TEXT NOT NULL,
-    at        TEXT NOT NULL
+    at        TEXT NOT NULL,
+    at_real   TEXT,                                -- T19: the computer's time
+    seconds   REAL                                 -- T19: assistant messages: how long the reply took
 );
 CREATE TABLE IF NOT EXISTS steps (
     id         INTEGER PRIMARY KEY,
@@ -76,7 +93,8 @@ CREATE TABLE IF NOT EXISTS steps (
     step       TEXT NOT NULL,                     -- intake / route / tool_call / ... (web_chat.STEP_KINDS)
     agent      TEXT,                              -- who did it: intake, A, B, coordinator, slm, ...
     data       TEXT NOT NULL,                     -- JSON: the trace data of that step
-    at         TEXT NOT NULL
+    at         TEXT NOT NULL,
+    at_real    TEXT                               -- T19: the computer's time (Groq tokens used today)
 );
 CREATE TABLE IF NOT EXISTS approvals (
     id          INTEGER PRIMARY KEY,
@@ -95,7 +113,8 @@ CREATE TABLE IF NOT EXISTS system_tokens (
     provider TEXT,
     model    TEXT,
     tokens   INTEGER NOT NULL,
-    at       TEXT NOT NULL
+    at       TEXT NOT NULL,
+    at_real  TEXT                        -- T19: the computer's time (Groq tokens used today)
 );
 """
 
@@ -117,10 +136,45 @@ def connect() -> sqlite3.Connection:
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
     # T18: a callverse.db made before T18 has no user_unread column: add it, so the old file keeps working.
-    if "user_unread" not in {r["name"] for r in con.execute("PRAGMA table_info(tickets)")}:
+    if "user_unread" not in _columns(con, "tickets"):
         con.execute("ALTER TABLE tickets ADD COLUMN user_unread INTEGER NOT NULL DEFAULT 0")
         con.commit()
+    # T19: the same for the computer-time columns and the reply seconds (old rows keep NULL there).
+    for table, column, kind in NEW_COLUMNS:
+        if column not in _columns(con, table):
+            con.execute(f"ALTER TABLE {table} ADD COLUMN {column} {kind}")   # names from NEW_COLUMNS only
+            con.commit()
+    _allow_escalated(con)
     return con
+
+
+# T19: columns added to a callverse.db made before T19: (table, column, type).
+NEW_COLUMNS = [("tickets", "created_real", "TEXT"), ("tickets", "updated_real", "TEXT"),
+               ("messages", "at_real", "TEXT"), ("messages", "seconds", "REAL"),
+               ("steps", "at_real", "TEXT"), ("system_tokens", "at_real", "TEXT")]
+
+
+def _columns(con: sqlite3.Connection, table: str) -> set[str]:
+    return {r["name"] for r in con.execute(f"PRAGMA table_info({table})")}
+
+
+def _allow_escalated(con: sqlite3.Connection) -> None:
+    """T19: an old tickets table's status check does not know "Escalated". SQLite cannot change a CHECK, so the
+    table is rebuilt the way SQLite's documentation says: new table, copy all rows, drop the old one, rename.
+    The other tables keep pointing at "tickets" (same name, same ids). Done once; nothing is lost."""
+    sql = con.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'tickets'").fetchone()[0]
+    if "'Escalated'" in sql:
+        return
+    columns = ", ".join(sorted(_columns(con, "tickets")))   # all old columns exist in the new table too
+    con.execute("PRAGMA foreign_keys = OFF")
+    con.executescript("BEGIN;" + TICKETS_TABLE.format(name="tickets_new") + ";"
+                      f"INSERT INTO tickets_new ({columns}) SELECT {columns} FROM tickets;"
+                      "DROP TABLE tickets; ALTER TABLE tickets_new RENAME TO tickets; COMMIT;")
+
+
+def real_now() -> str:
+    """T19: the COMPUTER's time (local, ISO, seconds), for the Console only. The rules use now() below."""
+    return datetime.now().isoformat(timespec="seconds")
 
 
 def now() -> str:
@@ -135,8 +189,10 @@ def create_ticket(company: str, user_id: int) -> dict:
         con.execute("BEGIN IMMEDIATE")   # two chats at the same moment cannot take the same number
         count = con.execute("SELECT COUNT(*) FROM tickets").fetchone()[0]
         ticket_id = f"T-{count + 1:04d}"
-        con.execute("INSERT INTO tickets (id, company, user_id, status, created_at, updated_at)"
-                    " VALUES (?, ?, ?, 'New', ?, ?)", (ticket_id, company, int(user_id), at, at))
+        real = real_now()
+        con.execute("INSERT INTO tickets (id, company, user_id, status, created_at, updated_at, created_real,"
+                    " updated_real) VALUES (?, ?, ?, 'New', ?, ?, ?, ?)",
+                    (ticket_id, company, int(user_id), at, at, real, real))
         con.commit()
     return get_ticket(ticket_id)
 
@@ -148,13 +204,15 @@ def get_ticket(ticket_id: str) -> dict | None:
 
 
 def update_ticket(ticket_id: str, **fields) -> dict:
-    """Change status / main_reason / priority / lead_agent; updated_at is set; closed_at when it becomes Closed."""
+    """Change status / main_reason / priority / lead_agent; updated_at (and updated_real) are set; closed_at when
+    it becomes Closed."""
     unknown = set(fields) - set(UPDATABLE)
     if unknown:
         raise ValueError(f"cannot update {sorted(unknown)} (allowed: {', '.join(UPDATABLE)})")
     if "status" in fields and fields["status"] not in STATUSES:
         raise ValueError(f"unknown status '{fields['status']}' (allowed: {', '.join(STATUSES)})")
     fields["updated_at"] = now()
+    fields["updated_real"] = real_now()
     if fields.get("status") == "Closed":
         fields["closed_at"] = fields["updated_at"]
     sets = ", ".join(f"{name} = ?" for name in fields)   # names come from UPDATABLE above, never from a client
@@ -164,13 +222,14 @@ def update_ticket(ticket_id: str, **fields) -> dict:
     return get_ticket(ticket_id)
 
 
-def add_message(ticket_id: str, sender: str, text: str) -> int:
-    """Save one message of the conversation and return its id."""
+def add_message(ticket_id: str, sender: str, text: str, seconds: float | None = None) -> int:
+    """Save one message of the conversation and return its id.
+    seconds (T19): for an assistant message, how long the reply took (None = not measured)."""
     if sender not in SENDERS:
         raise ValueError(f"unknown sender '{sender}' (allowed: {', '.join(SENDERS)})")
     with closing(connect()) as con:
-        cur = con.execute("INSERT INTO messages (ticket_id, sender, text, at) VALUES (?, ?, ?, ?)",
-                          (str(ticket_id), sender, text, now()))
+        cur = con.execute("INSERT INTO messages (ticket_id, sender, text, at, at_real, seconds) VALUES (?, ?, ?, ?, ?, ?)",
+                          (str(ticket_id), sender, text, now(), real_now(), seconds))
         con.commit()
     return cur.lastrowid
 
@@ -178,9 +237,10 @@ def add_message(ticket_id: str, sender: str, text: str) -> int:
 def add_step(ticket_id: str, message_id: int | None, step: str, agent: str | None, data: dict) -> int:
     """Save one step of how CallVerse handled a message (data = the trace data, as JSON)."""
     with closing(connect()) as con:
-        cur = con.execute("INSERT INTO steps (ticket_id, message_id, step, agent, data, at) VALUES (?, ?, ?, ?, ?, ?)",
+        cur = con.execute("INSERT INTO steps (ticket_id, message_id, step, agent, data, at, at_real)"
+                          " VALUES (?, ?, ?, ?, ?, ?, ?)",
                           (str(ticket_id), message_id, step, agent,
-                           json.dumps(data, ensure_ascii=False, default=str), now()))
+                           json.dumps(data, ensure_ascii=False, default=str), now(), real_now()))
         con.commit()
     return cur.lastrowid
 
@@ -188,8 +248,8 @@ def add_step(ticket_id: str, message_id: int | None, step: str, agent: str | Non
 def add_system_tokens(purpose: str, provider: str | None, model: str | None, tokens: int) -> int:
     """Save tokens spent outside any ticket (e.g. the quota check) and return the row id."""
     with closing(connect()) as con:
-        cur = con.execute("INSERT INTO system_tokens (purpose, provider, model, tokens, at) VALUES (?, ?, ?, ?, ?)",
-                          (purpose, provider, model, int(tokens), now()))
+        cur = con.execute("INSERT INTO system_tokens (purpose, provider, model, tokens, at, at_real)"
+                          " VALUES (?, ?, ?, ?, ?, ?)", (purpose, provider, model, int(tokens), now(), real_now()))
         con.commit()
     return cur.lastrowid
 

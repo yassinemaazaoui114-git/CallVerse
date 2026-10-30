@@ -21,6 +21,8 @@ T18 (real Layer 3 queue, layer3 mode "queue"): on the Coordinator's "layer3_pend
 Duplicate guard: if the message's order (the user's own) already has a PENDING approval, the user is told it is
 still with finance and NO agent runs (step "approval_pending"); checked before the quota check (T18 follow-up).
 It never crashes: any error gives the pipeline's own "extra check" (escalate) reply and an error step.
+T19: an escalate outcome (the Coordinator's or an error's) sets the ticket to "Escalated" (a human colleague looks);
+a new message on it continues the same ticket. Each assistant message keeps how long the reply took (seconds).
 
 One message at a time (a lock): the pipeline has one trace and one set of local models; a demo has few users.
 """
@@ -42,9 +44,9 @@ ALREADY_PENDING_REPLY = ("Your refund request for order {order_id} is already wi
 QUOTA_CACHE_SECONDS = 300   # B's quota is checked at most once per 5 minutes (one tiny Groq call)
 
 # Decision outcome -> ticket status (item 11). Final decisions solve the ticket; a question waits for the user.
-# escalate: a human colleague must look, so the ticket stays Open.
+# escalate: a human colleague must look, so the ticket is "Escalated" (T19; it was Open before).
 STATUS_BY_OUTCOME = {"approve": "Solved", "info": "Solved", "layer3_refused": "Solved",
-                     "ask_user": "Waiting for user", "ask_proof": "Waiting for user", "escalate": "Open",
+                     "ask_user": "Waiting for user", "ask_proof": "Waiting for user", "escalate": "Escalated",
                      "layer3_pending": "Waiting for finance"}   # T18
 
 # Trace step -> kind of step saved in the tickets store (docs/ui_design.md section 3; "llm" added for the
@@ -179,11 +181,11 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
 
     def finish(reply, status, outcome, source, **fields):
         flush()
-        store.add_message(tid, "assistant", reply)
+        seconds = round(time.perf_counter() - start, 2)   # T19: saved with the reply (the Console's reply time)
+        store.add_message(tid, "assistant", reply, seconds=seconds)
         updated = store.update_ticket(tid, status=status, **fields)
         return {"ticket_id": tid, "status": updated["status"], "reply": reply, "outcome": outcome,
-                "reply_source": source, "steps": len(store.steps(tid)),
-                "seconds": round(time.perf_counter() - start, 2)}
+                "reply_source": source, "steps": len(store.steps(tid)), "seconds": seconds}
 
     def already_pending(order_id, **fields):
         """T18 duplicate guard: this order's refund already waits for finance -> the fixed reply, no agent call.
@@ -249,7 +251,7 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
             reason = f"error in the channel: {type(e).__name__}: {e}"
             channel_step("error", {"error": reason})
             reply = _escalate_reply(intake_ticket or {"ticket_id": tid, "order_id": None}, reason, slm_chat_fn)
-            return finish(reply, "Open", "escalate", "channel")
+            return finish(reply, STATUS_BY_OUTCOME["escalate"], "escalate", "channel")
 
         outcome = out["decision"]["outcome"]
         lead = "B" if out["handover"] == "B" else out["route"]["agent"]

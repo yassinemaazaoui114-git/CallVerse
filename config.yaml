@@ -191,3 +191,12 @@ slm:
 # runs the real pipeline and can reset the demo data, so it is OFF by default: turn it on only for a live demo.
 server:
   demo_enabled: false
+
+# CallVerse Console (T19, apps/console, port 8502, read only). The companies listed here are always shown in its
+# filters, even before their first ticket (Atlas is added here later); companies found in callverse.db are added.
+# late_reply_s: a reply slower than this counts as "late" on the Dashboard. groq_daily_tokens: the free daily quota
+# shown as "Groq tokens used today" (the Console only shows it; it never stops anything).
+console:
+  companies: [shopnova]
+  late_reply_s: 30
+  groq_daily_tokens: 200000

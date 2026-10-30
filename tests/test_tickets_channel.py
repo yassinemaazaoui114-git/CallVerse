@@ -239,7 +239,7 @@ def test_any_error_gives_the_escalate_reply_and_an_error_step(monkeypatch):
         raise RuntimeError("database locked")
     monkeypatch.setattr(web_chat.pipeline, "handle_ticket", boom)
     out = web_chat.send(1, "shopnova", "Where is my order 4512?", chat_fn=no_llm)
-    assert out["outcome"] == "escalate" and out["status"] == "Open"
+    assert out["outcome"] == "escalate" and out["status"] == "Escalated"
     assert "passed on for review" in out["reply"]
     assert store.steps(out["ticket_id"])[-1]["step"] == "error"
 

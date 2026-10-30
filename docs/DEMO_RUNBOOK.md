@@ -1,5 +1,7 @@
 # CallVerse — demo day runbook (Yassine's PC)
 
+> **T19 (2026-10-30): the `/demo` page is replaced by the CallVerse Console** (`Console.bat`, http://127.0.0.1:8502, see README). Its files will be removed after Dali's OK; until then this runbook still works as written.
+
 Everything runs on this PC: the local ShopNova server, the demo page, the local reply model (Ollama).
 The agents use the free Groq models (backup chain: gpt-oss-120b → gpt-oss-20b → Gemini Flash).
 No key is written in this file: keys stay in `.env` (never shown, never committed).
