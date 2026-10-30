@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | READY |
+| Status | IN PROGRESS |
 | Task file | tasks/T23_m3_benchmark.md (benchmark M3 embeddings: Intake reasons for ShopNova + Atlas, rule search dense / BM25 / hybrid / reranker; choose on val, locked test once) |
 | Approved by | Yassine — 2026-10-30 22:19 (15 items, all ⭐) |
 | Last done | T22 — Atlas Travel app, merged into main 1ffca14 (NEXT DONE ea52210, pushed); tests 1043/1043 |

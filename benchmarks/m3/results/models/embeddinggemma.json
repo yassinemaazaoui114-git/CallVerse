@@ -1,0 +1,7 @@
+{
+ "key": "embeddinggemma",
+ "name": "google/embeddinggemma-300m",
+ "revision": "57c266a740f537b4dc058e1b0cda161fd15afa75",
+ "licence": "Gemma terms of use (gated: Hugging Face login + accepting the licence)",
+ "skipped": "GatedRepoError: 401 Client Error. (Request ID: Root=1-6ae51ab7-5d55822c42ef694e56e8447a;dae3df98-6a41-4afe-9ff5-00b18ee4c15d)\n\nCannot access gated repo for url https://huggingface.co/google/embeddinggemma-300m/resolve/57c266a740f537b4dc058e1b0cda161fd15afa75/modules.json.\nAccess to model google/embeddinggemma-300m "
+}
