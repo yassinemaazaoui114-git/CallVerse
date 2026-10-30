@@ -43,6 +43,7 @@ This repo is the **prototype** for the next validation. The teacher grades **arc
 5. Do only the current task. No extra features, no architecture changes, no new libraries unless the task allows them.
 6. Respect the task's **time box**; when it runs out, stop and report what is done and what is left.
 7. Keep all tests passing. Explain new files in simple words.
+8. At the end of every task, update README.md with what changed (only what is necessary).
 
 ## Git and branches
 - `main` must always work (tests pass, demo runs). It only changes through a reviewed merge.

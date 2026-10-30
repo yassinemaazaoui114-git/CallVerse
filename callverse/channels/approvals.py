@@ -21,10 +21,12 @@ ticket to "Waiting for finance". The Refund approvals page then calls decide():
    reply writer as every other reply) in the style Intake saved in the ticket's steps (neutral if missing).
    The admin's reason is NEVER given to the SLM: it is only stored (approval row, proposal, admin log);
 6. the ticket becomes Solved with user_unread = 1 (the "New reply" notice).
+T19: the new assistant message keeps how long the decision took (seconds, from the click to the written reply).
 The trace lines of a decision are saved as steps of the ticket (like the channel does), for the Console.
 """
 
 import threading
+import time
 
 from callverse import pipeline, trace
 from callverse.channels.web_chat import step_row
@@ -109,6 +111,7 @@ def decide(approval_id: int, admin: str, approve: bool, reason: str | None = Non
 
 
 def _decide(approval: dict, proposal: dict, admin: str, approve: bool, reason: str, slm_chat_fn) -> dict:
+    start = time.perf_counter()   # T19: the reply's seconds (re-check + write + reply writer)
     order_id, rule_id, pid = approval["order_id"], proposal["rule_id"], proposal["id"]
     if approve:
         facts, problem = recheck(proposal)
@@ -139,7 +142,7 @@ def _decide(approval: dict, proposal: dict, admin: str, approve: bool, reason: s
     trace.log("layer3_decision", "layer3", {**decision, "approval_id": approval["id"], "admin": admin,
                                             "by": "ShopNova admin"})
     _, reply, source = pipeline.final_reply(_reply_ticket(approval["ticket_id"], order_id), decision, slm_chat_fn)
-    store.add_message(approval["ticket_id"], "assistant", reply)
+    store.add_message(approval["ticket_id"], "assistant", reply, seconds=round(time.perf_counter() - start, 2))
     store.update_ticket(approval["ticket_id"], status="Solved")
     store.set_unread(approval["ticket_id"], True)
     return {"approval": store.get_approval(approval["id"]), "outcome": outcome, "reply": reply,
