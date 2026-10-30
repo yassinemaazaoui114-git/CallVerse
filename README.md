@@ -167,7 +167,7 @@ The built sample is committed, so only the second command is needed, and the tes
 
 What works for Atlas (T21): 8 reasons of its own, booking status and delay questions (Agent A), refunds, compensation
 and hotel cancellation (Agent B). The company comes from the channel, never from the text. Agents propose without any
-amount: the Coordinator computes it from the rules. A refund above 1,500 TND and every compensation wait for finance
+amount: the Coordinator computes it from the rules, and it decides by code whether the client asked. A refund above 1,500 TND and every compensation wait for finance
 (`approvals.decide`); rebooking and special assistance go straight to a colleague until agent C exists.
 To try it (Ollama running, `CALLVERSE_AGENTS_SET=local`, `CALLVERSE_LAYER3_MODE=queue`):
 ```python

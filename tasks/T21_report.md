@@ -139,3 +139,50 @@ Decide questions 1 and 2, apply them as a short follow-up with a live re-check o
 
 **For Yassine, to tell Dali:** companies registry (`callverse/companies.py`), approvals columns `company` / `booking_type` /
 `action`, Atlas bookings 7011–7012, AT-ESC-01 now 1,500 TND + every compensation.
+
+---
+
+# Follow-up after the Brain's review (approved by Yassine, 2026-10-30)
+
+## In plain words
+The two misses are fixed and both messages now get the right result live: a04 pays 690.00 and a08 pays 72.00. At Atlas, code now decides whether the client asked, not the model. When an agent cites a rule under the wrong tool, the Coordinator now names the right tool. The Console's money totals now include Atlas, per company. The new confirmation rule has one real risk (a sentence saying "do not cancel"), described below.
+
+## Done
+1. **Confirmation by code, Atlas only:** `client_confirmed` in `callverse/coordinator/atlas_coordinator.py`. Confirmed = Intake's main reason is refund_request, compensation_request or cancellation, AND the agent's `user_quote` is in the client's message (case-insensitive, outer spaces trimmed). The pipeline gives the Coordinator the ticket's own text, so a quote of the Intake note does not count. An empty or non-text quote confirms nothing.
+2. **Send-back hint:** `wrong_rule_reason` gives e.g. "AT-HOT-04 justifies a refund: use propose_refund". A rule of two actions names both (AT-HOT-02). A rule of no action keeps the old text.
+3. **Console:** `reads.dashboard` gives refunds and compensation per company (`money_per_company`), and the top totals add them up. A row counts only for its own company. The Dashboard has a "Compensation paid" number and a "Money per company" table. `atlas.db` is opened read-only.
+4. **Approved, nothing to build:** question 3's choices and the 6 changed tests. Atlas `admin_actions` comes in T22.
+
+## Evidence
+**Tests: 912/912** (`pytest tests --ignore=tests/data`, 99.5 s, 0 API calls, after the final cleanup), 38 more than before. Code commit: **5abce5a**.
+
+**Live re-check** (each on a fresh `atlas.db`, queue mode, Agent B on Groq; trace `traces/t21_recheck.jsonl`):
+
+| Id | Outcome | Writes | Reply | Groq tokens | Seconds |
+|---|---|---|---|---|---|
+| a04 | approve | refund 7008, 690.00, AT-FLT-01 | I'm sorry for the trouble. Your refund of 690.00 TND for booking 7008 is approved. | 6,665 | 7.1 |
+| a08 | approve | refund 7003, 72.00, AT-HOT-04 (1 send-back) | I'm sorry for the trouble. Your refund of 72.00 TND for booking 7003 is approved. | 7,937 | 7.2 |
+
+Groq total **14,699** (14,602 + 97 for one quota check), `gpt-oss-120b` only, Gemini 0, no limit hit. Both databases reseeded, `callverse.db` deleted.
+
+**What this live run proves, and what it does not:**
+- **a08** proves both fixes together: the model first chose compensation, the hint moved it to `propose_refund`, and the model still said `user_confirmed: false`, so only the code confirmed it.
+- **a04** did not test the new rule live: this time the model said `true` by itself. The case "agent says false, code confirms" on a04's own message is covered by the offline test `test_the_client_was_not_asked_again_on_a_clear_request`.
+- Only a04 and a08 were re-run. Replaying the rule on the 6 real proposals of the first live run gives "confirmed" for all 6, so no earlier pass should turn into a question, but the other 10 messages were not run live again.
+
+## Decisions I made
+- **Read literally: the agent's `user_confirmed` no longer counts at all.** The agent's `true` is not enough either: if the two conditions fail, the client is asked. This is the safer reading.
+- **Behaviour change from that reading:** a handover from A to B with a reason like booking_status now asks the client instead of paying. `test_a_handover_from_a_to_b_stays_at_atlas` was changed for this, and `test_an_unconfirmed_request_asks_the_client` was rewritten.
+- **Test helpers changed:** the fake agents now quote the client's real words, as the real agent does, and hand-made cases carry a main reason and a message.
+
+## Problems
+- **Risk, a negative sentence can confirm:** "Please do not cancel my booking 7011." gets main reason `cancellation` (checked offline, no agent run), and "Do not refund booking 7008, I don't want my money back." gets it too. If the agent wrongly proposed and quoted that sentence, the code would confirm it, and the agent's own `false` no longer blocks it. The agent would have to go wrong first, and no such case was seen, but a hotel cancellation cannot be undone by the client.
+- **A plain "yes" cannot confirm:** "Yes, go ahead for booking 7008." gets `booking_status`, so the client is asked again; "yes" alone has no reason and no booking. A client must repeat the request. Fewer questions are asked now, so this should be rare.
+- **Two places still show the agent's flag:** the `proposals` table (a08's approved refund has `user_confirmed` = 0) and the Console's proposal line ("client confirmed: False"), next to a passing check. Not changed: outside this follow-up.
+
+## Questions for the Brain
+1. Should a negative sentence block the confirmation at Atlas? My recommendation: yes, with a small code check for "do not", "don't", "never" in the quoted sentence, at least for cancellations. It would have its own tests and live check.
+2. Should the Atlas proposal row and the Console line show the code's decision? My recommendation: yes, in T22 with `admin_actions`.
+
+## Next step
+Decide question 1 before merging, then review and merge `feature/t21-routing-by-company`.
