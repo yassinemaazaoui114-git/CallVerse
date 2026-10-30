@@ -3,9 +3,28 @@
 ## In plain words
 Atlas Travel, our second company, now has its own data. It holds 2,000 real hotel bookings and 2,000 real flights,
 moved to 2026 and priced in dinars. It also has generated Tunisian clients, 10 hand-written demo cases and 14 rules.
-Nothing uses this data yet: no app, no agent, no routing, and ShopNova is unchanged. Two results need a decision: the
-refund step produced **0 refunds**, because every real case is either not allowed or above 300 TND, and the 20 % room
-rule can't pay anything on real bookings, because those clients are recorded as having paid 0.
+Nothing uses this data yet: no app, no agent, no routing, and ShopNova is unchanged. The refund step produced
+**0 refunds**, because every real case is either not allowed or above 300 TND; the Brain kept that as it is. After
+the review, a finished no-deposit stay now counts as paid at the hotel, so the 20 % room rule can pay on real bookings.
+
+## Follow-up after the Brain's review (approved by Yassine, 2026-10-30)
+1. **Refunds:** 0 generated refunds kept, no rule change.
+2. **Paid rule changed:** a finished no-deposit stay (`stayed`) now has `paid_tnd = total_tnd`. Cancelled, no-show and
+   confirmed no-deposit bookings stay at 0. This replaces "`no_deposit` → paid 0" in step 3 of the task file. Scripted
+   bookings did not change.
+   - **AT-HOT-04 can now pay all 171 real cases** (before: 0): AT-REF-01 allows the 20 % on each one. Total 26,262.54 TND,
+     min 16.79, average 153.58, max 1,281.56. **152 are ≤ 300 TND; 19 are above 300 TND**, so they need finance.
+   - **Paid, real hotel bookings:** 209,972.98 → **1,125,900.31 TND**, out of a total of 2,450,826.64 TND. By deposit:
+     no deposit 915,927.33, refundable 2,940.50, non-refundable 207,032.48.
+   - **Paid, all hotel bookings with the scripted ones:** 211,162.98 → **1,127,090.31 TND**. Flights unchanged
+     (2,320,760.77 TND).
+   - **Rows changed:** the 839 real no-deposit `stayed` rows, and no others. Still at 0: 496 cancelled, 377 confirmed,
+     29 no-show.
+3. **The 5 choices of question 3 stay as they are.** Rules: **14** (`tasks/NEXT.md` corrected).
+4. **Tests: 640/640** (633 + 7 new). The paid-rule test now follows the new rule, one new test covers each deposit and
+   status, and one checks every real room change.
+
+The sections below describe the first delivery; where they differ, this follow-up wins.
 
 ## Done
 - `callverse/data/atlas/`: `schema.py` (9 tables, allowed codes), `seed.py` (scripted data, builds `atlas.db`), `db.py`
@@ -17,9 +36,9 @@ rule can't pay anything on real bookings, because those clients are recorded as 
 - No ShopNova file changed. Git: branch `feature/atlas-real-data`, pushed, no merge into `main`.
 
 ## Evidence
-- **Tests: 633/633** (510 existing, unchanged + 123 new); 0 API calls.
-- **Sample file:** 2,854,384 bytes (2.85 MB). Built in 33 s. Rebuilt a second time: same SHA-256 for the sample
-  (`6B9A108C…FA71C4`) and the same for the profile.
+- **Tests: 640/640** (510 existing, unchanged + 130 new); 0 API calls.
+- **Sample file:** 2,857,066 bytes (2.86 MB). Built in 33 s. Rebuilt a second time: same SHA-256 for the sample
+  (`C9EAE502…CC09BB`) and the same for the profile.
 - **Raw files not tracked:** `git ls-files data/raw` = 0 files; `atlas.db` and `data/raw/` are ignored by `.gitignore`.
 
 **Real mix, hotels** (sample of 2,000 vs full file of 119,390)
@@ -74,8 +93,8 @@ AT-FLT-06: 147, AT-HOT-01: 484, AT-HOT-02: **0**, AT-HOT-03: 253, AT-HOT-04: 171
    566.44 TND (0.5 × $377 × 3.005), so a flight refund can never be ≤ 300 TND. The 3 refundable hotel bookings in the
    sample were not cancelled. The test on the database passes only because it has nothing to check, so the refund
    logic is tested directly instead.
-2. **AT-HOT-04 cannot pay on real rows.** All 171 real cases are no-deposit stays with `paid_tnd = 0` (choice b), so
-   AT-REF-01 allows 0 TND. This is why I gave scripted case 7003 a paid deposit.
+2. **AT-HOT-04 could not pay on real rows (solved, see the follow-up).** All 171 real cases are no-deposit stays, which
+   had `paid_tnd = 0`, so AT-REF-01 allowed 0 TND. This is why scripted case 7003 has a paid deposit.
 3. **AT-HOT-02 has no real case;** only 7009 tests it, and 2 of 117,182 usable rows in the whole file would qualify
    for a refund ≤ 300 TND.
 4. **Data quirks left out before drawing, all documented in the builder:** 2,208 hotel rows (0 nights, price of 0 or
@@ -89,12 +108,10 @@ AT-FLT-06: 147, AT-HOT-01: 484, AT-HOT-02: **0**, AT-HOT-03: 253, AT-HOT-04: 171
    the request. `reads.py` uses the shared `sim_today()`, so it reads ShopNova's clock.
 
 ## Questions for the Brain
-1. **Refunds:** keep 0 generated refunds? I recommend yes: those cases stay open for demos, and the numbers are honest.
-   If you want rows, the limit or the fare floor must change, and that is a rule decision.
-2. **AT-HOT-04:** should a finished no-deposit stay count as paid (`paid_tnd = total_tnd`), since the client paid at the
-   hotel? I recommend yes; otherwise the rule works only for deposits. It would change `paid_tnd` on 839 real stays
-   and the paid-rule test.
-3. **Please check these 5 choices where the task was unclear or did not fit the data:**
+All answered in the review; none is open.
+1. **Refunds:** keep 0 generated refunds? **Answer: yes, no rule change.**
+2. **AT-HOT-04:** should a finished no-deposit stay count as paid? **Answer: yes** (see the follow-up).
+3. **The 5 choices where the task was unclear or did not fit the data. Answer: kept as they are.**
    - **Arrival dates:** one shift cannot fit 2 years of arrivals into a 6-month window, so each booking gets its own
      random arrival date, limited so that nothing happens after today. Cancellations and no-shows therefore keep their
      status, and the task's "otherwise confirmed" case for cancellations can never happen, so there is no code for it.
@@ -106,8 +123,8 @@ AT-FLT-06: 147, AT-HOT-01: 484, AT-HOT-02: **0**, AT-HOT-03: 253, AT-HOT-04: 171
      and "same columns as ShopNova's".
    - **`main_delay_cause`** uses the same 4 codes as `cancellation_reason`; a tie goes to the carrier, so the client
      keeps the right.
-4. **Rule count:** `tasks/NEXT.md` says 13 rules, but the approved list in the task has 14. I built the 14.
+4. **Rule count:** `tasks/NEXT.md` said 13 rules, but the approved list in the task has 14. **Answer: 14**; corrected.
 
 ## Next step
-Review and merge `feature/atlas-real-data` (Yassine + the Brain), after answering questions 1 and 2. Then the routing
-task can connect Atlas: its tools and allow-lists, its policy-search index, and routing by company.
+Merge `feature/atlas-real-data` once Yassine and the Brain approve. Then the routing task can connect Atlas: its tools
+and allow-lists, its policy-search index, and routing by company.

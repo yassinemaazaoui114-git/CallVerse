@@ -244,8 +244,36 @@ def test_hotel_total_is_price_per_night_times_nights():
 
 
 def test_hotel_paid_rule():
+    # A deposit is paid at booking; with no deposit, only a finished stay is paid (at the hotel).
     for r in _q("SELECT * FROM hotel_bookings"):
-        assert r["paid_tnd"] == (0 if r["deposit_type"] == "no_deposit" else r["total_tnd"]), r["id"]
+        unpaid = r["deposit_type"] == "no_deposit" and r["status"] != "stayed"
+        assert r["paid_tnd"] == (0 if unpaid else r["total_tnd"]), r["id"]
+
+
+@pytest.mark.parametrize("deposit, status, paid", [
+    ("No Deposit", "stayed", 200.0),       # paid at the hotel
+    ("No Deposit", "cancelled", 0.0),
+    ("No Deposit", "no_show", 0.0),
+    ("No Deposit", "confirmed", 0.0),
+    ("Refundable", "confirmed", 200.0),    # a deposit is paid at booking, whatever happens next
+    ("Non Refund", "cancelled", 200.0),
+])
+def test_hotel_paid_by_deposit_and_status(deposit, status, paid):
+    row = dict.fromkeys(builder.HOTEL_COLUMNS, "0")
+    row.update(hotel="City Hotel", adr=str(100 / 3.358), stays_in_week_nights="2", adults="2", meal="BB",
+               reserved_room_type="A", assigned_room_type="A", deposit_type=deposit)
+    dates = {"booked_date": "2026-09-01", "arrival_date": "2026-09-02", "status": status, "cancelled_date": None}
+    assert builder.hotel_booking(row, 1, dates)["paid_tnd"] == paid
+
+
+def test_every_real_room_change_can_now_be_paid():
+    rows = _q("SELECT id FROM hotel_bookings WHERE status = 'stayed' AND room_reserved != room_assigned"
+              " AND " + REAL_HOTELS)
+    assert rows
+    for r in rows:
+        facts = reads.get_hotel_booking(r["id"])
+        amount = round(facts["total_tnd"] * 0.20, 2)
+        assert rule("AT-HOT-04", facts) and rule("AT-REF-01", {**facts, "amount": amount}), r["id"]
 
 
 def test_hotel_money_conversion():

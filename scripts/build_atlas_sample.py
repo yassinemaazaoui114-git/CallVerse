@@ -186,6 +186,8 @@ def hotel_booking(r: dict, csv_row: int, dates: dict) -> dict:
     per_night = round(float(r["adr"]) * EUR_TO_TND, 2)
     total = round(per_night * nights, 2)
     deposit = DEPOSITS[r["deposit_type"]]
+    # A deposit is paid at booking. With no deposit the client pays at the hotel, so only a finished stay is paid.
+    paid = 0.0 if deposit == "no_deposit" and dates["status"] != "stayed" else total
     return {"id": None, "user_id": None, "hotel_id": HOTELS[r["hotel"]],
             "booked_date": dates["booked_date"], "arrival_date": dates["arrival_date"], "nights": nights,
             "adults": int(r["adults"]),
@@ -193,7 +195,7 @@ def hotel_booking(r: dict, csv_row: int, dates: dict) -> dict:
             "meal": "SC" if r["meal"] == "Undefined" else r["meal"],            # the authors: Undefined = SC, no meal
             "room_reserved": r["reserved_room_type"], "room_assigned": r["assigned_room_type"],
             "deposit_type": deposit, "price_per_night_tnd": per_night, "total_tnd": total,
-            "paid_tnd": 0.0 if deposit == "no_deposit" else total,              # no deposit: pays at the hotel
+            "paid_tnd": paid,
             "status": dates["status"], "cancelled_date": dates["cancelled_date"],
             "special_requests": int(r["total_of_special_requests"]),
             "source": "hotel_booking_demand", "source_id": str(csv_row), "ai_generated": 0}

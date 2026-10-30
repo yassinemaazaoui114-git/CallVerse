@@ -57,7 +57,7 @@ CREATE TABLE hotel_bookings (
     deposit_type        TEXT NOT NULL CHECK (deposit_type IN {_in(DEPOSIT_TYPES)}),
     price_per_night_tnd REAL NOT NULL,
     total_tnd           REAL NOT NULL,     -- price per night x nights
-    paid_tnd            REAL NOT NULL,     -- 0 = pays at the hotel (no deposit)
+    paid_tnd            REAL NOT NULL,     -- no deposit: 0 until the stay is finished (paid at the hotel)
     status              TEXT NOT NULL CHECK (status IN {_in(HOTEL_BOOKING_STATUSES)}),
     cancelled_date      TEXT,              -- NULL = not cancelled
     special_requests    INTEGER NOT NULL,  -- how many the client asked for{SOURCE},{LABELS}
