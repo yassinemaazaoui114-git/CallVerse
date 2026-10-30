@@ -7,11 +7,13 @@ How one agent turn works:
   3. Repeat until the model gives a final text answer, or stop after MAX_STEPS model calls
      (a safety limit so a confused model cannot loop forever and burn API quota).
 Every step is written to the trace.
+
+T21: an agent works for ONE company, given when it is created (from the ticket): it sees that company's tools only.
 """
 
 import json
 
-from callverse import llm, trace
+from callverse import companies, llm, trace
 from callverse.tools.registry import run_tool, schemas_for
 
 MAX_STEPS = 5   # default limit; an agent with more steps in its job can set its own max_steps
@@ -27,9 +29,10 @@ class BaseAgent:
     role_key = "agents"   # which models of config.yaml this agent uses (M2)
     max_steps = MAX_STEPS # most model calls in one turn
 
-    def __init__(self, chat_fn=None):
+    def __init__(self, chat_fn=None, company: str = companies.DEFAULT):
         # chat_fn lets the tests plug in a fake LLM; normally it is the shared llm.chat.
         self.chat = chat_fn or llm.chat
+        self.company = company
 
     @property
     def actor(self) -> str:
@@ -48,7 +51,7 @@ class BaseAgent:
         messages = [{"role": "system", "content": self.system_prompt()}]
         messages += history or []
         messages.append({"role": "user", "content": user_message})
-        tools = schemas_for(self.agent_id)
+        tools = schemas_for(self.agent_id, self.company)
         tool_calls_made = []
 
         trace.log("agent_start", self.actor, {"agent": self.name, "input": user_message,
@@ -87,7 +90,7 @@ class BaseAgent:
                     args = None
                 if isinstance(args, dict):
                     # chat_fn is passed on only to tools that run another agent (ask_agent).
-                    output = run_tool(self.agent_id, tc.function.name, args, chat_fn=self.chat)
+                    output = run_tool(self.agent_id, tc.function.name, args, chat_fn=self.chat, company=self.company)
                 else:
                     output = {"error": "tool arguments were not valid JSON"}
                 tool_calls_made.append({"tool": tc.function.name, "args": args, "result": output})

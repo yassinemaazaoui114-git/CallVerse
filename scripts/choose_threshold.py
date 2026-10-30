@@ -1,7 +1,8 @@
 """Choose the reason threshold by leave-one-out on the EXAMPLES (never on the test set).
 
 Usage:
-    python -m scripts.choose_threshold
+    python -m scripts.choose_threshold            (ShopNova)
+    python -m scripts.choose_threshold atlas      (T21: Atlas Travel, on its own examples)
 
 Prints, for each threshold, how many examples get their own reason (exact), a wrong reason (wrong),
 or no reason at all (needs_llm -> would cost an M2 call).
@@ -9,8 +10,10 @@ or no reason at all (needs_llm -> would cost an M2 call).
 Rule used to pick: the highest (exact - wrong). Lowering the threshold turns some "needs_llm" into
 answers, some right and some wrong. A wrong reason sends the client to the wrong agent, so it counts
 as much against as a right one counts for; a "needs_llm" only costs an M2 call.
-On a tie: the fewest wrong. Copy the chosen value into config.yaml (intake.reason_threshold).
+On a tie: the fewest wrong. Copy the chosen value into config.yaml (companies.<company>.reason_threshold).
 """
+
+import sys
 
 import numpy as np
 
@@ -18,8 +21,9 @@ from callverse.intake.reasons import leave_one_out
 
 
 def main() -> None:
+    company = sys.argv[1] if len(sys.argv) > 1 else "shopnova"
     thresholds = [float(t) for t in np.arange(0.55, 0.851, 0.01)]
-    results = leave_one_out(thresholds)
+    results = leave_one_out(thresholds, company)
 
     print(f"{'threshold':>9} {'exact':>6} {'wrong':>6} {'needs_llm':>9} {'exact-wrong':>12}")
     for r in results:

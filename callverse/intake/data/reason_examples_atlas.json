@@ -1,0 +1,99 @@
+{
+  "_note": "AI-GENERATED example messages for ATLAS TRAVEL (written by Claude, the Brain, 2026-10-30). Used to BUILD the Atlas reason matcher and to choose its threshold (leave-one-out on these examples only). Never put test messages here. The Atlas practice set (tests/dev/atlas_practice_messages.json) was written separately and must not be copied here.",
+  "booking_status": [
+    "Can you check my booking 20417 for me?",
+    "Is my hotel reservation confirmed?",
+    "What time does my flight leave on Friday?",
+    "I booked a trip last month, can you tell me the details?",
+    "Which hotel did I book for next week?",
+    "Is my flight booking 30588 still on schedule?",
+    "How many nights is my reservation for?",
+    "Do I have breakfast included in my hotel booking?",
+    "What's the status of my reservation, I can't find the email.",
+    "Has my flight been confirmed yet?"
+  ],
+  "delay_disruption": [
+    "My flight is delayed and nobody tells us anything at the gate.",
+    "We've been waiting at the airport for three hours, what is going on?",
+    "The plane left four hours late and I missed my meeting.",
+    "My flight from Boston was delayed again, how long will it be?",
+    "Why was flight 30231 so late yesterday?",
+    "The departure board says delayed, is there any news?",
+    "We landed hours after the planned time, this is a disaster.",
+    "Our flight keeps getting pushed back, when will we take off?",
+    "Is there a meal voucher? We've been stuck here since noon.",
+    "The airline says there's a problem with the plane and we're still waiting."
+  ],
+  "cancellation": [
+    "I want to cancel my hotel reservation.",
+    "Please cancel booking 20981, I can't travel anymore.",
+    "My plans changed, how do I cancel my stay?",
+    "Can I still cancel my hotel booking without paying?",
+    "I need to cancel the room I booked for next month.",
+    "Cancel my reservation please, I'm not going.",
+    "What happens if I cancel my hotel two days before?",
+    "I'd like to cancel my trip to Lisbon.",
+    "Is it too late to cancel booking 21044?",
+    "Something came up and I won't make it, please cancel the hotel."
+  ],
+  "refund_request": [
+    "I want my money back for the trip.",
+    "My flight was cancelled, please refund the ticket.",
+    "Can I get a refund for booking 30412?",
+    "I paid for a room I never got to use, I want a refund.",
+    "Please give me back what I paid for the flight.",
+    "When will I get my refund for the cancelled flight?",
+    "The flight left more than five hours late so I didn't go, I want a full refund.",
+    "They put me in a smaller room than I paid for, I want part of my money back.",
+    "I'd like a refund of my hotel deposit.",
+    "Refund my ticket please, I'm not flying with this delay."
+  ],
+  "compensation_request": [
+    "I'm entitled to compensation for the delay, how do I claim it?",
+    "My flight arrived four hours late, I want the compensation the rules give.",
+    "Under passenger rights I should get money for this cancellation.",
+    "How much compensation do I get for a flight that was cancelled on the day?",
+    "I want to claim compensation for flight 30775.",
+    "The delay ruined my trip, I expect compensation.",
+    "Do I get anything for arriving three and a half hours late?",
+    "I read that a long delay gives you a payment, I want mine.",
+    "Please pay the compensation for my cancelled flight.",
+    "What compensation can you offer me for this delay?"
+  ],
+  "rebooking": [
+    "My flight was cancelled, can you put me on the next one?",
+    "I'd like to change my flight to a later date.",
+    "Can you rebook me on a flight tomorrow morning?",
+    "I want another flight instead of the cancelled one.",
+    "Is there a seat on the evening flight? Please move me.",
+    "Can I change the dates of my hotel stay?",
+    "Please find me an alternative flight to Chicago.",
+    "I need to move my booking to next week.",
+    "Can you switch me to a different flight, this one is too late?",
+    "I want to fly on Sunday instead of Saturday."
+  ],
+  "special_assistance": [
+    "I use a wheelchair, can I get help at the airport?",
+    "My mother needs assistance boarding the plane.",
+    "I'm travelling with a guide dog, what do I need to do?",
+    "Can someone help me with the stairs at the airport? I can't walk far.",
+    "I need a wheelchair from the gate to the plane.",
+    "My son has a disability and needs help during the flight.",
+    "Please arrange assistance for my elderly father on his flight.",
+    "I have reduced mobility, can you request help for my trip?",
+    "Do you offer help for blind passengers at the airport?",
+    "I'll be on crutches, can I get a wheelchair at arrival?"
+  ],
+  "other": [
+    "What's the weather like in Lisbon this week?",
+    "Do you sell travel insurance?",
+    "How do I change the email on my account?",
+    "Can you recommend a good restaurant near the hotel?",
+    "Do you have offers for trips to Paris?",
+    "What documents do I need to enter the United States?",
+    "Hello, is anyone there?",
+    "Can I pay with a different card next time?",
+    "How do I become a member of your loyalty program?",
+    "Thank you for your help yesterday."
+  ]
+}

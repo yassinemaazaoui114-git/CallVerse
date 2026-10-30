@@ -7,7 +7,8 @@ INSERT fails). A missing file is never created: the page just shows "No tickets 
 
 - callverse.db (the center's tickets, callverse/tickets/store.py): tickets, messages, steps, approvals,
   system_tokens. Read whole (a demo has tens of tickets) and counted in Python: easy to read and to check by hand.
-- the company's data (shopnova.db, callverse/data/db.py): the user's name, the refunds paid, the review scores.
+- the company's data (shopnova.db, atlas.db): the user's name, the money paid (refunds, Atlas's compensations too),
+  and ShopNova's review scores.
 
 Times: the Console uses the COMPUTER time columns (created_real, at_real: T19), never the simulation clock (it
 does not move, so every ticket would have the same age). Rows made before T19 have no computer time: they are
@@ -32,6 +33,7 @@ from pathlib import Path
 
 from callverse.config import load_config
 from callverse.data import db as shopnova_db
+from callverse.data.atlas import db as atlas_db
 from callverse.tickets import store
 
 NO_TICKETS = "No tickets yet — chat in the ShopNova app to see them here."
@@ -43,8 +45,12 @@ PERIODS = {"All": None, "Last 7 days": 7, "Last 30 days": 30}
 # The Agents page cards, in the order of the pipeline.
 AGENTS = {"intake": "Intake", "A": "Agent A", "B": "Agent B", "coordinator": "Coordinator", "writer": "Reply writer"}
 
-# The company's own data file, per company (the user's name, refunds, reviews). Atlas: one line here later.
-COMPANY_DBS = {"shopnova": shopnova_db.db_path}
+# The company's own data file, per company (the user's name, refunds, reviews).
+COMPANY_DBS = {"shopnova": shopnova_db.db_path, "atlas": atlas_db.db_path}
+
+# Where each company keeps the money it paid: {kind: (table, the column with the case's number)}.
+MONEY_TABLES = {"shopnova": {"refunds": ("refunds", "order_id")},
+                "atlas": {"refunds": ("refunds", "booking_id"), "compensations": ("compensations", "booking_id")}}
 
 # Steps counted as errors on the Agents page: a refused tool or proposal, a model that failed (the next one of
 # its list was used), a write the platform refused, an error in the pipeline.
@@ -359,6 +365,8 @@ def describe_step(step: dict) -> tuple[str, str, str]:
         action = d.get("action", "refund")
         what = (f"{d.get('amount')} TND on order {d.get('order_id')}" if action == "refund"
                 else f"{d.get('event')} on order {d.get('order_id')}")
+        if d.get("booking_id") is not None:   # T21: an Atlas proposal has no amount: the Coordinator computes it
+            what = f"{d.get('booking_type')} booking {d.get('booking_id')}"
         return ("📝", f"Proposal: {action}",
                 f"{what} · rule {d.get('rule_id')} · client confirmed: {d.get('user_confirmed')} · "
                 f"facts {_short(d.get('facts_used'), 100)}")
@@ -378,8 +386,8 @@ def describe_step(step: dict) -> tuple[str, str, str]:
     if kind == "send_back_to_agent":
         return "↩️", f"Sent back to Agent {d.get('agent')}", _short(d.get("note") or "", 160)
     if kind == "layer3_decision":
-        if d.get("by") == "ShopNova admin":
-            return "🏦", f"Layer 3: the ShopNova admin decided **{d.get('outcome')}**", f"by {d.get('admin')}"
+        if d.get("by") in ("ShopNova admin", "Atlas admin"):
+            return "🏦", f"Layer 3: the {d['by']} decided **{d.get('outcome')}**", f"by {d.get('admin')}"
         result = d.get("result") or {}
         return "🏦", f"Layer 3 (fixed rule): {result.get('decision')}", _short(d.get("args") or {}, 100)
     if kind == "approval":
@@ -532,7 +540,7 @@ def dashboard(days: int | None = None, now: datetime | None = None) -> dict:
         "replies_timed": len(timed), "replies_untimed": len(replies) - len(timed),
         "avg_reply_s": round(sum(timed) / len(timed), 2) if timed else None,
         "late_s": late_s, "late": len(late), "late_pct": _pct(len(late), len(timed)),
-        **_refunds(steps, approvals),
+        **_refunds(tickets, steps, approvals),
         **satisfaction(),
         "tokens_avg": round(sum(per_ticket) / len(per_ticket)) if per_ticket else 0,
         "tokens_max": max(per_ticket, default=0), "tokens_total": sum(per_ticket),
@@ -542,24 +550,49 @@ def dashboard(days: int | None = None, now: datetime | None = None) -> dict:
     }
 
 
-def _refunds(steps: list[dict], approvals: list[dict]) -> dict:
-    """Finance's decisions (approvals) and the refunds CallVerse paid on these tickets, from the company's data:
-    a refund row counts only if its (proposal id, order) is one of these tickets' proposals (read-only)."""
-    pairs = {(s["data"].get("proposal_id"), s["data"].get("order_id")) for s in steps
-             if kind_of(s) == "coordinator_decision" and s["data"].get("proposal_id")}
-    pairs |= {(a["proposal_id"], a["order_id"]) for a in approvals if a["proposal_id"]}
-    finance_pairs = {(a["proposal_id"], a["order_id"]) for a in approvals if a["status"] == "approved"}
-    paid = []
-    if pairs:
-        ids = sorted({p for p, _ in pairs})
-        marks = ", ".join("?" for _ in ids)
-        rows = _read(shopnova_db.db_path(), f"SELECT * FROM refunds WHERE proposal_id IN ({marks})", tuple(ids))
-        paid = [r for r in rows if (r["proposal_id"], r["order_id"]) in pairs]
+def _paid(company: str, table: str, column: str, pairs: set) -> list[dict]:
+    """The rows of one money table of this company whose (proposal id, case number) is one of `pairs` (read-only)."""
+    if not pairs:
+        return []
+    ids = sorted({p for p, _ in pairs})
+    marks = ", ".join("?" for _ in ids)
+    rows = _read(COMPANY_DBS[company](), f"SELECT * FROM {table} WHERE proposal_id IN ({marks})", tuple(ids))
+    return [{**r, "case": r[column]} for r in rows if (r["proposal_id"], r[column]) in pairs]
+
+
+def _refunds(tickets: list[dict], steps: list[dict], approvals: list[dict]) -> dict:
+    """Finance's decisions (approvals) and the money CallVerse paid on these tickets, from each company's own data: a
+    row counts only if its (proposal id, case number) is one of that company's tickets' proposals (read-only).
+    money_per_company = the totals of each company; the top-level totals add them up."""
+    company_of = {t["id"]: t["company"] for t in tickets}
+    pairs, finance_pairs = defaultdict(set), defaultdict(set)
+    for s in steps:
+        if kind_of(s) == "coordinator_decision" and s["data"].get("proposal_id"):
+            pairs[company_of[s["ticket_id"]]].add((s["data"]["proposal_id"], s["data"].get("order_id")))
+    for a in approvals:
+        if a["proposal_id"]:
+            pairs[company_of[a["ticket_id"]]].add((a["proposal_id"], a["order_id"]))
+        if a["status"] == "approved":
+            finance_pairs[company_of[a["ticket_id"]]].add((a["proposal_id"], a["order_id"]))
+
+    per_company = []
+    for company in sorted(set(company_of.values()) & set(MONEY_TABLES)):
+        tables = MONEY_TABLES[company]
+        refunds = _paid(company, *tables["refunds"], pairs[company])
+        compensations = _paid(company, *tables["compensations"], pairs[company]) if "compensations" in tables else []
+        after_finance = [r for r in refunds + compensations if (r["proposal_id"], r["case"]) in finance_pairs[company]]
+        per_company.append({"company": company,
+                            "refunds_paid": len(refunds), "refunds_tnd": round(sum(r["amount"] for r in refunds), 2),
+                            "compensations_paid": len(compensations),
+                            "compensations_tnd": round(sum(r["amount"] for r in compensations), 2),
+                            "finance_tnd": round(sum(r["amount"] for r in after_finance), 2)})
+    total = lambda key: round(sum(c[key] for c in per_company), 2)   # noqa: E731
     status = Counter(a["status"] for a in approvals)
     return {"finance_approved": status["approved"], "finance_refused": status["refused"],
             "finance_pending": status["pending"],
-            "refunds_paid": len(paid), "refunds_tnd": round(sum(r["amount"] for r in paid), 2),
-            "finance_tnd": round(sum(r["amount"] for r in paid if (r["proposal_id"], r["order_id"]) in finance_pairs), 2)}
+            "refunds_paid": total("refunds_paid"), "refunds_tnd": total("refunds_tnd"),
+            "compensations_paid": total("compensations_paid"), "compensations_tnd": total("compensations_tnd"),
+            "finance_tnd": total("finance_tnd"), "money_per_company": per_company}
 
 
 def satisfaction() -> dict:

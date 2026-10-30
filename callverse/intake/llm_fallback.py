@@ -3,7 +3,7 @@
 Why only for those? The local matcher is free, fast and predictable; the API model costs money and time.
 So M2 is a backup, not the default path.
 
-The LLM must answer in JSON with reasons from the fixed list of 6. We never trust its answer blindly:
+The LLM must answer in JSON with reasons from the company's fixed list. We never trust its answer blindly:
 the JSON is validated, unknown reasons are dropped, and anything invalid becomes reason "other".
 The order_id it returns is only a hint: intake.py still checks it with the get_order tool.
 """
@@ -11,7 +11,7 @@ The order_id it returns is only a hint: intake.py still checks it with the get_o
 import json
 import re
 
-from callverse import llm, trace
+from callverse import companies, llm, trace
 from callverse.intake.reasons import REASONS
 
 PROMPT = """You sort customer messages of ShopNova, an online shop.
@@ -26,8 +26,25 @@ Possible contact reasons (use ONLY these names):
 A message can have several reasons. Answer with JSON only, no other text:
 {"reasons": ["<reason>", ...], "order_id": <order number as an integer, or null>}"""
 
+# T21: the same job for Atlas Travel, with its own reasons and words.
+ATLAS_PROMPT = """You sort customer messages of Atlas Travel, a travel agency that sells hotel stays and flights.
+Possible contact reasons (use ONLY these names):
+- booking_status: details or status of a hotel or flight booking
+- delay_disruption: a flight is delayed, or the client asks what is going on with a delay
+- cancellation: the client wants to cancel a booking, or asks how cancelling works
+- refund_request: the client wants money back
+- compensation_request: the client claims compensation for a delay or a cancelled flight
+- rebooking: the client wants to change a flight or a hotel stay to another date or trip
+- special_assistance: wheelchair or other help at the airport or on the flight
+- other: anything else
 
-def parse_answer(text: str | None) -> dict:
+A message can have several reasons. Answer with JSON only, no other text:
+{"reasons": ["<reason>", ...], "order_id": <booking number as an integer, or null>}"""
+
+PROMPTS = {"shopnova": PROMPT, "atlas": ATLAS_PROMPT}
+
+
+def parse_answer(text: str | None, allowed: list[str] = REASONS) -> dict:
     """Turn the LLM's text into {"reasons": [...], "order_id": int|None, "valid": bool}.
 
     Invalid JSON, a wrong shape or no known reason -> {"reasons": ["other"], "order_id": None, "valid": False}.
@@ -47,7 +64,7 @@ def parse_answer(text: str | None) -> dict:
     if not isinstance(data, dict) or not isinstance(data.get("reasons"), list):
         return invalid
 
-    reasons = [r for r in data["reasons"] if r in REASONS]   # drop invented reason names
+    reasons = [r for r in data["reasons"] if r in allowed]   # drop invented reason names
     reasons = list(dict.fromkeys(reasons))                   # remove duplicates, keep order
     if not reasons:
         return invalid
@@ -60,13 +77,13 @@ def parse_answer(text: str | None) -> dict:
     return {"reasons": reasons, "order_id": order_id, "valid": True}
 
 
-def classify(text: str, chat_fn=None) -> dict:
+def classify(text: str, chat_fn=None, company: str = companies.DEFAULT) -> dict:
     """Ask M2 for the reasons of `text`. chat_fn can be replaced by a fake in tests (no API call)."""
     chat_fn = chat_fn or llm.chat
-    messages = [{"role": "system", "content": PROMPT}, {"role": "user", "content": text}]
+    messages = [{"role": "system", "content": PROMPTS[company]}, {"role": "user", "content": text}]
     try:
         reply = chat_fn("agents", messages)
-        result = parse_answer(reply.content)
+        result = parse_answer(reply.content, companies.get(company)["reasons"])
     except llm.AllModelsFailed as e:
         result = {"reasons": ["other"], "order_id": None, "valid": False, "error": str(e)}
     trace.log("intake_llm_fallback", "intake", {"text": text, "result": result})

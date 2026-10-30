@@ -11,6 +11,9 @@ policy, and is the only part allowed to write.
 
 What is checked here is only the SHAPE of the proposal. Whether the rule really applies
 (days_late > 5, amount <= paid - refunded_total, ...) is the Coordinator's job, not this tool's.
+
+T21: Atlas's proposal tools are at the end of this file. They take NO amount at all: the Atlas Coordinator computes it
+from the rules, so a wrong or invented amount cannot even be written down by an agent.
 """
 
 import math
@@ -113,6 +116,96 @@ SUBSCRIPTION_SCHEMA = {
             "required": ["order_id", "event", "user_quote"],
         },
     },
+}
+
+
+# --- T21: Atlas Travel's proposals: no amount ----------------------------------------------------------
+
+BOOKING_TYPES = ("hotel", "flight")
+
+
+def _booking_problems(booking_type, booking_id, rule_id, facts_used, user_confirmed, user_quote) -> list[str]:
+    """Everything wrong with the fields of an Atlas proposal (empty list = well formed)."""
+    problems = []
+    if booking_type not in BOOKING_TYPES:
+        problems.append("booking_type must be hotel or flight")
+    if isinstance(booking_id, bool) or not isinstance(booking_id, int):
+        problems.append("booking_id must be an integer")
+    if not isinstance(rule_id, str) or not rule_id.strip():
+        problems.append("rule_id is missing: cite the rule found with search_policy")
+    elif get_policy(rule_id, "atlas") is None:
+        problems.append(f"rule_id {rule_id} does not exist")
+    if not isinstance(facts_used, dict) or not facts_used:
+        problems.append("facts_used must be a non-empty object of the facts read from tools")
+    if not isinstance(user_confirmed, bool):
+        problems.append("user_confirmed must be true or false")
+    if not isinstance(user_quote, str) or not user_quote.strip():
+        problems.append("user_quote must quote the client's own words")
+    return problems
+
+
+def _propose_for_atlas(action: str, fields: dict) -> dict:
+    problems = _booking_problems(**fields)
+    if problems:
+        trace.log("proposal_refused", "proposal_tools", {"action": action, "fields": fields, "problems": problems})
+        return {"error": "proposal refused: " + "; ".join(problems)}
+    trace.log("proposal", "proposal_tools", {"action": action, **fields})
+    return {"status": "submitted to Coordinator"}
+
+
+def propose_atlas_refund(booking_type=None, booking_id=None, rule_id=None, facts_used=None,
+                         user_confirmed=None, user_quote=None) -> dict:
+    """Submit a refund PROPOSAL for an Atlas booking. Pays nothing, writes nothing, takes no amount."""
+    return _propose_for_atlas("refund", {"booking_type": booking_type, "booking_id": booking_id, "rule_id": rule_id,
+                                         "facts_used": facts_used, "user_confirmed": user_confirmed,
+                                         "user_quote": user_quote})
+
+
+def propose_compensation(booking_type=None, booking_id=None, rule_id=None, facts_used=None,
+                         user_confirmed=None, user_quote=None) -> dict:
+    """Submit a compensation PROPOSAL for an Atlas booking. Pays nothing, writes nothing, takes no amount."""
+    return _propose_for_atlas("compensation", {"booking_type": booking_type, "booking_id": booking_id,
+                                               "rule_id": rule_id, "facts_used": facts_used,
+                                               "user_confirmed": user_confirmed, "user_quote": user_quote})
+
+
+def propose_hotel_cancellation(booking_type=None, booking_id=None, rule_id=None, facts_used=None,
+                               user_confirmed=None, user_quote=None) -> dict:
+    """Submit a cancellation PROPOSAL for an Atlas hotel booking. Cancels nothing, writes nothing, takes no amount."""
+    return _propose_for_atlas("cancel_hotel", {"booking_type": booking_type, "booking_id": booking_id,
+                                               "rule_id": rule_id, "facts_used": facts_used,
+                                               "user_confirmed": user_confirmed, "user_quote": user_quote})
+
+
+def atlas_proposal(agent: str, action: str, args: dict) -> dict:
+    """The proposal in the shape the Atlas Coordinator reads, from a proposal tool's arguments."""
+    return {"agent": agent, "action": action,
+            "params": {"booking_type": args["booking_type"], "booking_id": args["booking_id"]},
+            "rule_id": args["rule_id"], "facts_used": args["facts_used"],
+            "user_confirmed": args["user_confirmed"], "user_quote": args["user_quote"]}
+
+
+def _atlas_schema(name: str, description: str) -> dict:
+    return {"type": "function", "function": {"name": name, "description": description, "parameters": {
+        "type": "object",
+        "properties": {"booking_type": {"type": "string", "enum": list(BOOKING_TYPES)},
+                       "booking_id": {"type": "integer"}, "rule_id": {"type": "string"},
+                       "facts_used": {"type": "object"}, "user_confirmed": {"type": "boolean"},
+                       "user_quote": {"type": "string"}},
+        "required": ["booking_type", "booking_id", "rule_id", "facts_used", "user_confirmed", "user_quote"]}}}
+
+
+# Tool name -> the action it proposes, the function and the schema the model sees (no amount in any of them).
+ATLAS_ACTIONS = {"propose_refund": "refund", "propose_compensation": "compensation",
+                 "propose_hotel_cancellation": "cancel_hotel"}
+ATLAS_FUNCTIONS = {"propose_refund": propose_atlas_refund, "propose_compensation": propose_compensation,
+                   "propose_hotel_cancellation": propose_hotel_cancellation}
+ATLAS_SCHEMAS = {
+    "propose_refund": _atlas_schema("propose_refund", "Send a refund proposal to the Coordinator. Pays nothing."),
+    "propose_compensation": _atlas_schema("propose_compensation",
+                                          "Send a compensation proposal to the Coordinator. Pays nothing."),
+    "propose_hotel_cancellation": _atlas_schema("propose_hotel_cancellation",
+                                                "Send a hotel cancellation proposal to the Coordinator. Cancels nothing."),
 }
 
 

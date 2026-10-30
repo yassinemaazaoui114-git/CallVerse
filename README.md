@@ -75,13 +75,13 @@ Clean demo data: `python -m callverse.data.seed` and delete `callverse/data/call
 - **Desktop shortcut**: the same `make_desktop_shortcut.ps1` also makes **CallVerse Console** (runs `Console.bat`).
 - Or double-click `Console.bat`, or run `.\start_console.ps1`. It loads **no model** (no Ollama needed).
 
-What is in it (read only: it opens `callverse.db` and `shopnova.db` in SQLite read-only mode, it never writes):
+What is in it (read only: it opens `callverse.db`, `shopnova.db` and `atlas.db` in SQLite read-only mode, it never writes):
 **Live tickets** (every ticket of every company, newest first, filters, refreshed every 10 s; click a row),
 **Ticket detail** (the conversation, then per message how CallVerse worked: Intake → route → tools and rule
 searches → proposal → each Coordinator check ✅/❌ and the decision → Layer 3 → reply writer → writes; tokens by
 model and seconds), **Agents** (one card per agent: tickets, proposals, approved / sent back / escalated, errors,
 time, tokens, models) and **Dashboard** (tickets per day / company, % solved by the AI alone, % escalated, % sent to
-finance, reply time and late replies > 30 s, finance decisions and TND paid, review score, tokens per ticket, system
+finance, reply time and late replies > 30 s, finance decisions, TND paid per company, review score, tokens per ticket, system
 tokens, Groq tokens used today out of 200,000). Times there are the computer's time (`*_real` columns, T19); the
 company rules keep the simulation clock. Only real tickets from the apps are shown: chat in ShopNova first.
 Dali's `/demo` page (platform server) is **replaced by the CallVerse Console**; its files will be removed after
@@ -110,16 +110,17 @@ README.md  CLAUDE.md  config.yaml  .env.example  requirements.txt  DATA_LICENCES
 ShopNova.bat  start_shopnova.ps1  Console.bat  start_console.ps1  start_demo.ps1
 callverse/          the code
   config.py llm.py trace.py   settings (config.yaml), the one shared LLM layer, the trace
+  companies.py        the companies of the center: each one's reasons, routes, rules, gate
   intake/             Intake: reasons, emotion, sentiment, priority, style
   queues/             the rule router and the priority queue
   agents/             Agent A, Agent B, the shared agent loop
   tools/              read tools, proposal tools, per-agent allow-lists (registry.py)
   kb/                 ShopNova's policies and the policy search (RAG); Atlas Travel's rules (policies_atlas.json)
-  coordinator/        the Coordinator (rules)
+  coordinator/        the Coordinator (rules); Atlas Travel's gate (atlas_coordinator.py: amounts by code)
   slm/                the reply writer, its rule check and templates
   notifier/           delivery notifications (story S3)
   data/               ShopNova data: seed, read views, the ONLY write functions (writes.py), clock, Layer 3
-    atlas/            Atlas Travel data: schema, seed, database access, read functions (no app or agent yet)
+    atlas/            Atlas Travel data: schema, seed, database access, read functions, its write functions
   tickets/ channels/  CallVerse's tickets database, the web chat channel, refund approvals
   console/            the Console's read-only queries (reads.py: all its SQL)
   auth/               demo logins, roles and permissions
@@ -147,12 +148,13 @@ which one it is (`source`, `ai_generated`, `scripted`):
 Olist is licensed **CC BY-NC-SA 4.0**: source, credit line and changes in [DATA_LICENCES.md](DATA_LICENCES.md).
 The raw files are never committed (`data/raw/`). `python -m scripts.data_summary` prints the counts.
 
-**Atlas Travel** (the second sector: hotel stays and flights) has its own database, `callverse/data/atlas.db`. Nothing
-uses it yet: no app, no agent, no routing by company.
+**Atlas Travel** (the second sector: hotel stays and flights) has its own database, `callverse/data/atlas.db`, and goes
+through the same center as ShopNova (T21): Intake, router, agents A / B, Coordinator, reply writer, tickets, Console.
+It has no app yet (T22).
 - **Real** data: 2,000 bookings of **Hotel Booking Demand** (CC BY 4.0, ids 20001+) and 2,000 flights of the
   **US DOT 2015 Flight Delays** (CC0, ids 1+), moved to 2026, prices in TND.
 - **Generated:** one Tunisian user per booking (ids 101+) and one flight booking per flight (ids 30001+).
-- **Scripted** demo data (`callverse/data/atlas/seed.py`): users 1–5, bookings 7001–7010, one for each rule case.
+- **Scripted** demo data (`callverse/data/atlas/seed.py`): users 1–5, bookings 7001–7012, one for each rule case.
 - Rules: `callverse/kb/policies_atlas.json` (ids `AT-…`). Profile: `callverse/data/atlas_profile.json`.
 
 To rebuild: download `hotel_bookings.csv` (Kaggle `jessemostipak/hotel-booking-demand`) and `flights.csv`,
@@ -162,6 +164,17 @@ python -m scripts.build_atlas_sample   # about 30 s: makes atlas_sample.json and
 python -m callverse.data.atlas.seed    # builds atlas.db (also built by itself on first use)
 ```
 The built sample is committed, so only the second command is needed, and the tests need no raw file.
+
+What works for Atlas (T21): 8 reasons of its own, booking status and delay questions (Agent A), refunds, compensation
+and hotel cancellation (Agent B). The company comes from the channel, never from the text. Agents propose without any
+amount: the Coordinator computes it from the rules, and it decides by code whether the client asked. A refund above 1,500 TND and every compensation wait for finance
+(`approvals.decide`); rebooking and special assistance go straight to a colleague until agent C exists.
+To try it (Ollama running, `CALLVERSE_AGENTS_SET=local`, `CALLVERSE_LAYER3_MODE=queue`):
+```python
+from callverse.channels import web_chat
+web_chat.send(1, "atlas", "Please cancel my hotel booking 7011, I can't travel anymore.")   # 1 = Hedi
+```
+Clean data afterwards: `python -m callverse.data.atlas.seed` and delete `callverse/data/callverse.db`.
 
 ## Task history
 
@@ -191,6 +204,8 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   reply seconds in `callverse.db`; new ticket status "Escalated"; replaces Dali's `/demo` page.
 - **T20** Atlas Travel's company data on real datasets (hotels + flights): its own database, rules `AT-…`, profile,
   read functions (no app or agent yet).
+- **T21** Routing by company, part A: Atlas Travel through the same center (own reasons, agents' prompts and tools,
+  rule search, amounts by code, writes, approvals); ShopNova unchanged.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

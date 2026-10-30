@@ -17,16 +17,20 @@ Flow of write_reply():
   2. If it fails: one retry, with the problems listed for the model.
   3. If it fails again: a fixed template (templates.py), which always passes the check.
 Every SLM call, check and template use is traced (slm_call, slm_check, slm_template).
+
+T21: a decision of another company than ShopNova says so (decision["company"]): the writer then gets that company's
+name and one-line description (COMPANY_PROMPT, the same rules) and says "booking" where the company says so.
+ShopNova's prompt text is not touched.
 """
 
 import json
 import re
 import time
 
-from callverse import llm, trace
+from callverse import companies, llm, trace
 from callverse.slm import templates
 from callverse.slm.check import check_reply
-from callverse.slm.templates import calm_opener, is_upset
+from callverse.slm.templates import calm_opener, case_word, is_upset
 
 MAX_ATTEMPTS = 2   # first try + one retry
 
@@ -49,6 +53,25 @@ Decision: approve, refund, order 7001, facts {"amount_tnd": 12.50, "days_late": 
 your card."  Tone: friendly, client upset.
 Reply: Hi, I'm really sorry about the wait on order 7001. Your refund of 12.50 TND is approved, since the parcel is
 8 days late. The money goes back to your card."""
+
+# T21: the same writer for another company. {name} and {description} come from config.yaml companies:.
+COMPANY_PROMPT = """You write the final reply of {name} customer service ({description}) to a client.
+The decision is already made. You only choose the wording.
+
+Rules:
+- Use ONLY the facts, booking number and next step given to you. Never add any other number, date, amount,
+  delay, name or promise.
+- Never promise follow-up actions such as "we will keep you updated", "we are monitoring", "we guarantee",
+  "within 24 hours", "as soon as possible", or vouchers.
+- Mention the booking number in the FIRST sentence, written as "booking 1234". Then say the next step.
+- Never write internal codes such as AT-FLT-01. Never use placeholders such as [Name]: you do not know the name.
+- Amounts are in TND (never $ or EUR).
+- No subject line, no signature, no "Best regards". Plain text only, at most 80 words.
+- Write in English, in the tone asked.
+
+Example (made-up values, do not reuse them):
+Decision: approve, refund, booking 1234, facts {"amount_tnd": 12.50}, next step "".  Tone: friendly, client upset.
+Reply: Hi, I'm really sorry about the trouble with booking 1234. Your refund of 12.50 TND for booking 1234 is approved."""
 
 OUTCOME_GUIDE = {
     "approve": "Tell the client their request is approved.",
@@ -87,9 +110,19 @@ def style_guide(style: dict | None) -> str:
     return f"Tone: {tone} Length: {size}"
 
 
+def system_prompt(decision: dict) -> str:
+    """The rules for this decision's company. No company on the decision = ShopNova's text, unchanged."""
+    company = decision.get("company")
+    if company is None or company == companies.DEFAULT:
+        return SYSTEM_PROMPT
+    settings = companies.get(company)
+    return COMPANY_PROMPT.replace("{name}", settings["name"]).replace("{description}", settings["description"])
+
+
 def build_messages(decision: dict, history: list[dict] | None = None, problems: list[str] | None = None) -> list:
     """Messages for the SLM: rules, the decision's allowed content, the tone, and the last problems if retrying."""
-    allowed = {"order_number": decision.get("order_id"), "facts": decision.get("facts") or {},
+    word = case_word(decision)
+    allowed = {f"{word}_number": decision.get("order_id"), "facts": decision.get("facts") or {},
                "next_step": decision.get("next_step") or "", "must_say": decision.get("must_say") or []}
     guide_key = ("approve_subscribe" if decision.get("outcome") == "approve" and decision.get("action") == "subscribe"
                  else decision.get("outcome"))
@@ -97,7 +130,7 @@ def build_messages(decision: dict, history: list[dict] | None = None, problems: 
                "What you may say (nothing else):\n" + json.dumps(allowed, ensure_ascii=False, indent=1),
                style_guide(decision.get("style"))]
     if decision.get("order_id") is not None:
-        content.append(f'Your first sentence must contain the exact words "order {decision["order_id"]}".')
+        content.append(f'Your first sentence must contain the exact words "{word} {decision["order_id"]}".')
     if decision.get("must_say"):
         content.append("Copy each of these sentences into your reply EXACTLY, word for word, without changing them:\n"
                        + "\n".join(f'- "{item}"' for item in decision["must_say"]))
@@ -111,7 +144,7 @@ def build_messages(decision: dict, history: list[dict] | None = None, problems: 
         content.append("Your previous reply was rejected because: " + "; ".join(problems)
                        + ". Write a new reply that fixes these problems.")
     content.append("Write the reply now.")
-    return [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": "\n\n".join(content)}]
+    return [{"role": "system", "content": system_prompt(decision)}, {"role": "user", "content": "\n\n".join(content)}]
 
 
 SIGN_OFFS = {"best regards", "kind regards", "warm regards", "regards", "sincerely", "yours sincerely",
@@ -200,7 +233,7 @@ def ensure_order_reference(reply: str, decision: dict) -> str:
         head = (head + " " + greeting.group(0).strip()).strip()
         rest = rest[greeting.end():].lstrip()
     rest = rest[:1].lower() + rest[1:] if rest[:2] != "I " else rest
-    return f"{head} About your order {order}: {rest}".strip()
+    return f"{head} About your {case_word(decision)} {order}: {rest}".strip()
 
 
 # --- T08: three small fixes by code (Dali's review of T05b) -------------------------------------------

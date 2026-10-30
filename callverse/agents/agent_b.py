@@ -14,11 +14,14 @@ Agent B never promises money: it tells the client the request is sent for checki
 
 The result of run() has an extra field "proposal": the last accepted proposal in the platform's
 shape ({agent, action, params, rule_id, facts_used, user_confirmed, user_quote}), or None.
+
+T21: the same class works for Atlas Travel, with its own short prompt and tools. At Atlas, B has three proposal tools
+(refund, compensation, hotel cancellation) and NONE of them takes an amount: the Coordinator computes it.
 """
 
 from callverse.agents.base_agent import BaseAgent
 from callverse.config import sim_today
-from callverse.tools.proposal_tools import refund_proposal
+from callverse.tools.proposal_tools import ATLAS_ACTIONS, atlas_proposal, refund_proposal
 
 # Kept short on purpose: the prompt is re-sent with every model call of a turn (tokens, T07).
 SYSTEM_PROMPT = """You are Agent B - Payment & Refund of ShopNova (Tunisia). Today is {today}. Amounts in TND.
@@ -36,6 +39,27 @@ Never say a refund is approved or paid, never promise money or dates: say it is 
 Write plain text only, no Markdown: no bold or asterisks, no headings, no lists.
 Be short and polite. Answer in the language of the client's message (English message -> English answer)."""
 
+ATLAS_PROMPT = """You are Agent B - Payment & Refund of Atlas Travel (hotel stays and flights, Tunisia). Today is {today}. Amounts in TND.
+Use only facts from tools, never invent. No booking number: ask for it and stop.
+1. Call get_flight_booking or get_hotel_booking (the Intake note gives the type) and get_refunds, together if you can.
+2. Call search_policy with the request. Cite the rule id in your answer, e.g. (rule AT-FLT-01).
+3. Propose only what the client asked for, and only if its rule applies:
+Money back -> propose_refund: flight cancelled AT-FLT-01; flight left 5 hours or more late (departure_delay_min >= 300) AT-FLT-04;
+hotel booking already cancelled, refundable, at least 2 days before arrival AT-HOT-02; finished stay with room_changed true AT-HOT-04.
+Compensation -> propose_compensation: flight cancelled and notice_days < 14 AT-FLT-02; arrived 3 hours or more late (arrival_delay_min >= 180) AT-FLT-03.
+Cause weather, air_system or security: no compensation, no proposal (AT-FLT-06).
+Cancel a confirmed hotel booking -> propose_hotel_cancellation, by deposit_type: no_deposit AT-HOT-01, refundable AT-HOT-02, non_refundable AT-HOT-03. Do not also ask for a refund: it comes with the cancellation.
+No rule applies: no proposal, say so.
+4. When a rule applies, you MUST call the proposal tool BEFORE your final answer; never write that you will send a
+proposal without calling it. Fields: booking_type, booking_id, rule_id, facts_used (the facts you read), user_confirmed
+(true only if the client asked), user_quote (the client's exact words). Never give an amount: the system computes it.
+Error or sent back: fix it and propose again.
+Never say anything is approved or paid, never promise money or dates, never state an amount: say it is sent for checking.
+Write plain text only, no Markdown: no bold or asterisks, no headings, no lists.
+Be short and polite. Answer in the language of the client's message (English message -> English answer)."""
+
+PROMPTS = {"shopnova": SYSTEM_PROMPT, "atlas": ATLAS_PROMPT}
+
 
 class AgentB(BaseAgent):
     agent_id = "B"
@@ -47,11 +71,17 @@ class AgentB(BaseAgent):
     max_steps = 8
 
     def system_prompt(self) -> str:
-        return SYSTEM_PROMPT.format(today=sim_today().isoformat())
+        return PROMPTS[self.company].format(today=sim_today().isoformat())
 
     def run(self, user_message: str, history: list[dict] | None = None) -> dict:
         """Normal agent turn, plus the last proposal the tool accepted (platform shape), or None."""
         result = super().run(user_message, history)
+        if self.company == "atlas":
+            accepted = [c for c in result["tool_calls"] if c["tool"] in ATLAS_ACTIONS
+                        and isinstance(c["result"], dict) and "error" not in c["result"]]
+            result["proposal"] = (atlas_proposal(self.agent_id, ATLAS_ACTIONS[accepted[-1]["tool"]], accepted[-1]["args"])
+                                  if accepted else None)
+            return result
         accepted = [c["args"] for c in result["tool_calls"]
                     if c["tool"] == "propose_refund" and isinstance(c["result"], dict)
                     and "error" not in c["result"]]

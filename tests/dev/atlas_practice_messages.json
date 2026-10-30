@@ -1,0 +1,29 @@
+{
+  "_note": "Atlas PRACTICE set (written by Claude, the Brain, 2026-10-30, AI-generated). Practice only, NOT held-out: used to find and fix problems in T21. Messages are sent through web_chat.send with company = atlas, in this order, on a database reset ONCE before the first message (python -m callverse.data.atlas.seed), with layer3 mode = queue and the Atlas finance limit of T21 (refunds above 1,500 TND and every compensation wait for the admin). Facts at reset: users 1 Hedi, 2 Sonia, 3 Tarek, 4 Lobna, 5 Nizar. Flight bookings: 7004 (Nizar) arrived 3 h 20 late, carrier cause, 1,190.7 km, paid 700; 7005 (Hedi) cancelled same day, carrier cause, 3,131.1 km, paid 1,500; 7006 (Sonia) 5 h 30 late, air-system cause, paid 1,900; 7007 (Tarek) 1 h late, paid 800; 7008 (Lobna) cancelled for weather, paid 690; 7010 (Nizar) future flight with a wheelchair request. Hotel bookings: 7003 (Tarek) stayed, room D booked / A given, refundable, paid 360; 7011 (Hedi) confirmed, refundable, arrival 2026-10-20, paid 220; 7012 (Sonia) confirmed, non-refundable, arrival 2026-10-25, paid 400. expect: refund_rows / compensation_rows = rows WRITTEN for that booking by this message; approvals_pending = new pending approvals; booking_status_after = the booking's status after the message.",
+  "messages": [
+    {"id": "a01", "user_id": 5, "text": "Hi, is my flight booking 7010 still on schedule?",
+     "expect": {"outcome": "info", "refund_rows": 0, "compensation_rows": 0, "reply_contains_any": ["7010"]}},
+    {"id": "a02", "user_id": 5, "text": "Flight 7004 got me to Chicago more than three hours late. I want the compensation I am owed.",
+     "expect": {"outcome": "layer3_pending", "approvals_pending": 1, "approval_amount": 839.5, "compensation_rows": 0, "refund_rows": 0}},
+    {"id": "a03", "user_id": 1, "text": "Booking 7005: my flight was cancelled and I want my money back.",
+     "expect": {"outcome": "approve", "refund_rows": 1, "refund_amount": 1500.0, "compensation_rows": 0}},
+    {"id": "a04", "user_id": 4, "text": "My flight 7008 was cancelled, please refund me.",
+     "expect": {"outcome": "approve", "refund_rows": 1, "refund_amount": 690.0}},
+    {"id": "a05", "user_id": 4, "text": "And I also want compensation for that cancelled flight, booking 7008.",
+     "expect": {"compensation_rows": 0, "approvals_pending": 0, "reply_not_contains": ["839", "1,343", "2,014"]}},
+    {"id": "a06", "user_id": 3, "text": "Booking 7007 arrived an hour late, I want compensation for it.",
+     "expect": {"compensation_rows": 0, "approvals_pending": 0, "refund_rows": 0}},
+    {"id": "a07", "user_id": 2, "text": "I want compensation for booking 7006, it left five and a half hours late.",
+     "expect": {"compensation_rows": 0, "approvals_pending": 0}},
+    {"id": "a08", "user_id": 3, "text": "At my hotel stay, booking 7003, they gave me a different room from the one I booked. I want something back.",
+     "expect": {"outcome": "approve", "refund_rows": 1, "refund_amount": 72.0}},
+    {"id": "a09", "user_id": 1, "text": "Please cancel my hotel booking 7011, I can't travel anymore.",
+     "expect": {"outcome": "approve", "booking_status_after": "cancelled", "refund_rows": 1, "refund_amount": 220.0}},
+    {"id": "a10", "user_id": 2, "text": "Cancel hotel booking 7012 please and give me my money back.",
+     "expect": {"booking_status_after": "cancelled", "refund_rows": 0}},
+    {"id": "a11", "user_id": 5, "text": "I use a wheelchair, I need help at the airport for my flight 7010.",
+     "expect": {"outcome": "escalate", "refund_rows": 0, "compensation_rows": 0}},
+    {"id": "a12", "user_id": 1, "text": "What is the status of booking 7004?",
+     "expect": {"outcome": "not_your_order", "refund_rows": 0, "reply_contains_any": ["not on your account"]}}
+  ]
+}
