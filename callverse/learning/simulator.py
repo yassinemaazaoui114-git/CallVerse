@@ -179,10 +179,10 @@ def corrupt(reply: str, decision: dict, kind: str) -> str:
     if kind == "unapproved_refund" and approved_refund:
         kind = "wrong_amount"
     refused = any(w in str(decision.get("next_step", "")).lower() for w in ("nothing to refund", "cannot", "no compensation", "not possible"))
-    if kind == "contradiction" and (refused or decision.get("outcome") != "approve"):
-        kind = "false_approval" if decision.get("outcome") != "approve" else kind
-    if kind == "contradiction" and refused:
+    if kind == "contradiction" and refused:          # "we cannot approve" would be TRUE here
         kind = "false_approval"
+    if kind == "false_approval" and decision.get("outcome") == "approve":   # "approved" would be TRUE here
+        kind = "invented_amount"
     extra = {"invented_amount": " You will also get 20 TND as a goodwill gesture.",
              "unapproved_refund": " Your refund has been approved and the money is on its way.",
              "false_delivery_promise": " It will arrive within 2 days, guaranteed.",

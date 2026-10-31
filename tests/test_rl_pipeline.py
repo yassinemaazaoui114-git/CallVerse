@@ -239,3 +239,16 @@ def test_inference_entry_point(situations, tmp_path):
     assert pol.n_updates == 1
     pol.save(tmp_path / "p.json")
     assert inf.load_policy(tmp_path / "p.json").n_updates == 1
+
+
+def test_stated_fact_values_must_match_the_decision(situations):
+    d = next(s for s in situations if s["decision"]["order_id"] == 4507 and s["reason"] == "refund_request")["decision"]
+    ok = write(d, "short")
+    assert check_correctness(_rec(d, ok))["status"] == "PASS"
+    stale = sim.corrupt(ok, d, "stale_fact")               # "it is 5 days late": 5 is allowed by the next step, but the fact is 2
+    out = check_correctness(_rec(d, stale))
+    assert out["status"] == "FAIL" and any("facts say 2" in e for e in out["evidence"])
+    approve = next(s for s in situations if s["decision"]["rule_id"] == "R-REF-03")["decision"]
+    assert check_correctness(_rec(approve, write(approve, "short") + " We refunded 6 TND."))["status"] == "FAIL"   # 6 = days_late, not the amount
+    # label sanity: a corruption must always be a real error
+    assert "approved" not in sim.corrupt(write(approve, "short"), approve, "false_approval")[-40:]

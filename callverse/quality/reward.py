@@ -37,6 +37,10 @@ COMPLETED_ACTION = re.compile(
     re.IGNORECASE)
 # Approve + refusal in the same reply (or the reverse) contradicts the decision.
 REFUSAL = re.compile(r"\b(?:we )?cannot (?:approve|refund|accept)|\bnot possible to (?:refund|approve)|\bis refused\b", re.IGNORECASE)
+# A fact VALUE stated in the reply must equal the decision's value for that fact (a number allowed elsewhere in the
+# decision, e.g. "more than 5 days" in the next step, must not be passed off as the order's own delay).
+STATED_DAYS_LATE = re.compile(r"\bit is (\d+) days? late\b", re.IGNORECASE)
+STATED_AMOUNT = re.compile(r"\b(?:refund|amount|refunded|credited)\b[^.]{0,30}?\b(\d+(?:[.,]\d+)?) ?TND", re.IGNORECASE)
 DELIVERY_PROMISE = re.compile(r"\b(?:will|should) (?:arrive|be delivered|be there)\b", re.IGNORECASE)
 ACTION_WORDS = {"rebook": "book", "reship": "ship", "cancel_hotel": "cancel", "replace": "replac", "refund": "refund"}
 
@@ -150,6 +154,18 @@ def check_correctness(record: dict) -> dict:
     if decision.get("outcome") != "approve" and re.search(r"\bhas been approved\b", low):
         fail = True
         evidence.append("says 'approved' for a decision that is not an approval")
+    facts = decision.get("facts") or {}
+    if facts.get("days_late") is not None:
+        for m in STATED_DAYS_LATE.finditer(low):
+            if int(m.group(1)) != int(facts["days_late"]):
+                fail = True
+                evidence.append(f"states '{m.group(0)}' but the facts say {facts['days_late']} days late")
+    amount = facts.get("amount_tnd", facts.get("amount"))
+    for m in STATED_AMOUNT.finditer(low):
+        v = float(m.group(1).replace(",", "."))
+        if amount is None or abs(v - float(amount)) > 0.005:
+            fail = True
+            evidence.append(f"states an amount of {v:g} TND that is not the decision's amount ({amount})")
     if (m := DELIVERY_PROMISE.search(low)) and not decision.get("facts", {}).get("promised_date"):
         fail = True
         evidence.append(f"delivery promise without a promised date in the facts: '{m.group(0)}'")

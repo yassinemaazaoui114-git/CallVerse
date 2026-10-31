@@ -15,8 +15,8 @@ from benchmarks.agent_f.rl_eval import DATA, OUT, SETS, run_bandit, score_policy
 from callverse.data.atlas.seed import seed as seed_atlas
 from callverse.data.seed import seed as seed_shopnova
 from callverse.learning.simulator import make_personas, make_situations
-from callverse.learning.style_policy import (GaussianThompson, LinUCB, always, from_table, random_style, rule_based,
-                                             rule_based_v2, supervised_group_policy)
+from callverse.learning.style_policy import (UPSET, GaussianThompson, LinUCB, always, from_table, random_style,
+                                             rule_based, rule_based_v2, supervised_group_policy)
 from callverse.quality.satisfaction import MODEL_DIR, TEXT_MODEL
 
 EVAL_SEEDS = (5, 6, 7)
@@ -34,12 +34,17 @@ def main():
     situations = make_situations()
     personas = {k: make_personas(n, ps, k) for k, (n, ps, _) in SETS.items()}
     train_rows = [json.loads(l) for l in (DATA / "train.jsonl").open(encoding="utf-8")]
-    res = {"note": "SIMULATED. Eval = EVAL personas x 69 situations, greedy, 3 evaluation seeds.", "fixed": {}, "learned": {}}
-    for name, pick in {"always_short": always("short"), "always_apology_first": always("apology_first"),
-                       "always_apology_next_step": always("apology_next_step"), "random": random_style(7),
-                       "rule_based": rule_based, "rule_based_v2": rule_based_v2,
-                       "supervised_group_train": from_table(supervised_group_policy(train_rows))}.items():
-        res["fixed"][name] = multi_seed(pick, personas["eval"], situations)
+    res = {"note": "SIMULATED. Policies scored on VAL and EVAL personas x 69 situations, greedy, 3 evaluation seeds. "
+                   "The deployment choice is made on VAL only; EVAL is reported once.", "fixed": {}, "learned": {}}
+    mood_rule = rule_by_mood_from(train_rows)
+    res["rule_from_train_by_mood"] = mood_rule
+    fixed = {"always_short": always("short"), "always_apology_first": always("apology_first"),
+             "always_apology_next_step": always("apology_next_step"), "random": random_style(7),
+             "rule_based": rule_based, "rule_based_v2_from_eval_audit": rule_based_v2,
+             "rule_by_mood_from_train": lambda sit: mood_rule["upset" if sit.get("emotion") in UPSET else "calm"],
+             "supervised_group_train": from_table(supervised_group_policy(train_rows))}
+    for name, pick in fixed.items():
+        res["fixed"][name] = {"val": multi_seed(pick, personas["val"], situations), "eval": multi_seed(pick, personas["eval"], situations)}
         print(name, res["fixed"][name], flush=True)
 
     # LinUCB alpha: train on TRAIN, choose on VAL, then score on EVAL (3 training seeds).
@@ -59,20 +64,34 @@ def main():
         for sd in (11, 12, 13):
             pol = make(sd)
             _train(pol, personas["train"], situations, base, stacker, sd)
-            per.append(multi_seed(pol.best, personas["eval"], situations)["avg_rating_mean"])
+            per.append({"val": multi_seed(pol.best, personas["val"], situations)["avg_rating_mean"],
+                        "eval": multi_seed(pol.best, personas["eval"], situations)["avg_rating_mean"]})
             if sd == 11:
                 pol.save(MODEL_DIR / f"policy_eval_{name}.json")
-        res["learned"][name] = {"avg_rating_mean": round(float(np.mean(per)), 4), "avg_rating_std": round(float(np.std(per)), 4), "per_train_seed": per}
+        res["learned"][name] = {k: {"avg_rating_mean": round(float(np.mean([x[k] for x in per])), 4),
+                                    "avg_rating_std": round(float(np.std([x[k] for x in per])), 4)} for k in ("val", "eval")}
         print(name, res["learned"][name], flush=True)
-    best_fixed = max(res["fixed"], key=lambda n: res["fixed"][n]["avg_rating_mean"])
-    best_learned = max(res["learned"], key=lambda n: res["learned"][n]["avg_rating_mean"])
-    res["decision"] = {"best_fixed": best_fixed, "best_learned": best_learned,
-                       "deploy": best_fixed if res["fixed"][best_fixed]["avg_rating_mean"] >= res["learned"][best_learned]["avg_rating_mean"] else best_learned}
-    if res["decision"]["deploy"] == best_learned:
-        (MODEL_DIR / f"policy_eval_{best_learned}.json").replace(MODEL_DIR / "style_policy.json")
+    candidates = {n: v["val"]["avg_rating_mean"] for n, v in res["fixed"].items() if n != "rule_based_v2_from_eval_audit"}
+    candidates.update({n: v["val"]["avg_rating_mean"] for n, v in res["learned"].items()})
+    deploy = max(candidates, key=candidates.get)
+    res["decision"] = {"selected_on_val": deploy, "val_scores": candidates,
+                       "eval_of_selected": (res["fixed"].get(deploy) or res["learned"][deploy])["eval"]["avg_rating_mean"],
+                       "note": "rule_based_v2 was read off the EVAL audit and is excluded from selection (leakage)"}
+    if deploy in res["learned"]:
+        (MODEL_DIR / f"policy_eval_{deploy}.json").replace(MODEL_DIR / "style_policy.json")
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "policy_eval.json").write_text(json.dumps(res, indent=2))
     print(res["decision"])
+
+
+def rule_by_mood_from(rows) -> dict:
+    """Best style for upset and for calm customers by mean rating on TRAIN rows (clean replies only)."""
+    from collections import defaultdict
+    acc = defaultdict(lambda: defaultdict(list))
+    for r in rows:
+        if r["corruption"] is None and r.get("degradation") is None:
+            acc["upset" if r["situation"]["emotion"] in UPSET else "calm"][r["style"]].append(float(r["rating"]))
+    return {m: max(v, key=lambda s: sum(v[s]) / len(v[s])) for m, v in acc.items()}
 
 
 def _train(pol, personas, situations, base, stacker, seed, episodes=6000):
