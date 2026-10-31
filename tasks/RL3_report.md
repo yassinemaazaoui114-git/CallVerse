@@ -33,3 +33,11 @@ conversations, because that file is not in the repo.
 
 ## 6. Next step
 Run `evaluate_rated` on the team set once; fit the stacker when RL4 data exists; RL6 evaluation with Yassine.
+
+## Update — full style-RL pipeline (branch feature/agent-f-rlhf-e2e)
+Built, all offline and plain code: style writer (3 styles), simulated-feedback simulator (personas, 69 code-made
+decisions, corruptions), Thompson-sampling style bandit, connector-verified correctness (PASS only when the facts
+are re-read from the company's tools), response-aware satisfaction candidate, RL evaluation vs baselines, demo.
+Numbers in docs/agent_f.md ("Style RL end to end"). Tests: 28/28 Agent F + RL tests. Everything is SIMULATED
+feedback: the ~100 real rated conversations are still missing, so no real-customer claim is made.
+Open: bandit does not beat the best fixed style on eval personas (see docs); stacker candidate not promoted.

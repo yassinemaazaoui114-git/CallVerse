@@ -1,0 +1,918 @@
+{
+  "note": "ALL SIMULATED feedback (callverse/learning/simulator.py). Not evidence of real customer satisfaction.",
+  "situations": 69,
+  "personas": {
+    "train": 12,
+    "val": 6,
+    "eval": 6
+  },
+  "rows": {
+    "train": 2484,
+    "val": 1242,
+    "eval": 1242
+  },
+  "style_candidate_training": {
+    "data_provenance": "simulated TRAINING personas only; never real/locked evaluation personas",
+    "inventory": {
+      "rows": 2484,
+      "personas": 12,
+      "paired_scenarios": 828,
+      "styles": [
+        "apology_first",
+        "apology_next_step",
+        "short"
+      ]
+    },
+    "split": {
+      "train_rows": 1863,
+      "dev_rows": 621,
+      "train_personas": 9,
+      "dev_personas": 3,
+      "persona_overlap": 0,
+      "seed": 42
+    },
+    "fixed_baseline_dev": {
+      "mae": 0.9736,
+      "spearman": 0.0203
+    },
+    "candidate_dev": {
+      "mae": 0.675,
+      "spearman": 0.6236
+    },
+    "ridge_alpha": 0.1,
+    "feature_schema_version": "v3-style-emotion-cross-reply-44d",
+    "median_style_reward_spread": 0.8687,
+    "candidate_improves_simulated_mae": true,
+    "style_effect_present": true,
+    "real_support_evaluation": "NOT RUN \u2014 separate locked ~100 rated conversations required",
+    "can_promote": false,
+    "fit_s": 11.6
+  },
+  "satisfaction": {
+    "val": {
+      "all": {
+        "fixed_text_delay": {
+          "mae": 0.9661,
+          "spearman": -0.0112
+        },
+        "style_candidate": {
+          "mae": 0.6928,
+          "spearman": 0.5507
+        },
+        "baseline_mean_rating": {
+          "mae": 0.7876,
+          "spearman": 0.0
+        }
+      },
+      "shopnova": {
+        "fixed_text_delay": {
+          "mae": 0.8984,
+          "spearman": 0.1135
+        },
+        "style_candidate": {
+          "mae": 0.6902,
+          "spearman": 0.5461
+        },
+        "baseline_mean_rating": {
+          "mae": 0.7715,
+          "spearman": 0.0
+        }
+      },
+      "atlas": {
+        "fixed_text_delay": {
+          "mae": 1.0852,
+          "spearman": -0.2216
+        },
+        "style_candidate": {
+          "mae": 0.6972,
+          "spearman": 0.5642
+        },
+        "baseline_mean_rating": {
+          "mae": 0.8135,
+          "spearman": 0.0
+        }
+      }
+    },
+    "eval": {
+      "all": {
+        "fixed_text_delay": {
+          "mae": 1.0103,
+          "spearman": -0.0076
+        },
+        "style_candidate": {
+          "mae": 0.6993,
+          "spearman": 0.5853
+        },
+        "baseline_mean_rating": {
+          "mae": 0.8409,
+          "spearman": 0.0
+        }
+      },
+      "shopnova": {
+        "fixed_text_delay": {
+          "mae": 0.9628,
+          "spearman": 0.092
+        },
+        "style_candidate": {
+          "mae": 0.7031,
+          "spearman": 0.5941
+        },
+        "baseline_mean_rating": {
+          "mae": 0.8484,
+          "spearman": 0.0
+        }
+      },
+      "atlas": {
+        "fixed_text_delay": {
+          "mae": 1.0939,
+          "spearman": -0.1775
+        },
+        "style_candidate": {
+          "mae": 0.6925,
+          "spearman": 0.5717
+        },
+        "baseline_mean_rating": {
+          "mae": 0.8277,
+          "spearman": 0.0
+        }
+      }
+    }
+  },
+  "correctness_eval": {
+    "all": {
+      "n": 1242,
+      "n_wrong": 320,
+      "fail_precision": 1.0,
+      "fail_recall": 0.9812,
+      "false_pass_rate": 0.0187,
+      "unknown_rate": 0.0
+    },
+    "shopnova": {
+      "n": 792,
+      "n_wrong": 198,
+      "fail_precision": 1.0,
+      "fail_recall": 0.9848,
+      "false_pass_rate": 0.0152,
+      "unknown_rate": 0.0
+    },
+    "atlas": {
+      "n": 450,
+      "n_wrong": 122,
+      "fail_precision": 1.0,
+      "fail_recall": 0.9754,
+      "false_pass_rate": 0.0246,
+      "unknown_rate": 0.0
+    }
+  },
+  "reward_eval": {
+    "fixed": {
+      "n": 1242,
+      "agreement_with_oracle": 0.6691
+    },
+    "style_candidate": {
+      "n": 1242,
+      "agreement_with_oracle": 0.7351
+    }
+  },
+  "latency_ms": {
+    "mean": 3.53,
+    "p95": 4.42
+  },
+  "bandit_agent_f_arms": {
+    "atlas|calm|approve|ontime": {
+      "short": {
+        "wins": 3.0,
+        "losses": 1.0,
+        "p": 0.667
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 1.0,
+        "p": 0.333
+      },
+      "apology_next_step": {
+        "wins": 44.0,
+        "losses": 0.0,
+        "p": 0.978
+      }
+    },
+    "atlas|calm|info|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 56.0,
+        "p": 0.017
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 62.0,
+        "p": 0.016
+      },
+      "apology_next_step": {
+        "wins": 1.0,
+        "losses": 94.0,
+        "p": 0.021
+      }
+    },
+    "atlas|calm|other|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 25.0,
+        "p": 0.037
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 30.0,
+        "p": 0.031
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 29.0,
+        "p": 0.032
+      }
+    },
+    "atlas|upset|approve|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 1.0,
+        "p": 0.333
+      },
+      "apology_first": {
+        "wins": 13.0,
+        "losses": 4.0,
+        "p": 0.737
+      },
+      "apology_next_step": {
+        "wins": 50.0,
+        "losses": 4.0,
+        "p": 0.911
+      }
+    },
+    "atlas|upset|info|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 144.0,
+        "p": 0.007
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 134.0,
+        "p": 0.007
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 144.0,
+        "p": 0.007
+      }
+    },
+    "atlas|upset|other|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 75.0,
+        "p": 0.013
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 74.0,
+        "p": 0.013
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 76.0,
+        "p": 0.013
+      }
+    },
+    "shopnova|calm|approve|late": {
+      "short": {
+        "wins": 2.0,
+        "losses": 3.0,
+        "p": 0.429
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 3.0,
+        "p": 0.2
+      },
+      "apology_next_step": {
+        "wins": 29.0,
+        "losses": 15.0,
+        "p": 0.652
+      }
+    },
+    "shopnova|calm|approve|ontime": {
+      "short": {
+        "wins": 41.0,
+        "losses": 0.0,
+        "p": 0.977
+      },
+      "apology_first": {
+        "wins": 2.0,
+        "losses": 1.0,
+        "p": 0.6
+      },
+      "apology_next_step": {
+        "wins": 9.0,
+        "losses": 0.0,
+        "p": 0.909
+      }
+    },
+    "shopnova|calm|info|late": {
+      "short": {
+        "wins": 0.0,
+        "losses": 26.0,
+        "p": 0.036
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 18.0,
+        "p": 0.05
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 27.0,
+        "p": 0.034
+      }
+    },
+    "shopnova|calm|info|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 90.0,
+        "p": 0.011
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 86.0,
+        "p": 0.011
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 97.0,
+        "p": 0.01
+      }
+    },
+    "shopnova|calm|other|late": {
+      "short": {
+        "wins": 0.0,
+        "losses": 14.0,
+        "p": 0.062
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 19.0,
+        "p": 0.048
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 23.0,
+        "p": 0.04
+      }
+    },
+    "shopnova|calm|other|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 43.0,
+        "p": 0.022
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 39.0,
+        "p": 0.024
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 39.0,
+        "p": 0.024
+      }
+    },
+    "shopnova|upset|approve|late": {
+      "short": {
+        "wins": 0.0,
+        "losses": 3.0,
+        "p": 0.2
+      },
+      "apology_first": {
+        "wins": 14.0,
+        "losses": 9.0,
+        "p": 0.6
+      },
+      "apology_next_step": {
+        "wins": 43.0,
+        "losses": 21.0,
+        "p": 0.667
+      }
+    },
+    "shopnova|upset|approve|ontime": {
+      "short": {
+        "wins": 11.0,
+        "losses": 0.0,
+        "p": 0.923
+      },
+      "apology_first": {
+        "wins": 78.0,
+        "losses": 0.0,
+        "p": 0.988
+      },
+      "apology_next_step": {
+        "wins": 32.0,
+        "losses": 0.0,
+        "p": 0.971
+      }
+    },
+    "shopnova|upset|info|late": {
+      "short": {
+        "wins": 0.0,
+        "losses": 52.0,
+        "p": 0.019
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 52.0,
+        "p": 0.019
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 52.0,
+        "p": 0.019
+      }
+    },
+    "shopnova|upset|info|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 203.0,
+        "p": 0.005
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 189.0,
+        "p": 0.005
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 218.0,
+        "p": 0.005
+      }
+    },
+    "shopnova|upset|other|late": {
+      "short": {
+        "wins": 0.0,
+        "losses": 37.0,
+        "p": 0.026
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 38.0,
+        "p": 0.025
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 40.0,
+        "p": 0.024
+      }
+    },
+    "shopnova|upset|other|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 68.0,
+        "p": 0.014
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 78.0,
+        "p": 0.013
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 71.0,
+        "p": 0.014
+      }
+    }
+  },
+  "bandit_simulated_arms": {
+    "atlas|calm|approve|ontime": {
+      "short": {
+        "wins": 19.0,
+        "losses": 0.0,
+        "p": 0.952
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 1.0,
+        "p": 0.333
+      },
+      "apology_next_step": {
+        "wins": 29.0,
+        "losses": 0.0,
+        "p": 0.968
+      }
+    },
+    "atlas|calm|info|ontime": {
+      "short": {
+        "wins": 141.0,
+        "losses": 60.0,
+        "p": 0.7
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 4.0,
+        "p": 0.167
+      },
+      "apology_next_step": {
+        "wins": 3.0,
+        "losses": 5.0,
+        "p": 0.4
+      }
+    },
+    "atlas|calm|other|ontime": {
+      "short": {
+        "wins": 25.0,
+        "losses": 43.0,
+        "p": 0.371
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 6.0,
+        "p": 0.125
+      },
+      "apology_next_step": {
+        "wins": 1.0,
+        "losses": 9.0,
+        "p": 0.167
+      }
+    },
+    "atlas|upset|approve|ontime": {
+      "short": {
+        "wins": 5.0,
+        "losses": 1.0,
+        "p": 0.75
+      },
+      "apology_first": {
+        "wins": 50.0,
+        "losses": 0.0,
+        "p": 0.981
+      },
+      "apology_next_step": {
+        "wins": 16.0,
+        "losses": 0.0,
+        "p": 0.944
+      }
+    },
+    "atlas|upset|info|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 4.0,
+        "p": 0.167
+      },
+      "apology_first": {
+        "wins": 1.0,
+        "losses": 6.0,
+        "p": 0.222
+      },
+      "apology_next_step": {
+        "wins": 282.0,
+        "losses": 129.0,
+        "p": 0.685
+      }
+    },
+    "atlas|upset|other|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 17.0,
+        "p": 0.053
+      },
+      "apology_first": {
+        "wins": 9.0,
+        "losses": 51.0,
+        "p": 0.161
+      },
+      "apology_next_step": {
+        "wins": 33.0,
+        "losses": 115.0,
+        "p": 0.227
+      }
+    },
+    "shopnova|calm|approve|late": {
+      "short": {
+        "wins": 40.0,
+        "losses": 0.0,
+        "p": 0.976
+      },
+      "apology_first": {
+        "wins": 1.0,
+        "losses": 1.0,
+        "p": 0.5
+      },
+      "apology_next_step": {
+        "wins": 9.0,
+        "losses": 1.0,
+        "p": 0.833
+      }
+    },
+    "shopnova|calm|approve|ontime": {
+      "short": {
+        "wins": 29.0,
+        "losses": 0.0,
+        "p": 0.968
+      },
+      "apology_first": {
+        "wins": 5.0,
+        "losses": 1.0,
+        "p": 0.75
+      },
+      "apology_next_step": {
+        "wins": 16.0,
+        "losses": 2.0,
+        "p": 0.85
+      }
+    },
+    "shopnova|calm|info|late": {
+      "short": {
+        "wins": 30.0,
+        "losses": 31.0,
+        "p": 0.492
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 6.0,
+        "p": 0.125
+      },
+      "apology_next_step": {
+        "wins": 1.0,
+        "losses": 3.0,
+        "p": 0.333
+      }
+    },
+    "shopnova|calm|info|ontime": {
+      "short": {
+        "wins": 122.0,
+        "losses": 61.0,
+        "p": 0.665
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 4.0,
+        "p": 0.167
+      },
+      "apology_next_step": {
+        "wins": 43.0,
+        "losses": 43.0,
+        "p": 0.5
+      }
+    },
+    "shopnova|calm|other|late": {
+      "short": {
+        "wins": 3.0,
+        "losses": 12.0,
+        "p": 0.235
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 12.0,
+        "p": 0.071
+      },
+      "apology_next_step": {
+        "wins": 4.0,
+        "losses": 25.0,
+        "p": 0.161
+      }
+    },
+    "shopnova|calm|other|ontime": {
+      "short": {
+        "wins": 25.0,
+        "losses": 49.0,
+        "p": 0.342
+      },
+      "apology_first": {
+        "wins": 0.0,
+        "losses": 8.0,
+        "p": 0.1
+      },
+      "apology_next_step": {
+        "wins": 10.0,
+        "losses": 29.0,
+        "p": 0.268
+      }
+    },
+    "shopnova|upset|approve|late": {
+      "short": {
+        "wins": 0.0,
+        "losses": 2.0,
+        "p": 0.25
+      },
+      "apology_first": {
+        "wins": 43.0,
+        "losses": 17.0,
+        "p": 0.71
+      },
+      "apology_next_step": {
+        "wins": 21.0,
+        "losses": 7.0,
+        "p": 0.733
+      }
+    },
+    "shopnova|upset|approve|ontime": {
+      "short": {
+        "wins": 2.0,
+        "losses": 1.0,
+        "p": 0.6
+      },
+      "apology_first": {
+        "wins": 76.0,
+        "losses": 1.0,
+        "p": 0.975
+      },
+      "apology_next_step": {
+        "wins": 40.0,
+        "losses": 1.0,
+        "p": 0.953
+      }
+    },
+    "shopnova|upset|info|late": {
+      "short": {
+        "wins": 5.0,
+        "losses": 25.0,
+        "p": 0.188
+      },
+      "apology_first": {
+        "wins": 15.0,
+        "losses": 44.0,
+        "p": 0.262
+      },
+      "apology_next_step": {
+        "wins": 18.0,
+        "losses": 49.0,
+        "p": 0.275
+      }
+    },
+    "shopnova|upset|info|ontime": {
+      "short": {
+        "wins": 0.0,
+        "losses": 6.0,
+        "p": 0.125
+      },
+      "apology_first": {
+        "wins": 8.0,
+        "losses": 11.0,
+        "p": 0.429
+      },
+      "apology_next_step": {
+        "wins": 378.0,
+        "losses": 207.0,
+        "p": 0.646
+      }
+    },
+    "shopnova|upset|other|late": {
+      "short": {
+        "wins": 0.0,
+        "losses": 20.0,
+        "p": 0.045
+      },
+      "apology_first": {
+        "wins": 6.0,
+        "losses": 62.0,
+        "p": 0.1
+      },
+      "apology_next_step": {
+        "wins": 0.0,
+        "losses": 27.0,
+        "p": 0.034
+      }
+    },
+    "shopnova|upset|other|ontime": {
+      "short": {
+        "wins": 3.0,
+        "losses": 18.0,
+        "p": 0.174
+      },
+      "apology_first": {
+        "wins": 6.0,
+        "losses": 23.0,
+        "p": 0.226
+      },
+      "apology_next_step": {
+        "wins": 50.0,
+        "losses": 117.0,
+        "p": 0.302
+      }
+    }
+  },
+  "policies_eval": {
+    "always_short": {
+      "all": {
+        "avg_rating": 3.0338,
+        "avg_reward": -0.5121,
+        "share_satisfied": 0.244
+      },
+      "shopnova": {
+        "avg_rating": 2.9735,
+        "avg_reward": -0.5682,
+        "share_satisfied": 0.2159
+      },
+      "atlas": {
+        "avg_rating": 3.14,
+        "avg_reward": -0.4133,
+        "share_satisfied": 0.2933
+      }
+    },
+    "always_apology_first": {
+      "all": {
+        "avg_rating": 3.5411,
+        "avg_reward": 0.0,
+        "share_satisfied": 0.5
+      },
+      "shopnova": {
+        "avg_rating": 3.5189,
+        "avg_reward": 0.0,
+        "share_satisfied": 0.5
+      },
+      "atlas": {
+        "avg_rating": 3.58,
+        "avg_reward": 0.0,
+        "share_satisfied": 0.5
+      }
+    },
+    "always_apology_next_step": {
+      "all": {
+        "avg_rating": 3.6063,
+        "avg_reward": 0.1159,
+        "share_satisfied": 0.558
+      },
+      "shopnova": {
+        "avg_rating": 3.5795,
+        "avg_reward": 0.0909,
+        "share_satisfied": 0.5455
+      },
+      "atlas": {
+        "avg_rating": 3.6533,
+        "avg_reward": 0.16,
+        "share_satisfied": 0.58
+      }
+    },
+    "random": {
+      "all": {
+        "avg_rating": 3.3623,
+        "avg_reward": -0.1836,
+        "share_satisfied": 0.4082
+      },
+      "shopnova": {
+        "avg_rating": 3.303,
+        "avg_reward": -0.2576,
+        "share_satisfied": 0.3712
+      },
+      "atlas": {
+        "avg_rating": 3.4667,
+        "avg_reward": -0.0533,
+        "share_satisfied": 0.4733
+      }
+    },
+    "rule_based": {
+      "all": {
+        "avg_rating": 3.5386,
+        "avg_reward": -0.0242,
+        "share_satisfied": 0.4879
+      },
+      "shopnova": {
+        "avg_rating": 3.4962,
+        "avg_reward": -0.0379,
+        "share_satisfied": 0.4811
+      },
+      "atlas": {
+        "avg_rating": 3.6133,
+        "avg_reward": 0.0,
+        "share_satisfied": 0.5
+      }
+    },
+    "bandit_reward_agent_f": {
+      "all": {
+        "avg_rating": 3.4614,
+        "avg_reward": -0.0531,
+        "share_satisfied": 0.4734
+      },
+      "shopnova": {
+        "avg_rating": 3.3409,
+        "avg_reward": -0.1439,
+        "share_satisfied": 0.428
+      },
+      "atlas": {
+        "avg_rating": 3.6733,
+        "avg_reward": 0.1067,
+        "share_satisfied": 0.5533
+      }
+    },
+    "bandit_reward_simulated": {
+      "all": {
+        "avg_rating": 3.471,
+        "avg_reward": -0.0628,
+        "share_satisfied": 0.4686
+      },
+      "shopnova": {
+        "avg_rating": 3.4167,
+        "avg_reward": -0.0985,
+        "share_satisfied": 0.4508
+      },
+      "atlas": {
+        "avg_rating": 3.5667,
+        "avg_reward": 0.0,
+        "share_satisfied": 0.5
+      }
+    }
+  }
+}
