@@ -1,0 +1,486 @@
+{
+ "model": "bge-base-ft",
+ "loaded": "models/bge-base-callverse-ft",
+ "load_s": 0.8,
+ "intake": {
+  "model": "bge-base-ft",
+  "top_k": 1,
+  "avg_macro_f1": 0.7578,
+  "avg_accuracy": 0.764,
+  "companies": {
+   "shopnova": {
+    "threshold": 0.71,
+    "n": 328,
+    "accuracy": 0.628,
+    "macro_f1": 0.618,
+    "critical_errors": 17,
+    "needs_llm_rate": 0.0183,
+    "per_reason": {
+     "order_status": {
+      "precision": 0.3,
+      "recall": 0.73,
+      "f1": 0.425,
+      "support": 37
+     },
+     "late_delivery": {
+      "precision": 0.325,
+      "recall": 0.5,
+      "f1": 0.394,
+      "support": 26
+     },
+     "refund_request": {
+      "precision": 0.981,
+      "recall": 0.761,
+      "f1": 0.857,
+      "support": 67
+     },
+     "return_item": {
+      "precision": 0.735,
+      "recall": 0.947,
+      "f1": 0.828,
+      "support": 38
+     },
+     "damaged_item": {
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1": 0.571,
+      "support": 10
+     },
+     "other": {
+      "precision": 0.862,
+      "recall": 0.5,
+      "f1": 0.633,
+      "support": 150
+     }
+    }
+   },
+   "atlas": {
+    "threshold": 0.57,
+    "n": 40,
+    "accuracy": 0.9,
+    "macro_f1": 0.8977,
+    "critical_errors": 2,
+    "needs_llm_rate": 0.0,
+    "per_reason": {
+     "booking_status": {
+      "precision": 0.714,
+      "recall": 1.0,
+      "f1": 0.833,
+      "support": 5
+     },
+     "delay_disruption": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
+      "support": 5
+     },
+     "cancellation": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+     },
+     "refund_request": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+     },
+     "compensation_request": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75,
+      "support": 5
+     },
+     "rebooking": {
+      "precision": 0.833,
+      "recall": 1.0,
+      "f1": 0.909,
+      "support": 5
+     },
+     "special_assistance": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.889,
+      "support": 5
+     },
+     "other": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+     }
+    }
+   }
+  },
+  "by_top_k": {
+   "1": {
+    "avg_macro_f1": 0.7578,
+    "thresholds": {
+     "shopnova": 0.71,
+     "atlas": 0.57
+    }
+   },
+   "3": {
+    "avg_macro_f1": 0.6773,
+    "thresholds": {
+     "shopnova": 0.69,
+     "atlas": 0.55
+    }
+   },
+   "5": {
+    "avg_macro_f1": 0.6355,
+    "thresholds": {
+     "shopnova": 0.64,
+     "atlas": 0.53
+    }
+   }
+  }
+ },
+ "intake_latency_ms": {
+  "p50": 27.6,
+  "p95": 46.88,
+  "n": 368
+ },
+ "search": {
+  "no_prompt": {
+   "all": {
+    "n": 30,
+    "top1": 0.3333,
+    "top2": 0.6,
+    "mrr": 0.5682,
+    "top1_count": 10,
+    "top2_count": 18
+   },
+   "shopnova": {
+    "n": 12,
+    "top1": 0.3333,
+    "top2": 0.6667,
+    "mrr": 0.5931,
+    "top1_count": 4,
+    "top2_count": 8
+   },
+   "atlas": {
+    "n": 18,
+    "top1": 0.3333,
+    "top2": 0.5556,
+    "mrr": 0.5516,
+    "top1_count": 6,
+    "top2_count": 10
+   },
+   "misses": [
+    {
+     "id": "rv01",
+     "expected": [
+      "R-DEL-02"
+     ],
+     "top2": [
+      "R-DEL-01",
+      "R-NOT-01"
+     ]
+    },
+    {
+     "id": "rv06",
+     "expected": [
+      "R-REF-05"
+     ],
+     "top2": [
+      "R-DMG-01",
+      "R-REF-03"
+     ]
+    },
+    {
+     "id": "rv09",
+     "expected": [
+      "R-DEL-02"
+     ],
+     "top2": [
+      "R-DEL-01",
+      "R-NOT-01"
+     ]
+    },
+    {
+     "id": "rv10",
+     "expected": [
+      "R-REF-05"
+     ],
+     "top2": [
+      "R-DMG-01",
+      "R-REF-03"
+     ]
+    },
+    {
+     "id": "rv14",
+     "expected": [
+      "AT-FLT-02"
+     ],
+     "top2": [
+      "AT-FLT-03",
+      "AT-FLT-05"
+     ]
+    },
+    {
+     "id": "rv15",
+     "expected": [
+      "AT-FLT-03"
+     ],
+     "top2": [
+      "AT-FLT-05",
+      "AT-AST-01"
+     ]
+    },
+    {
+     "id": "rv18",
+     "expected": [
+      "AT-FLT-06"
+     ],
+     "top2": [
+      "AT-FLT-02",
+      "AT-FLT-03"
+     ]
+    },
+    {
+     "id": "rv23",
+     "expected": [
+      "AT-HOT-04"
+     ],
+     "top2": [
+      "AT-AST-01",
+      "AT-FLT-05"
+     ]
+    },
+    {
+     "id": "rv25",
+     "expected": [
+      "AT-REF-01"
+     ],
+     "top2": [
+      "AT-HOT-02",
+      "AT-HOT-04"
+     ]
+    },
+    {
+     "id": "rv26",
+     "expected": [
+      "AT-ESC-01"
+     ],
+     "top2": [
+      "AT-HOT-02",
+      "AT-HOT-04"
+     ]
+    },
+    {
+     "id": "rv27",
+     "expected": [
+      "AT-FLT-06",
+      "AT-FLT-03"
+     ],
+     "top2": [
+      "AT-AST-01",
+      "AT-FLT-05"
+     ]
+    },
+    {
+     "id": "rv29",
+     "expected": [
+      "AT-HOT-02"
+     ],
+     "top2": [
+      "AT-HOT-01",
+      "AT-FLT-04"
+     ]
+    }
+   ],
+   "no_rule_separable": 2,
+   "latency_ms": {
+    "p50": 27.25,
+    "p95": 32.03
+   }
+  },
+  "prompt": {
+   "all": {
+    "n": 30,
+    "top1": 0.3333,
+    "top2": 0.5,
+    "mrr": 0.5426,
+    "top1_count": 10,
+    "top2_count": 15
+   },
+   "shopnova": {
+    "n": 12,
+    "top1": 0.3333,
+    "top2": 0.4167,
+    "mrr": 0.5375,
+    "top1_count": 4,
+    "top2_count": 5
+   },
+   "atlas": {
+    "n": 18,
+    "top1": 0.3333,
+    "top2": 0.5556,
+    "mrr": 0.5459,
+    "top1_count": 6,
+    "top2_count": 10
+   },
+   "misses": [
+    {
+     "id": "rv01",
+     "expected": [
+      "R-DEL-02"
+     ],
+     "top2": [
+      "R-DEL-01",
+      "R-NOT-01"
+     ]
+    },
+    {
+     "id": "rv04",
+     "expected": [
+      "R-RET-01"
+     ],
+     "top2": [
+      "R-DEL-02",
+      "R-DMG-01"
+     ]
+    },
+    {
+     "id": "rv06",
+     "expected": [
+      "R-REF-05"
+     ],
+     "top2": [
+      "R-DMG-01",
+      "R-REF-03"
+     ]
+    },
+    {
+     "id": "rv07",
+     "expected": [
+      "R-ESC-01"
+     ],
+     "top2": [
+      "R-REF-03",
+      "R-RET-01"
+     ]
+    },
+    {
+     "id": "rv09",
+     "expected": [
+      "R-DEL-02"
+     ],
+     "top2": [
+      "R-DEL-01",
+      "R-NOT-01"
+     ]
+    },
+    {
+     "id": "rv10",
+     "expected": [
+      "R-REF-05"
+     ],
+     "top2": [
+      "R-DMG-01",
+      "R-REF-03"
+     ]
+    },
+    {
+     "id": "rv11",
+     "expected": [
+      "R-DMG-01"
+     ],
+     "top2": [
+      "R-NOT-01",
+      "R-DEL-01"
+     ]
+    },
+    {
+     "id": "rv14",
+     "expected": [
+      "AT-FLT-02"
+     ],
+     "top2": [
+      "AT-FLT-05",
+      "AT-AST-01"
+     ]
+    },
+    {
+     "id": "rv15",
+     "expected": [
+      "AT-FLT-03"
+     ],
+     "top2": [
+      "AT-FLT-05",
+      "AT-AST-01"
+     ]
+    },
+    {
+     "id": "rv18",
+     "expected": [
+      "AT-FLT-06"
+     ],
+     "top2": [
+      "AT-FLT-02",
+      "AT-FLT-03"
+     ]
+    },
+    {
+     "id": "rv21",
+     "expected": [
+      "AT-HOT-02"
+     ],
+     "top2": [
+      "AT-HOT-01",
+      "AT-HOT-04"
+     ]
+    },
+    {
+     "id": "rv23",
+     "expected": [
+      "AT-HOT-04"
+     ],
+     "top2": [
+      "AT-FLT-05",
+      "AT-AST-01"
+     ]
+    },
+    {
+     "id": "rv25",
+     "expected": [
+      "AT-REF-01"
+     ],
+     "top2": [
+      "AT-HOT-04",
+      "AT-ESC-01"
+     ]
+    },
+    {
+     "id": "rv27",
+     "expected": [
+      "AT-FLT-06",
+      "AT-FLT-03"
+     ],
+     "top2": [
+      "AT-AST-01",
+      "AT-FLT-05"
+     ]
+    },
+    {
+     "id": "rv29",
+     "expected": [
+      "AT-HOT-02"
+     ],
+     "top2": [
+      "AT-HOT-01",
+      "AT-FLT-04"
+     ]
+    }
+   ],
+   "no_rule_separable": 0,
+   "latency_ms": {
+    "p50": 29.15,
+    "p95": 31.74
+   }
+  }
+ },
+ "peak_ram_mb": 1018
+}
