@@ -43,6 +43,8 @@ DATA_DIR = Path(__file__).resolve().parent / "data"
 # A sentence that says it wants to cancel is a cancellation (a rule, not tuning: threshold and top-k are the same).
 # Not "cancelled": "I cancelled it, where is my money?" is about what already happened. "cancle": a typo in real tweets.
 CANCEL_WORD_RE = re.compile(r"\b(?:cancel|cancle|cancell?ing)\b", re.IGNORECASE)
+# Cancelling a subscription or an account is not cancelling an order: the rule stays out of those sentences.
+NOT_AN_ORDER_RE = re.compile(r"\b(?:subscriptions?|memberships?|prime|accounts?|plans?)\b", re.IGNORECASE)
 
 REASONS = ["order_status", "late_delivery", "refund_request", "cancel_order", "return_item", "damaged_item", "other"]
 
@@ -125,7 +127,8 @@ def match_reasons(text: str, threshold: float | None = None, company: str = comp
         scores = reason_scores(vector, vectors, cfg["top_k"])
         sentence_scores.append({"sentence": sentence, "scores": {r: round(s, 3) for r, s in scores.items()}})
         reason = max(scores, key=scores.get)               # this sentence's best reason
-        if "cancel_order" in scores and CANCEL_WORD_RE.search(sentence):   # ShopNova only (T14a, see above)
+        if ("cancel_order" in scores and CANCEL_WORD_RE.search(sentence)   # ShopNova only (T14a, see above)
+                and not NOT_AN_ORDER_RE.search(sentence)):
             reason = "cancel_order"
         score = scores[reason]
         if score >= threshold and score > best_per_reason.get(reason, {}).get("score", -1):

@@ -1,4 +1,73 @@
-# T14a report — STOPPED at the macro-F1 stop rule (live runs not done)
+# T14a report — STOPPED twice: follow-up stop rule failed on critical errors (live runs not done)
+
+# Follow-up (Yassine's all ⭐ list) — latest state
+
+**In plain words.** The follow-up's code is done and all tests pass, but its stop rule failed: macro-F1 passes and critical
+errors do not (37, limit 29). So the practice runner, the practice run and the docs were **not** done, as the follow-up
+says. The held-out set is still unused. Narrowing the keyword rule could not help, because the false cancels do not come
+from that rule: 13 of the 14 come from the embedding match, which fires on messages that never say "cancel".
+
+| Follow-up item | State |
+|---|---|
+| 1. val + mapping restored to main; `pc_check.json` restored after re-measuring | done |
+| 1. Rule: macro-F1 >= 0.391 | **pass, 0.4157** (328 messages; 0.4108 before T14a) |
+| 1. Rule: critical errors <= 29 | **FAIL, 37** (26 before T14a) |
+| 2. `CANCEL_WORD_RE` stays out of subscription / membership / prime / account / plan (`NOT_AN_ORDER_RE`) | done |
+| 3. The other 4 changes kept | done |
+| 4. R-CAN-01 `next_step` by status, 7 test cases (no proposal and proposal) | done |
+| 5. Practice runner, practice run, docs, DATA_LICENCES, README | **not done: the rule failed** |
+| Held-out set | not run |
+
+Tests: **1119 passed / 1119** (0 API calls). Rule search top-2: 30/30. Atlas macro-F1 0.8838, unchanged. Average 0.6498.
+
+**cancel_order on the 6 practice messages (t07-t12), Intake only:** 6/6 main reason `cancel_order`. Not a live result.
+
+**Critical errors, 37:** other → refund_request 13, other → cancel_order 11, other → return_item 4, order_status →
+cancel_order 2, order_status → refund_request 2, other → damaged_item 2, damaged_item → order_status 2, refund_request →
+order_status 1. So 13 of the 37 are `cancel_order`.
+
+**Val messages still predicted cancel_order: 14**
+
+| Id | True label (subflow) | Message |
+|---|---|---|
+| abcd-3573 | other (manage) | I would like to cancel my shipping order |
+| abcd-7362 | order_status (status_delivery_time) | hi, i am trying to check on the status for an order because the delivery time is wrong and i need to change it |
+| abcd-2758 | other (status_quantity) | Can you please check an order for me. I ordered 1 but my e-mail confirmation states two? |
+| abcd-4793 | other (promo_code_invalid) | I got a promo code a few days ago, but when I try to use it, it's telling me that it's invalid. |
+| abcd-8317 | other (timing_4) | Yes i would like to know when the promo expires because i was thinking about buying some things |
+| abcd-2362 | refund_request (mistimed_billing_already_returned) | Hi I have a question about my account. |
+| abcd-4640 | order_status (status) | Hi, I made an order and I just looked at the order confirmation and the prices weren't right. |
+| abcd-2453 | other (manage_change_name) | I have an issue with my account |
+| abcd-9808 | other (shopping_cart) | I am trying to make a purchase but my cart doesn't seem to be updating |
+| abcd-7941 | other (shopping_cart) | I'm trying to purchase an item, but the cart will not update when I add another item to it, |
+| abcd-5190 | other (recover_username) | Hi Anne, I am trying to log into my account to check my order status but i have forgotten my username, can you |
+| abcd-6170 | other (credit_card) | I want to buy something and my credit card keeps getting rejected |
+| abcd-7704 | other (credit_card) | HI! I am trying to get something but my credit card keeps getting rejected. I only have one card. What to do? |
+| abcd-651 | other (timing_4) | Hey there...i am shopping for myself and thinking of buying. But. I want to know when your promo codes expire |
+
+Only abcd-3573 says "cancel", and it is a true cancel request despite its label. The other 13 are matched by meaning, against
+the broad real tweets.
+
+**What would pass (measured, NOT committed):**
+
+| Option | macro-F1 | Critical | Needs LLM | Predicted cancel_order |
+|---|---:|---:|---:|---:|
+| Today | 0.4157 | 37 | 38.1% | 14 |
+| A. `cancel_order` only for a message that says cancel (no win by meaning) | 0.4117 | **26** | 40.6% | 1 |
+| B. Do not count `cancel_order` as a money reason | 0.4157 | **25** | 38.1% | 14 |
+
+**Questions for the Brain**
+1. Which way? My recommendation is **A**: it passes both limits and stops 13 false cancels reaching Agent B. Its cost is
+   that a cancel request without the word (or the typo) "cancle" no longer gets this reason. The practice 6 all contain it,
+   by Intake's scores above. The what-if tested the whole message; the real change would be per sentence. It is a small
+   code change in `reasons.py`, but the 10 real examples would then only matter when the word is there.
+   B only changes the count: the same 14 messages still go to Agent B, and `cancel_order` does route to B, so I do not advise it.
+2. Once decided: runner, practice run, docs as listed in item 5. Held-out stays for tomorrow.
+
+Everything below is the first stop's report, kept as it was, except: val, mapping and `pc_check.json` are now main's; the
+delivered `next_step` question is closed by item 4; a bare "yes" is out of scope (step 09).
+
+# First stop (before the follow-up)
 
 ## 1. In plain words
 The code for "say no with the reason" and for cancelling an order is built and tested without any API call.

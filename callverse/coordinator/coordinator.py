@@ -78,6 +78,7 @@ SENTENCE_ENDS = ".!?\n"
 DECLINE_ACTIONS = {"return_item": "return", "refund_request": "refund", "cancel_order": "cancel"}
 # Finished orders have no delivery date left to talk about: R-REF-03's "not late" sentence would be wrong for them.
 CLOSED_STATUSES = ("refunded", "cancelled")
+ON_THE_WAY_STATUSES = ("shipped", "out_for_delivery", "stuck_at_depot")   # R-CAN-01's next step
 
 
 def status_words(code) -> str:
@@ -99,8 +100,12 @@ def decline_words(rule_id, facts: dict, order_id) -> tuple[list[str], str]:
                 "A refund for a late delivery is possible when an order is more than 5 days late."], ""
     must = [f"Order {order_id} is already {status}, so it can no longer be cancelled.",
             "An order can be cancelled only while it is being processed."]
-    on_the_way = facts.get("order_status") not in ("processing", *CLOSED_STATUSES)
-    return must, "Once it is delivered, you can return it within 14 days." if on_the_way else ""
+    if facts.get("order_status") in ON_THE_WAY_STATUSES:
+        return must, "Once it is delivered, you can return it within 14 days."
+    days = facts.get("days_since_delivery")
+    if facts.get("order_status") == "delivered" and days is not None and days <= 14:
+        return must, "You can still return it within 14 days of delivery."
+    return must, ""
 
 
 def user_words(outcome: str, action, rule_id, facts: dict, order_id) -> tuple[list[str], str]:
@@ -159,6 +164,8 @@ def slm_facts(checked: dict, action) -> dict:
         out["amount_tnd"] = round(float(checked["amount"]), 2) if is_valid_amount(checked["amount"]) else None
     if action == "subscribe":
         out["event"] = checked.get("event")
+    if action == "cancel":     # T14a: R-CAN-01's next step depends on it (None for an order not delivered)
+        out["days_since_delivery"] = checked.get("days_since_delivery")
     if checked.get("layer3_decision"):
         out["layer3_decision"] = checked["layer3_decision"]
         out["threshold_tnd"] = layer3_threshold()
@@ -224,7 +231,7 @@ def no_proposal_decision(main_reason, order_id) -> dict | None:
         outcome = "ask_user"      # still processing, but no proposal: the client is asked, nothing is cancelled
     else:
         return None
-    if rule_id == "R-RET-01":
+    if rule_id in ("R-RET-01", "R-CAN-01") and facts["delivered"]:
         out["days_since_delivery"] = facts["days_since_delivery"]
     must_say, next_step = user_words(outcome, action, rule_id, out, order_id)
     decision = {"outcome": outcome, "action": action, "order_id": order_id, "rule_id": rule_id, "facts": out,

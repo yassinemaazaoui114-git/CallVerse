@@ -1,5 +1,5 @@
 {
-  "_note": "ABCD (Action-Based Conversations Dataset, ASAPP, NAACL 2021, MIT) subflow -> ShopNova Intake reason, written by the Brain 2026-10-30, approved by Yassine. Message = the FIRST customer turn of the chat with at least 4 words (greetings like 'hi' are skipped; a chat with no such turn is dropped). Split: ABCD 'dev' = val, ABCD 'test' = locked test (run once, at the end, on the chosen model only). 'other' is sampled down to 150 per split (seed 2026). ABCD labels are chat-level, so some first messages are vague: this noise is the same for every model. T14a: 'manage_cancel' moved from 'other' to the new reason cancel_order, for val (a label fix, not tuning); its chats mostly ask to remove one item from an order. The locked test was built before this and stays closed.",
+  "_note": "ABCD (Action-Based Conversations Dataset, ASAPP, NAACL 2021, MIT) subflow -> ShopNova Intake reason, written by the Brain 2026-10-30, approved by Yassine. Message = the FIRST customer turn of the chat with at least 4 words (greetings like 'hi' are skipped; a chat with no such turn is dropped). Split: ABCD 'dev' = val, ABCD 'test' = locked test (run once, at the end, on the chosen model only). 'other' is sampled down to 150 per split (seed 2026). ABCD labels are chat-level, so some first messages are vague: this noise is the same for every model.",
   "order_status": [
     "status",
     "status_delivery_time",
@@ -20,9 +20,6 @@
   ],
   "damaged_item": [
     "return_stain"
-  ],
-  "cancel_order": [
-    "manage_cancel"
   ],
   "other": "every other subflow",
   "other_cap_per_split": 150,

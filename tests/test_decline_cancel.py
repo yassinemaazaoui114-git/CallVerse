@@ -95,6 +95,15 @@ def test_a_past_cancellation_is_not_a_new_cancel_request():
     assert found == ["refund_request"]
 
 
+@pytest.mark.parametrize("sentence", ["I want to cancel my subscription.", "Please cancel my membership",
+                                      "How do I cancel Prime?", "cancel my account now", "I want to cancel my plan"])
+def test_the_cancel_word_stays_out_of_subscriptions_and_accounts(sentence):
+    assert reasons.CANCEL_WORD_RE.search(sentence) and reasons.NOT_AN_ORDER_RE.search(sentence)
+    scores = reasons.match_reasons(sentence)["sentence_scores"][0]["scores"]
+    found = reasons.match_reasons(sentence)["reasons"]
+    assert not found or found[0]["reason"] == max(scores, key=scores.get)     # by meaning only
+
+
 def test_atlas_has_no_cancel_order_reason():
     assert "cancel_order" not in companies.get("atlas")["reasons"]
 
@@ -115,8 +124,7 @@ def test_atlas_has_no_cancel_order_reason():
                                         "An order can be cancelled only while it is being processed."],
      "Once it is delivered, you can return it within 14 days."),
     ("cancel_order", 4505, "R-CAN-01", ["Order 4505 is already delivered, so it can no longer be cancelled.",
-                                        "An order can be cancelled only while it is being processed."],
-     "Once it is delivered, you can return it within 14 days."),   # the task's text for a delivered order too
+                                        "An order can be cancelled only while it is being processed."], ""),
 ])
 def test_decline_rows(reason, order_id, rule_id, sentences, next_step):
     d = no_proposal_decision(reason, order_id)
@@ -125,6 +133,33 @@ def test_decline_rows(reason, order_id, rule_id, sentences, next_step):
     assert d["proposal_id"] is None
     reply = polish(render(d), d)                # the template says the same, and passes the rule check
     assert all(s in reply for s in sentences) and check_reply(reply, d)["passed"]
+
+
+def set_order(order_id, status, delivered_date=None):
+    with closing(sqlite3.connect(db.db_path())) as con:
+        con.execute("UPDATE orders SET status = ?, delivered_date = ? WHERE id = ?", (status, delivered_date, order_id))
+        con.commit()
+
+
+ON_THE_WAY = "Once it is delivered, you can return it within 14 days."
+STILL_RETURN = "You can still return it within 14 days of delivery."
+
+
+@pytest.mark.parametrize("status, delivered_date, next_step", [
+    ("shipped", None, ON_THE_WAY),
+    ("out_for_delivery", None, ON_THE_WAY),
+    ("stuck_at_depot", None, ON_THE_WAY),
+    ("delivered", "2026-09-25", STILL_RETURN),     # exactly 14 days ago
+    ("delivered", "2026-09-24", ""),               # 15 days ago
+    ("refunded", None, ""),
+    ("cancelled", None, ""),
+])
+def test_r_can_01_next_step_by_status(status, delivered_date, next_step):
+    set_order(4510, status, delivered_date)
+    assert no_proposal_decision("cancel_order", 4510)["next_step"] == next_step   # no proposal
+    d = review(cancel(4510), case(4510))                                          # a proposal: the same words
+    assert d["outcome"] == "decline" and d["next_step"] == next_step
+    assert check_reply(render(d), d)["passed"]
 
 
 def test_cancel_processing_without_a_proposal_asks_first():
