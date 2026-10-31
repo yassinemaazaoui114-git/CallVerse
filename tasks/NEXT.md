@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Status | WAITING FOR REVIEW |
-| Task file | tasks/T24_m3_switch.md (merge T23, switch M3 to bge-base-en-v1.5 for Intake + rule search, re-measure on the PC with val sets only) |
+| Status | DONE |
+| Task file | tasks/T24_m3_switch.md (M3 on the demo PC: bge-base breaks the Intake p95 limit, so bge-small stays with the T23 tuned settings top_k 5, 0.69 / 0.54 and the BGE query prompt) |
 | Approved by | Yassine — 2026-10-31 08:26 (all ⭐) |
-| Last done | T23 — M3 benchmark in a cloud session, branch feature/t23-m3-benchmark (5dbe8e3), reviewed by the Brain; merged in T24 step 0 |
+| Last done | T24 — reviewed by the Brain, merged by Yassine into local main (merge 432a8f8, not pushed); tests 1048/1048. T23 merged before it (4ea501b) |
 
-Before starting: main is at ea52210 or later and the PC was restarted. In parallel (Kaggle, not this task): benchmarks/m3/kaggle/t23b_finetune_bge_base.ipynb.
+Next task: none approved yet. Kaggle notebook (not a task): benchmarks/m3/kaggle/t23b_finetune_bge_base.ipynb.
 
 Status values: READY · IN PROGRESS · WAITING FOR REVIEW · DONE
 Roadmap (Notion): CallVerse — Full Version Roadmap (finished tasks in its "Done" table) · Dali's lane: tasks/NEXT_PLATFORM.md · Semah's lane: tasks/NEXT_VOICE.md
