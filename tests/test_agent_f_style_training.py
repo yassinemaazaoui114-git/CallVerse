@@ -7,7 +7,7 @@ import pytest
 
 from benchmarks.agent_f.train_style import (train_and_validate, validate_rows, persona_id)
 from benchmarks.agent_f.evaluate_style_candidate import compare_real
-from callverse.quality.satisfaction import STYLES, EMOTIONS, features, predict_satisfaction
+from callverse.quality.satisfaction import OUTCOMES, STYLES, EMOTIONS, features, predict_satisfaction
 
 
 class FakeRealReviewModel:
@@ -38,9 +38,11 @@ def test_features_interactions_and_size():
     m = FakeRealReviewModel()
     a, b = record(0, 0, "anger", "short"), record(0, 0, "anger", "apology_first")
     va, vb = features(a, m), features(b, m)
-    assert len(va) == len(vb) == 3 + len(STYLES) + len(EMOTIONS) + len(STYLES) * len(EMOTIONS)
+    n_reply = 3 + len(OUTCOMES)   # v3: reply features (length, apology, next-step marker, outcome one-hot)
+    assert len(va) == len(vb) == 3 + len(STYLES) + len(EMOTIONS) + len(STYLES) * len(EMOTIONS) + n_reply
     assert va != vb
-    assert sum(va[-21:]) == sum(vb[-21:]) == 1.0
+    cross = slice(3 + len(STYLES) + len(EMOTIONS), 3 + len(STYLES) + len(EMOTIONS) + len(STYLES) * len(EMOTIONS))
+    assert sum(va[cross]) == sum(vb[cross]) == 1.0
 
 
 def test_persona_is_required():

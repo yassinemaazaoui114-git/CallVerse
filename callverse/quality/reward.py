@@ -9,14 +9,19 @@ checked is record["reply"] or the last assistant message.
 
 Correctness reuses existing plain-code checks, no LLM:
 - tenant isolation: decision.rule_id must exist in THIS company's policy file (kb.policies.get_policy);
-- policy compliance: the rule's condition must hold for decision.facts (kb.policies.check_condition);
+- policy compliance: for an approve, the rule's condition must hold for decision.facts (check_condition);
+- connector facts: decision.facts are re-read from the company's own tools (ShopNova get_tracking / get_order /
+  get_refunds, Atlas get_hotel_booking / get_flight_booking / get_refunds) and must match; a refund may not
+  exceed paid - refunded_total. Facts that only come from the record are "trusted", never "verified";
 - facts / promises: slm.check.check_reply (numbers only from facts, no forbidden or unapproved refund promise,
-  must_say present, no rule id, no placeholder). The facts come from the Coordinator's tool reads.
-UNKNOWN whenever evidence is missing (no decision, no reply, unknown company, condition not checkable).
+  must_say present, no rule id, no placeholder) + no fabricated completed action, no delivery promise.
+UNKNOWN whenever evidence is missing (no decision, no reply, unknown company, connector unavailable).
 Reward: PASS and satisfaction >= 4 -> +1; PASS and < 4 -> -1; FAIL -> -1; UNKNOWN -> None (not trained on).
 A friendly but wrong reply can never get +1.
 """
 from __future__ import annotations
+
+import re
 
 from callverse import companies
 from callverse.kb.policies import check_condition, get_policy
@@ -25,6 +30,63 @@ from callverse.slm.check import check_reply
 
 OUTCOMES = {"approve", "send_back", "ask_user", "ask_proof", "layer3", "escalate", "info"}
 GOOD = 4.0   # satisfaction at or above this counts as a satisfied customer
+# A completed action the reply claims, allowed only when the Coordinator approved that action.
+COMPLETED_ACTION = re.compile(
+    r"\b(?:we have|we've|has been|have been|is now|was) (?:already )?"
+    r"(?:re-?booked|re-?shipped|re-?sent|cancelled|canceled|replaced|exchanged|changed|upgraded|compensated)\b",
+    re.IGNORECASE)
+DELIVERY_PROMISE = re.compile(r"\b(?:will|should) (?:arrive|be delivered|be there)\b", re.IGNORECASE)
+ACTION_WORDS = {"rebook": "book", "reship": "ship", "cancel_hotel": "cancel", "replace": "replac", "refund": "refund"}
+
+
+def verify_facts(record: dict) -> dict:
+    """Re-read the decision's facts from the company's tools. {"status": verified|mismatch|unavailable, "notes"}.
+
+    verified = every fact we can re-read matches; mismatch = a fact or amount contradicts the connector;
+    unavailable = no connector / no reference / unknown company (facts are then only TRUSTED, not verified).
+    """
+    decision, company = record.get("decision") or {}, record.get("company")
+    facts, ref = decision.get("facts") or {}, decision.get("order_id")
+    if ref is None or not facts:
+        return {"status": "unavailable", "notes": ["no reference or no facts to verify"]}
+    try:
+        if company == "shopnova":
+            from callverse.tools import shopnova_tools as t
+            tr, od, rf = t.get_tracking(ref), t.get_order(ref), t.get_refunds(ref)
+            if "error" in tr or "error" in od:
+                return {"status": "mismatch", "notes": [f"order {ref} not found"]}
+            live = {"days_late": tr["days_late"], "delivered": tr["delivered"], "order_status": tr["status"],
+                    "days_since_delivery": tr["days_since_delivery"], "paid": float(od["paid"]),
+                    "refunded_total": rf["refunded_total"]}
+            payable = float(od["paid"]) - rf["refunded_total"]
+        elif company == "atlas":
+            from callverse.data.atlas import reads as r
+            h = r.get_hotel_booking(ref)
+            x, kind = (h, "hotel") if "error" not in h else (r.get_flight_booking(ref), "flight")
+            if "error" in x:
+                return {"status": "mismatch", "notes": [f"booking {ref} not found"]}
+            refunded = r.get_refunds(kind, ref)["refunded_total"]
+            live = {k: x.get(k) for k in ("status", "deposit_type", "days_before_arrival", "cancelled", "flight_status",
+                                           "departure_delay_min", "cancellation_reason", "main_delay_cause",
+                                           "room_changed") if k in x}
+            live.update({"booking_type": kind, "paid_tnd": float(x["paid_tnd"]), "refunded_total": refunded})
+            payable = float(x["paid_tnd"]) - refunded
+        else:
+            return {"status": "unavailable", "notes": [f"no connector for company {company!r}"]}
+    except Exception as e:  # noqa: BLE001  (no database, no file: evidence missing)
+        return {"status": "unavailable", "notes": [f"connector unavailable: {type(e).__name__}"]}
+    notes, bad = [], []
+    for k, v in facts.items():
+        if k in live and live[k] != v and not (isinstance(v, (int, float)) and isinstance(live[k], (int, float))
+                                                and abs(float(v) - float(live[k])) < 0.005):
+            bad.append(f"{k}: decision says {v!r}, connector says {live[k]!r}")
+    amount = facts.get("amount_tnd", facts.get("amount"))
+    if amount is not None and decision.get("outcome") == "approve" and float(amount) > payable + 0.005:
+        bad.append(f"amount {amount} exceeds payable {payable:.2f}")
+    if bad:
+        return {"status": "mismatch", "notes": bad}
+    checked = sorted(k for k in facts if k in live)
+    return {"status": "verified", "notes": [f"facts re-read from the {company} connector: {', '.join(checked) or 'reference only'}"]}
 
 
 def reply_text(record: dict) -> str:
@@ -56,7 +118,7 @@ def check_correctness(record: dict) -> dict:
         if rule is None:
             fail = True
             evidence.append(f"rule {rule_id} is not in {company}'s policies (tenant isolation)")
-        elif rule.get("condition") and decision.get("facts") is not None:
+        elif rule.get("condition") and decision.get("outcome") == "approve" and decision.get("facts") is not None:
             try:
                 if check_condition(rule["condition"], decision["facts"]):
                     evidence.append(f"rule {rule_id} condition holds")
@@ -68,6 +130,20 @@ def check_correctness(record: dict) -> dict:
     elif decision.get("outcome") == "approve":
         evidence.append("approve without rule_id: not checkable")
 
+    facts_check = verify_facts(record)
+    evidence += facts_check["notes"]
+    if facts_check["status"] == "mismatch":
+        fail = True
+
+    low = reply.lower()
+    if (m := COMPLETED_ACTION.search(low)) and not (decision.get("outcome") == "approve" and
+                                                    ACTION_WORDS.get(decision.get("action"), "\0") in m.group(0)):
+        fail = True
+        evidence.append(f"claims a completed action that was not approved: '{m.group(0)}'")
+    if (m := DELIVERY_PROMISE.search(low)) and not decision.get("facts", {}).get("promised_date"):
+        fail = True
+        evidence.append(f"delivery promise without a promised date in the facts: '{m.group(0)}'")
+
     checked = check_reply(reply, decision)
     if checked["passed"]:
         evidence.append("reply check passed (facts, promises, must_say)")
@@ -77,8 +153,8 @@ def check_correctness(record: dict) -> dict:
 
     if fail:
         return {"status": "FAIL", "evidence": evidence}
-    if not decision.get("facts") and decision.get("outcome") != "ask_user":
-        return {"status": "UNKNOWN", "evidence": evidence + ["no facts in the decision: fact grounding unknown"]}
+    if facts_check["status"] != "verified":
+        return {"status": "UNKNOWN", "evidence": evidence + ["facts not verified by a connector: no PASS"]}
     return {"status": "PASS", "evidence": evidence}
 
 

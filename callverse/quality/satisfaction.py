@@ -11,6 +11,7 @@ rewards. No runtime training or external API calls occur here.
 from __future__ import annotations
 
 import pickle
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -56,8 +57,29 @@ def text_score(text: str, model=None) -> float:
     return float(sum(p * k for p, k in zip(probs, model.classes_)))
 
 
+OUTCOMES = ["approve", "info", "ask_proof", "layer3", "escalate", "send_back", "ask_user"]
+APOLOGY_RE = re.compile(r"\b(?:sorry|apolog)", re.IGNORECASE)
+
+
+def assistant_text(record: dict) -> str:
+    """The reply being judged: record["reply"] or the last assistant message."""
+    if record.get("reply"):
+        return str(record["reply"])
+    msgs = [m for m in record.get("messages") or [] if m.get("role") == "assistant"]
+    return (msgs[-1].get("text") or "") if msgs else ""
+
+
+def reply_features(record: dict) -> list[float]:
+    """What the REPLY looks like (response-aware part): length, apology, next-step marker, decision outcome."""
+    reply = assistant_text(record)
+    words = len(reply.split())
+    outcome = (record.get("decision") or {}).get("outcome") or (record.get("situation") or {}).get("outcome")
+    return ([min(words, 150) / 50.0, float(bool(APOLOGY_RE.search(reply))), float("next" in reply.lower())]
+            + [float(outcome == o) for o in OUTCOMES])
+
+
 def features(record: dict, model=None) -> list[float]:
-    """Fixed schema: text, delay, missing flag, style, emotion, style x emotion.
+    """Fixed schema: text, delay, missing flag, style, emotion, style x emotion, reply features (v3, 44 dims).
 
     The interaction features matter: additive style and emotion terms alone cannot
     express that apology_first may help an angry customer but not a neutral one.
@@ -75,7 +97,7 @@ def features(record: dict, model=None) -> list[float]:
     emotion_hot = [float(emotion == e) for e in EMOTIONS]
     interactions = [s * e for s in style_hot for e in emotion_hot]
     return ([text_score(user_text(record), model), d if d is not None else 0.0, float(d is None)]
-            + style_hot + emotion_hot + interactions)
+            + style_hot + emotion_hot + interactions + reply_features(record))
 
 
 def predict_satisfaction(record: dict, model=None, stacker=None) -> dict:
