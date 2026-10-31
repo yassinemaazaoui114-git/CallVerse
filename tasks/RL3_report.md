@@ -41,3 +41,14 @@ are re-read from the company's tools), response-aware satisfaction candidate, RL
 Numbers in docs/agent_f.md ("Style RL end to end"). Tests: 28/28 Agent F + RL tests. Everything is SIMULATED
 feedback: the ~100 real rated conversations are still missing, so no real-customer claim is made.
 Open: bandit does not beat the best fixed style on eval personas (see docs); stacker candidate not promoted.
+
+## Update 2 — performance round (same branch, see docs/agent_f.md for every table)
+- Satisfaction: HistGradientBoosting selected on VAL (MAE 0.656) over Ridge / ExtraTrees / RandomForest; EVAL once:
+  MAE 0.688, Spearman 0.60 (fixed model 0.999 / 0.01, mean 0.856). Simulated labels only.
+- Correctness: 0 / 291 false-PASS on EVAL (95 % CI 0-1.3 %) after three adversarial rounds; 2 real gaps fixed
+  (stated delay / amount must equal the decision's fact), 12 mislabeled corruptions fixed in the simulator.
+- RL: Beta/Gaussian Thompson, LinUCB (alpha on VAL), epsilon-greedy, supervised and counterfactual policies, 3-5 seeds.
+  All learned policies win on VAL and lose on EVAL (3.47 vs fixed apology_next_step 3.59): the style preference is
+  the hidden persona archetype, not observable context. Fixed style kept as the deployment fallback.
+- Real writer: `write_with_slm` (Qwen via Ollama) with template fallback; Ollama absent here -> tested with a mocked model.
+- Still missing: the ~100 real rated conversations (no real-customer claim is made anywhere).

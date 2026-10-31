@@ -71,42 +71,92 @@ promoted (see `docs/agent_f_style_reward.md`). Tests: `tests/test_agent_f_reward
 
 ## Style RL end to end (feature/agent-f-rlhf-e2e) — SIMULATED feedback
 Flow: message -> decision (made by code from the live tool reads of the scripted orders 4505-4515 / bookings
-7001-7012) -> `learning/style_policy.StylePolicy` (Thompson sampling per company|mood|outcome family|lateness)
--> `learning/style_writer.write(decision, style)` -> `quality/reward.evaluate_response` (connector-verified
-correctness + satisfaction) -> reward -> policy update. Demo: `python scripts/run_rl_demo.py 30`.
-Benchmark: `python -m benchmarks.agent_f.rl_eval` -> `benchmarks/agent_f/results/rl_eval.json`.
+7001-7012) -> style policy -> writer (`learning/style_writer.write_with_slm`: the real Qwen/Ollama SLM writer with the
+style as an extra wording instruction, template `write()` when Ollama is missing or the SLM reply fails its check)
+-> `quality/reward.evaluate_response` (connector-verified correctness + response-aware satisfaction) -> reward ->
+policy update. Entry point: `callverse/learning/inference.py` (`respond`, `select_style`, `learn`).
+Demo: `python scripts/run_rl_demo.py 30`. Reproduce everything (≈35 min CPU):
+```
+python -m benchmarks.agent_f.rl_eval --generate-only      # data/simulated/agent_f/{train,val,eval}.jsonl
+python -m benchmarks.agent_f.compare_satisfaction         # models/agent_f/stacker_selected.pkl, results/satisfaction_models.json
+python -m benchmarks.agent_f.rl_eval                      # results/rl_eval.json, models/agent_f/style_policy_*.json
+python -m benchmarks.agent_f.policy_eval                  # results/policy_eval.json (selection on VAL)
+python -m benchmarks.agent_f.persona_scale_eval           # results/persona_scale_eval.json
+```
 
-Data (all `source: simulated`, `callverse/learning/simulator.py`; personas TRAIN seed 101 / VAL 202 / EVAL 303,
-disjoint): 69 situations x 3 styles x personas = train 2,484 rows (12 personas), val 1,242 (6), eval 1,242 (6);
-25% of replies carry one of 4 corruptions (invented amount, unapproved refund, false delivery promise,
-fabricated completed action). First messages = the AI-generated Intake reason examples. No real human rating
-was used anywhere in this section.
+### Data (all `source: simulated`, `callverse/learning/simulator.py`)
+Personas TRAIN seed 101 (12) / VAL 202 (6) / EVAL 303 (6), disjoint; 69 situations x 3 styles x personas =
+train 2,484 / val 1,242 / eval 1,242 rows. 25 % of replies carry one of 9 corruptions (invented amount, unapproved
+refund, false delivery promise, fabricated completed action, wrong amount, voucher over-claim, contradiction, stale
+fact, false approval; a corruption is always a real error for that decision), 15 % one of 2 degradations
+(incomplete, generic: correct but weaker). First messages = AI-generated Intake reason examples. No real human
+rating anywhere in this section. Simulator audit (eval, mean rating): clean 3.38 · incomplete 3.14 · generic 2.37 ·
+wrong replies 1.86-2.51 -> the simulated rating does respond to reply quality.
 
-| Satisfaction (EVAL personas, simulated ratings) | MAE | Spearman |
+### Satisfaction model (fit TRAIN, selected on VAL, EVAL read once) — `results/satisfaction_models.json`
+| model (44 features: user text score, Olist delay, style, emotion, style x emotion, reply length / apology / next-step / outcome) | VAL MAE | VAL Spearman | VAL pairwise style pref. acc | calib. err | ms/row |
+|---|---|---|---|---|---|
+| fixed text + delay (production default) | 0.956 | 0.01 | 0.44 | 0.77 | - |
+| mean of train | 0.771 | 0 | - | 0.03 | - |
+| Ridge (alpha 0.1 / 1 / 10) | 0.691 / 0.691 / 0.690 | 0.52 | 0.68 | 0.10 | <0.01 |
+| Ridge + style x reply cross | 0.698 | 0.51 | 0.66 | 0.13 | <0.01 |
+| **HistGradientBoosting (300 it, lr 0.05, depth 4)** | **0.656** | **0.57** | 0.69 | 0.11 | 0.005 |
+| ExtraTrees (300, leaf 5) | 0.675 | 0.56 | **0.70** | 0.15 | 0.07 |
+| RandomForest (300, leaf 5) | 0.660 | 0.56 | 0.68 | 0.12 | 0.05 |
+
+Selected HistGBM on EVAL (once): MAE 0.688, Spearman 0.60, pairwise 0.69, calibration 0.08; ShopNova 0.678 / 0.60,
+Atlas 0.704 / 0.60; anger 0.681 / 0.64, neutral 0.702 / 0.52; by reply quality: clean 0.58, degraded 0.55,
+wrong 1.06 (the wrong replies are the hard part: whether the simulated customer "notices" is random).
+Fixed on EVAL: 0.999 / 0.01; mean-of-train 0.856. Saved as `models/agent_f/stacker_selected.pkl` (used by the RL loop
+and the demo); **not** promoted to the production `stacker.pkl`: trained on the simulator's own labels.
+MiniLM / fine-tuned transformers not run: `sentence-transformers` is not installed here and a 1.5k-row synthetic
+set does not justify it. Amazon-review MAE (0.644, real stars) and simulated-support MAE are different benchmarks.
+
+### Correctness (EVAL, 1,242 replies, 291 wrong) — `results/rl_eval.json`
+False-PASS **0 / 291** (Wilson 95 % CI 0-1.3 %), FAIL precision 1.00, recall 1.00, UNKNOWN 0 %, false-FAIL 0 / 951
+clean. Before the adversarial round: 6 / 320 (1.9 %), then 8 / 291 — every case was inspected: 12 were label bugs
+(a "corruption" that was true for that decision, fixed in the simulator) and 2 were a real gap (a delay value allowed
+by the next step passed off as the order's own delay) fixed by the stated-fact check. Fresh adversarial cases live in
+`tests/test_rl_pipeline.py` (`test_new_adversarial_cases_never_pass`, `test_stated_fact_values_must_match_the_decision`).
+Reward agreement with the oracle (true correctness + simulated rating): fixed 0.685, selected 0.744.
+Latency `evaluate_response` (connector re-reads + verifier + HistGBM): mean 6.0 ms, p95 7.9 ms.
+
+### Style policy vs fixed styles — `results/policy_eval.json` (greedy, 3 evaluation seeds, mean rating)
+| policy | VAL (6 personas) | EVAL (6 personas) ± sd |
 |---|---|---|
-| fixed text + delay (production default) | 1.010 | -0.01 |
-| predict the mean rating | 0.841 | 0 |
-| **style candidate** (Ridge on 44 features, alpha 0.1, `models/agent_f/stacker_candidate.pkl`) | **0.699** | **0.59** |
+| always short | 3.22 | 3.02 ± 0.04 |
+| always apology_first | 3.26 | 3.52 ± 0.02 |
+| always apology_next_step | 3.45 | **3.59 ± 0.03** |
+| random | 3.30 | 3.36 ± 0.05 |
+| rule: upset -> apology_first, else short | 3.46 | 3.51 ± 0.04 |
+| rule by mood learned on TRAIN (upset -> apology_next_step, calm -> short) | **3.55** | 3.46 ± 0.05 |
+| supervised best style per observable group (TRAIN) | **3.55** | 3.46 ± 0.05 |
+| Agent F counterfactual argmax (write 3 styles, keep the best predicted) | - | 3.54 (CI 3.46-3.61) |
+| LinUCB (alpha 2.0 chosen on VAL; 3 train seeds) | 3.54 ± 0.00 | 3.47 ± 0.00 |
+| Gaussian Thompson on Agent F score (3 train seeds) | 3.54 ± 0.01 | 3.47 ± 0.00 |
+| Beta Thompson on the ±1 reward (5 seeds, rl_eval) | - | 3.47 ± 0.06 |
+| epsilon-greedy on the ±1 reward (5 seeds) | - | 3.37 ± 0.22 (unstable: the ±1 signal is almost always -1) |
+| rule read off the EVAL audit (upset -> apology_first, calm -> apology_next_step) | 3.36 | 3.65 (excluded: leakage) |
 
-Per company (eval): ShopNova candidate MAE 0.703 / rho 0.59; Atlas 0.693 / 0.57. Median style reward spread 0.87.
-The candidate is NOT promoted to `stacker.pkl`: it was fitted on the simulator's own assumptions; real
-human-rated validation is still pending.
+Reading. (1) Every learned or train-derived policy wins on VAL (3.54-3.55 vs 3.45 for the best fixed style) and
+loses on EVAL (3.46-3.47 vs 3.59): the policies learn the TRAIN personas' taste, and the ranking of styles flips
+between persona sets (train audit: calm customers prefer short; eval audit: calm prefer apology + next step).
+The style preference in this simulator is driven by the hidden persona archetype, which no observable context
+carries; see `results/persona_scale_eval.json` for the check with 40-persona sets. (2) The ±1 reward is too sparse
+(most predicted scores are < 4 -> almost all -1): the continuous Agent F score (Gaussian Thompson, LinUCB) learns
+stably; the ±1 variants do not. (3) Honest selection on VAL picks the mood rule learned on TRAIN (EVAL 3.46);
+the most robust choice across both sets is the fixed `apology_next_step` (never worst, best on EVAL), kept as
+`inference.DEFAULT_STYLE`. **No RL policy beats the best fixed style on held-out personas**; the loop learns
+(it recovers the training personas' preferences) but there is nothing contextual to exploit here. Real customers
+may differ: this needs the real rated conversations. Hallucination rate of the deployed fixed style on EVAL: 0 %
+(414 clean replies, 0 FAIL); end-to-end success (PASS and rating >= 4) 0.56.
 
-Correctness (eval, 320 corrupted of 1,242): FAIL precision 1.00, recall 0.98, false-PASS rate 1.9 %, UNKNOWN 0 %.
-Reward agreement with the oracle (true correctness + simulated rating): fixed 0.669, candidate 0.735.
-Latency `evaluate_response` (connector reads + verifier + satisfaction): mean 3.5 ms, p95 4.4 ms.
-
-| Style policy (greedy, EVAL personas) | avg simulated rating | share >= 4 |
-|---|---|---|
-| always short | 3.03 | 0.24 |
-| random | 3.36 | 0.41 |
-| rule-based (upset -> apology_first) | 3.54 | 0.49 |
-| always apology_first | 3.54 | 0.50 |
-| **always apology_next_step** | **3.61** | **0.56** |
-| bandit, reward = Agent F (3,000 episodes, train personas) | 3.46 | 0.47 |
-| bandit, reward = simulated rating | 3.47 | 0.47 |
-
-Reading: the bandit beats always-short and random but not the best fixed style. In this simulator the style
-effect is mostly global (apology + next step wins) and the persona archetype is not observable in the context,
-so the group arms have little to separate; 3,000 noisy +1/-1 episodes are not enough to match the best arm.
-These are simulator numbers: they show the loop learns, not that real customers are happier.
+### Experiment log
+| experiment | split | result | decision |
+|---|---|---|---|
+| text model: TF-IDF ridge vs logreg | Amazon val 5k | logreg MAE 0.638 vs 0.659 | logreg; test once 0.644 / rho 0.80 |
+| response-aware model family | sim train/val | HistGBM 0.656 best val MAE | HistGBM; eval once 0.688 |
+| verifier adversarial rounds 1-3 | sim eval | 1.9 % -> 2.7 % (new labels) -> 0 % false-PASS | stated-fact check added |
+| bandit algorithms x reward source, 5 seeds | sim train -> eval | best 3.49 (Gaussian Thompson) < fixed 3.59 | fixed style kept |
+| LinUCB alpha {0.1, 0.5, 1, 2} | sim val | 3.40 / 3.40 / 3.55 / 3.55 | alpha 2.0 |
+| policy selection | sim val -> eval | mood rule 3.55 val -> 3.46 eval | persona-set flip documented |

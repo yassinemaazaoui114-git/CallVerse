@@ -18,7 +18,8 @@ from callverse.learning.style_writer import STYLES, write_with_slm
 from callverse.quality.reward import evaluate_response
 from callverse.quality.satisfaction import MODEL_DIR
 
-DEFAULT_STYLE = "apology_next_step"          # best fixed style on the simulated evaluation (docs/agent_f.md)
+DEFAULT_STYLE = "apology_next_step"          # most robust fixed style across persona sets (docs/agent_f.md); learned
+                                             # policies did not beat it on held-out personas, so it is the fallback
 POLICY_PATH = MODEL_DIR / "style_policy.json"
 LOADERS = {"linucb": LinUCB.load, "thompson_beta": StylePolicy.load}
 
