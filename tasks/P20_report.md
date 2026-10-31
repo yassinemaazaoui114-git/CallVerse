@@ -19,8 +19,10 @@ for products that sell too slowly, which the shop owner must approve. On the fin
 | C = Layer 2 (escalated, sent back twice, disputed) | built, OFF | ON by default (`pipeline.layer2_agent_c: true`) |
 | C at Atlas: rebook, assistance with explicit consent | Atlas routed both to "a colleague" | routes `rebooking` / `special_assistance` -> C; `propose_rebooking` (AT-FLT-01: cancelled flight -> later flight on the same route) and `propose_assistance` (AT-AST-01: wheelchair, >= 48 h); `coordinator/atlas_special.py`; new table `rebookings` |
 | C never pays; nothing changes without the yes | done | unchanged (C has no money tool; yes = answer to C's own question) |
-| D at Atlas (overbooked hotels, empty seats) | missing | **NOT built: the Atlas data has no seat or room counts** (needs a data decision, question 6) |
-| Low-confidence tickets to C | missing | **NOT built**: Intake gives no confidence score today (question 7) |
+| D at Atlas: overbooked hotels | missing | **built (third round)**: capacity per hotel DERIVED from the real bookings = the most rooms occupied on one past night (Lisbon 25, Algarve 26; `tools/capacity_tools.py`); a coming night above it = overbooking risk (new rule AT-CAP-01) -> a warning line in Agent A's Intake note for hotel bookings of that night |
+| D at Atlas: deals for empty capacity | missing | **built for hotel rooms**: coming nights at 30 % or less (new rule AT-DEAL-01, max 20 %) -> a deal proposal, `owner_pending`, table `hotel_deals`; the owner decides on the Atlas Approvals page ("Hotel deals"), one transaction, no price change. Today: 2 deals proposed (1 low night per hotel), 0 overbooked nights |
+| D at Atlas: empty **seats** | missing | **not built**: flights have no seat count and the schedule has 1 coming flight; a seat number would have to be invented |
+| Low-confidence tickets to C | missing | **built (third round)**: confidence = Intake's own score of the main reason minus the company's reason_threshold (no new model); a case with a margin under `queues.low_confidence_margin` (0.02, a first value, not tuned on any test set) goes to C, layer L2 (`queues/router.py`) |
 | Urgent cases never go to fallback | n/a | fallback mode is out of the prototype (CLAUDE.md) |
 | "Agents A-D are not trained, only E" | - | **the switch to `callverse-m2-v3` (a fine-tuned model) needs Yassine's OK and a written reason** (question 1) |
 
@@ -54,7 +56,8 @@ per ORDER and letting the replacement / hold use the order's own item. C is back
   now with D cases (rules) and an optional expected Coordinator outcome. Cases `tests/dev/agents_cases.json` (26).
 
 ## 3. Evidence
-- `pytest`: **1085 passed** after the second round (Atlas C tests in `tests/test_agent_c_atlas.py`; the Atlas route
+- `pytest`: **1091 passed** after the third round (`tests/test_agent_d_atlas.py`: capacity, overbooking warning,
+  deals and the owner's decision, low-confidence routing); **1085** after the second round (Atlas C tests in `tests/test_agent_c_atlas.py`; the Atlas route
   tests and practice message a11 now expect Agent C, which asks the client first, instead of "a colleague");
   first round: 1075 passed (27 new in `tests/test_agents_cd.py`, `tests/test_eval_agents.py`; 3 old guard
   tests updated on purpose: Agent A's prompt fingerprint (one new line), the tool-schema fingerprint now covers the
@@ -94,10 +97,9 @@ per ORDER and letting the replacement / hold use the order's own item. C is back
 3. Promotions: keep the `approve_refunds` permission, or a new `approve_promotions`?
 4. Atlas C (rebooking, special assistance: today routed to `escalate`) as the next task?
 5. Pickup points / nearby stock (spec example) need data the platform does not have; add it?
-6. Atlas D (overbooked hotels, deals on empty seats) and real Atlas rebooking need capacity data (seats per flight,
-   rooms per hotel) and future flights; the real schedule has no later flight on the cancelled routes. Add generated
-   capacity data (labelled ai_generated) or keep Atlas D out?
-7. Low-confidence tickets to C: add a confidence score to Intake, or keep it out?
+6. Hotel capacity is a lower bound from our 2,000-booking sample (25 / 26 rooms): OK, or give real room counts?
+   Seats per flight and coming flights (for rebooking and seat deals) still have no data.
+7. Low-confidence margin 0.02: keep, or measure it on the Intake dev set first?
 8. Yassine planned to build C and D himself: is P20 the version to review, and who owns it from here?
 
 ## 6. Next step
