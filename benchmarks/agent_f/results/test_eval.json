@@ -1,0 +1,10 @@
+{
+  "model": "tfidf_logreg",
+  "split": "test (real, held out)",
+  "n": 5000,
+  "mae": 0.6284,
+  "accuracy": 0.5168,
+  "within_1": 0.8884,
+  "ms_mean": 1.87,
+  "ms_p95": 2.806
+}

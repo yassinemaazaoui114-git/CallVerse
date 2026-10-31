@@ -1,0 +1,37 @@
+{
+  "data": "SetFit/amazon_reviews_multi_en",
+  "train_n": 60000,
+  "val_n": 5000,
+  "models": {
+    "baseline_mean": {
+      "mae": 1.2,
+      "accuracy": 0.2,
+      "within_1": 0.6
+    },
+    "baseline_majority": {
+      "mae": 2.0,
+      "accuracy": 0.2,
+      "within_1": 0.4
+    },
+    "tfidf_ridge": {
+      "mae": 0.6586,
+      "accuracy": 0.4362,
+      "within_1": 0.911,
+      "ms_mean": 1.901,
+      "ms_p95": 2.803,
+      "fit_s": 34.2
+    },
+    "tfidf_logreg": {
+      "mae": 0.638,
+      "accuracy": 0.512,
+      "within_1": 0.883,
+      "ms_mean": 1.997,
+      "ms_p95": 3.193,
+      "fit_s": 151.4
+    },
+    "minilm_logreg": {
+      "skipped": "ModuleNotFoundError(\"No module named 'sentence_transformers'\")"
+    }
+  },
+  "chosen": "tfidf_logreg"
+}

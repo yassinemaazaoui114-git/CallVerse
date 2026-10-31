@@ -258,3 +258,4 @@ The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes
 - [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md) — how to run the demo
 - [docs/benchmarks/M3.md](docs/benchmarks/M3.md) — the M3 embeddings benchmark (T23): table, winners, locked test
 - [DATA_LICENCES.md](DATA_LICENCES.md) — data sources and licences
+- [docs/agent_f.md](docs/agent_f.md) — Agent F satisfaction predictor: data, benchmark, test results
