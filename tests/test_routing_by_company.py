@@ -155,7 +155,8 @@ def test_shopnova_agents_use_those_prompts():
 
 def test_shopnova_tool_schemas_are_identical_to_main():
     # P20 added Agent C's tools (get_stock + 3 proposal tools); every tool that existed before is still identical.
-    p20 = {"get_stock", "propose_replacement", "propose_hold", "propose_assistance"}
+    p20 = {"get_stock", "propose_replacement", "propose_hold", "propose_assistance", "get_facts_from_a",
+           "check_availability_with_d"}
     before = {k: v for k, v in registry.TOOL_SCHEMAS.items() if k not in p20}
     assert sha(json.dumps(before, sort_keys=True)) == (
         "d49abf10a9c8b26e2282479fa359d2c5a80ddb778619fb1484775f2176dd14d9")
@@ -328,7 +329,7 @@ def test_atlas_severity_base(reason, severity):
 
 @pytest.mark.parametrize("reason, agent", [
     ("booking_status", "A"), ("delay_disruption", "A"), ("other", "A"), ("refund_request", "B"),
-    ("compensation_request", "B"), ("cancellation", "B"), ("rebooking", "escalate"), ("special_assistance", "escalate"),
+    ("compensation_request", "B"), ("cancellation", "B"), ("rebooking", "C"), ("special_assistance", "C"),   # P20: Agent C
 ])
 def test_atlas_routes(reason, agent):
     assert route({"company": "atlas", "main_reason": reason, "priority_label": "low"})["agent"] == agent
@@ -338,12 +339,22 @@ def no_llm(role_key, messages, tools=None):
     raise AssertionError("no LLM call expected")
 
 
-def test_an_escalate_route_runs_no_agent():
+def c_wheelchair(role_key, messages, tools=None, **kw):
+    """P20: Agent C proposes a wheelchair; the client has not said yes yet (user_confirmed false)."""
+    assert role_key == "agent_c"
+    if messages[-1]["role"] == "user":
+        return tool_call("propose_assistance", {"booking_id": 7010, "kind": "wheelchair", "user_confirmed": False,
+                                                "user_quote": "I use a wheelchair"})
+    return text("A wheelchair request is being checked.")
+
+
+def test_special_assistance_goes_to_c_which_asks_first():
+    """P20 (spec): special assistance goes to Agent C (it was "escalate"); mobility needs need the client's yes."""
     ticket = intake.process("I use a wheelchair, I need help at the airport for my flight 7010.", use_llm=False,
                             company="atlas")
-    out = pipeline.handle_ticket(ticket, chat_fn=no_llm)
-    assert out["decision"]["outcome"] == "escalate" and out["proposal"] is None
-    assert "Your request has been passed on to a colleague who will help you with it." in out["final_reply"]
+    out = pipeline.handle_ticket(ticket, chat_fn=c_wheelchair)
+    assert out["handover"] == "C" and out["decision"]["outcome"] == "ask_user"
+    assert "Please confirm that you want a wheelchair for your flight booking 7010." in out["final_reply"]
 
 
 # ---------- agents and tools ----------
@@ -1190,10 +1201,10 @@ def test_channel_a10_cancel_pays_nothing(queue):
     assert len(rows_for("refunds", 7012)) == expect["refund_rows"] and "non-refundable" in out["reply"]
 
 
-def test_channel_a11_goes_to_a_colleague(queue):
-    out, expect = run_flow("a11", no_llm)
-    assert out["outcome"] == expect["outcome"] and out["status"] == "Escalated"
-    assert store.get_ticket(out["ticket_id"])["lead_agent"] is None
+def test_channel_a11_goes_to_agent_c(queue):
+    out, expect = run_flow("a11", c_wheelchair)
+    assert out["outcome"] == expect["outcome"] == "ask_user" and out["status"] == "Waiting for user"
+    assert store.get_ticket(out["ticket_id"])["lead_agent"] == "C"
 
 
 def test_channel_a12_another_clients_booking(queue):

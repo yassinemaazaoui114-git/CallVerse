@@ -353,6 +353,9 @@ def said_to_user(ticket: dict, decision: dict | None) -> dict:
 
 def review(proposal: dict, case: dict) -> dict:
     """Check one proposal and return the decision (see the steps at the top of this file)."""
+    from callverse.coordinator import atlas_special   # P20: Agent C's rebook / assistance (imported here: it imports us)
+    if isinstance(proposal, dict) and proposal.get("action") in atlas_special.ACTIONS:
+        return atlas_special.review(proposal, case)
     is_dict = isinstance(proposal, dict)
     action = proposal.get("action") if is_dict else None
     params = proposal.get("params") if is_dict and isinstance(proposal.get("params"), dict) else {}

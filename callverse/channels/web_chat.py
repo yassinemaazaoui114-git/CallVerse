@@ -132,7 +132,7 @@ def step_row(record: dict) -> tuple[str, str | None, dict] | None:
     return kind, agent, {"trace_step": record["step"], **data}
 
 
-C_QUESTION_ACTIONS = ("replace", "hold", "assistance")   # P20: Agent C's actions
+C_QUESTION_ACTIONS = ("replace", "hold", "assistance", "rebook")   # P20: Agent C's actions (ShopNova, Atlas)
 
 
 def c_waiting_order(ticket: dict) -> tuple[bool, int | None]:
@@ -271,7 +271,7 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
             if guarded:
                 return guarded
             # P20: the user answers Agent C's question ("yes, please"): Agent C takes the message again, with the order.
-            waiting_c, c_order = c_waiting_order(ticket) if company == companies.DEFAULT else (False, None)
+            waiting_c, c_order = c_waiting_order(ticket)
             if waiting_c:
                 intake_ticket["continue_agent"] = "C"
                 if intake_ticket["order_id"] is None:

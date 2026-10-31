@@ -242,7 +242,9 @@ def _run_agents(ticket: dict, decision: dict, message: str, chat_fn) -> tuple:
         reason = f"route: {decision['reason']} goes to a colleague"
         return answer, handover, text, proposals, gate(ticket).escalate_decision(ticket.get("order_id"), reason)
     shopnova = companies.of(ticket) == companies.DEFAULT
-    if shopnova and ticket.get("continue_agent") == "C":
+    if decision["agent"] == "C":   # P20: Atlas routes rebooking and special assistance straight to Agent C
+        return run_c(ticket, message, chat_fn, "router")
+    if ticket.get("continue_agent") == "C":
         # P20: the client answers a question Agent C asked (e.g. "yes, send the replacement"): C takes it again.
         trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "C", "by": "channel",
                                            "text": None})
@@ -257,10 +259,9 @@ def _run_agents(ticket: dict, decision: dict, message: str, chat_fn) -> tuple:
                                                        "reason": f"agent A already has a decision: {final['outcome']}"})
             handover = None
 
-    if handover == "C" and (final is not None or not shopnova):
+    if handover == "C" and final is not None:
         trace.log("handover_ignored", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "C",
-                                                   "reason": "agent A already has a decision" if shopnova
-                                                   else "Agent C works for ShopNova only"})
+                                                   "reason": "agent A already has a decision"})
         handover = None
     if handover == "C":
         return run_c(ticket, message, chat_fn, "agent_A")
@@ -273,7 +274,7 @@ def _run_agents(ticket: dict, decision: dict, message: str, chat_fn) -> tuple:
         result, proposals, final = run_agent_with_coordinator(AgentB, message, ticket, chat_fn)
         answer = result["answer"]
 
-    if shopnova and final is not None and final["outcome"] == "escalate" and layer2_on():
+    if final is not None and final["outcome"] == "escalate" and layer2_on():
         # P20 Layer 2: a hard case A or B could not close goes to Agent C once (it may offer a replacement or hand
         # the case to a human colleague). Its result replaces the escalate decision only if C reached a decision.
         note = f"[Layer 2: this case was escalated by the first agent: {final['reason']}]"
@@ -291,7 +292,7 @@ def run_c(ticket: dict, message: str, chat_fn, by: str, urgent_b: bool = True) -
     If C hands a money request to B ([HANDOVER: B], link "C asks B: urgent refund"), B runs on the same message and
     the ticket is marked urgent: a refund that waits for finance goes to the top of its list (web_chat).
     urgent_b=False (Layer 2): B already had the case, so C does not send it back to B."""
-    text = companies.get(companies.of(ticket))["handover_texts"].get("urgent_help") if by == "agent_A" else None
+    text = companies.get(companies.of(ticket))["handover_texts"].get("urgent_help") if by in ("agent_A", "router") else None
     trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "C", "by": by, "text": text})
     result, proposals, final = run_agent_with_coordinator(AgentC, message, ticket, chat_fn)
     if result.get("handover") == "B" and final is None and urgent_b:

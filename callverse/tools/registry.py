@@ -18,7 +18,7 @@ from the ticket); the model can never choose it.
 from callverse import trace
 from callverse.agents import ask, ask_c
 from callverse.kb import search
-from callverse.tools import atlas_tools, proposal_tools, shopnova_tools, stock_tools
+from callverse.tools import atlas_c_tools, atlas_tools, proposal_tools, shopnova_tools, stock_tools
 
 # All tools that exist in the prototype (name -> function / schema).
 TOOL_FUNCTIONS = {
@@ -78,13 +78,21 @@ ATLAS_AGENT_A = ["get_user", "get_hotel_booking", "get_flight_booking", "get_fli
 ATLAS_AGENT_B = ["get_hotel_booking", "get_flight_booking", "get_refunds", "search_policy", "propose_refund",
                  "propose_compensation", "propose_hotel_cancellation", "ask_agent"]
 
+# P20: Agent C at Atlas: reads the flight booking, finds later flights, proposes a new flight (AT-FLT-01) or a
+# wheelchair (AT-AST-01). Only proposals: the Atlas Coordinator writes after the client's yes.
+ATLAS_AGENT_C = ["get_flight_booking", "get_flight", "find_alternative_flights", "search_policy",
+                 "propose_rebooking", "propose_assistance"]
+
 ATLAS_ALLOW_LISTS = {
     "A": ATLAS_AGENT_A,
     "B": ATLAS_AGENT_B,
+    "C": ATLAS_AGENT_C,
     "INTAKE": ["get_hotel_booking", "get_flight_booking"],
 }
-ATLAS_TOOL_FUNCTIONS = {**atlas_tools.FUNCTIONS, **proposal_tools.ATLAS_FUNCTIONS, "ask_agent": ask.ask_agent}
-ATLAS_TOOL_SCHEMAS = {**atlas_tools.SCHEMAS, **proposal_tools.ATLAS_SCHEMAS, "ask_agent": ask.ATLAS_SCHEMA}
+ATLAS_TOOL_FUNCTIONS = {**atlas_tools.FUNCTIONS, **proposal_tools.ATLAS_FUNCTIONS, "ask_agent": ask.ask_agent,
+                        **atlas_c_tools.FUNCTIONS}
+ATLAS_TOOL_SCHEMAS = {**atlas_tools.SCHEMAS, **proposal_tools.ATLAS_SCHEMAS, "ask_agent": ask.ATLAS_SCHEMA,
+                      **atlas_c_tools.SCHEMAS}
 
 # Company -> (its allow-lists, its tool functions, its tool schemas).
 COMPANY_TOOLS = {

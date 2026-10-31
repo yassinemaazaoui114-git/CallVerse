@@ -273,7 +273,7 @@ companies:
         other: 0.2
       # [hours before departure / arrival, time pressure]: the first line that fits wins, else 0 (past trips: 0).
       time_pressure_hours: [[24, 1.0], [72, 0.5]]
-    # escalate = no agent: the ticket goes to a human colleague (rebooking and assistance wait for agent C).
+    # escalate = no agent: the ticket goes to a human colleague. P20: rebooking and special assistance go to Agent C.
     routes:
       booking_status: A
       delay_disruption: A
@@ -281,12 +281,13 @@ companies:
       refund_request: B
       compensation_request: B
       cancellation: B
-      rebooking: escalate
-      special_assistance: escalate
+      rebooking: C
+      special_assistance: C
     handover_texts:
       refund_request: "Your request is passed on for a refund check."
       compensation_request: "Your request is passed on for a compensation check."
       cancellation: "Your request is passed on for a cancellation check."
+      urgent_help: "Your request is passed on to our special help team."
     finance_rule: AT-ESC-01
     # Finance stub (tests only, layer3 mode "stub"): a refund above AT-ESC-01's limit is approved up to this amount
     # and refused above it. Its own value: ShopNova's 500 is below Atlas's 1,500 limit, so nothing could be approved.

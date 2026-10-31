@@ -21,6 +21,7 @@ import re
 
 from callverse.agents.base_agent import BaseAgent
 from callverse.config import sim_today
+from callverse.tools import atlas_c_tools
 from callverse.tools.proposal_tools import C_ACTIONS, c_proposal
 
 # Link (2) "C asks B: urgent refund": C never pays, so a money request goes to Agent B, marked urgent (pipeline.py).
@@ -46,6 +47,21 @@ already says yes to this offer (e.g. "yes, send me a replacement"), else false. 
 Write plain text only, no Markdown. Be short and polite. Answer in the language of the client's message."""
 
 
+ATLAS_PROMPT = """You are Agent C - Urgent & Special Help of Atlas Travel (hotel stays and flights, Tunisia). Today is {today}.
+You are the only agent that can change a client's booking, and nothing changes until the client says yes.
+Use only facts from tools, never invent. No booking number: ask for it and stop.
+1. Call get_flight_booking.
+2. Flight cancelled and the client wants another flight (rule AT-FLT-01): call find_alternative_flights and offer the
+first flight with propose_rebooking. No flight found: make no offer and say the refund can be checked instead.
+Special assistance such as a wheelchair (rule AT-AST-01, at least 48 hours before departure): call propose_assistance.
+3. You MUST call the proposal tool BEFORE your final answer. user_confirmed = true only if the client's message already
+says yes to this exact offer, else false. user_quote = the client's exact words.
+4. Never say it is done or approved, never promise dates: say it is being checked.
+Write plain text only, no Markdown. Be short and polite. Answer in the language of the client's message."""
+
+PROMPTS = {"shopnova": SYSTEM_PROMPT, "atlas": ATLAS_PROMPT}
+
+
 class AgentC(BaseAgent):
     agent_id = "C"
     name = "Agent C - Urgent & Special Help"
@@ -55,7 +71,7 @@ class AgentC(BaseAgent):
     max_steps = 8
 
     def system_prompt(self) -> str:
-        return SYSTEM_PROMPT.format(today=sim_today().isoformat())
+        return PROMPTS[self.company].format(today=sim_today().isoformat())
 
     def postprocess(self, answer: str) -> dict:
         handover = "B" if HANDOVER_TAG.search(answer) else None
@@ -64,7 +80,9 @@ class AgentC(BaseAgent):
     def run(self, user_message: str, history: list[dict] | None = None) -> dict:
         """Normal agent turn, plus the last proposal a C proposal tool accepted (platform shape), or None."""
         result = super().run(user_message, history)
-        accepted = [c for c in result["tool_calls"] if c["tool"] in C_ACTIONS
+        tools, build = ((atlas_c_tools.ACTIONS, atlas_c_tools.proposal) if self.company == "atlas"
+                        else (C_ACTIONS, c_proposal))
+        accepted = [c for c in result["tool_calls"] if c["tool"] in tools
                     and isinstance(c["result"], dict) and "error" not in c["result"]]
-        result["proposal"] = c_proposal(self.agent_id, accepted[-1]["tool"], accepted[-1]["args"]) if accepted else None
+        result["proposal"] = build(self.agent_id, accepted[-1]["tool"], accepted[-1]["args"]) if accepted else None
         return result
