@@ -1,0 +1,16 @@
+id: AT-01
+company: atlas
+reason: rebooking
+mood: stressed
+typo_level: medium
+persona:
+  description: Travels to Paris for a conference on 17 October.
+  language: English
+goal: The hotel just cancelled your booking two days before arrival. You absolutely
+  need a room for 17-20 October.
+facts:
+  booking_ref: BK-7731
+  city: Paris
+  dates: 17-20 October
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-AT-01.yaml

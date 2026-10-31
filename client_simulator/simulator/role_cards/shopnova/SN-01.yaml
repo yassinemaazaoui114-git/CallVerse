@@ -1,0 +1,17 @@
+id: SN-01
+company: shopnova
+reason: late_delivery
+mood: frustrated but polite
+typo_level: low
+persona:
+  description: A student in Germany who ordered a laptop and a sleeve for her studies.
+  language: English
+goal: 'Your laptop has not arrived: it was due on 8 October and the tracking has not
+  moved for a week. You want to know where it is and whether you get compensation.'
+facts:
+  order_id: 4512
+  ordered_on: 1 October
+  due_on: 8 October
+  carrier: DHL
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-SN-01.yaml

@@ -1,0 +1,869 @@
+{
+  "note": "trained on train; isotonic fitted on dev half A; choice on dev half B by QWK (tie: MAE); test reported once",
+  "fit_log": {
+    "tfidf_lr__all": {
+      "fit_s": 13.7,
+      "mb": 9.9
+    },
+    "tfidf_lr__csat": {
+      "fit_s": 3.5,
+      "mb": 0.7
+    },
+    "tfidf_lr__olist": {
+      "fit_s": 3.0,
+      "mb": 1.4
+    },
+    "tfidf_lr__tripadvisor": {
+      "fit_s": 5.2,
+      "mb": 7.0
+    },
+    "tfidf_lr__uss": {
+      "fit_s": 1.7,
+      "mb": 0.9
+    },
+    "tfidf_ridge__all": {
+      "fit_s": 8.6,
+      "mb": 6.0
+    },
+    "tfidf_ridge__csat": {
+      "fit_s": 1.2,
+      "mb": 0.4
+    },
+    "tfidf_ridge__olist": {
+      "fit_s": 1.7,
+      "mb": 0.8
+    },
+    "tfidf_ridge__tripadvisor": {
+      "fit_s": 3.9,
+      "mb": 4.3
+    },
+    "tfidf_ridge__uss": {
+      "fit_s": 0.4,
+      "mb": 0.6
+    },
+    "gbm_feats_svd__all": {
+      "fit_s": 23.6,
+      "mb": 99.7
+    },
+    "gbm_feats_svd__csat": {
+      "fit_s": 4.1,
+      "mb": 8.2
+    },
+    "gbm_feats_svd__olist": {
+      "fit_s": 5.4,
+      "mb": 14.6
+    },
+    "gbm_feats_svd__tripadvisor": {
+      "fit_s": 9.5,
+      "mb": 70.9
+    }
+  },
+  "per_source": {
+    "csat": {
+      "chosen_on_dev": "tfidf_lr | per-source | isotonic",
+      "dev": {
+        "tfidf_lr | all sources | none": {
+          "qwk": 0.3915371937906522,
+          "mae": 0.7966075074603424
+        },
+        "tfidf_lr | all sources | isotonic": {
+          "qwk": 0.3806636065664678,
+          "mae": 0.7929951311449662
+        },
+        "tfidf_lr | per-source | none": {
+          "qwk": 0.389484087047953,
+          "mae": 0.7967645673001413
+        },
+        "tfidf_lr | per-source | isotonic": {
+          "qwk": 0.40148951410304023,
+          "mae": 0.7863986178734098
+        },
+        "tfidf_ridge | all sources | none": {
+          "qwk": 0.36341248823877415,
+          "mae": 0.862729700015706
+        },
+        "tfidf_ridge | all sources | isotonic": {
+          "qwk": 0.3780808359034049,
+          "mae": 0.807130516726873
+        },
+        "tfidf_ridge | per-source | none": {
+          "qwk": 0.3621005831049273,
+          "mae": 0.8632008795351028
+        },
+        "tfidf_ridge | per-source | isotonic": {
+          "qwk": 0.39059269194118684,
+          "mae": 0.8005340034553164
+        },
+        "gbm_feats_svd | all sources | none": {
+          "qwk": 0.33394876569253085,
+          "mae": 0.8771792052772106
+        },
+        "gbm_feats_svd | all sources | isotonic": {
+          "qwk": 0.3582948838182205,
+          "mae": 0.8203235432699859
+        },
+        "gbm_feats_svd | per-source | none": {
+          "qwk": 0.3539477103893115,
+          "mae": 0.8203235432699859
+        },
+        "gbm_feats_svd | per-source | isotonic": {
+          "qwk": 0.3491644217447534,
+          "mae": 0.8292759541385267
+        }
+      },
+      "test_chosen": {
+        "n": 1000,
+        "mae": 0.823,
+        "spearman": 0.3088981310539857,
+        "exact_acc": 0.433,
+        "within1_acc": 0.862,
+        "qwk": 0.3866545194963612,
+        "macro_f1": 0.2488374531537903,
+        "wasserstein": 0.605,
+        "pred_dist": {
+          "1": 21,
+          "2": 26,
+          "3": 31,
+          "4": 522,
+          "5": 400
+        },
+        "true_dist": {
+          "1": 136,
+          "2": 17,
+          "3": 27,
+          "4": 138,
+          "5": 682
+        },
+        "mae_ci": [
+          0.766,
+          0.882
+        ],
+        "qwk_ci": [
+          0.3184485923190532,
+          0.4494341166082215
+        ],
+        "by_bucket": {
+          "0-5 min": {
+            "n": 444,
+            "real_mean": 4.349099099099099,
+            "sim_mean": 4.4259442328232685,
+            "real_mean_ci": [
+              4.225168918918919,
+              4.466216216216216
+            ],
+            "sim_mean_ci": [
+              4.367903655380571,
+              4.477636798622205
+            ],
+            "gap_ci": [
+              0.00499161861958144,
+              0.18228813275574743
+            ]
+          },
+          "5-30 min": {
+            "n": 247,
+            "real_mean": 4.267206477732794,
+            "sim_mean": 4.179521220037772,
+            "real_mean_ci": [
+              4.101214574898785,
+              4.421052631578948
+            ],
+            "sim_mean_ci": [
+              4.094351381164064,
+              4.253741846498725
+            ],
+            "gap_ci": [
+              0.004685845597713301,
+              0.22780970056907485
+            ]
+          },
+          "30 min-2 h": {
+            "n": 103,
+            "real_mean": 4.106796116504855,
+            "sim_mean": 4.0382334119649235,
+            "real_mean_ci": [
+              3.8155339805825244,
+              4.37888349514563
+            ],
+            "sim_mean_ci": [
+              3.8997015910295585,
+              4.165488227186882
+            ],
+            "gap_ci": [
+              0.005607817773192703,
+              0.3101178118021247
+            ]
+          },
+          "2-8 h": {
+            "n": 82,
+            "real_mean": 4.085365853658536,
+            "sim_mean": 3.8476689125452332,
+            "real_mean_ci": [
+              3.7560975609756095,
+              4.390243902439025
+            ],
+            "sim_mean_ci": [
+              3.6992870443681167,
+              3.9918020152478015
+            ],
+            "gap_ci": [
+              0.017925517831995197,
+              0.5261761005386185
+            ]
+          },
+          "8 h+": {
+            "n": 89,
+            "real_mean": 3.50561797752809,
+            "sim_mean": 3.688921783484911,
+            "real_mean_ci": [
+              3.123314606741573,
+              3.853932584269663
+            ],
+            "sim_mean_ci": [
+              3.4859874549162213,
+              3.8665306179395706
+            ],
+            "gap_ci": [
+              0.01062013642238716,
+              0.5179147316714862
+            ]
+          }
+        },
+        "bucket_gap": 0.10222242952669655,
+        "bucket_gap_ci": [
+          0.055505001065209746,
+          0.18402494715122225
+        ]
+      },
+      "test_all_candidates": {
+        "tfidf_lr | all sources | none": {
+          "mae": 0.821,
+          "qwk": 0.3925409101960796,
+          "within1_acc": 0.862,
+          "wasserstein": 0.619
+        },
+        "tfidf_lr | all sources | isotonic": {
+          "mae": 0.833,
+          "qwk": 0.3681010157569732,
+          "within1_acc": 0.864,
+          "wasserstein": 0.619
+        },
+        "tfidf_lr | per-source | none": {
+          "mae": 0.826,
+          "qwk": 0.3847652098638523,
+          "within1_acc": 0.862,
+          "wasserstein": 0.624
+        },
+        "tfidf_lr | per-source | isotonic": {
+          "mae": 0.823,
+          "qwk": 0.3866545194963612,
+          "within1_acc": 0.862,
+          "wasserstein": 0.605
+        },
+        "tfidf_ridge | all sources | none": {
+          "mae": 0.897,
+          "qwk": 0.34704289395078736,
+          "within1_acc": 0.859,
+          "wasserstein": 0.735
+        },
+        "tfidf_ridge | all sources | isotonic": {
+          "mae": 0.846,
+          "qwk": 0.37193975900808407,
+          "within1_acc": 0.867,
+          "wasserstein": 0.628
+        },
+        "tfidf_ridge | per-source | none": {
+          "mae": 0.89,
+          "qwk": 0.3549358161137034,
+          "within1_acc": 0.862,
+          "wasserstein": 0.73
+        },
+        "tfidf_ridge | per-source | isotonic": {
+          "mae": 0.838,
+          "qwk": 0.38896575251596766,
+          "within1_acc": 0.872,
+          "wasserstein": 0.614
+        },
+        "gbm_feats_svd | all sources | none": {
+          "mae": 0.917,
+          "qwk": 0.30098724764036955,
+          "within1_acc": 0.841,
+          "wasserstein": 0.7389999999999999
+        },
+        "gbm_feats_svd | all sources | isotonic": {
+          "mae": 0.866,
+          "qwk": 0.32769236717781514,
+          "within1_acc": 0.846,
+          "wasserstein": 0.608
+        },
+        "gbm_feats_svd | per-source | none": {
+          "mae": 0.851,
+          "qwk": 0.34316911641864434,
+          "within1_acc": 0.857,
+          "wasserstein": 0.6369999999999999
+        },
+        "gbm_feats_svd | per-source | isotonic": {
+          "mae": 0.859,
+          "qwk": 0.3473522955195123,
+          "within1_acc": 0.858,
+          "wasserstein": 0.649
+        }
+      }
+    },
+    "olist": {
+      "chosen_on_dev": "tfidf_lr | per-source | none",
+      "dev": {
+        "tfidf_lr | all sources | none": {
+          "qwk": 0.666317529781448,
+          "mae": 0.7176956927590346
+        },
+        "tfidf_lr | all sources | isotonic": {
+          "qwk": 0.6718331317384894,
+          "mae": 0.716762234964662
+        },
+        "tfidf_lr | per-source | none": {
+          "qwk": 0.7127843415628714,
+          "mae": 0.537538338445126
+        },
+        "tfidf_lr | per-source | isotonic": {
+          "qwk": 0.6697112614401688,
+          "mae": 0.7182290972129617
+        },
+        "tfidf_ridge | all sources | none": {
+          "qwk": 0.6463389411458489,
+          "mae": 0.745699426590212
+        },
+        "tfidf_ridge | all sources | isotonic": {
+          "qwk": 0.6635469058633684,
+          "mae": 0.7340978797172957
+        },
+        "tfidf_ridge | per-source | none": {
+          "qwk": 0.6452178872768618,
+          "mae": 0.7467662354980664
+        },
+        "tfidf_ridge | per-source | isotonic": {
+          "qwk": 0.6687927765443822,
+          "mae": 0.7296972929723963
+        },
+        "gbm_feats_svd | all sources | none": {
+          "qwk": 0.6326000590816994,
+          "mae": 0.7534337911721563
+        },
+        "gbm_feats_svd | all sources | isotonic": {
+          "qwk": 0.6209723762142559,
+          "mae": 0.7621016135484732
+        },
+        "gbm_feats_svd | per-source | none": {
+          "qwk": 0.641753233777796,
+          "mae": 0.7454327243632485
+        },
+        "gbm_feats_svd | per-source | isotonic": {
+          "qwk": 0.6453204955301184,
+          "mae": 0.7396986264835311
+        }
+      },
+      "test_chosen": {
+        "n": 500,
+        "mae": 0.536,
+        "spearman": 0.5865702278919199,
+        "exact_acc": 0.622,
+        "within1_acc": 0.888,
+        "qwk": 0.7010327289191165,
+        "macro_f1": 0.3331054080104302,
+        "wasserstein": 0.272,
+        "pred_dist": {
+          "1": 21,
+          "2": 41,
+          "3": 30,
+          "4": 30,
+          "5": 378
+        },
+        "true_dist": {
+          "1": 60,
+          "2": 12,
+          "3": 30,
+          "4": 97,
+          "5": 301
+        },
+        "mae_ci": [
+          0.462,
+          0.614
+        ],
+        "qwk_ci": [
+          0.6270925719569963,
+          0.7608127283360602
+        ],
+        "by_bucket": {
+          "on time or early": {
+            "n": 448,
+            "real_mean": 4.341517857142857,
+            "sim_mean": 4.320401050675459,
+            "real_mean_ci": [
+              4.236551339285715,
+              4.450892857142857
+            ],
+            "sim_mean_ci": [
+              4.254685984894667,
+              4.389606617203122
+            ],
+            "gap_ci": [
+              0.00177610034073592,
+              0.09724050460396935
+            ]
+          },
+          "1-3 days late": {
+            "n": 9,
+            "real_mean": 3.4444444444444446,
+            "sim_mean": 2.6057858434384893,
+            "real_mean_ci": [
+              2.4444444444444446,
+              4.333333333333333
+            ],
+            "sim_mean_ci": [
+              1.9901015297751241,
+              3.2517777985027276
+            ],
+            "gap_ci": [
+              0.09036881305719202,
+              1.7672213824152418
+            ]
+          },
+          "4-7 days late": {
+            "n": 11,
+            "real_mean": 2.909090909090909,
+            "sim_mean": 2.058654610627116,
+            "real_mean_ci": [
+              1.9090909090909092,
+              3.909090909090909
+            ],
+            "sim_mean_ci": [
+              1.7505318084411736,
+              2.3497307672031695
+            ],
+            "gap_ci": [
+              0.08941951675664551,
+              1.8549989002570668
+            ]
+          },
+          "8+ days late": {
+            "n": 17,
+            "real_mean": 2.235294117647059,
+            "sim_mean": 2.4234380224921126,
+            "real_mean_ci": [
+              1.5294117647058822,
+              3.0588235294117645
+            ],
+            "sim_mean_ci": [
+              2.07463975465751,
+              2.8248110604919945
+            ],
+            "gap_ci": [
+              0.011362216485743194,
+              0.7677515262179188
+            ]
+          },
+          "never delivered": {
+            "n": 15,
+            "real_mean": 1.4,
+            "sim_mean": 1.747087912432911,
+            "real_mean_ci": [
+              1.0,
+              2.066666666666667
+            ],
+            "sim_mean_ci": [
+              1.4068974086956225,
+              2.1392796787397996
+            ],
+            "gap_ci": [
+              0.040328997471717795,
+              0.6527279218473611
+            ]
+          }
+        },
+        "bucket_gap": 0.06953564211681831,
+        "bucket_gap_ci": [
+          0.040005205185261135,
+          0.14893947699165147
+        ]
+      },
+      "test_all_candidates": {
+        "tfidf_lr | all sources | none": {
+          "mae": 0.74,
+          "qwk": 0.638169704062393,
+          "within1_acc": 0.922,
+          "wasserstein": 0.524
+        },
+        "tfidf_lr | all sources | isotonic": {
+          "mae": 0.732,
+          "qwk": 0.6460922688013482,
+          "within1_acc": 0.926,
+          "wasserstein": 0.52
+        },
+        "tfidf_lr | per-source | none": {
+          "mae": 0.536,
+          "qwk": 0.7010327289191165,
+          "within1_acc": 0.888,
+          "wasserstein": 0.272
+        },
+        "tfidf_lr | per-source | isotonic": {
+          "mae": 0.732,
+          "qwk": 0.6477091307642195,
+          "within1_acc": 0.924,
+          "wasserstein": 0.516
+        },
+        "tfidf_ridge | all sources | none": {
+          "mae": 0.75,
+          "qwk": 0.6325831362181717,
+          "within1_acc": 0.918,
+          "wasserstein": 0.5539999999999999
+        },
+        "tfidf_ridge | all sources | isotonic": {
+          "mae": 0.746,
+          "qwk": 0.6416900357320549,
+          "within1_acc": 0.924,
+          "wasserstein": 0.5459999999999999
+        },
+        "tfidf_ridge | per-source | none": {
+          "mae": 0.75,
+          "qwk": 0.6318984418734839,
+          "within1_acc": 0.916,
+          "wasserstein": 0.5539999999999999
+        },
+        "tfidf_ridge | per-source | isotonic": {
+          "mae": 0.742,
+          "qwk": 0.6452827464417208,
+          "within1_acc": 0.924,
+          "wasserstein": 0.5339999999999999
+        },
+        "gbm_feats_svd | all sources | none": {
+          "mae": 0.786,
+          "qwk": 0.5895963763307464,
+          "within1_acc": 0.904,
+          "wasserstein": 0.5459999999999999
+        },
+        "gbm_feats_svd | all sources | isotonic": {
+          "mae": 0.782,
+          "qwk": 0.5889603995216993,
+          "within1_acc": 0.902,
+          "wasserstein": 0.546
+        },
+        "gbm_feats_svd | per-source | none": {
+          "mae": 0.764,
+          "qwk": 0.609631531625483,
+          "within1_acc": 0.914,
+          "wasserstein": 0.536
+        },
+        "gbm_feats_svd | per-source | isotonic": {
+          "mae": 0.76,
+          "qwk": 0.6107783592767757,
+          "within1_acc": 0.916,
+          "wasserstein": 0.504
+        }
+      }
+    },
+    "tripadvisor": {
+      "chosen_on_dev": "tfidf_lr | per-source | isotonic",
+      "dev": {
+        "tfidf_lr | all sources | none": {
+          "qwk": 0.765220866322915,
+          "mae": 0.47368421052631576
+        },
+        "tfidf_lr | all sources | isotonic": {
+          "qwk": 0.8039953468004087,
+          "mae": 0.4323784143904064
+        },
+        "tfidf_lr | per-source | none": {
+          "qwk": 0.7574234314235329,
+          "mae": 0.480346435709527
+        },
+        "tfidf_lr | per-source | isotonic": {
+          "qwk": 0.8292043107213258,
+          "mae": 0.40173217854763493
+        },
+        "tfidf_ridge | all sources | none": {
+          "qwk": 0.7649252656096157,
+          "mae": 0.5003331112591606
+        },
+        "tfidf_ridge | all sources | isotonic": {
+          "qwk": 0.8076784770278866,
+          "mae": 0.4743504330446369
+        },
+        "tfidf_ridge | per-source | none": {
+          "qwk": 0.7690750311108603,
+          "mae": 0.4936708860759494
+        },
+        "tfidf_ridge | per-source | isotonic": {
+          "qwk": 0.8224995872018032,
+          "mae": 0.4417055296469021
+        },
+        "gbm_feats_svd | all sources | none": {
+          "qwk": 0.6017710040768294,
+          "mae": 0.6595602931379081
+        },
+        "gbm_feats_svd | all sources | isotonic": {
+          "qwk": 0.5875760419033442,
+          "mae": 0.6808794137241839
+        },
+        "gbm_feats_svd | per-source | none": {
+          "qwk": 0.7558578891121304,
+          "mae": 0.5056628914057295
+        },
+        "gbm_feats_svd | per-source | isotonic": {
+          "qwk": 0.760019871051554,
+          "mae": 0.5043304463690873
+        }
+      },
+      "test_chosen": {
+        "n": 500,
+        "mae": 0.366,
+        "spearman": 0.8182174145459014,
+        "exact_acc": 0.656,
+        "within1_acc": 0.98,
+        "qwk": 0.8667946810536992,
+        "macro_f1": 0.5886782974159586,
+        "wasserstein": 0.06200000000000001,
+        "pred_dist": {
+          "1": 23,
+          "2": 65,
+          "3": 53,
+          "4": 150,
+          "5": 209
+        },
+        "true_dist": {
+          "1": 43,
+          "2": 44,
+          "3": 60,
+          "4": 140,
+          "5": 213
+        },
+        "mae_ci": [
+          0.32,
+          0.412
+        ],
+        "qwk_ci": [
+          0.8382576111684484,
+          0.8901917644123191
+        ]
+      },
+      "test_all_candidates": {
+        "tfidf_lr | all sources | none": {
+          "mae": 0.436,
+          "qwk": 0.8209938421881713,
+          "within1_acc": 0.982,
+          "wasserstein": 0.26000000000000006
+        },
+        "tfidf_lr | all sources | isotonic": {
+          "mae": 0.386,
+          "qwk": 0.8553401290445315,
+          "within1_acc": 0.982,
+          "wasserstein": 0.126
+        },
+        "tfidf_lr | per-source | none": {
+          "mae": 0.472,
+          "qwk": 0.7858024846911775,
+          "within1_acc": 0.968,
+          "wasserstein": 0.30400000000000005
+        },
+        "tfidf_lr | per-source | isotonic": {
+          "mae": 0.366,
+          "qwk": 0.8667946810536992,
+          "within1_acc": 0.98,
+          "wasserstein": 0.06200000000000001
+        },
+        "tfidf_ridge | all sources | none": {
+          "mae": 0.486,
+          "qwk": 0.7947990067382968,
+          "within1_acc": 0.966,
+          "wasserstein": 0.25399999999999995
+        },
+        "tfidf_ridge | all sources | isotonic": {
+          "mae": 0.438,
+          "qwk": 0.8432793698207266,
+          "within1_acc": 0.968,
+          "wasserstein": 0.08199999999999988
+        },
+        "tfidf_ridge | per-source | none": {
+          "mae": 0.486,
+          "qwk": 0.7953011414793911,
+          "within1_acc": 0.972,
+          "wasserstein": 0.262
+        },
+        "tfidf_ridge | per-source | isotonic": {
+          "mae": 0.428,
+          "qwk": 0.8439142152527028,
+          "within1_acc": 0.974,
+          "wasserstein": 0.08400000000000003
+        },
+        "gbm_feats_svd | all sources | none": {
+          "mae": 0.644,
+          "qwk": 0.665937030721067,
+          "within1_acc": 0.922,
+          "wasserstein": 0.33199999999999996
+        },
+        "gbm_feats_svd | all sources | isotonic": {
+          "mae": 0.66,
+          "qwk": 0.6548621297471865,
+          "within1_acc": 0.91,
+          "wasserstein": 0.388
+        },
+        "gbm_feats_svd | per-source | none": {
+          "mae": 0.478,
+          "qwk": 0.800828332065667,
+          "within1_acc": 0.956,
+          "wasserstein": 0.17400000000000002
+        },
+        "gbm_feats_svd | per-source | isotonic": {
+          "mae": 0.442,
+          "qwk": 0.8274794418467966,
+          "within1_acc": 0.962,
+          "wasserstein": 0.13000000000000003
+        }
+      }
+    },
+    "uss": {
+      "chosen_on_dev": "gbm_feats_svd | all sources | none",
+      "dev": {
+        "tfidf_lr | all sources | none": {
+          "qwk": -0.042908224076281254,
+          "mae": 0.35
+        },
+        "tfidf_lr | all sources | isotonic": {
+          "qwk": 0.0,
+          "mae": 0.32
+        },
+        "tfidf_lr | per-source | none": {
+          "qwk": -0.014760147601476037,
+          "mae": 0.33
+        },
+        "tfidf_lr | per-source | isotonic": {
+          "qwk": 0.0,
+          "mae": 0.32
+        },
+        "tfidf_ridge | all sources | none": {
+          "qwk": -0.037735849056603765,
+          "mae": 0.42
+        },
+        "tfidf_ridge | all sources | isotonic": {
+          "qwk": 0.0,
+          "mae": 0.32
+        },
+        "tfidf_ridge | per-source | none": {
+          "qwk": -0.014760147601476037,
+          "mae": 0.33
+        },
+        "tfidf_ridge | per-source | isotonic": {
+          "qwk": 0.0,
+          "mae": 0.32
+        },
+        "gbm_feats_svd | all sources | none": {
+          "qwk": 0.046242774566474076,
+          "mae": 0.33
+        },
+        "gbm_feats_svd | all sources | isotonic": {
+          "qwk": 0.0,
+          "mae": 0.32
+        }
+      },
+      "test_chosen": {
+        "n": 186,
+        "mae": 0.26344086021505375,
+        "spearman": 0.13618188690710312,
+        "exact_acc": 0.7419354838709677,
+        "within1_acc": 0.9946236559139785,
+        "qwk": 0.08630321710653055,
+        "macro_f1": 0.2009928021841648,
+        "wasserstein": 0.22043010752688177,
+        "pred_dist": {
+          "1": 0,
+          "2": 0,
+          "3": 178,
+          "4": 8,
+          "5": 0
+        },
+        "true_dist": {
+          "1": 1,
+          "2": 4,
+          "3": 138,
+          "4": 43,
+          "5": 0
+        },
+        "mae_ci": [
+          0.1989247311827957,
+          0.3333333333333333
+        ],
+        "qwk_ci": [
+          -0.012027140531026109,
+          0.20156114494851562
+        ]
+      },
+      "test_all_candidates": {
+        "tfidf_lr | all sources | none": {
+          "mae": 0.3010752688172043,
+          "qwk": -0.028016009148084553,
+          "within1_acc": 0.9946236559139785,
+          "wasserstein": 0.21505376344086027
+        },
+        "tfidf_lr | all sources | isotonic": {
+          "mae": 0.26344086021505375,
+          "qwk": 0.0,
+          "within1_acc": 0.9946236559139785,
+          "wasserstein": 0.26344086021505375
+        },
+        "tfidf_lr | per-source | none": {
+          "mae": 0.26344086021505375,
+          "qwk": 0.0,
+          "within1_acc": 0.9946236559139785,
+          "wasserstein": 0.26344086021505375
+        },
+        "tfidf_lr | per-source | isotonic": {
+          "mae": 0.26344086021505375,
+          "qwk": 0.0,
+          "within1_acc": 0.9946236559139785,
+          "wasserstein": 0.26344086021505375
+        },
+        "tfidf_ridge | all sources | none": {
+          "mae": 0.3548387096774194,
+          "qwk": 0.02262443438914019,
+          "within1_acc": 0.9838709677419355,
+          "wasserstein": 0.07526881720430115
+        },
+        "tfidf_ridge | all sources | isotonic": {
+          "mae": 0.26344086021505375,
+          "qwk": 0.0,
+          "within1_acc": 0.9946236559139785,
+          "wasserstein": 0.26344086021505375
+        },
+        "tfidf_ridge | per-source | none": {
+          "mae": 0.26344086021505375,
+          "qwk": 0.0,
+          "within1_acc": 0.9946236559139785,
+          "wasserstein": 0.26344086021505375
+        },
+        "tfidf_ridge | per-source | isotonic": {
+          "mae": 0.26344086021505375,
+          "qwk": 0.0,
+          "within1_acc": 0.9946236559139785,
+          "wasserstein": 0.26344086021505375
+        },
+        "gbm_feats_svd | all sources | none": {
+          "mae": 0.26344086021505375,
+          "qwk": 0.08630321710653055,
+          "within1_acc": 0.9946236559139785,
+          "wasserstein": 0.22043010752688177
+        },
+        "gbm_feats_svd | all sources | isotonic": {
+          "mae": 0.26344086021505375,
+          "qwk": 0.0,
+          "within1_acc": 0.9946236559139785,
+          "wasserstein": 0.26344086021505375
+        }
+      }
+    }
+  },
+  "ms_per_score": {
+    "tfidf_lr": 0.94,
+    "tfidf_ridge": 0.89,
+    "gbm_feats_svd": 46.94
+  },
+  "seconds": 123
+}

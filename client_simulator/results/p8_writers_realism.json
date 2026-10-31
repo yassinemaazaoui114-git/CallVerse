@@ -1,0 +1,252 @@
+{
+  "callverse-sim-writer | rp1-ft": {
+    "distance_mean": 0.17060416666666664,
+    "distance_first": 0.2448333333333333,
+    "distance_later": 0.09637499999999999,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 27.5,
+    "spelling_first": 0.5
+  },
+  "gemma3:1b | rp1-ex5": {
+    "distance_mean": 0.1496458333333333,
+    "distance_first": 0.17316666666666666,
+    "distance_later": 0.126125,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.08888888888888889,
+    "words_median_first": 16.0,
+    "spelling_first": 0.13333333333333333
+  },
+  "gemma3:1b | rp1-ex5-clean": {
+    "distance_mean": 0.1525625,
+    "distance_first": 0.13949999999999999,
+    "distance_later": 0.165625,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.011111111111111112,
+    "words_median_first": 20.0,
+    "spelling_first": 0.5
+  },
+  "gemma3:1b | rp1-ex5-clean2": {
+    "distance_mean": 0.13535416666666666,
+    "distance_first": 0.14816666666666667,
+    "distance_later": 0.12254166666666666,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.03333333333333333,
+    "words_median_first": 20.0,
+    "spelling_first": 0.03333333333333333
+  },
+  "gemma3:1b | rp1-ex5-clean3": {
+    "distance_mean": 0.12252083333333333,
+    "distance_first": 0.13566666666666666,
+    "distance_later": 0.109375,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.022222222222222223,
+    "words_median_first": 20.0,
+    "spelling_first": 0.13333333333333333
+  },
+  "gemma3:1b | rp1-ex5-ctx1024": {
+    "distance_mean": 0.1496458333333333,
+    "distance_first": 0.17316666666666666,
+    "distance_later": 0.126125,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.08888888888888889,
+    "words_median_first": 16.0,
+    "spelling_first": 0.13333333333333333
+  },
+  "gemma3:1b | rp1-ex5-ctx1024-kvq8fa": {
+    "distance_mean": 0.14297916666666666,
+    "distance_first": 0.16691666666666666,
+    "distance_later": 0.11904166666666666,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.08888888888888889,
+    "words_median_first": 18.5,
+    "spelling_first": 0.03333333333333333
+  },
+  "gemma3:270m | rp1-ex5": {
+    "distance_mean": 0.19839583333333333,
+    "distance_first": 0.2906666666666667,
+    "distance_later": 0.106125,
+    "breaks_role_rate": 0.08888888888888889,
+    "n": 90,
+    "empty_rate": 0.011111111111111112,
+    "words_median_first": 44.0,
+    "spelling_first": 0.13333333333333333
+  },
+  "gemma3:4b | rp1-ex5": {
+    "distance_mean": 0.23960416666666667,
+    "distance_first": 0.24883333333333335,
+    "distance_later": 0.23037500000000002,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 15.0,
+    "spelling_first": 0.16666666666666666
+  },
+  "gemma3:4b | rp1-noex": {
+    "distance_mean": 0.24847916666666667,
+    "distance_first": 0.253,
+    "distance_later": 0.24395833333333333,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 15.0,
+    "spelling_first": 0.16666666666666666
+  },
+  "granite4:350m | rp1-ex5": {
+    "distance_mean": 0.15297916666666667,
+    "distance_first": 0.16674999999999998,
+    "distance_later": 0.13920833333333332,
+    "breaks_role_rate": 0.3333333333333333,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 18.5,
+    "spelling_first": 0.0
+  },
+  "granite4:3b | rp1-ex5": {
+    "distance_mean": 0.1335208333333333,
+    "distance_first": 0.16141666666666665,
+    "distance_later": 0.105625,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 18.5,
+    "spelling_first": 0.2
+  },
+  "granite4:3b | rp1-noex": {
+    "distance_mean": 0.18664583333333334,
+    "distance_first": 0.22183333333333333,
+    "distance_later": 0.15145833333333333,
+    "breaks_role_rate": 0.022222222222222223,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 23.0,
+    "spelling_first": 0.2
+  },
+  "hf.co/bartowski/microsoft_UserLM-8b-GGUF:Q4_K_M | rp1-ex5": {
+    "distance_mean": 0.28889583333333335,
+    "distance_first": 0.31675,
+    "distance_later": 0.26104166666666667,
+    "breaks_role_rate": 0.1,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 39.5,
+    "spelling_first": 0.03333333333333333
+  },
+  "hf.co/bartowski/microsoft_UserLM-8b-GGUF:Q4_K_M | rp1-noex": {
+    "distance_mean": 0.3086875,
+    "distance_first": 0.36675,
+    "distance_later": 0.250625,
+    "breaks_role_rate": 0.15555555555555556,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 33.0,
+    "spelling_first": 0.06666666666666667
+  },
+  "llama3.2:1b | rp1-ex5": {
+    "distance_mean": 0.19610416666666666,
+    "distance_first": 0.23841666666666667,
+    "distance_later": 0.15379166666666666,
+    "breaks_role_rate": 0.011111111111111112,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 18.0,
+    "spelling_first": 0.06666666666666667
+  },
+  "llama3.2:3b | rp1-ex5": {
+    "distance_mean": 0.21372916666666666,
+    "distance_first": 0.2614166666666667,
+    "distance_later": 0.16604166666666664,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 27.5,
+    "spelling_first": 0.26666666666666666
+  },
+  "llama3.2:3b | rp1-noex": {
+    "distance_mean": 0.21785416666666668,
+    "distance_first": 0.253,
+    "distance_later": 0.18270833333333333,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 25.5,
+    "spelling_first": 0.3
+  },
+  "mistral:7b | rp1-ex5": {
+    "distance_mean": 0.2715208333333333,
+    "distance_first": 0.2540833333333333,
+    "distance_later": 0.2889583333333333,
+    "breaks_role_rate": 0.011111111111111112,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 29.5,
+    "spelling_first": 0.23333333333333334
+  },
+  "mistral:7b | rp1-noex": {
+    "distance_mean": 0.28360416666666666,
+    "distance_first": 0.2749166666666667,
+    "distance_later": 0.29229166666666667,
+    "breaks_role_rate": 0.022222222222222223,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 30.0,
+    "spelling_first": 0.26666666666666666
+  },
+  "phi4-mini:3.8b | rp1-ex5": {
+    "distance_mean": 0.20435416666666667,
+    "distance_first": 0.23641666666666666,
+    "distance_later": 0.17229166666666668,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 24.5,
+    "spelling_first": 0.06666666666666667
+  },
+  "phi4-mini:3.8b | rp1-noex": {
+    "distance_mean": 0.17727083333333332,
+    "distance_first": 0.20933333333333332,
+    "distance_later": 0.14520833333333333,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 22.0,
+    "spelling_first": 0.1
+  },
+  "qwen3.5:4b | rp1-ex5": {
+    "distance_mean": 0.15477083333333333,
+    "distance_first": 0.16349999999999998,
+    "distance_later": 0.14604166666666668,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 20.0,
+    "spelling_first": 0.1
+  },
+  "qwen3.5:4b | rp1-noex": {
+    "distance_mean": 0.16414583333333332,
+    "distance_first": 0.19058333333333333,
+    "distance_later": 0.13770833333333335,
+    "breaks_role_rate": 0.0,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 22.0,
+    "spelling_first": 0.06666666666666667
+  },
+  "smollm2:1.7b | rp1-ex5": {
+    "distance_mean": 0.22472916666666667,
+    "distance_first": 0.2771666666666667,
+    "distance_later": 0.17229166666666668,
+    "breaks_role_rate": 0.05555555555555555,
+    "n": 90,
+    "empty_rate": 0.0,
+    "words_median_first": 33.0,
+    "spelling_first": 0.1
+  }
+}

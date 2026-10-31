@@ -1,0 +1,12 @@
+id: AT-14
+company: atlas
+reason: delay_disruption
+mood: calm
+typo_level: low
+persona:
+  description: Business traveller.
+  language: English
+goal: Your bus is 90 minutes late; you want to know the new arrival time.
+facts:
+  booking_ref: BK-7746
+patience_turns: 4

@@ -1,0 +1,121 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+uss_mwoz_0177,3,5,True,True,False,Very helpful and efficiently booked everything!,,,False,5.046368598937988,5,gemma3:4b
+uss_mwoz_0649,3,4,False,True,False,"Very thorough, answered all my questions clearly.",,,False,4.964018106460571,4,gemma3:4b
+uss_sgd_0361,3,4,True,True,False,"It handled everything I needed, a bit lengthy though.",,,False,4.908421516418457,4,gemma3:4b
+uss_mwoz_0321,3,5,True,True,False,Absolutely comprehensive and helpful – a fantastic service!,,,False,5.005031108856201,5,gemma3:4b
+uss_sgd_0377,3,4,False,True,False,"Very thorough and helpful, covered everything I needed!",,,False,5.147669792175293,4,gemma3:4b
+uss_mwoz_0454,4,5,True,True,False,Very helpful and covered all my needs!,,,False,5.108601093292236,5,gemma3:4b
+uss_mwoz_0814,3,4,False,True,False,"It was a bit slow, but ultimately fulfilled my needs.",,,False,4.958471298217773,4,gemma3:4b
+uss_mwoz_0776,4,5,True,True,False,Extremely helpful and went above and beyond to fulfill all my requests!,,,False,5.157830715179443,5,gemma3:4b
+uss_sgd_0828,3,5,True,True,False,Perfectly efficient and got everything right!,,,False,4.832639932632446,5,gemma3:4b
+uss_mwoz_0077,4,4,False,True,False,"Helpful and managed to get everything sorted, a bit slow at times.",,,False,5.1476874351501465,4,gemma3:4b
+uss_mwoz_0608,3,5,False,True,False,"Fantastic service, covered everything I needed!",,,False,5.218446969985962,5,gemma3:4b
+uss_mwoz_0886,3,5,True,True,False,Extremely helpful and covered everything I needed!,,,False,5.022283554077148,5,gemma3:4b
+uss_sgd_0642,3,4,True,True,False,"It was a bit long-winded, but ultimately found what I needed.",,,False,5.237061977386475,4,gemma3:4b
+uss_mwoz_0756,3,4,False,True,False,"Helpful and provided all the information I needed, though a little slow.",,,False,5.232241630554199,4,gemma3:4b
+uss_sgd_0742,3,4,True,True,False,It handled multiple bookings and requests smoothly.,,,False,5.148818731307983,4,gemma3:4b
+uss_sgd_0468,4,5,True,True,False,"Excellent service, handled everything smoothly and efficiently.",,,False,5.006968975067139,5,gemma3:4b
+uss_mwoz_0572,3,5,True,True,False,Very thorough and helpful – covered everything I needed!,,,False,5.021516799926758,5,gemma3:4b
+uss_sgd_0389,3,5,True,True,False,"Fantastic service, really helpful and covered everything I needed!",,,False,4.883479833602905,5,gemma3:4b
+uss_sgd_0873,4,5,True,True,False,"Excellent service, handled everything perfectly!",,,False,4.98950982093811,5,gemma3:4b
+uss_mwoz_0589,3,4,False,True,False,It was thorough and answered all my questions before booking.,,,False,5.049645185470581,4,gemma3:4b
+uss_sgd_0652,3,5,True,True,False,"It handled everything – flights, hotel, and even attraction suggestions – flawlessly!",,,False,5.132575273513794,5,gemma3:4b
+uss_mwoz_0897,3,5,True,True,False,Very helpful and covered all my needs!,,,False,4.984149932861328,5,gemma3:4b
+uss_sgd_0660,3,2,True,True,False,It completely lost my original request and booking details.,,,False,4.775218963623047,2,gemma3:4b
+uss_sgd_0726,3,5,True,True,False,Comprehensive and handled all my requests smoothly!,,,False,4.837592124938965,5,gemma3:4b
+uss_sgd_0676,4,5,True,True,False,"Seamless booking, very helpful and efficient!",,,False,4.823046922683716,5,gemma3:4b
+uss_sgd_0482,4,5,True,True,False,It handled everything I needed perfectly!,,,False,4.759467601776123,5,gemma3:4b
+uss_sgd_0467,3,2,False,True,False,It messed up the date and couldn't complete the booking.,,,False,4.826132774353027,2,gemma3:4b
+uss_mwoz_0969,3,3,True,True,False,"A bit slow and repetitive, but it eventually gave me what I wanted.",,,False,4.936769962310791,3,gemma3:4b
+uss_mwoz_0638,3,5,True,True,False,"Absolutely fantastic service, incredibly helpful and proactive!",,,False,4.862714767456055,5,gemma3:4b
+uss_sgd_0236,3,5,True,True,False,"Very helpful and efficient, confirmed everything perfectly.",,,False,4.876718759536743,5,gemma3:4b
+uss_sgd_0563,3,4,False,True,False,"Surprisingly helpful and detailed, even with the snake request!",,,False,4.902709007263184,4,gemma3:4b
+uss_mwoz_0888,3,4,True,True,False,"A bit long, but it got everything done and answered all my questions!",,,False,5.017436742782593,4,gemma3:4b
+uss_mwoz_0381,4,5,True,True,False,Very helpful and covered all my questions thoroughly.,,,False,4.961503028869629,5,gemma3:4b
+uss_sgd_0996,2,4,True,True,False,"It handled the booking perfectly, even with the multiple passengers.",,,False,5.19699501991272,4,gemma3:4b
+uss_mwoz_0770,3,5,False,True,False,Very helpful and efficiently booked my hotel.,,,False,5.138365268707275,5,gemma3:4b
+uss_mwoz_0258,3,4,False,True,False,"It eventually got there, but a bit of a roundabout process.",,,False,5.0622687339782715,4,gemma3:4b
+uss_sgd_0491,4,4,True,True,False,"It handled everything I needed, a bit slow at times.",,,False,5.2719879150390625,4,gemma3:4b
+uss_mwoz_0099,3,4,False,True,False,"Very helpful and patient, got everything I needed.",,,False,5.413613796234131,4,gemma3:4b
+uss_sgd_0528,3,2,True,True,False,It completely lost track of my destination and was unable to book anything.,,,False,5.569375991821289,2,gemma3:4b
+uss_mwoz_0819,3,4,True,True,False,Very helpful and answered all my questions thoroughly.,,,False,5.570531368255615,4,gemma3:4b
+uss_mwoz_0826,4,5,True,True,False,"Very helpful and efficient, covered all my needs!",,,False,5.4118547439575195,5,gemma3:4b
+uss_mwoz_0226,3,5,True,True,False,"Absolutely fantastic service, very helpful and efficient!",,,False,5.21300196647644,5,gemma3:4b
+uss_mwoz_0800,4,4,True,True,False,"It provided all the information I needed, surprisingly helpful!",,,False,5.04498291015625,4,gemma3:4b
+uss_mwoz_0346,3,2,False,True,False,It just repeated information I already knew.,,,False,4.776688098907471,2,gemma3:4b
+uss_sgd_0605,3,4,False,True,False,Straightforward and provided the key details.,,,False,4.614613056182861,4,gemma3:4b
+uss_sgd_0927,3,4,False,True,False,Straightforward and provided exactly what I needed.,,,False,4.477406740188599,4,gemma3:4b
+uss_sgd_0483,3,5,True,True,False,"Very helpful, covered everything I needed!",,,False,4.542203426361084,5,gemma3:4b
+uss_mwoz_0269,4,5,True,True,False,Very helpful and covered all my questions thoroughly.,,,False,4.672010898590088,5,gemma3:4b
+uss_mwoz_0043,4,4,True,True,False,"Very helpful and covered all my needs, a bit long though.",,,False,4.884530782699585,4,gemma3:4b
+uss_mwoz_0565,3,5,False,True,False,Extremely helpful and covered everything I needed!,,,False,5.097374677658081,5,gemma3:4b
+uss_sgd_0154,3,5,True,True,False,Very helpful and provided all the information I needed.,,,False,5.251643896102905,5,gemma3:4b
+uss_sgd_0494,4,1,False,True,False,It couldn't find a suitable flight and just kept repeating itself.,,,False,5.31217360496521,1,gemma3:4b
+uss_sgd_0014,3,5,True,True,False,"Very helpful, covered everything I needed!",,,False,5.192833423614502,5,gemma3:4b
+uss_mwoz_0656,4,5,True,True,False,Comprehensive and helpful – a great experience!,,,False,5.118131637573242,5,gemma3:4b
+uss_mwoz_0798,3,2,True,True,False,It was a bit slow and kept asking unnecessary questions.,,,False,5.0041773319244385,2,gemma3:4b
+uss_mwoz_0920,3,4,False,True,False,"A bit slow, but it got everything done!",,,False,5.163625478744507,4,gemma3:4b
+uss_mwoz_0810,3,4,True,True,False,"It was a bit slow, but it handled all my requests effectively.",,,False,5.426361560821533,4,gemma3:4b
+uss_sgd_0031,3,3,True,True,False,"A bit overwhelming with all the information, but it got the job done.",,,False,5.532617092132568,3,gemma3:4b
+uss_sgd_0216,3,5,True,True,False,"It handled everything I needed, very efficiently!",,,False,5.660196542739868,5,gemma3:4b
+uss_sgd_0692,4,4,True,True,False,"It was a bit odd at the end, but very helpful overall.",,,False,5.836890935897827,4,gemma3:4b
+uss_mwoz_0490,4,5,True,True,False,"Excellent service, very helpful and efficient!",,,False,5.469480991363525,5,gemma3:4b
+uss_mwoz_0038,3,4,True,True,False,"A bit slow, but it managed to book everything I needed!",,,False,5.4514899253845215,4,gemma3:4b
+uss_sgd_0327,3,4,True,True,False,"A bit odd, but it fulfilled all my requests, even the music part!",,,False,5.467622995376587,4,gemma3:4b
+uss_mwoz_0234,3,5,True,True,False,"Absolutely fantastic service, very helpful and detailed!",,,False,5.085148096084595,5,gemma3:4b
+uss_sgd_0399,3,5,False,True,False,"Excellent service, found both car and apartment quickly!",,,False,5.164032459259033,5,gemma3:4b
+uss_mwoz_0610,4,5,True,True,False,"Very thorough and helpful, answered all my questions!",,,False,4.969790697097778,5,gemma3:4b
+uss_mwoz_0687,4,5,False,True,False,"Excellent service, covered everything I needed!",,,False,4.781386852264404,5,gemma3:4b
+uss_mwoz_0898,3,4,False,True,False,"A bit slow, but eventually got everything I needed.",,,False,4.902717113494873,4,gemma3:4b
+uss_sgd_0095,4,4,True,True,False,"Very helpful, pulled up a lot of useful information!",,,False,4.832655906677246,4,gemma3:4b
+uss_sgd_0550,3,4,True,True,False,"It handled everything I needed, a bit slow at times.",,,False,5.216376781463623,4,gemma3:4b
+uss_mwoz_0098,3,5,False,True,False,"It handled all my requests perfectly, a really helpful assistant!",,,False,5.466876268386841,5,gemma3:4b
+uss_mwoz_0395,3,4,False,True,False,"Very helpful and patient, even with my changing requests.",,,False,5.313079357147217,4,gemma3:4b
+uss_mwoz_0478,4,5,False,True,False,Very helpful and answered all my questions thoroughly.,,,False,5.361246585845947,5,gemma3:4b
+uss_mwoz_0600,4,5,True,True,False,"Very helpful and efficient, covered everything I needed!",,,False,4.940478801727295,5,gemma3:4b
+uss_mwoz_0801,3,5,True,True,False,"Very helpful and efficient, sorted everything perfectly!",,,False,4.736262321472168,5,gemma3:4b
+uss_mwoz_0976,3,5,False,True,False,Very helpful and covered all my requests efficiently.,,,False,4.731146335601807,5,gemma3:4b
+uss_mwoz_0661,3,5,False,True,False,It was incredibly helpful and went above and beyond to fulfill my request.,,,False,4.86907958984375,5,gemma3:4b
+uss_mwoz_0264,3,5,False,True,False,"It was incredibly thorough and helpful, covering everything I needed!",,,False,5.014408588409424,5,gemma3:4b
+uss_mwoz_0081,3,4,True,True,False,"A bit slow, but it got everything sorted in the end.",,,False,4.882567405700684,4,gemma3:4b
+uss_mwoz_0793,3,2,True,True,False,It was frustrating and didn't seem to understand my initial request.,,,False,5.0235278606414795,2,gemma3:4b
+uss_sgd_0318,3,5,True,True,False,Absolutely fantastic – it covered everything I needed!,,,False,5.013757705688477,5,gemma3:4b
+uss_mwoz_0896,3,4,False,True,False,"It handled everything I needed, a bit slow at times.",,,False,5.14940333366394,4,gemma3:4b
+uss_mwoz_0207,3,2,False,True,False,A bit overwhelming and jumped between topics a lot.,,,False,5.266236782073975,2,gemma3:4b
+uss_sgd_0506,4,5,True,True,False,"Excellent service, very thorough and helpful!",,,False,5.174442291259766,5,gemma3:4b
+uss_mwoz_0071,3,3,True,True,False,"A bit slow and repetitive, but ultimately helpful.",,,False,5.033861398696899,3,gemma3:4b
+uss_mwoz_0495,3,4,True,True,False,"It was a bit slow, but it eventually gave me all the information I needed.",,,False,4.878102779388428,4,gemma3:4b
+uss_mwoz_0724,2,2,False,True,False,It couldn't find anything and kept suggesting alternatives.,,,False,4.682631254196167,2,gemma3:4b
+uss_mwoz_0044,4,5,True,True,False,Very helpful and answered all my questions thoroughly.,,,False,4.57145881652832,5,gemma3:4b
+uss_sgd_0092,4,4,True,True,False,"It was a bit slow, but it got everything I needed done.",,,False,4.664867639541626,4,gemma3:4b
+uss_mwoz_0374,3,3,False,True,False,It was a bit slow and didn't fully understand my needs initially.,,,False,4.709362030029297,3,gemma3:4b
+uss_sgd_0614,3,5,False,True,False,"Excellent service, handled everything perfectly!",,,False,4.820319175720215,5,gemma3:4b
+uss_sgd_0599,3,4,True,True,False,"Very helpful, covered everything I needed – flights, bus, and even event/attraction suggestions!",,,False,5.26053524017334,4,gemma3:4b
+uss_mwoz_0371,3,5,True,True,False,Very helpful and covered all my requests thoroughly.,,,False,5.303306341171265,5,gemma3:4b
+uss_mwoz_0534,3,5,True,True,False,"Very helpful and efficient, handled everything perfectly!",,,False,5.262102127075195,5,gemma3:4b
+uss_mwoz_0940,3,5,True,True,False,Very helpful and efficiently booked everything!,,,False,5.1656715869903564,5,gemma3:4b
+uss_mwoz_0509,3,5,True,True,False,"Excellent service, very helpful and provided all the information I needed.",,,False,4.757173776626587,5,gemma3:4b
+uss_mwoz_0503,1,3,True,True,False,It was a bit slow and didn't always understand my requests clearly.,,,False,4.953497886657715,3,gemma3:4b
+uss_mwoz_0754,4,5,True,True,False,"Excellent service, very helpful and efficient!",,,False,4.810737371444702,5,gemma3:4b
+uss_sgd_0680,3,4,False,True,False,It eventually found the right movie and gave me all the details.,,,False,4.990136384963989,4,gemma3:4b
+uss_mwoz_0242,3,3,True,True,False,A bit slow and gave me some irrelevant information at the end.,,,False,4.984886884689331,3,gemma3:4b
+uss_mwoz_0169,4,5,False,True,False,Extremely helpful and covered all my questions thoroughly.,,,False,4.74638819694519,5,gemma3:4b
+uss_mwoz_0467,3,2,False,True,False,It was a bit abrupt and didn't offer much help beyond the basic details.,,,False,4.778247833251953,2,gemma3:4b
+uss_mwoz_0124,4,4,True,True,False,"It was a bit slow, but it eventually gave me all the information I needed.",,,False,4.790741682052612,4,gemma3:4b
+uss_mwoz_0635,3,4,True,True,False,"A bit slow, but it got everything done!",,,False,4.919925689697266,4,gemma3:4b
+uss_sgd_0560,2,2,True,True,False,"It took ages to get everything right, and the agent kept repeating itself.",,,False,5.047665119171143,2,gemma3:4b
+uss_mwoz_0357,3,5,True,True,False,Very helpful and covered all my questions thoroughly.,,,False,5.029776573181152,5,gemma3:4b
+uss_sgd_0381,4,5,True,True,False,"It handled everything I needed, really smoothly!",,,False,4.828777551651001,5,gemma3:4b
+uss_sgd_0854,4,4,True,True,False,"It found the flights I needed, though a bit robotic.",,,False,4.656440734863281,4,gemma3:4b
+uss_sgd_0347,3,4,True,True,False,It found the flights I wanted and answered my questions clearly.,,,False,4.391090631484985,4,gemma3:4b
+uss_mwoz_0647,3,2,True,True,False,"It was a bit of a meandering conversation, and I had to correct it several times.",,,False,4.630299091339111,2,gemma3:4b
+uss_sgd_0518,4,5,True,True,False,"It was incredibly helpful and efficient, covering everything I needed!",,,False,4.7315993309021,5,gemma3:4b
+uss_mwoz_0350,3,4,False,True,False,"Very helpful and managed to get everything sorted, even with my last-minute changes.",,,False,5.084256172180176,4,gemma3:4b
+uss_mwoz_0282,3,4,True,True,False,"A bit chaotic, but eventually got everything sorted!",,,False,5.28447413444519,4,gemma3:4b
+uss_sgd_0619,3,5,True,True,False,It handled everything perfectly and quickly!,,,False,4.939729452133179,5,gemma3:4b
+uss_mwoz_0680,3,4,False,True,False,"Very thorough and helpful, answered all my questions!",,,False,5.1926281452178955,4,gemma3:4b
+uss_sgd_0513,3,5,True,True,False,"Excellent service, very helpful and efficient!",,,False,4.9558165073394775,5,gemma3:4b
+uss_sgd_0193,3,4,True,True,False,"Surprisingly helpful, covered all my requests.",,,False,4.723160982131958,4,gemma3:4b
+uss_sgd_0243,3,2,True,True,False,A bit rambling and jumped between topics.,,,False,4.799682140350342,2,gemma3:4b
+uss_mwoz_0076,3,4,True,True,False,"A bit slow, but it eventually got me everything I needed.",,,False,4.7032859325408936,4,gemma3:4b
+uss_mwoz_0280,3,4,True,True,False,"A bit slow, but eventually got everything sorted – a little overwhelming though!",,,False,4.715341806411743,4,gemma3:4b

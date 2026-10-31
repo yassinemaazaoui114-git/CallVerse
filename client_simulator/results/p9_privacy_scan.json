@@ -1,0 +1,63 @@
+{
+  "BLOCKERS.md": {
+    "email": {
+      "count": 1,
+      "examples": [
+        "see@technion.ac"
+      ]
+    },
+    "handle": {
+      "count": 1,
+      "examples": [
+        "@handles"
+      ]
+    }
+  },
+  "D5_simulator_realism.md": {
+    "email": {
+      "count": 1,
+      "examples": [
+        "see@technion.ac"
+      ]
+    },
+    "handle": {
+      "count": 2,
+      "examples": [
+        "@handles",
+        "@mentions"
+      ]
+    }
+  },
+  "DATA_SOURCES.md": {
+    "handle": {
+      "count": 1,
+      "examples": [
+        "@handles"
+      ]
+    }
+  },
+  "SHARE_WITH_YASSINE.md": {
+    "email": {
+      "count": 1,
+      "examples": [
+        "see@technion.ac"
+      ]
+    }
+  },
+  "TASK.md": {
+    "handle": {
+      "count": 1,
+      "examples": [
+        "@handles"
+      ]
+    }
+  },
+  "results/p3_test3_csat_userlm-8b_test.csv": {
+    "name": {
+      "count": 1,
+      "examples": [
+        "Ati"
+      ]
+    }
+  }
+}

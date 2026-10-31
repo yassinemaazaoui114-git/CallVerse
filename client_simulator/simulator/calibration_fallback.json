@@ -1,0 +1,191 @@
+{
+  "models": {
+    "qwen3.5:4b": {
+      "method": "median",
+      "map": {
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 5,
+        "5": 5
+      },
+      "lateness_aware": {
+        "enabled": true,
+        "bucket_maps": {
+          "on time or early": {
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 5
+          },
+          "1-3 days late": {
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 5,
+            "5": 5
+          },
+          "4-7 days late": {
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 5,
+            "5": 5
+          },
+          "8+ days late": {
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 5,
+            "5": 5
+          },
+          "never delivered": {
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 5,
+            "5": 5
+          }
+        },
+        "buckets_days_late": [
+          "on time or early",
+          "1-3 days late",
+          "4-7 days late",
+          "8+ days late",
+          "never delivered"
+        ]
+      },
+      "atlas_tripadvisor_distribution_map": {
+        "1": 1,
+        "2": 1,
+        "3": 2,
+        "4": 2,
+        "5": 4
+      },
+      "test_olist": {
+        "n": 500,
+        "mae": 0.73,
+        "mae_ci": [
+          0.624,
+          0.838
+        ],
+        "qwk": 0.41120261140069847,
+        "qwk_ci": [
+          0.2967048817834665,
+          0.5153341298408952
+        ],
+        "wasserstein": 0.482
+      },
+      "test_csat": {
+        "n": 1000,
+        "mae": 1.257,
+        "mae_ci": [
+          1.152,
+          1.359
+        ],
+        "qwk": 0.23530340689068008,
+        "qwk_ci": [
+          0.17758086175884177,
+          0.2941366491397493
+        ],
+        "wasserstein": 0.553
+      }
+    },
+    "phi4-mini:3.8b": {
+      "method": "quantile",
+      "map": {
+        "1": 2,
+        "2": 5,
+        "3": 5,
+        "4": 5,
+        "5": 5
+      },
+      "lateness_aware": {
+        "enabled": false,
+        "bucket_maps": {
+          "on time or early": {
+            "1": 3,
+            "2": 5,
+            "3": 5,
+            "4": 5,
+            "5": 5
+          },
+          "1-3 days late": {
+            "1": 2,
+            "2": 5,
+            "3": 5,
+            "4": 5,
+            "5": 5
+          },
+          "4-7 days late": {
+            "1": 2,
+            "2": 5,
+            "3": 5,
+            "4": 5,
+            "5": 5
+          },
+          "8+ days late": {
+            "1": 2,
+            "2": 5,
+            "3": 5,
+            "4": 5,
+            "5": 5
+          },
+          "never delivered": {
+            "1": 2,
+            "2": 5,
+            "3": 5,
+            "4": 5,
+            "5": 5
+          }
+        },
+        "buckets_days_late": [
+          "on time or early",
+          "1-3 days late",
+          "4-7 days late",
+          "8+ days late",
+          "never delivered"
+        ]
+      },
+      "atlas_tripadvisor_distribution_map": {
+        "1": 2,
+        "2": 4,
+        "3": 5,
+        "4": 5,
+        "5": 5
+      },
+      "test_olist": {
+        "n": 500,
+        "mae": 1.132,
+        "mae_ci": [
+          1.00995,
+          1.256
+        ],
+        "qwk": 0.09496562968699329,
+        "qwk_ci": [
+          0.0007831831501510991,
+          0.19642319189876933
+        ],
+        "wasserstein": 0.3960000000000001
+      },
+      "test_csat": {
+        "n": 1000,
+        "mae": 0.751,
+        "mae_ci": [
+          0.667975,
+          0.8310249999999998
+        ],
+        "qwk": 0.0880831698609773,
+        "qwk_ci": [
+          0.04220415795959961,
+          0.13881928501564583
+        ],
+        "wasserstein": 0.751
+      }
+    }
+  },
+  "fit_on": "Olist train split (500 calibration rows), chosen on 200 Olist dev rows",
+  "source": "Olist (Kaggle olistbr) CC BY-NC-SA 4.0; TripAdvisor Hotel Reviews (Kaggle andrewmvd) CC BY-NC 4.0 for the Atlas distribution-only map (off by default)",
+  "use_with": "rubric_fallback.json"
+}

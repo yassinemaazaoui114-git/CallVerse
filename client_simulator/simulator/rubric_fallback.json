@@ -1,0 +1,39 @@
+{
+  "lines": [
+    "Out of 100 real online-shop customers, 58 give 5, 19 give 4, 8 give 3, 3 give 2 and 11 give 1.",
+    "Delivery on time or early: average 4.29. 1-3 days late: 3.25. 4-7 days late: 2.11. 8+ days late: 1.68 (71% give 1). Never delivered: 1.71."
+  ],
+  "shots": [
+    {
+      "id": "olist_a49eb28138df5c6167c602258f8ede3c",
+      "prompt": "You are a customer of ShopNova, an online shop. Your order arrived 26 days after the promised delivery date. Now you are asked to rate your purchase experience.",
+      "score": 1,
+      "comment": "It never came on time, terrible."
+    },
+    {
+      "id": "olist_0f6b415c8c98ea8b3bec8244dd7301c5",
+      "prompt": "You are a customer of ShopNova, an online shop. Your order arrived 10 days before the promised date. Now you are asked to rate your purchase experience.",
+      "score": 5,
+      "comment": "Arrived early, very happy."
+    },
+    {
+      "id": "olist_61add5da06a97e71e9e5de9beb7c70d0",
+      "prompt": "You are a customer of ShopNova, an online shop. Your order arrived 6 days after the promised delivery date. Now you are asked to rate your purchase experience.",
+      "score": 2,
+      "comment": "Late and nobody told me anything."
+    },
+    {
+      "id": "olist_a2bdfd9684413b67e93eec6dab42ed3e",
+      "prompt": "You are a customer of ShopNova, an online shop. Your order arrived on time. Now you are asked to rate your purchase experience.",
+      "score": 4,
+      "comment": "Fine, it arrived as expected."
+    },
+    {
+      "id": "olist_75d78947d7f5dddd3b2d2e7042c17a50",
+      "prompt": "You are a customer of ShopNova, an online shop. Your order arrived 3 days after the promised delivery date. Now you are asked to rate your purchase experience.",
+      "score": 3,
+      "comment": "It arrived, but later than I hoped."
+    }
+  ],
+  "source": "Olist Brazilian E-Commerce order reviews (Kaggle olistbr), CC BY-NC-SA 4.0, train split only; only structured fields used (no Portuguese text); shot comments written by us, shot scores real"
+}

@@ -1,0 +1,159 @@
+{
+  "reason_mix": {
+    "shopnova": {
+      "values": {
+        "return_item": 0.4039,
+        "other": 0.3222,
+        "late_delivery": 0.0973,
+        "order_status": 0.0863,
+        "refund_request": 0.053,
+        "damaged_item": 0.0374
+      },
+      "source": "eCommerce Customer Service Satisfaction (Kaggle ddosad), licence to verify, https://www.kaggle.com/datasets/ddosad/ecommerce-customer-service-satisfaction",
+      "note": "company categories mapped to ShopNova labels (see D6_satisfaction.md)",
+      "alternative_twitter_keyword_rules": {
+        "other": 0.6522,
+        "order_status": 0.1418,
+        "late_delivery": 0.0859,
+        "refund_request": 0.0482,
+        "damaged_item": 0.0366,
+        "return_item": 0.0353
+      }
+    },
+    "atlas": {
+      "values": {
+        "other": 0.6138,
+        "booking_status": 0.1643,
+        "delay_disruption": 0.1095,
+        "refund_request": 0.0401,
+        "cancellation": 0.0395,
+        "rebooking": 0.0198,
+        "special_assistance": 0.0129
+      },
+      "source": "Customer Support on Twitter (Kaggle thoughtvector), CC BY-NC-SA 4.0, https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter",
+      "note": "keyword rules, hand-checked accuracy 76% on 50 messages"
+    }
+  },
+  "arrivals_share_by_hour": {
+    "values": {
+      "0": 0.0395,
+      "1": 0.0356,
+      "2": 0.0321,
+      "3": 0.0283,
+      "4": 0.023,
+      "5": 0.0203,
+      "6": 0.0222,
+      "7": 0.0261,
+      "8": 0.0274,
+      "9": 0.029,
+      "10": 0.0329,
+      "11": 0.0379,
+      "12": 0.045,
+      "13": 0.0494,
+      "14": 0.0532,
+      "15": 0.0576,
+      "16": 0.0612,
+      "17": 0.0617,
+      "18": 0.0598,
+      "19": 0.0582,
+      "20": 0.0557,
+      "21": 0.0529,
+      "22": 0.0477,
+      "23": 0.0432
+    },
+    "source": "Customer Support on Twitter (Kaggle thoughtvector), CC BY-NC-SA 4.0, https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter",
+    "note": "UTC, Oct-Dec 2017"
+  },
+  "arrivals_share_by_weekday": {
+    "values": {
+      "Friday": 0.1666,
+      "Thursday": 0.1571,
+      "Wednesday": 0.1531,
+      "Monday": 0.1425,
+      "Tuesday": 0.1421,
+      "Sunday": 0.1243,
+      "Saturday": 0.1144
+    },
+    "source": "Customer Support on Twitter (Kaggle thoughtvector), CC BY-NC-SA 4.0, https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter"
+  },
+  "first_response_minutes": {
+    "twitter": {
+      "atlas": {
+        "n": 125755,
+        "median": 10.133333333333333,
+        "p25": 3.466666666666667,
+        "p75": 37.61666666666667,
+        "p90": 155.5
+      },
+      "shopnova": {
+        "n": 33646,
+        "median": 14.316666666666666,
+        "p25": 6.566666666666666,
+        "p75": 35.045833333333334,
+        "p90": 275.45833333333337
+      }
+    },
+    "flipkart": {
+      "n": 82779,
+      "median": 6.0,
+      "p25": 2.0,
+      "p75": 39.0,
+      "p90": 432.0
+    },
+    "source": [
+      "Customer Support on Twitter (Kaggle thoughtvector), CC BY-NC-SA 4.0, https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter",
+      "eCommerce Customer Service Satisfaction (Kaggle ddosad), licence to verify, https://www.kaggle.com/datasets/ddosad/ecommerce-customer-service-satisfaction"
+    ]
+  },
+  "give_up_rate": {
+    "value": 0.28,
+    "unit": "fraction of queued calls (0-1)",
+    "source": "County Medi-Cal Call Center Data, CA Dept. of Health Care Services via CHHS Open Data, https://data.chhs.ca.gov/dataset/county-medi-cal-call-center-data (CHHS Terms of Use: free use and distribution with attribution; the data.ca.gov listing says Creative Commons Attribution)",
+    "definition": "source data dictionary (average-call-abandonment-rate-data-dictionary.csv): calls abandoned by the caller after entering the queue for a live agent / calls that entered the queue; after-hours calls, hang-ups before the queue and queued call-backs are not counted; 'between 0 and 1, ... 0.5 representing 50%'. So 0.28 = 28% (median county-month, Jan-Jun 2026; IQR 0.20-0.37).",
+    "note": "public-benefits call centers with long waits (median 28 min per county-month), not retail/travel chat",
+    "proxy_twitter_unanswered_share": {
+      "atlas": 0.0374,
+      "shopnova": 0.0415
+    }
+  },
+  "real_score_distribution": {
+    "customer_csat_ecommerce": {
+      "values": {
+        "1": 0.1307,
+        "2": 0.0149,
+        "3": 0.0298,
+        "4": 0.1306,
+        "5": 0.694
+      },
+      "source": "eCommerce Customer Service Satisfaction (Kaggle ddosad), licence to verify, https://www.kaggle.com/datasets/ddosad/ecommerce-customer-service-satisfaction",
+      "scored_by": "customer"
+    },
+    "annotator_travel_dialogues": {
+      "values": {
+        "1": 0.0016,
+        "2": 0.0235,
+        "3": 0.7425,
+        "4": 0.2324,
+        "5": 0.0
+      },
+      "source": "USS (github sunnweiwei/user-satisfaction-simulation), licence to verify",
+      "scored_by": "annotators (40 invited, per the USS paper)"
+    },
+    "csat_mean_by_response_delay": {
+      "0-5 min": 4.4844,
+      "5-30 min": 4.1873,
+      "30 min-2 h": 3.9673,
+      "2-8 h": 3.8842,
+      "8 h+": 3.6552,
+      "unknown": 4.3878
+    },
+    "csat_mean_by_reason": {
+      "late_delivery": 4.0629,
+      "other": 4.1716,
+      "order_status": 4.2063,
+      "refund_request": 4.2268,
+      "return_item": 4.3184,
+      "damaged_item": 4.5971
+    }
+  }
+}

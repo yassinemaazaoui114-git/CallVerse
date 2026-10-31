@@ -1,0 +1,21 @@
+{
+  "v1_rules_seed7": {
+    "n": 50,
+    "accuracy": 0.76,
+    "by_company": {
+      "atlas": 0.84,
+      "shopnova": 0.68
+    },
+    "note": "used to improve rules"
+  },
+  "v2_rules_fresh_seed2024": {
+    "n": 50,
+    "accuracy": 0.76,
+    "by_company": {
+      "atlas": 0.8,
+      "shopnova": 0.72
+    },
+    "note": "final rules, fresh sample, not used for tuning"
+  },
+  "checked_by": "Claude Code"
+}

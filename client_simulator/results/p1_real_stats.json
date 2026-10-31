@@ -1,0 +1,384 @@
+{
+  "distributions": {
+    "Flipkart CSAT (customer)": {
+      "1": 0.1307,
+      "2": 0.0149,
+      "3": 0.0298,
+      "4": 0.1306,
+      "5": 0.694
+    },
+    "USS travel dialogues (annotators)": {
+      "1": 0.0016,
+      "2": 0.0235,
+      "3": 0.7425,
+      "4": 0.2324,
+      "5": 0.0
+    },
+    "Olist reviews (customer, PT)": {
+      "1": 0.1151,
+      "2": 0.0318,
+      "3": 0.0824,
+      "4": 0.1929,
+      "5": 0.5778
+    },
+    "TripAdvisor hotels (customer)": {
+      "1": 0.0693,
+      "2": 0.0875,
+      "3": 0.1066,
+      "4": 0.2947,
+      "5": 0.4419
+    }
+  },
+  "means": {
+    "Flipkart CSAT (customer)": 4.2422,
+    "USS travel dialogues (annotators)": 3.2057,
+    "Olist reviews (customer, PT)": 4.0864,
+    "TripAdvisor hotels (customer)": 3.9522
+  },
+  "csat_by_reason": {
+    "late_delivery": {
+      "count": 8360,
+      "mean": 4.0629,
+      "share_1": 0.169,
+      "share_5": 0.6371
+    },
+    "other": {
+      "count": 27676,
+      "mean": 4.1716,
+      "share_1": 0.1455,
+      "share_5": 0.6741
+    },
+    "order_status": {
+      "count": 7410,
+      "mean": 4.2063,
+      "share_1": 0.1391,
+      "share_5": 0.6881
+    },
+    "refund_request": {
+      "count": 4550,
+      "mean": 4.2268,
+      "share_1": 0.1358,
+      "share_5": 0.6895
+    },
+    "return_item": {
+      "count": 34697,
+      "mean": 4.3184,
+      "share_1": 0.1138,
+      "share_5": 0.7148
+    },
+    "damaged_item": {
+      "count": 3214,
+      "mean": 4.5971,
+      "share_1": 0.0591,
+      "share_5": 0.8077
+    }
+  },
+  "csat_by_delay": {
+    "0-5 min": {
+      "count": 40486,
+      "mean": 4.4844,
+      "share_1": 0.0789,
+      "share_5": 0.7635
+    },
+    "5-30 min": {
+      "count": 19750,
+      "mean": 4.1873,
+      "share_1": 0.141,
+      "share_5": 0.6726
+    },
+    "30 min-2 h": {
+      "count": 8371,
+      "mean": 3.9673,
+      "share_1": 0.1866,
+      "share_5": 0.6121
+    },
+    "2-8 h": {
+      "count": 6293,
+      "mean": 3.8842,
+      "share_1": 0.2082,
+      "share_5": 0.5986
+    },
+    "8 h+": {
+      "count": 7879,
+      "mean": 3.6552,
+      "share_1": 0.2644,
+      "share_5": 0.5416
+    },
+    "unknown": {
+      "count": 3128,
+      "mean": 4.3878,
+      "share_1": 0.0946,
+      "share_5": 0.7241
+    }
+  },
+  "csat_by_category": {
+    "Others": {
+      "count": 99,
+      "mean": 3.4343,
+      "share_1": 0.2929,
+      "share_5": 0.4646
+    },
+    "Cancellation": {
+      "count": 2212,
+      "mean": 3.9905,
+      "share_1": 0.1967,
+      "share_5": 0.6429
+    },
+    "Product Queries": {
+      "count": 3692,
+      "mean": 4.0398,
+      "share_1": 0.1579,
+      "share_5": 0.6113
+    },
+    "Order Related": {
+      "count": 23215,
+      "mean": 4.0961,
+      "share_1": 0.1607,
+      "share_5": 0.65
+    },
+    "Feedback": {
+      "count": 2294,
+      "mean": 4.1587,
+      "share_1": 0.153,
+      "share_5": 0.6813
+    },
+    "Offers & Cashback": {
+      "count": 480,
+      "mean": 4.2104,
+      "share_1": 0.1438,
+      "share_5": 0.6729
+    },
+    "Refund Related": {
+      "count": 4550,
+      "mean": 4.2268,
+      "share_1": 0.1358,
+      "share_5": 0.6895
+    },
+    "Onboarding related": {
+      "count": 65,
+      "mean": 4.2615,
+      "share_1": 0.1385,
+      "share_5": 0.7385
+    },
+    "Shopzilla Related": {
+      "count": 2792,
+      "mean": 4.3069,
+      "share_1": 0.1193,
+      "share_5": 0.7196
+    },
+    "Returns": {
+      "count": 44097,
+      "mean": 4.3464,
+      "share_1": 0.1094,
+      "share_5": 0.7252
+    },
+    "Payments related": {
+      "count": 2327,
+      "mean": 4.3545,
+      "share_1": 0.1023,
+      "share_5": 0.7211
+    },
+    "App/website": {
+      "count": 84,
+      "mean": 4.4048,
+      "share_1": 0.131,
+      "share_5": 0.7976
+    }
+  },
+  "csat_by_channel": {
+    "Email": {
+      "count": 3023,
+      "mean": 3.8991,
+      "share_1": 0.2104,
+      "share_5": 0.6064
+    },
+    "Inbound": {
+      "count": 68142,
+      "mean": 4.2514,
+      "share_1": 0.1283,
+      "share_5": 0.6959
+    },
+    "Outcall": {
+      "count": 14742,
+      "mean": 4.2699,
+      "share_1": 0.1254,
+      "share_5": 0.7031
+    }
+  },
+  "csat_by_tenure": {
+    "0-30": {
+      "count": 11318,
+      "mean": 4.2588,
+      "share_1": 0.1252,
+      "share_5": 0.6961
+    },
+    "31-60": {
+      "count": 11665,
+      "mean": 4.2962,
+      "share_1": 0.1192,
+      "share_5": 0.7116
+    },
+    "61-90": {
+      "count": 6741,
+      "mean": 4.3465,
+      "share_1": 0.109,
+      "share_5": 0.7269
+    },
+    ">90": {
+      "count": 30660,
+      "mean": 4.2732,
+      "share_1": 0.1266,
+      "share_5": 0.707
+    },
+    "On Job Training": {
+      "count": 25523,
+      "mean": 4.1452,
+      "share_1": 0.1491,
+      "share_5": 0.6606
+    }
+  },
+  "csat_by_has_remark": {
+    "False": {
+      "count": 57165,
+      "mean": 4.3271,
+      "share_1": 0.1029,
+      "share_5": 0.6989
+    },
+    "True": {
+      "count": 28742,
+      "mean": 4.0732,
+      "share_1": 0.1861,
+      "share_5": 0.6843
+    }
+  },
+  "csat_remark_median_words_by_score": {
+    "1": 6.0,
+    "2": 7.0,
+    "3": 6.0,
+    "4": 3.0,
+    "5": 3.0
+  },
+  "conv_by_length_rating_mean": {
+    "1-6": {
+      "count": 23,
+      "mean": 2.7514
+    },
+    "7-9": {
+      "count": 165,
+      "mean": 3.1401
+    },
+    "10-12": {
+      "count": 486,
+      "mean": 3.1792
+    },
+    "13-15": {
+      "count": 365,
+      "mean": 3.1496
+    },
+    "16+": {
+      "count": 196,
+      "mean": 3.2418
+    }
+  },
+  "conv_by_length_score_mean": {
+    "1-6": {
+      "mean": 2.8696
+    },
+    "7-9": {
+      "mean": 3.1879
+    },
+    "10-12": {
+      "mean": 3.2099
+    },
+    "13-15": {
+      "mean": 3.1753
+    },
+    "16+": {
+      "mean": 3.3061
+    }
+  },
+  "conv_by_source": {
+    "USS-MWOZ": {
+      "count": 822,
+      "mean": 3.1667,
+      "share_1": 0.0024,
+      "share_5": 0.0
+    },
+    "USS-SGD": {
+      "count": 413,
+      "mean": 3.2833,
+      "share_1": 0.0,
+      "share_5": 0.0
+    }
+  },
+  "conv_by_any_low_turn": {
+    "False": {
+      "count": 1158,
+      "mean": 3.2263,
+      "share_1": 0.0,
+      "share_5": 0.0
+    },
+    "True": {
+      "count": 77,
+      "mean": 2.8961,
+      "share_1": 0.026,
+      "share_5": 0.0
+    }
+  },
+  "olist_by_lateness": {
+    "on time/early": {
+      "count": 89949,
+      "mean": 4.2898,
+      "share_1": 0.0663,
+      "share_5": 0.6226
+    },
+    "1-3 d late": {
+      "count": 1856,
+      "mean": 3.2899,
+      "share_1": 0.2516,
+      "share_5": 0.3314
+    },
+    "4-7 d late": {
+      "count": 1756,
+      "mean": 2.1042,
+      "share_1": 0.5854,
+      "share_5": 0.1412
+    },
+    "8-14 d late": {
+      "count": 1453,
+      "mean": 1.6772,
+      "share_1": 0.7034,
+      "share_5": 0.0695
+    },
+    "15+ d late": {
+      "count": 1345,
+      "mean": 1.7249,
+      "share_1": 0.6892,
+      "share_5": 0.0714
+    },
+    "not delivered": {
+      "count": 2865,
+      "mean": 1.7613,
+      "share_1": 0.7033,
+      "share_5": 0.0935
+    }
+  },
+  "share_1_and_5": {
+    "Flipkart CSAT (customer)": {
+      "share_1": 0.1307,
+      "share_5": 0.694
+    },
+    "USS travel dialogues (annotators)": {
+      "share_1": 0.0016,
+      "share_5": 0.0
+    },
+    "Olist reviews (customer, PT)": {
+      "share_1": 0.1151,
+      "share_5": 0.5778
+    },
+    "TripAdvisor hotels (customer)": {
+      "share_1": 0.0693,
+      "share_5": 0.4419
+    }
+  }
+}

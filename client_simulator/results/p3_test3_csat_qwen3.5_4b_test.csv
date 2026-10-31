@@ -1,0 +1,201 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+csat_04279,5,2,True,True,False,Too long wait for such a simple return request.,return_item,8 h+,False,5.807941436767578,2,qwen3.5:4b
+csat_83543,5,4,True,True,False,Service was helpful and quick.,return_item,5-30 min,False,5.826387405395508,4,qwen3.5:4b
+csat_51748,5,4,True,True,False,Service was acceptable despite the wait.,late_delivery,30 min-2 h,False,5.728598117828369,4,qwen3.5:4b
+csat_29459,5,4,True,True,False,Quick resolution and helpful staff.,refund_request,0-5 min,False,5.626647233963013,4,qwen3.5:4b
+csat_79580,5,5,True,True,False,The service was quick and the agent was nice.,late_delivery,0-5 min,True,5.626560926437378,5,qwen3.5:4b
+csat_14190,5,5,True,True,False,Thankful for the quick and helpful assistance.,return_item,0-5 min,True,5.687804222106934,5,qwen3.5:4b
+csat_66434,4,4,True,True,False,Quick resolution on my missing item.,damaged_item,0-5 min,False,5.68189001083374,4,qwen3.5:4b
+csat_40843,5,4,True,True,False,Service was acceptable despite the wait.,other,30 min-2 h,False,5.704734563827515,4,qwen3.5:4b
+csat_43070,4,4,True,True,False,Service was helpful despite the long wait.,return_item,2-8 h,False,5.679917573928833,4,qwen3.5:4b
+csat_76294,5,2,True,True,False,Seller needs to be held accountable for this problem.,other,unknown,True,5.692591190338135,2,qwen3.5:4b
+csat_78820,5,4,True,True,False,No comment written.,damaged_item,8 h+,False,5.646240949630737,4,qwen3.5:4b
+csat_72728,5,4,True,True,False,Service was helpful and quick.,return_item,5-30 min,False,5.6305320262908936,4,qwen3.5:4b
+csat_76635,5,4,True,True,False,Call was helpful and resolved quickly.,other,5-30 min,False,5.589852571487427,4,qwen3.5:4b
+csat_32713,5,2,True,True,False,Too long wait time.,other,8 h+,False,5.49605917930603,2,qwen3.5:4b
+csat_32573,5,4,True,True,False,Service was adequate despite the long wait.,return_item,2-8 h,False,5.568909645080566,4,qwen3.5:4b
+csat_25882,5,4,True,True,False,Service was helpful and resolved the issue quickly.,damaged_item,30 min-2 h,False,5.628699779510498,4,qwen3.5:4b
+csat_50628,5,4,True,True,False,Quick response was helpful.,order_status,0-5 min,True,5.612816095352173,4,qwen3.5:4b
+csat_54998,5,4,True,True,False,Service was helpful and resolved my question quickly.,other,5-30 min,False,5.6855692863464355,4,qwen3.5:4b
+csat_79247,5,2,True,True,False,The long wait and slow return policy are unacceptable.,return_item,8 h+,True,5.73369836807251,2,qwen3.5:4b
+csat_00943,5,4,True,True,False,Service was adequate and no issues reported.,other,30 min-2 h,False,5.709710597991943,4,qwen3.5:4b
+csat_82094,2,2,True,True,False,Products were not delivered on time despite long wait for support.,late_delivery,8 h+,True,5.838565111160278,2,qwen3.5:4b
+csat_74777,5,5,True,True,False,Everything is good.,order_status,unknown,True,5.755341529846191,5,qwen3.5:4b
+csat_70507,5,5,True,True,False,The service was very helpful and polite.,other,0-5 min,True,5.711156129837036,5,qwen3.5:4b
+csat_12150,5,4,True,True,False,Quick response and helpful service.,other,0-5 min,False,5.671548843383789,4,qwen3.5:4b
+csat_45472,4,4,True,True,False,Service was helpful and resolved the issue quickly.,return_item,5-30 min,False,5.607145071029663,4,qwen3.5:4b
+csat_65059,5,2,True,True,False,Very disappointed after waiting so long.,damaged_item,8 h+,False,5.665706396102905,2,qwen3.5:4b
+csat_55861,5,4,True,True,False,Service was helpful and quick.,return_item,5-30 min,False,5.627963304519653,4,qwen3.5:4b
+csat_83609,4,4,True,True,False,Quick response was helpful.,other,0-5 min,False,5.6081321239471436,4,qwen3.5:4b
+csat_64299,5,4,True,True,False,Quick response was helpful.,refund_request,0-5 min,False,5.537892818450928,4,qwen3.5:4b
+csat_82546,5,1,True,True,False,Terrible service after waiting over 8 hours for no resolution.,late_delivery,8 h+,True,5.642490863800049,1,qwen3.5:4b
+csat_34280,5,4,True,True,False,Call was quick and helpful.,return_item,5-30 min,True,5.6450512409210205,4,qwen3.5:4b
+csat_45875,5,3,True,True,False,Need the correct product as ordered.,return_item,30 min-2 h,True,5.692355155944824,3,qwen3.5:4b
+csat_49219,5,4,True,True,False,The agent was helpful and resolved my missing item issue quickly.,damaged_item,30 min-2 h,True,5.822007179260254,4,qwen3.5:4b
+csat_21353,5,4,True,True,False,Service was helpful and quick.,other,5-30 min,False,5.688526630401611,4,qwen3.5:4b
+csat_71203,4,2,True,True,False,Too long wait time.,other,8 h+,False,5.665980100631714,2,qwen3.5:4b
+csat_79231,1,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.625333786010742,4,qwen3.5:4b
+csat_39254,5,4,True,True,False,No comment provided by customer.,late_delivery,8 h+,False,5.513913631439209,4,qwen3.5:4b
+csat_14340,1,4,True,True,False,Service was helpful and quick.,other,5-30 min,False,5.514301776885986,4,qwen3.5:4b
+csat_65867,5,4,True,True,False,Quick response was helpful.,order_status,0-5 min,False,5.516254186630249,4,qwen3.5:4b
+csat_04214,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.5152907371521,4,qwen3.5:4b
+csat_58389,4,2,True,True,False,Response time needs to be faster.,return_item,30 min-2 h,True,5.537926197052002,2,qwen3.5:4b
+csat_13653,4,2,True,True,False,Service was good but the specific problem wasn't solved.,return_item,8 h+,True,5.638395071029663,2,qwen3.5:4b
+csat_49645,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.640697956085205,4,qwen3.5:4b
+csat_62487,5,4,True,True,False,Quick response was helpful.,other,0-5 min,False,5.634967803955078,4,qwen3.5:4b
+csat_10198,5,4,True,True,False,No specific feedback provided.,refund_request,2-8 h,False,5.596324443817139,4,qwen3.5:4b
+csat_09383,5,4,True,True,False,Service was excellent despite the long wait.,return_item,8 h+,True,5.535383462905884,4,qwen3.5:4b
+csat_14172,5,5,True,True,False,Excellent service and very helpful staff.,other,0-5 min,True,5.576815366744995,5,qwen3.5:4b
+csat_67574,4,4,True,True,False,Service was slow but helpful.,return_item,8 h+,False,5.601733684539795,4,qwen3.5:4b
+csat_80988,4,3,True,True,False,The agent was helpful but the issue needs to be resolved immediately.,other,5-30 min,True,5.746717214584351,3,qwen3.5:4b
+csat_00743,5,2,True,True,False,Bad sellers sending wrong items and fake products.,return_item,2-8 h,True,5.777101993560791,2,qwen3.5:4b
+csat_80555,1,1,True,True,False,Terrible service and no resolution.,other,8 h+,True,5.777262926101685,1,qwen3.5:4b
+csat_30447,3,4,True,True,False,Quick response was helpful.,order_status,0-5 min,False,5.76009202003479,4,qwen3.5:4b
+csat_42541,5,4,True,True,False,Service was helpful and quick.,late_delivery,5-30 min,False,5.628950834274292,4,qwen3.5:4b
+csat_48290,5,4,True,True,False,Service was efficient and resolved the refund quickly.,refund_request,5-30 min,False,5.616766452789307,4,qwen3.5:4b
+csat_04256,5,4,True,True,False,Quick resolution on the fraud issue.,other,0-5 min,False,5.611496448516846,4,qwen3.5:4b
+csat_28999,5,4,True,True,False,Quick resolution and helpful staff.,refund_request,0-5 min,False,5.633458375930786,4,qwen3.5:4b
+csat_47785,5,5,True,True,False,Excellent service and quick response.,late_delivery,0-5 min,True,5.638454437255859,5,qwen3.5:4b
+csat_74117,5,4,True,True,False,Quick response and helpful service.,return_item,0-5 min,False,5.578638553619385,4,qwen3.5:4b
+csat_75690,5,4,True,True,False,Service was helpful and efficient.,late_delivery,unknown,False,5.556221961975098,4,qwen3.5:4b
+csat_65439,5,4,True,True,False,Service was helpful and resolved the issue quickly.,return_item,5-30 min,False,5.601505994796753,4,qwen3.5:4b
+csat_16874,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.575591087341309,4,qwen3.5:4b
+csat_04906,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,4.534789562225342,4,qwen3.5:4b
+csat_19937,5,4,True,True,False,Service was helpful and resolved quickly.,other,5-30 min,False,4.554930925369263,4,qwen3.5:4b
+csat_56262,5,5,True,True,False,The agent provided a very helpful and positive response.,return_item,2-8 h,True,4.581951379776001,5,qwen3.5:4b
+csat_11592,1,4,True,True,False,No comment provided.,order_status,8 h+,False,4.564079999923706,4,qwen3.5:4b
+csat_06884,5,4,True,True,False,Quick response was helpful.,other,0-5 min,False,5.586613655090332,4,qwen3.5:4b
+csat_84400,1,1,True,True,False,Extremely disappointed and will never use the platform again due to lack of resolution.,return_item,5-30 min,True,5.911065340042114,1,qwen3.5:4b
+csat_11530,5,4,True,True,False,No issues reported.,order_status,2-8 h,False,5.799187421798706,4,qwen3.5:4b
+csat_41631,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.819725751876831,4,qwen3.5:4b
+csat_52309,5,4,True,True,False,Service was helpful and quick.,other,5-30 min,False,5.839463710784912,4,qwen3.5:4b
+csat_67258,5,4,True,True,False,Quick and helpful service.,other,0-5 min,False,5.472790479660034,4,qwen3.5:4b
+csat_64688,4,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.484563112258911,4,qwen3.5:4b
+csat_83080,4,4,True,True,False,Service was helpful and quick.,late_delivery,5-30 min,False,5.504368543624878,4,qwen3.5:4b
+csat_60151,5,5,True,True,False,Great service and helpful staff.,return_item,5-30 min,True,5.503165006637573,5,qwen3.5:4b
+csat_69216,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.511821269989014,4,qwen3.5:4b
+csat_18284,5,4,True,True,False,Service was acceptable despite the wait.,return_item,30 min-2 h,False,5.551608324050903,4,qwen3.5:4b
+csat_14240,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.529000997543335,4,qwen3.5:4b
+csat_45121,5,5,True,True,False,The service was excellent and the agent was very helpful.,other,0-5 min,True,5.61614990234375,5,qwen3.5:4b
+csat_23479,5,4,True,True,False,Service was helpful and quick.,order_status,5-30 min,False,5.627779006958008,4,qwen3.5:4b
+csat_82118,5,5,True,True,False,The service was excellent and very helpful.,other,30 min-2 h,True,5.647369384765625,5,qwen3.5:4b
+csat_32216,5,5,True,True,False,Had a great experience with the support team.,return_item,0-5 min,True,5.725318193435669,5,qwen3.5:4b
+csat_77338,5,5,True,True,False,Best service ever.,other,unknown,True,5.597571134567261,5,qwen3.5:4b
+csat_77496,5,4,True,True,False,No issue reported.,other,unknown,False,5.561866521835327,4,qwen3.5:4b
+csat_84416,3,4,True,True,False,Service was efficient and helpful.,other,5-30 min,False,5.520038604736328,4,qwen3.5:4b
+csat_25951,1,4,True,True,False,Service was helpful and resolved my issue quickly.,return_item,5-30 min,False,5.515626430511475,4,qwen3.5:4b
+csat_62558,5,4,True,True,False,Call was helpful and resolved quickly.,return_item,5-30 min,False,5.5726141929626465,4,qwen3.5:4b
+csat_26493,4,4,True,True,False,Service was helpful and quick.,return_item,5-30 min,False,5.606725692749023,4,qwen3.5:4b
+csat_33739,5,4,True,True,False,Service was helpful and quick.,return_item,5-30 min,False,4.586671352386475,4,qwen3.5:4b
+csat_27871,5,4,True,True,False,Service was helpful and resolved my question quickly.,other,5-30 min,False,4.586526155471802,4,qwen3.5:4b
+csat_67386,3,5,True,True,False,The service was quick and the agent was helpful.,return_item,0-5 min,True,4.644045829772949,5,qwen3.5:4b
+csat_43645,5,4,True,True,False,Service was helpful and quick.,other,5-30 min,False,4.652573823928833,4,qwen3.5:4b
+csat_84001,5,4,True,True,False,Service was helpful and resolved the issue quickly.,return_item,5-30 min,False,5.728235960006714,4,qwen3.5:4b
+csat_53510,4,4,True,True,False,Quick response was helpful.,other,0-5 min,False,5.6571364402771,4,qwen3.5:4b
+csat_06620,5,4,True,True,False,Quick response was helpful.,other,0-5 min,False,5.562142848968506,4,qwen3.5:4b
+csat_19067,4,4,True,True,False,Service was adequate despite the wait.,other,30 min-2 h,False,5.579037666320801,4,qwen3.5:4b
+csat_38600,1,2,True,True,False,My problem was not solved.,other,30 min-2 h,True,5.5404322147369385,2,qwen3.5:4b
+csat_81344,4,4,True,True,False,Service was efficient and helpful.,return_item,5-30 min,False,5.561640739440918,4,qwen3.5:4b
+csat_82144,5,5,True,True,False,The service worked perfectly.,other,0-5 min,True,5.5636467933654785,5,qwen3.5:4b
+csat_01135,5,2,True,True,False,The response was too brief and unhelpful.,other,0-5 min,True,5.611431360244751,2,qwen3.5:4b
+csat_24278,5,4,True,True,False,Service was helpful and efficient.,return_item,5-30 min,False,5.6001200675964355,4,qwen3.5:4b
+csat_77852,5,4,True,True,False,Quick response was helpful.,order_status,0-5 min,True,5.591878652572632,4,qwen3.5:4b
+csat_61560,5,4,True,True,False,No issues raised.,refund_request,2-8 h,False,5.581409692764282,4,qwen3.5:4b
+csat_81816,4,4,True,True,False,No comment provided.,other,8 h+,False,5.482763290405273,4,qwen3.5:4b
+csat_06572,1,1,True,True,False,Your team not solving my issue since last 30 days,other,8 h+,True,5.611721754074097,1,qwen3.5:4b
+csat_66891,2,2,True,True,False,Too long wait without resolution.,return_item,8 h+,False,5.617154359817505,2,qwen3.5:4b
+csat_26832,5,4,True,True,False,Helpful agent resolved my payment issue quickly.,other,5-30 min,False,5.704926252365112,4,qwen3.5:4b
+csat_57521,5,4,True,True,False,Quick response via email.,late_delivery,0-5 min,False,5.711723327636719,4,qwen3.5:4b
+csat_55324,1,3,True,True,False,Request was clear but the process needs to be faster.,return_item,5-30 min,True,5.675940275192261,3,qwen3.5:4b
+csat_04974,1,4,True,True,False,Service was acceptable despite the wait.,other,30 min-2 h,False,5.6905198097229,4,qwen3.5:4b
+csat_68951,5,4,True,True,False,Service was acceptable despite the unprofessional behavior.,other,5-30 min,False,5.6795594692230225,4,qwen3.5:4b
+csat_60821,1,2,True,True,False,The explanation was unclear and unhelpful.,order_status,30 min-2 h,True,5.771698951721191,2,qwen3.5:4b
+csat_80032,4,4,True,True,False,No issues reported.,order_status,2-8 h,False,5.638756275177002,4,qwen3.5:4b
+csat_80760,5,4,True,True,False,Service was efficient and helpful.,return_item,5-30 min,False,5.622387170791626,4,qwen3.5:4b
+csat_31554,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.554519176483154,4,qwen3.5:4b
+csat_84805,5,4,True,True,False,Quick and helpful service.,other,0-5 min,False,5.4643714427948,4,qwen3.5:4b
+csat_27932,4,4,True,True,False,Service was helpful and efficient.,return_item,5-30 min,False,5.501178503036499,4,qwen3.5:4b
+csat_51289,1,4,True,True,False,Service was helpful and resolved quickly.,refund_request,5-30 min,False,5.520288705825806,4,qwen3.5:4b
+csat_26079,5,4,True,True,False,Service was acceptable despite the unprofessional behavior.,other,5-30 min,False,5.590415000915527,4,qwen3.5:4b
+csat_45075,4,2,True,True,False,The service was unhelpful and did not address my concerns.,late_delivery,5-30 min,True,5.741663932800293,2,qwen3.5:4b
+csat_50724,5,5,True,True,False,The team member was very helpful.,return_item,0-5 min,True,5.761031627655029,5,qwen3.5:4b
+csat_03971,5,5,True,True,False,The agent was helpful and resolved my issue quickly.,damaged_item,5-30 min,True,5.833354949951172,5,qwen3.5:4b
+csat_60955,4,4,True,True,False,Service was helpful and resolved quickly.,other,5-30 min,False,5.7963502407073975,4,qwen3.5:4b
+csat_41835,5,4,True,True,False,Service was helpful and quick.,late_delivery,5-30 min,False,5.6753010749816895,4,qwen3.5:4b
+csat_46188,5,4,True,True,False,Quick response was helpful.,other,0-5 min,False,5.631788969039917,4,qwen3.5:4b
+csat_00652,3,2,True,True,False,Unprofessional behavior and long wait time.,other,8 h+,False,5.57464075088501,2,qwen3.5:4b
+csat_62596,5,4,True,True,False,Quick response was helpful.,late_delivery,0-5 min,False,5.538391590118408,4,qwen3.5:4b
+csat_42860,5,4,True,True,False,Quick response via email.,other,0-5 min,False,5.507254123687744,4,qwen3.5:4b
+csat_59542,5,4,True,True,False,Service was helpful and resolved quickly.,refund_request,5-30 min,False,5.548097610473633,4,qwen3.5:4b
+csat_21794,5,4,True,True,False,Service was helpful and efficient.,other,30 min-2 h,False,5.512214422225952,4,qwen3.5:4b
+csat_65467,5,4,True,True,False,Quick response was helpful.,order_status,0-5 min,False,5.5108866691589355,4,qwen3.5:4b
+csat_69553,1,5,True,True,False,The service was excellent and very helpful.,order_status,0-5 min,True,5.5691237449646,5,qwen3.5:4b
+csat_19914,5,5,True,True,False,Excellent service and quick response.,other,0-5 min,True,5.554452180862427,5,qwen3.5:4b
+csat_69931,1,1,True,True,False,"Terrible experience, this is my last order from Shopzilla.",return_item,2-8 h,True,5.6956541538238525,1,qwen3.5:4b
+csat_40501,5,5,True,True,False,Great experience,order_status,0-5 min,True,5.66475248336792,5,qwen3.5:4b
+csat_29959,5,2,True,True,False,Too long wait for such a simple return request.,return_item,8 h+,False,5.7012152671813965,2,qwen3.5:4b
+csat_27597,5,4,True,True,False,Service was helpful and quick.,return_item,5-30 min,False,5.695395469665527,4,qwen3.5:4b
+csat_14306,5,4,True,True,False,Service was quick and professional.,other,0-5 min,False,5.560887813568115,4,qwen3.5:4b
+csat_34460,5,4,True,True,False,Service was acceptable despite the wait.,other,30 min-2 h,False,5.639652967453003,4,qwen3.5:4b
+csat_38755,4,4,True,True,False,Service was acceptable despite the wait.,other,30 min-2 h,False,5.587035417556763,4,qwen3.5:4b
+csat_45939,5,5,True,True,False,The customer service resolved my problem in a very short time.,return_item,0-5 min,True,5.707648038864136,5,qwen3.5:4b
+csat_32945,1,4,True,True,False,No issues reported.,order_status,30 min-2 h,False,5.668839693069458,4,qwen3.5:4b
+csat_56520,2,1,True,True,False,No solution provided and I am very upset.,other,2-8 h,True,5.705415964126587,1,qwen3.5:4b
+csat_69409,5,2,True,True,False,The response was unclear and unhelpful.,late_delivery,0-5 min,True,5.741368293762207,2,qwen3.5:4b
+csat_57928,4,5,True,True,False,Payment issues were resolved immediately.,return_item,5-30 min,True,5.628732204437256,5,qwen3.5:4b
+csat_73874,1,5,True,True,False,Thank you,other,5-30 min,True,5.593832492828369,5,qwen3.5:4b
+csat_37511,5,4,True,True,False,Service was helpful and quick.,order_status,5-30 min,False,5.527998447418213,4,qwen3.5:4b
+csat_19823,5,5,True,True,False,"The agent was helpful and solved my problem, so I would give a perfect score.",return_item,5-30 min,True,5.80439305305481,5,qwen3.5:4b
+csat_27523,4,4,True,True,False,Quick response was helpful.,other,0-5 min,False,5.780696153640747,4,qwen3.5:4b
+csat_26757,5,4,True,True,False,Service was helpful and quick.,return_item,5-30 min,False,5.852628707885742,4,qwen3.5:4b
+csat_35053,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.834863901138306,4,qwen3.5:4b
+csat_68497,5,5,True,True,False,Thank you,return_item,0-5 min,True,5.438586235046387,5,qwen3.5:4b
+csat_73471,4,4,True,True,False,Quick email response was helpful.,return_item,0-5 min,False,5.464062213897705,4,qwen3.5:4b
+csat_51213,1,1,True,True,False,Incomplete order delivered with no effective support.,other,8 h+,True,5.505105495452881,1,qwen3.5:4b
+csat_68533,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.508248329162598,4,qwen3.5:4b
+csat_63260,5,2,True,True,False,Delivery service is terrible despite quick response.,return_item,0-5 min,True,5.616863012313843,2,qwen3.5:4b
+csat_63463,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.590752840042114,4,qwen3.5:4b
+csat_31166,4,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,4.508232593536377,4,qwen3.5:4b
+csat_05311,1,4,True,True,False,Quick response was helpful.,late_delivery,0-5 min,False,4.506126165390015,4,qwen3.5:4b
+csat_04876,5,4,True,True,False,Service was adequate despite the long wait.,other,2-8 h,False,4.497438192367554,4,qwen3.5:4b
+csat_80936,5,4,True,True,False,Quick response was helpful.,order_status,0-5 min,False,4.501352310180664,4,qwen3.5:4b
+csat_01533,5,4,True,True,False,Quick resolution on payment issues.,other,0-5 min,False,5.537280797958374,4,qwen3.5:4b
+csat_01963,5,4,True,True,False,Quick response was helpful.,late_delivery,0-5 min,False,5.526631593704224,4,qwen3.5:4b
+csat_84007,1,4,True,True,False,No specific feedback provided.,other,2-8 h,False,5.471421003341675,4,qwen3.5:4b
+csat_37202,5,5,True,True,False,Thankful for the quick and helpful support.,other,2-8 h,True,5.539224147796631,5,qwen3.5:4b
+csat_59249,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.511337518692017,4,qwen3.5:4b
+csat_55476,4,5,True,True,False,The service was excellent and very helpful.,refund_request,0-5 min,True,5.580775499343872,5,qwen3.5:4b
+csat_21302,5,2,True,True,False,Too long wait without resolution.,return_item,8 h+,False,5.606717348098755,2,qwen3.5:4b
+csat_80752,5,5,True,True,False,The service was excellent and very helpful.,return_item,0-5 min,True,5.596010684967041,5,qwen3.5:4b
+csat_77730,5,5,True,True,False,The agent was very helpful and the quick response made my day.,return_item,0-5 min,True,5.761247634887695,5,qwen3.5:4b
+csat_71773,4,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.70409083366394,4,qwen3.5:4b
+csat_75357,1,4,True,True,False,Service was helpful and efficient.,other,unknown,False,5.693735599517822,4,qwen3.5:4b
+csat_58135,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.637268781661987,4,qwen3.5:4b
+csat_30713,5,4,True,True,False,Quick response was helpful.,late_delivery,0-5 min,False,5.487279891967773,4,qwen3.5:4b
+csat_36610,5,2,True,True,False,Second time facing logistics issues and still not resolved.,order_status,8 h+,True,5.588374614715576,2,qwen3.5:4b
+csat_23544,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.578528642654419,4,qwen3.5:4b
+csat_63640,5,2,True,True,False,The agent was okay but the issue wasn't fully resolved.,other,5-30 min,True,5.70767068862915,2,qwen3.5:4b
+csat_25847,5,4,True,True,False,Service was helpful despite the long wait.,return_item,2-8 h,False,5.760974407196045,4,qwen3.5:4b
+csat_49970,5,4,True,True,False,Service was acceptable despite the wait.,return_item,30 min-2 h,False,5.698403358459473,4,qwen3.5:4b
+csat_36831,4,4,True,True,False,Service was helpful and quick.,order_status,30 min-2 h,False,5.7181761264801025,4,qwen3.5:4b
+csat_52708,5,5,True,True,False,The agent was helpful and the quick response made the refund process smooth.,refund_request,0-5 min,True,5.754101753234863,5,qwen3.5:4b
+csat_24548,5,5,True,True,False,The service was quick and the agent was helpful.,other,0-5 min,True,5.793515920639038,5,qwen3.5:4b
+csat_72588,5,5,True,True,False,Thankful for the helpful assistance.,other,5-30 min,True,5.790568590164185,5,qwen3.5:4b
+csat_50243,5,4,True,True,False,Quick response was helpful.,return_item,0-5 min,False,5.771111965179443,4,qwen3.5:4b
+csat_56661,4,4,True,True,False,Service was helpful and quick.,other,5-30 min,False,5.623155832290649,4,qwen3.5:4b
+csat_78531,5,4,True,True,False,Quick response and helpful service.,other,0-5 min,False,5.5528082847595215,4,qwen3.5:4b
+csat_52511,4,5,True,True,False,The agent was helpful and resolved my issue quickly.,other,0-5 min,True,5.6128151416778564,5,qwen3.5:4b
+csat_34493,5,4,True,True,False,Service was efficient and helpful.,return_item,5-30 min,False,5.632221460342407,4,qwen3.5:4b
+csat_68428,5,4,True,True,False,No specific feedback provided.,other,2-8 h,False,5.601699113845825,4,qwen3.5:4b
+csat_05268,1,1,True,True,False,Terrible service with no solutions and a broken delivery promise.,order_status,0-5 min,True,5.848567247390747,1,qwen3.5:4b
+csat_73554,1,2,True,True,False,Call was disconnected due to poor quality and unresolved issue; expecting callback.,other,2-8 h,True,6.070478677749634,2,qwen3.5:4b
+csat_63748,5,5,True,True,False,Thankful for the quick and helpful assistance.,return_item,5-30 min,True,6.130069017410278,5,qwen3.5:4b
+csat_67918,5,4,True,True,False,Quick response and helpful service.,return_item,0-5 min,False,6.159110069274902,4,qwen3.5:4b
+csat_35939,5,4,True,True,False,Service was quick and professional.,other,0-5 min,False,5.906071186065674,4,qwen3.5:4b
+csat_18591,5,4,True,True,False,Service was acceptable despite the wait.,return_item,30 min-2 h,False,5.630569219589233,4,qwen3.5:4b
+csat_00061,5,4,True,True,False,Service was helpful and resolved the issue quickly.,return_item,5-30 min,False,5.6278276443481445,4,qwen3.5:4b
+csat_71598,5,4,True,True,False,Quick response was helpful.,other,0-5 min,False,5.606800079345703,4,qwen3.5:4b
+csat_13689,4,2,True,True,False,Shopzilla should improve on the quality of the product delivered. It says Shopzilla assured and we get a bad product,return_item,8 h+,True,5.931914567947388,2,qwen3.5:4b
+csat_74863,5,4,True,True,False,Service was helpful and resolved my return request quickly.,return_item,unknown,False,5.978654384613037,4,qwen3.5:4b
+csat_20502,5,4,True,True,False,The agent was helpful and the issue seems resolved.,return_item,30 min-2 h,True,5.9967710971832275,4,qwen3.5:4b
+csat_04554,5,4,True,True,False,Quick response was helpful.,order_status,0-5 min,False,5.997511625289917,4,qwen3.5:4b

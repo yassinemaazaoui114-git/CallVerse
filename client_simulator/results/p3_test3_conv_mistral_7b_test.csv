@@ -1,0 +1,121 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+uss_mwoz_0177,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,10.151583194732666,4,mistral:7b
+uss_mwoz_0649,3,4,True,True,False,"Helpful and informative, but could have been more concise.",,,False,10.497905254364014,4,mistral:7b
+uss_sgd_0361,3,4,True,True,False,"Excellent service, found a good flight deal and also helped with car rental.",,,False,10.130921602249146,4,mistral:7b
+uss_mwoz_0321,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,9.959831476211548,4,mistral:7b
+uss_sgd_0377,3,4,True,True,False,The assistant was helpful and provided all the requested information.,,,False,10.034756183624268,4,mistral:7b
+uss_mwoz_0454,4,4,True,True,False,The assistant was helpful and provided all the requested information.,,,False,9.972845554351807,4,mistral:7b
+uss_mwoz_0814,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,8.94656229019165,4,mistral:7b
+uss_mwoz_0776,4,4,True,True,False,The assistant was helpful and patient despite the customer's multiple requests.,,,False,9.467698812484741,4,mistral:7b
+uss_sgd_0828,3,4,True,True,False,The assistant was helpful and corrected my mistakes.,,,False,8.651703357696533,4,mistral:7b
+uss_mwoz_0077,4,4,True,True,False,"The assistant was helpful and informative, but it failed to book the stay for the requested time period.",,,False,9.540385484695435,4,mistral:7b
+uss_mwoz_0608,3,4,True,True,False,"Excellent service, handled all requests efficiently",,,False,9.978892803192139,4,mistral:7b
+uss_mwoz_0886,3,4,True,True,False,The assistant was helpful and provided all the requested information.,,,False,9.600650787353516,4,mistral:7b
+uss_sgd_0642,3,4,True,True,False,"The assistant was helpful and found the requested car, but it got the apartment request wrong.",,,False,10.269994258880615,4,mistral:7b
+uss_mwoz_0756,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,9.661118745803833,4,mistral:7b
+uss_sgd_0742,3,4,True,True,False,The assistant was helpful and managed to book the tickets for both the bus and the event.,,,False,9.921915531158447,4,mistral:7b
+uss_sgd_0468,4,4,True,True,False,"Excellent service, found and booked the flights as requested.",,,False,9.600935697555542,4,mistral:7b
+uss_mwoz_0572,3,4,True,True,False,"Excellent service, handled all my requests efficiently",,,False,9.469785213470459,4,mistral:7b
+uss_sgd_0389,3,4,True,True,False,The assistant was helpful and provided all the requested information.,,,False,9.626639604568481,4,mistral:7b
+uss_sgd_0873,4,4,True,True,False,"Excellent service, handled all requests efficiently",,,False,9.639504194259644,4,mistral:7b
+uss_mwoz_0589,3,3,True,True,False,"It found a hotel that met my requirements, but it didn't have daily housekeeping and the front desk isn't open 24 hours. However, it was able to book the hotel for me.",,,False,10.510627746582031,3,mistral:7b
+uss_sgd_0652,3,4,True,True,False,"The assistant was helpful and efficient in booking the flight and hotel, but could have provided more information about the attractions.",,,False,11.309956789016724,4,mistral:7b
+uss_mwoz_0897,3,4,True,True,False,"Helpful and informative, but could have been more proactive about the safety deposit box and taxi cancellation fee",,,False,11.34467625617981,4,mistral:7b
+uss_sgd_0660,3,3,True,True,False,"It answered my initial question, but couldn't handle the change of plans.",,,False,10.875138998031616,3,mistral:7b
+uss_sgd_0726,3,4,True,True,False,The assistant was helpful and efficient in making the hotel and flight reservations.,,,False,10.332057476043701,4,mistral:7b
+uss_sgd_0676,4,4,True,True,False,"Excellent service, handled all requests efficiently",,,False,9.704130411148071,4,mistral:7b
+uss_sgd_0482,4,4,True,True,False,The assistant was helpful and efficient in finding and booking the flight.,,,False,9.07576870918274,4,mistral:7b
+uss_sgd_0467,3,2,True,True,False,The assistant was helpful but made a mistake with the date and couldn't make the reservation.,,,False,9.046014785766602,2,mistral:7b
+uss_mwoz_0969,3,2,True,True,False,The assistant was not able to fully meet my needs.,,,False,8.601813316345215,2,mistral:7b
+uss_mwoz_0638,3,4,True,True,False,"Helpful and informative, found a restaurant and a taxi",,,False,8.782229900360107,4,mistral:7b
+uss_sgd_0236,3,4,True,True,False,The assistant was helpful and efficient in finding and booking a suitable hotel.,,,False,8.989610433578491,4,mistral:7b
+uss_sgd_0563,3,4,True,True,False,"The assistant was helpful and informative, but it got a bit off-topic with the pet snake.",,,False,9.223576784133911,4,mistral:7b
+uss_mwoz_0888,3,4,True,True,False,"The assistant was helpful and accommodating, even with additional requests.",,,False,9.946035385131836,4,mistral:7b
+uss_mwoz_0381,4,4,True,True,False,"Excellent service, handled all my questions and requests.",,,False,9.45519495010376,4,mistral:7b
+uss_sgd_0996,2,3,True,True,False,"It did its job, but could have been more helpful with hotel suggestions.",,,False,10.01050877571106,3,mistral:7b
+uss_mwoz_0770,3,3,True,True,False,"It found a hotel, but the booking failed. It did provide additional information about the hotel.",,,False,9.735567808151245,3,mistral:7b
+uss_mwoz_0258,3,4,True,True,False,The assistant was helpful and managed to find a suitable accommodation despite the initial difficulty.,,,False,10.08712363243103,4,mistral:7b
+uss_sgd_0491,4,4,True,True,False,The assistant was helpful and efficient in booking the car and hotel.,,,False,10.834914445877075,4,mistral:7b
+uss_mwoz_0099,3,4,True,True,False,The assistant was helpful and managed to find the requested information and even made a reservation.,,,False,11.019681930541992,4,mistral:7b
+uss_sgd_0528,3,2,True,True,False,The assistant made several mistakes and had to be corrected multiple times.,,,False,11.025683641433716,2,mistral:7b
+uss_mwoz_0819,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,10.592107057571411,4,mistral:7b
+uss_mwoz_0826,4,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,10.061352014541626,4,mistral:7b
+uss_mwoz_0226,3,4,True,True,False,The assistant was helpful and flexible in finding solutions,,,False,9.489890336990356,4,mistral:7b
+uss_mwoz_0800,4,2,True,True,False,The assistant was not able to provide all the requested information.,,,False,9.39150071144104,2,mistral:7b
+uss_mwoz_0346,3,2,True,True,False,"The assistant was not helpful in finding unusual food, only provided information about a regular Italian restaurant.",,,False,8.782941341400146,2,mistral:7b
+uss_sgd_0605,3,4,True,True,False,The assistant provided the necessary information and was helpful.,,,False,8.373720407485962,4,mistral:7b
+uss_sgd_0927,3,4,True,True,False,The assistant was helpful and efficient.,,,False,7.538347482681274,4,mistral:7b
+uss_sgd_0483,3,4,True,True,False,"Helpful and efficient, but could have suggested a cheaper hotel.",,,False,7.64206337928772,4,mistral:7b
+uss_mwoz_0269,4,4,True,True,False,Helpful and informative,,,False,7.443392276763916,4,mistral:7b
+uss_mwoz_0043,4,4,True,True,False,"Excellent service, handled all requests efficiently",,,False,7.8420939445495605,4,mistral:7b
+uss_mwoz_0565,3,4,True,True,False,"Excellent service, handled all requests efficiently",,,False,8.604050636291504,4,mistral:7b
+uss_sgd_0154,3,4,True,True,False,The assistant was helpful and efficient.,,,False,8.343354225158691,4,mistral:7b
+uss_sgd_0494,4,2,True,True,False,Failed to book the flight despite multiple attempts.,,,False,8.402095794677734,2,mistral:7b
+uss_sgd_0014,3,4,True,True,False,"Helpful and informative, but could have been more efficient.",,,False,8.238702297210693,4,mistral:7b
+uss_mwoz_0656,4,4,True,True,False,The assistant was helpful and efficient in booking the train and restaurant reservation.,,,False,8.71754240989685,4,mistral:7b
+uss_mwoz_0798,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,8.874056816101074,4,mistral:7b
+uss_mwoz_0920,3,4,True,True,False,The assistant was helpful and managed to find the requested information and make a booking.,,,False,9.867315769195557,4,mistral:7b
+uss_mwoz_0810,3,4,True,True,False,"Helpful and efficient, but could have been more straightforward about the taxi reservation",,,False,10.726891994476318,4,mistral:7b
+uss_sgd_0031,3,4,True,True,False,The assistant was helpful and provided all the requested information.,,,False,10.410361051559448,4,mistral:7b
+uss_sgd_0216,3,4,True,True,False,The assistant was helpful and efficient in booking the car and hotel.,,,False,11.009804964065552,4,mistral:7b
+uss_sgd_0692,4,4,True,True,False,"The assistant was helpful and efficient in booking the hotel and bus, and even played a song at the end.",,,False,11.50700855255127,4,mistral:7b
+uss_mwoz_0490,4,4,True,True,False,"Helpful and informative, handled multiple requests well",,,False,10.492329597473145,4,mistral:7b
+uss_mwoz_0038,3,4,True,True,False,The assistant was helpful and managed to book both the train ticket and hotel room.,,,False,11.052258968353271,4,mistral:7b
+uss_sgd_0327,3,4,True,True,False,"The assistant was helpful and efficient, but it got a bit confusing when it started playing music.",,,False,11.502400159835815,4,mistral:7b
+uss_mwoz_0234,3,4,True,True,False,"Excellent service, handled multiple requests efficiently",,,False,10.349483728408813,4,mistral:7b
+uss_sgd_0399,3,4,True,True,False,The assistant was helpful and found the requested car and apartment options.,,,False,10.470026969909668,4,mistral:7b
+uss_mwoz_0610,4,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,9.557830333709717,4,mistral:7b
+uss_mwoz_0687,4,4,True,True,False,Answered all my questions accurately and helped me book a nightclub.,,,False,8.858724355697632,4,mistral:7b
+uss_mwoz_0898,3,4,True,True,False,"The assistant was helpful and accommodating, but it took a while to find the desired options.",,,False,9.390365362167358,4,mistral:7b
+uss_sgd_0095,4,4,True,True,False,"The assistant was helpful and informative, but it got a bit off-topic towards the end.",,,False,9.445008516311646,4,mistral:7b
+uss_sgd_0550,3,4,True,True,False,"The assistant was helpful and efficient in booking the flight and hotel, and provided useful suggestions for attractions.",,,False,10.919100522994995,4,mistral:7b
+uss_mwoz_0098,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,11.109950542449951,4,mistral:7b
+uss_mwoz_0395,3,4,True,True,False,"The assistant was helpful and found the requested information, but it could have been more specific about the hotel's amenities.",,,False,11.221035957336426,4,mistral:7b
+uss_mwoz_0478,4,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,11.040465354919434,4,mistral:7b
+uss_mwoz_0600,4,4,True,True,False,The assistant was helpful and managed to book both the restaurant and train tickets.,,,False,9.783846616744995,4,mistral:7b
+uss_mwoz_0801,3,4,True,True,False,The assistant was helpful and answered all my questions accurately.,,,False,9.916977405548096,4,mistral:7b
+uss_mwoz_0976,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,8.993213653564453,4,mistral:7b
+uss_mwoz_0661,3,4,True,True,False,"Helpful and informative, but could have been more accommodating to the customer's needs",,,False,9.482980728149414,4,mistral:7b
+uss_mwoz_0264,3,4,True,True,False,The assistant was helpful and provided all the requested information.,,,False,9.680130958557129,4,mistral:7b
+uss_mwoz_0081,3,4,True,True,False,The assistant found a suitable hotel and answered all my questions.,,,False,9.03660249710083,4,mistral:7b
+uss_mwoz_0793,3,3,True,True,False,"It did its job, but it was a bit confusing at times.",,,False,9.906933784484863,3,mistral:7b
+uss_sgd_0318,3,4,True,True,False,"Excellent service, provided detailed information and recommendations.",,,False,10.194692373275757,4,mistral:7b
+uss_mwoz_0896,3,4,True,True,False,The assistant was helpful and managed to book both the train and a hotel for me.,,,False,10.807577848434448,4,mistral:7b
+uss_mwoz_0207,3,2,True,True,False,The assistant was helpful but lacked information about accessibility and live music.,,,False,11.17512583732605,2,mistral:7b
+uss_sgd_0506,4,4,True,True,False,"The assistant was helpful and accommodating, but it could have focused more on the initial request for a hotel room.",,,False,11.22793197631836,4,mistral:7b
+uss_mwoz_0071,3,4,True,True,False,"Helpful and informative, but could have booked the train and hotel if I wanted",,,False,10.829366207122803,4,mistral:7b
+uss_mwoz_0495,3,3,True,True,False,"It answered most of my questions, but it took a few turns to get there.",,,False,10.452497959136963,3,mistral:7b
+uss_mwoz_0724,2,2,True,True,False,The assistant was unable to find a suitable hotel within the specified criteria.,,,False,9.68588638305664,2,mistral:7b
+uss_mwoz_0044,4,4,True,True,False,"Helpful and informative, but could have provided more details about the theatre and train ticket purchase options.",,,False,9.1978018283844,4,mistral:7b
+uss_sgd_0092,4,4,True,True,False,The assistant was helpful and managed to book a hotel room for me.,,,False,9.249948024749756,4,mistral:7b
+uss_mwoz_0374,3,3,True,True,False,"It found a hotel for me, but it could have been more helpful with the pet and extra bed questions.",,,False,9.214913606643677,3,mistral:7b
+uss_sgd_0614,3,4,True,True,False,The assistant was helpful and managed to book the desired event and hotel.,,,False,9.685410499572754,4,mistral:7b
+uss_sgd_0599,3,4,True,True,False,"The assistant was helpful and provided a variety of options for travel, events, and accommodations.",,,False,10.582600831985474,4,mistral:7b
+uss_mwoz_0371,3,4,True,True,False,"The assistant was helpful and accommodating, even when the customer changed their request multiple times.",,,False,11.220614433288574,4,mistral:7b
+uss_mwoz_0534,3,4,True,True,False,The assistant was helpful and efficient in booking the room and train ticket.,,,False,11.148514986038208,4,mistral:7b
+uss_mwoz_0940,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,10.983436822891235,4,mistral:7b
+uss_mwoz_0509,3,4,True,True,False,"Excellent service, handled all my requests efficiently.",,,False,9.68715238571167,4,mistral:7b
+uss_mwoz_0503,1,2,True,True,False,The assistant was helpful but struggled to understand my requests and couldn't fulfill all of them.,,,False,9.712678909301758,2,mistral:7b
+uss_mwoz_0754,4,4,True,True,False,The assistant was helpful and efficient in booking the train and guesthouse.,,,False,9.741771936416626,4,mistral:7b
+uss_sgd_0680,3,4,True,True,False,The assistant was helpful and found the desired movie and theater details.,,,False,9.85634970664978,4,mistral:7b
+uss_mwoz_0242,3,4,True,True,False,The assistant was helpful and provided all the requested information.,,,False,9.86260986328125,4,mistral:7b
+uss_mwoz_0169,4,4,True,True,False,"Excellent service, handled multiple requests efficiently",,,False,8.776270627975464,4,mistral:7b
+uss_mwoz_0467,3,2,True,True,False,The assistant was helpful but didn't answer all my questions.,,,False,7.853309392929077,2,mistral:7b
+uss_mwoz_0124,4,3,True,True,False,"It answered most of my questions, but it could have been more helpful with the hotel details.",,,False,8.523629426956177,3,mistral:7b
+uss_mwoz_0635,3,4,True,True,False,The assistant was helpful and managed to book a hotel and restaurant for me.,,,False,9.332504510879517,4,mistral:7b
+uss_sgd_0560,2,2,True,True,False,The assistant struggled to understand my requests and made multiple errors.,,,False,9.9356689453125,2,mistral:7b
+uss_mwoz_0357,3,4,True,True,False,Helpful and informative,,,False,10.096297025680542,4,mistral:7b
+uss_sgd_0381,4,4,True,True,False,The assistant was helpful and efficient in booking both the bus and the event tickets.,,,False,9.536831617355347,4,mistral:7b
+uss_sgd_0854,4,4,True,True,False,The assistant was helpful and provided the necessary information.,,,False,8.610306978225708,4,mistral:7b
+uss_sgd_0347,3,4,True,True,False,Helpful and efficient service,,,False,7.5492894649505615,4,mistral:7b
+uss_mwoz_0647,3,4,True,True,False,The assistant was able to help with multiple requests and provided all the necessary information.,,,False,8.324585914611816,4,mistral:7b
+uss_sgd_0518,4,4,True,True,False,The assistant was helpful and provided the information I needed.,,,False,8.151611089706421,4,mistral:7b
+uss_mwoz_0350,3,3,True,True,False,"It did the job, but had some confusion about the hotel.",,,False,8.858564138412476,3,mistral:7b
+uss_mwoz_0282,3,4,True,True,False,The assistant was helpful and managed to book the train ticket and restaurant reservation despite some initial confusion.,,,False,10.448142766952515,4,mistral:7b
+uss_sgd_0619,3,4,True,True,False,The assistant was helpful and efficient in booking the flight.,,,False,9.659159421920776,4,mistral:7b
+uss_mwoz_0680,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,10.081918478012085,4,mistral:7b
+uss_sgd_0513,3,4,True,True,False,The assistant was helpful and accommodating.,,,False,9.811000347137451,4,mistral:7b
+uss_sgd_0193,3,4,True,True,False,"The assistant was helpful and managed to find a movie and a restaurant, but failed to book the table.",,,False,9.079631567001343,4,mistral:7b
+uss_sgd_0243,3,4,True,True,False,"The assistant was helpful and informative, but could have been more proactive in offering suggestions.",,,False,9.662901639938354,4,mistral:7b
+uss_mwoz_0076,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,9.632407188415527,4,mistral:7b
+uss_mwoz_0280,3,4,True,True,False,The assistant was helpful and answered all my questions.,,,False,9.280366659164429,4,mistral:7b

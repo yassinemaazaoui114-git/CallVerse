@@ -1,0 +1,12 @@
+id: AT-15
+company: atlas
+reason: booking_status
+mood: in a hurry
+typo_level: high
+persona:
+  description: Leaving for the airport in an hour.
+  language: English
+goal: The app does not show your seat number and you cannot check in.
+facts:
+  booking_ref: BK-7747
+patience_turns: 4

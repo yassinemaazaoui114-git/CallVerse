@@ -1,0 +1,13 @@
+id: SN-08
+company: shopnova
+reason: damaged_item
+mood: angry
+typo_level: high
+persona:
+  description: Ordered a 55-inch TV for the living room.
+  language: English
+goal: The TV arrived with a cracked screen. You want a replacement delivered quickly.
+facts:
+  order_id: 4520
+  item: TV
+patience_turns: 4

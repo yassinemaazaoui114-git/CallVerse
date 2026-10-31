@@ -1,0 +1,14 @@
+id: SN-07
+company: shopnova
+reason: late_delivery
+mood: in a hurry
+typo_level: high
+persona:
+  description: Same customer as SN-01, typing on her phone between classes.
+  language: English
+goal: You want an update on your late laptop. You mistype your order number as 4521
+  the first time.
+facts:
+  order_id: 4512
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-RB-03.yaml

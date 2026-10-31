@@ -1,0 +1,12 @@
+id: AT-12
+company: atlas
+reason: special_assistance
+mood: worried
+typo_level: medium
+persona:
+  description: Travelling alone with a 6-month-old baby.
+  language: English
+goal: You want a bassinet seat and to know if you can bring the stroller to the gate.
+facts:
+  booking_ref: BK-7744
+patience_turns: 4
