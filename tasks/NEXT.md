@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T24_m3_switch.md (merge T23, switch M3 to bge-base-en-v1.5 for Intake + rule search, re-measure on the PC with val sets only) |
 | Approved by | Yassine — 2026-10-31 08:26 (all ⭐) |
 | Last done | T23 — M3 benchmark in a cloud session, branch feature/t23-m3-benchmark (5dbe8e3), reviewed by the Brain; merged in T24 step 0 |

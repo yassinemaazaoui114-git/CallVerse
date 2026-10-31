@@ -25,3 +25,4 @@ data/raw/
 # T17: demo logins (bcrypt hashes) and CallVerse's tickets database (callverse.db is also covered by *.db)
 config/accounts.yaml
 callverse/data/callverse.db
+models/

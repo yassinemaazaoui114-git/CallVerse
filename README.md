@@ -118,9 +118,12 @@ No API key, no API call and no Ollama needed: the tests use fake LLMs and a fres
 ## Benchmarks
 
 Measured comparisons of models and methods, kept apart from the running system (`benchmarks/`). They never change
-`config.yaml`: switching to a winner is a separate step.
+`config.yaml`: switching to a winner is a separate step (done in T24, see below).
 - **M3 (T23)**: embeddings for Intake's reasons and for the rule search. Table, winners and locked-test numbers:
-  [docs/benchmarks/M3.md](docs/benchmarks/M3.md). Needs ABCD in `data/raw/abcd/abcd_v1.1.json` (see DATA_LICENCES.md).
+  [docs/benchmarks/M3.md](docs/benchmarks/M3.md). **T24:** bge-base won on the cloud machine but its Intake p95 on the demo PC
+  (124-134 ms) is above the 100 ms limit, so M3 stays **bge-small** (pinned revision) with T23's tuned settings: `top_k` 5,
+  thresholds ShopNova 0.69 / Atlas 0.54, and the BGE query prompt in rule search. Re-measure on the PC:
+  `python -m benchmarks.m3.pc_check` (validation sets only). Needs ABCD in `data/raw/abcd/abcd_v1.1.json` (see DATA_LICENCES.md).
   ```powershell
   python -m benchmarks.m3.build_data            # ShopNova validation set from ABCD dev
   python -m benchmarks.m3.embed_run bge-small   # one model at a time (bge-small, minilm, bge-base, embeddinggemma, qwen3-0.6b, reranker)

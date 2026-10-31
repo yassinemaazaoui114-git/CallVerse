@@ -85,17 +85,17 @@ layer3: {mode: stub, stub_max_approve_tnd: 500}
 
 # Intake (task T03): a fixed pipeline, not an agent. Local models run on CPU.
 intake:
-  # M3 switched to bge-base in T24: the T23 benchmark (docs/benchmarks/M3.md) beat bge-small on Intake
-  # (macro-F1 0.571 -> 0.691 on val, 0.680 on the locked test) and on rule search (top-2 30/30 on val).
-  embedding_model: "BAAI/bge-base-en-v1.5"                             # M3
-  embedding_revision: "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a"       # Hugging Face commit tested in T23
+  # M3 (T23 benchmark, docs/benchmarks/M3.md): bge-small stays, with the T23 val-tuned settings below.
+  # bge-base scored higher but its Intake p95 on the demo PC was 124-134 ms (> 100 ms limit), so T24 did not choose it.
+  embedding_model: "BAAI/bge-small-en-v1.5"                            # M3
+  embedding_revision: "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"       # Hugging Face commit tested in T23
   emotion_model: "j-hartmann/emotion-english-distilroberta-base"       # M4
   sentiment_model: "cardiffnlp/twitter-roberta-base-sentiment-latest"  # M4
   # Each sentence keeps its best reason if that score (mean of its top_k cosine similarities to the
   # reason's examples) is >= reason_threshold. top_k and both thresholds come from the T23 benchmark:
-  # tuned on the validation sets, confirmed once on the locked test (ShopNova 0.70, Atlas 0.51 below).
-  top_k: 1
-  reason_threshold: 0.70
+  # tuned on the validation sets (ShopNova 0.69, Atlas 0.54 below).
+  top_k: 5
+  reason_threshold: 0.69
   # main_reason = the first reason of this list found in the ticket (T04, approved).
   # Money and damage come first: they need Agent B even when the client also asks "where is it?".
   main_reason_order: &shopnova_reason_order [damaged_item, refund_request, return_item, late_delivery, order_status, other]
@@ -221,7 +221,7 @@ companies:
     reasons: [order_status, late_delivery, refund_request, return_item, damaged_item, other]
     reason_examples: callverse/intake/data/reason_examples.json
     reason_cache: callverse/intake/data/reason_vectors.npz
-    reason_threshold: 0.70   # T23 benchmark, val-tuned (bge-base, top_k 1)
+    reason_threshold: 0.69   # T23 benchmark, val-tuned (bge-small, top_k 5)
     main_reason_order: *shopnova_reason_order
     routes: *shopnova_routes
     handover_texts: *shopnova_handover_texts
@@ -239,8 +239,8 @@ companies:
               special_assistance, other]
     reason_examples: callverse/intake/data/reason_examples_atlas.json
     reason_cache: callverse/intake/data/reason_vectors_atlas.npz
-    # T23 benchmark, val-tuned (bge-base, top_k 1); the leave-one-out on the examples is only reported (T24).
-    reason_threshold: 0.51
+    # T23 benchmark, val-tuned (bge-small, top_k 5); the leave-one-out on the examples is only reported (T24).
+    reason_threshold: 0.54
     # Things only a human can do today come first: they must reach a colleague, not an agent.
     main_reason_order: [special_assistance, rebooking, compensation_request, refund_request, cancellation,
                         delay_disruption, booking_status, other]
