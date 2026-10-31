@@ -1,13 +1,13 @@
-# NEXT TASK — Yassine's lane (core)
+﻿# NEXT TASK â€” Yassine's lane (core)
 
 | Field | Value |
 |---|---|
-| Status | DONE |
-| Task file | tasks/T25b_lora_adapter.md (score the Colab LoRA adapter on bge-small on val with the T25 rule; adapter on for Intake only, rule search stays on the plain model; switch only if it wins) |
-| Approved by | Yassine — 2026-10-31 10:32 (all ⭐) |
-| Last done | T25b — reviewed by the Brain, merged by Yassine into local main (merge cf3503e, not pushed): LoRA adapter lost on val, no switch. Before it: T25 merge f18bc62 (pushed, cac2490) |
+| Status | IN PROGRESS |
+| Task file | tasks/T14a_decline_and_cancel.md ("say no with the reason" by code + ShopNova cancellation rule R-CAN-01 and cancel action; tested on real TWCS messages) |
+| Approved by | Yassine â€” 2026-10-31 10:57 (all â­) |
+| Last done | T25b â€” merged cf3503e, NEXT DONE 6ce5b7d, pushed: LoRA adapter lost on val, no switch; M3 fine-tuning stopped |
 
-Next task: none approved yet.
+Before starting: main must contain the CLAUDE.md update (Yassine merges chore/claude-md first). Restart the PC and start Ollama before step 7 (live run).
 
-Status values: READY · IN PROGRESS · WAITING FOR REVIEW · DONE
-Roadmap (Notion): CallVerse — Full Version Roadmap (finished tasks in its "Done" table) · Dali's lane: tasks/NEXT_PLATFORM.md · Semah's lane: tasks/NEXT_VOICE.md
+Status values: READY Â· IN PROGRESS Â· WAITING FOR REVIEW Â· DONE
+Roadmap (Notion): CallVerse â€” Full Version Roadmap (finished tasks in its "Done" table) Â· Dali's lane: tasks/NEXT_PLATFORM.md Â· Semah's lane: tasks/NEXT_VOICE.md
