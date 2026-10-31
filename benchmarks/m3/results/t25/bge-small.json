@@ -1,0 +1,223 @@
+{
+ "model": "bge-small",
+ "loaded": "BAAI/bge-small-en-v1.5",
+ "load_s": 1.1,
+ "intake": {
+  "model": "bge-small",
+  "top_k": 5,
+  "avg_macro_f1": 0.6473,
+  "avg_accuracy": 0.5991,
+  "companies": {
+   "shopnova": {
+    "threshold": 0.69,
+    "n": 328,
+    "accuracy": 0.3232,
+    "macro_f1": 0.4108,
+    "critical_errors": 26,
+    "needs_llm_rate": 0.4055,
+    "per_reason": {
+     "order_status": {
+      "precision": 0.275,
+      "recall": 0.378,
+      "f1": 0.318,
+      "support": 37
+     },
+     "late_delivery": {
+      "precision": 0.355,
+      "recall": 0.423,
+      "f1": 0.386,
+      "support": 26
+     },
+     "refund_request": {
+      "precision": 0.735,
+      "recall": 0.746,
+      "f1": 0.741,
+      "support": 67
+     },
+     "return_item": {
+      "precision": 0.707,
+      "recall": 0.763,
+      "f1": 0.734,
+      "support": 38
+     },
+     "damaged_item": {
+      "precision": 0.5,
+      "recall": 0.2,
+      "f1": 0.286,
+      "support": 10
+     },
+     "other": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 150
+     }
+    }
+   },
+   "atlas": {
+    "threshold": 0.54,
+    "n": 40,
+    "accuracy": 0.875,
+    "macro_f1": 0.8838,
+    "critical_errors": 1,
+    "needs_llm_rate": 0.025,
+    "per_reason": {
+     "booking_status": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
+      "support": 5
+     },
+     "delay_disruption": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.889,
+      "support": 5
+     },
+     "cancellation": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+     },
+     "refund_request": {
+      "precision": 0.714,
+      "recall": 1.0,
+      "f1": 0.833,
+      "support": 5
+     },
+     "compensation_request": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.889,
+      "support": 5
+     },
+     "rebooking": {
+      "precision": 0.833,
+      "recall": 1.0,
+      "f1": 0.909,
+      "support": 5
+     },
+     "special_assistance": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+     },
+     "other": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75,
+      "support": 5
+     }
+    }
+   }
+  },
+  "by_top_k": {
+   "1": {
+    "avg_macro_f1": 0.6006,
+    "thresholds": {
+     "shopnova": 0.72,
+     "atlas": 0.51
+    }
+   },
+   "3": {
+    "avg_macro_f1": 0.6205,
+    "thresholds": {
+     "shopnova": 0.7,
+     "atlas": 0.61
+    }
+   },
+   "5": {
+    "avg_macro_f1": 0.6473,
+    "thresholds": {
+     "shopnova": 0.69,
+     "atlas": 0.54
+    }
+   }
+  }
+ },
+ "intake_latency_ms": {
+  "p50": 15.63,
+  "p95": 21.42,
+  "n": 368
+ },
+ "search": {
+  "no_prompt": {
+   "all": {
+    "n": 30,
+    "top1": 0.9,
+    "top2": 0.9667,
+    "mrr": 0.9444,
+    "top1_count": 27,
+    "top2_count": 29
+   },
+   "shopnova": {
+    "n": 12,
+    "top1": 0.8333,
+    "top2": 0.9167,
+    "mrr": 0.9028,
+    "top1_count": 10,
+    "top2_count": 11
+   },
+   "atlas": {
+    "n": 18,
+    "top1": 0.9444,
+    "top2": 1.0,
+    "mrr": 0.9722,
+    "top1_count": 17,
+    "top2_count": 18
+   },
+   "misses": [
+    {
+     "id": "rv02",
+     "expected": [
+      "R-REF-03"
+     ],
+     "top2": [
+      "R-RET-01",
+      "R-DEL-02"
+     ]
+    }
+   ],
+   "no_rule_separable": 3,
+   "latency_ms": {
+    "p50": 14.99,
+    "p95": 17.4
+   }
+  },
+  "prompt": {
+   "all": {
+    "n": 30,
+    "top1": 0.9,
+    "top2": 1.0,
+    "mrr": 0.95,
+    "top1_count": 27,
+    "top2_count": 30
+   },
+   "shopnova": {
+    "n": 12,
+    "top1": 0.8333,
+    "top2": 1.0,
+    "mrr": 0.9167,
+    "top1_count": 10,
+    "top2_count": 12
+   },
+   "atlas": {
+    "n": 18,
+    "top1": 0.9444,
+    "top2": 1.0,
+    "mrr": 0.9722,
+    "top1_count": 17,
+    "top2_count": 18
+   },
+   "misses": [],
+   "no_rule_separable": 4,
+   "latency_ms": {
+    "p50": 15.5,
+    "p95": 17.43
+   }
+  }
+ },
+ "peak_ram_mb": 663
+}
