@@ -146,10 +146,26 @@ carries; see `results/persona_scale_eval.json` for the check with 40-persona set
 (most predicted scores are < 4 -> almost all -1): the continuous Agent F score (Gaussian Thompson, LinUCB) learns
 stably; the ±1 variants do not. (3) Honest selection on VAL picks the mood rule learned on TRAIN (EVAL 3.46);
 the most robust choice across both sets is the fixed `apology_next_step` (never worst, best on EVAL), kept as
-`inference.DEFAULT_STYLE`. **No RL policy beats the best fixed style on held-out personas**; the loop learns
-(it recovers the training personas' preferences) but there is nothing contextual to exploit here. Real customers
+`inference.DEFAULT_STYLE`. On the 6-persona EVAL no learned policy beats the best fixed style; the 40-persona check
+below shows this is a persona-mix artefact and that the learned mood rule transfers (small gain). Real customers
 may differ: this needs the real rated conversations. Hallucination rate of the deployed fixed style on EVAL: 0 %
 (414 clean replies, 0 FAIL); end-to-end success (PASS and rating >= 4) 0.56.
+
+### Persona-set size check — `results/persona_scale_eval.json` (40 personas per set, seeds 404 / 505)
+| policy | VAL40 ± sd | EVAL40 ± sd |
+|---|---|---|
+| always short | 3.20 ± 0.01 | 3.18 ± 0.01 |
+| always apology_first | 3.28 ± 0.01 | 3.27 ± 0.00 |
+| always apology_next_step | 3.50 ± 0.01 | 3.55 ± 0.01 |
+| rule: upset -> apology_first, else short | 3.61 ± 0.01 | 3.49 ± 0.01 |
+| **rule by mood learned on TRAIN** | **3.62 ± 0.01** | **3.56 ± 0.01** |
+| Gaussian Thompson trained on the 12 TRAIN personas (3 train seeds) | 3.61 ± 0.00 | 3.56 ± 0.01 |
+
+Archetype mix: EVAL6 had 3 "warm" personas out of 6 (train: 1 of 12), which is why the 6-persona EVAL favoured the
+apology styles. With 40-persona sets the train-learned policies beat the best fixed style on VAL40 (+0.12, sd 0.01)
+and tie or edge it on EVAL40 (+0.01, within noise). Conclusion: the loop learns a transferable mood -> style rule;
+the gain over the best fixed style is small and persona-mix dependent. Deployed default (`inference.select_style`):
+the train-learned mood rule, selected on VAL; `apology_next_step` stays the fallback without an emotion.
 
 ### Experiment log
 | experiment | split | result | decision |
@@ -160,3 +176,4 @@ may differ: this needs the real rated conversations. Hallucination rate of the d
 | bandit algorithms x reward source, 5 seeds | sim train -> eval | best 3.49 (Gaussian Thompson) < fixed 3.59 | fixed style kept |
 | LinUCB alpha {0.1, 0.5, 1, 2} | sim val | 3.40 / 3.40 / 3.55 / 3.55 | alpha 2.0 |
 | policy selection | sim val -> eval | mood rule 3.55 val -> 3.46 eval | persona-set flip documented |
+| persona-set size 6 -> 40 | sim val40 / eval40 | mood rule 3.62 / 3.56 vs fixed 3.50 / 3.55 | mood rule deployed, fixed fallback |

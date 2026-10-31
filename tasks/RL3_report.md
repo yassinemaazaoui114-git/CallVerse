@@ -49,6 +49,8 @@ Open: bandit does not beat the best fixed style on eval personas (see docs); sta
   (stated delay / amount must equal the decision's fact), 12 mislabeled corruptions fixed in the simulator.
 - RL: Beta/Gaussian Thompson, LinUCB (alpha on VAL), epsilon-greedy, supervised and counterfactual policies, 3-5 seeds.
   All learned policies win on VAL and lose on EVAL (3.47 vs fixed apology_next_step 3.59): the style preference is
-  the hidden persona archetype, not observable context. Fixed style kept as the deployment fallback.
+  the hidden persona archetype. 40-persona check sets show the 6-persona flip was a persona-mix artefact: the mood rule
+  learned on TRAIN scores 3.62 / 3.56 vs 3.50 / 3.55 for the best fixed style (small gain). Deployed: mood rule,
+  fixed `apology_next_step` as fallback.
 - Real writer: `write_with_slm` (Qwen via Ollama) with template fallback; Ollama absent here -> tested with a mocked model.
 - Still missing: the ~100 real rated conversations (no real-customer claim is made anywhere).

@@ -226,7 +226,8 @@ def test_inference_entry_point(situations, tmp_path):
     from callverse.learning import inference as inf
     s = next(s for s in situations if s["decision"]["rule_id"] == "R-REF-03")
     sit = {"company": "shopnova", "emotion": "anger", "outcome": "approve", "reason": "refund_request", "days_late": 6}
-    assert inf.select_style(sit) == inf.DEFAULT_STYLE and inf.load_policy(tmp_path / "none.json") is None
+    assert inf.select_style(sit) == inf.DEFAULT_RULE["upset"] and inf.select_style({"emotion": "joy"}) == inf.DEFAULT_RULE["calm"]
+    assert inf.select_style({}) == inf.DEFAULT_STYLE and inf.load_policy(tmp_path / "none.json") is None
 
     def down(role_key, messages, **kw):
         raise ConnectionError("no ollama")
