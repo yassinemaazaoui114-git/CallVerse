@@ -31,6 +31,15 @@ from callverse.intake.reasons import embed   # reuse Intake's M3 loader: one mod
 from callverse.kb.policies import load_policies
 
 
+# BGE models search best when the QUERY (not the rule text) starts with this instruction (T23: top-2 30/30 on val).
+QUERY_PROMPT = "Represent this sentence for searching relevant passages: "
+
+
+def embed_query(query: str) -> np.ndarray:
+    """The vector of a search question: the BGE instruction + the question. Rules are embedded without it."""
+    return embed([QUERY_PROMPT + query])[0]
+
+
 def policy_text(rule: dict) -> str:
     """The text that is embedded for one rule: its title, then its text."""
     return f"{rule['title']}. {rule['text']}"
@@ -66,7 +75,7 @@ def search_policy(query: str, k: int = 3) -> list[dict]:
     """The k ShopNova rules that best match `query` by meaning. Traced as step "policy_search"."""
     rules = load_policies()
     k = max(1, min(int(k), len(rules)))                # at least 1, at most every rule
-    results = rank(embed([query])[0], policy_vectors(), rules, k)
+    results = rank(embed_query(query), policy_vectors(), rules, k)
     trace.log("policy_search", "kb", {"query": query, "k": k,
                                       "results": [{"id": r["id"], "score": r["score"]} for r in results]})
     return results
@@ -85,7 +94,7 @@ def company_search_tool(company: str, query: str, k: int = TOOL_K) -> dict:
         return {"error": "give a non-empty query"}
     rules = load_policies(companies.path(company, "rules_file"))
     k = max(1, min(int(k), len(rules)))
-    results = rank(embed([query])[0], policy_vectors(company), rules, k)
+    results = rank(embed_query(query), policy_vectors(company), rules, k)
     trace.log("policy_search", "kb", {"company": company, "query": query, "k": k,
                                       "results": [{"id": r["id"], "score": r["score"]} for r in results]})
     return {"results": [{**r, "text": r["text"][:TOOL_TEXT_CHARS]} for r in results]}
