@@ -70,3 +70,17 @@ fare) × (distance ÷ the sample's average distance), kept between 0.5× and 2.5
 - **ABCD train** (MIT): fine-tuning of bge-small / bge-base (T25) and the adapter (T25b). Models stay in `models/` (git-ignored).
 - **Bitext Retail + Bitext Travel customer-support datasets** (CDLA-Sharing 1.0, synthetic): training of the LoRA adapter
   only; no Bitext text is stored in this repository except the label mapping `benchmarks/m3/data/bitext_mapping.json`.
+
+## Customer Support on Twitter (TWCS)
+- **Source:** Thought Vector, "Customer Support on Twitter", Kaggle `thoughtvector/customer-support-on-twitter`
+  — https://www.kaggle.com/datasets/thoughtvector/customer-support-on-twitter
+- **Licence:** Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (**CC BY-NC-SA 4.0**)
+  — https://creativecommons.org/licenses/by-nc-sa/4.0/
+- **Credit line:** "Contains data from Customer Support on Twitter (Thought Vector, Kaggle), licensed under CC BY-NC-SA 4.0."
+- **Where it is used (task T14a):** the test messages `tests/dev/decline_practice_messages.json` and
+  `tests/data/decline_heldout_messages.json`, and the 10 `cancel_order` Intake examples
+  (`callverse/intake/data/cancel_order_examples_twcs.json`, copied into `reason_examples.json`, tweet ids in its note).
+  These files are **derived from TWCS and keep the same licence**. Candidates are picked by `scripts/build_twcs_candidates.py`.
+- **Changes made:** @handles and links removed, `&amp;` -> `&`; in the test messages the other shop's order number is
+  replaced by ours or "Order N." is added. Typos, slang and anger are kept.
+- **Use:** non-commercial university use only (CallVerse, a university data-science project).

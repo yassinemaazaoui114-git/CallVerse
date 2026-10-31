@@ -1,6 +1,74 @@
-# T14a report — STOPPED twice: follow-up stop rule failed on critical errors (live runs not done)
+# T14a report — practice 12/12 with option A; held-out set still to run
 
-# Follow-up (Yassine's all ⭐ list) — latest state
+# Follow-up 2 (option A) — latest state
+
+**In plain words.** `cancel_order` now comes only from a sentence that says "cancel"; it never wins by meaning alone. Intake
+then passed the stop rule, so I built the practice runner and ran the 12 practice messages live: all 12 were correct on the
+first run, with no crash, no leak and no wrong write. No fix was needed. The docs are done. The held-out set was **not** run:
+it runs once tomorrow on a fresh Groq quota, so T14a's pass bar is not proven yet.
+
+| Check | Result |
+|---|---|
+| ShopNova macro-F1 on original val (328), limit >= 0.391 | **0.4117, pass** (0.4108 before T14a) |
+| ShopNova critical errors, limit <= 29 | **26, pass** (26 before T14a) |
+| Needs LLM | 40.6% (40.6% before T14a) |
+| Val messages predicted `cancel_order` | **1**: abcd-3573 "I would like to cancel my shipping order" (labelled other, a true cancel request) |
+| `cancel_order` on t07-t12, Intake | 6/6 |
+| Rule search top-2 | 30/30; R-CAN-01 in the top 2 for a cancel question |
+| Atlas macro-F1 | 0.8838, unchanged; average of both 0.6478 |
+| Tests | **1122 passed / 1122** (0 API calls) |
+| Practice run | **12/12, 0 crashes, 0 leaks, 0 wrong writes**, 0 fix re-runs, avg 13.3 s, max 25.1 s, 53,958 Groq tokens |
+
+`pc_check.json`, the val set and the mapping are main's versions (restored after measuring).
+
+**Practice run** (`python -m scripts.run_decline_check`, B on Groq, Intake fallback + Agent A local, stub finance; each
+message on a fresh database as its `user_id` through `web_chat.send`; all replies came from the SLM, none from the template):
+
+| Id | Case | Outcome | Rule | Writes | Order after | Seconds | Groq tokens |
+|---|---|---|---|---|---:|---:|---:|
+| t01 | return too late | decline | R-RET-01 | none | delivered | 10.6 | 7,535 |
+| t02 | return too late | decline | R-RET-01 | none | delivered | 25.1 | 6,015 |
+| t03 | already refunded | decline | R-REF-05 | none | refunded | 19.8 | 3,042 |
+| t04 | already refunded | decline | R-REF-05 | none | refunded | 11.1 | 3,100 |
+| t05 | refund, not late | decline | R-REF-03 | none | shipped | 20.6 | 4,789 |
+| t06 | refund, not late | decline | R-REF-03 | none | shipped | 16.4 | 4,753 |
+| t07 | cancel, paid | approve | R-CAN-01 | refund 54.40 | cancelled | 9.3 | 2,597 |
+| t08 | cancel, paid | approve | R-CAN-01 | refund 54.40 | cancelled | 4.0 | 1,832 |
+| t09 | cancel, cash on delivery | approve | R-CAN-01 | no refund | cancelled | 3.5 | 2,273 |
+| t10 | cancel, shipped | decline | R-CAN-01 | none | shipped | 16.2 | 7,489 |
+| t11 | cancel, shipped | decline | R-CAN-01 | none | shipped | 4.3 | 3,083 |
+| t12 | cancel, shipped | decline | R-CAN-01 | none | shipped | 18.3 | 7,450 |
+
+Replies, for example t10: "I'm sorry for the trouble. Order 4510 is already on its way, so it can no longer be cancelled. An
+order can be cancelled only while it is being processed. Once it is delivered, you can return it within 14 days."
+t07: "I'm sorry for the trouble. Your order 4511 is now cancelled. Your refund of 54.40 TND is approved."
+All 12 replies: `out/decline_check_decline_practice_messages.json` (git-ignored).
+
+**Done in this round:** option A in `reasons.py`; `scripts/run_decline_check.py` (new; a small script, because the app's path
+needs a user id); `run_live_check.py` knows the new tool and the `status` fact; `docs/decision_format.md`, `DATA_LICENCES.md`
+(TWCS), README; both databases reseeded. `callverse.db` did not exist, so there was nothing to delete: the runner uses its own
+tickets file and removes it.
+
+**Problems and limits**
+- The practice set was used to choose the rules in this task, so 12/12 says less than the held-out result will.
+- Practice ran in stub finance mode: the > 300 TND path is tested offline only, in both modes.
+- A cancel request without the word (or the typo "cancle"), like "I don't want this order any more", no longer gets
+  `cancel_order`. Accepted with option A.
+- The Intake LLM fallback can still answer `cancel_order` when no sentence passes the threshold. That is not a win by meaning
+  in the matcher, but it is a second way in. Not changed: option A was about the matcher.
+- `leave_one_out` (report only) still scores `cancel_order` by meaning; the running system does not use it.
+- A sent-back refund proposal the agent then drops would end as "escalate" (see below): not seen in this run.
+- A bare "yes" after "Please confirm" stays out of scope (step 09).
+
+**Safe for the demo?** The practice run says yes for these cases, but keep it off the demo until the held-out run passes.
+
+**Next step.** Tomorrow, on a fresh quota: `python -m scripts.run_decline_check --file tests/data/decline_heldout_messages.json`
+with `CALLVERSE_AGENTS_SET=local`, once. Pass bar: 0 crashes, 0 leaks, 0 wrong writes, >= 10/12. The runner reads the same
+fields; any new `expect` key in that file would be ignored, so check the key names (not the texts) first.
+
+Everything below is the earlier history, kept as it was. Option A replaces the "cancel word" change and answers the questions there.
+
+# Follow-up 1 — critical errors failed
 
 **In plain words.** The follow-up's code is done and all tests pass, but its stop rule failed: macro-F1 passes and critical
 errors do not (37, limit 29). So the practice runner, the practice run and the docs were **not** done, as the follow-up

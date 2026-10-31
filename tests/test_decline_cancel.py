@@ -99,9 +99,14 @@ def test_a_past_cancellation_is_not_a_new_cancel_request():
                                       "How do I cancel Prime?", "cancel my account now", "I want to cancel my plan"])
 def test_the_cancel_word_stays_out_of_subscriptions_and_accounts(sentence):
     assert reasons.CANCEL_WORD_RE.search(sentence) and reasons.NOT_AN_ORDER_RE.search(sentence)
-    scores = reasons.match_reasons(sentence)["sentence_scores"][0]["scores"]
-    found = reasons.match_reasons(sentence)["reasons"]
-    assert not found or found[0]["reason"] == max(scores, key=scores.get)     # by meaning only
+    assert "cancel_order" not in [r["reason"] for r in reasons.match_reasons(sentence)["reasons"]]
+
+
+@pytest.mark.parametrize("message", ["I am trying to make a purchase but my cart doesn't seem to be updating",
+                                     "I want to buy something and my credit card keeps getting rejected",
+                                     "I have an issue with my account"])
+def test_cancel_order_never_wins_by_meaning_alone(message):
+    assert "cancel_order" not in [r["reason"] for r in reasons.match_reasons(message)["reasons"]]
 
 
 def test_atlas_has_no_cancel_order_reason():

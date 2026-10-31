@@ -14,12 +14,13 @@ A client message goes through these steps (each one is traced in `traces/`, one 
    CallVerse's own database `callverse/data/callverse.db`); scripts can also send a message directly.
 2. **Intake** (no agent) — the reason by meaning (`BAAI/bge-small-en-v1.5`), emotion, sentiment, priority, the
    client's style and the order number; a small LLM only when the reason is unclear.
-3. **Queues** (rules) — order status / late delivery → **Agent A** (Status & Tracking); refund / return / damaged
-   item → **Agent B** (Payment & Refund). Agent A hands money requests over to B.
+3. **Queues** (rules) — order status / late delivery → **Agent A** (Status & Tracking); refund / cancel / return /
+   damaged item → **Agent B** (Payment & Refund). Agent A hands money requests over to B.
 4. **Agents** (shared LLM `openai/gpt-oss-120b` on Groq) — read facts with their allowed tools only
    (`callverse/tools/registry.py`), find the company rule with the policy search (RAG), and submit a **proposal**.
 5. **Coordinator** (rules, no LLM) — re-reads the facts, checks the cited rule, the refund limit and the client's
-   confirmation, then approves (only then the platform writes), sends back, asks the client or escalates.
+   confirmation, then approves (only then the platform writes), sends back, asks the client, escalates, or declines
+   with the rule's reason (T14a, ShopNova; the reason is written by code).
    Refunds above 300 TND need finance (Layer 3): a fixed rule by default, or the ShopNova admin in the app.
 6. **Reply writer** (SLM `qwen2.5:1.5b`, local) — writes the reply from the Coordinator's decision only, in the
    client's style; a rule check and templates keep it correct.
@@ -110,7 +111,7 @@ unless `PLATFORM_COORDINATOR_TOKEN` is set. Details: [docs/platform_contract.md]
 ## Run the tests
 
 ```powershell
-python -m pytest -q --ignore=tests/data   # 1048 tests, about 2 minutes
+python -m pytest -q --ignore=tests/data   # 1122 tests, about 4 minutes
 ```
 No API key, no API call and no Ollama needed: the tests use fake LLMs and a fresh copy of the database.
 `tests/data/` holds the held-out test sets: they are only for final evaluations, never for building or tuning.
@@ -176,7 +177,7 @@ traces/             run logs (not in git)
 `callverse/data/shopnova.db` (rebuilt by `python -m callverse.data.seed`) holds two kinds of data, and every row says
 which one it is (`source`, `ai_generated`, `scripted`):
 - **Scripted** demo data written by hand (`seed.py`): clients 1–5, products 1–6, orders 4505–4515 (4512 = main demo,
-  4515 = Layer 3 case). It never changes.
+  4515 = Layer 3 case). It never changes. After T14a, an older `shopnova.db` must be rebuilt once (new decision `decline`).
 - **Real** data: 2,000 orders of the **Olist Brazilian E-Commerce dataset** (ids 10001+), with their real dates,
   statuses, payments (converted to TND) and review scores; names, emails, phones, product names and stock are generated.
 
@@ -244,6 +245,9 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   accounts with a company, Atlas admin log, the code's confirmation decision stored and shown.
 - **T23** Benchmark of M3 (embeddings) for Intake reasons and rule search, on ABCD + Brain's sets, chosen on validation,
   locked test once: winner bge-base-en-v1.5 for both jobs (not switched yet; [docs/benchmarks/M3.md](docs/benchmarks/M3.md)).
+- **T14a** ShopNova says no with the reason (`decline`, by code; [docs/decision_format.md](docs/decision_format.md)) and cancels
+  orders still being processed (rule R-CAN-01, reason `cancel_order`, tool `propose_cancellation`). Tested on real TWCS tweets:
+  `python -m scripts.run_decline_check --file tests/dev/decline_practice_messages.json`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

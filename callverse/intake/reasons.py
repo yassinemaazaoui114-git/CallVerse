@@ -40,7 +40,9 @@ from callverse.config import load_config
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
 # T14a: "cancel" and "refund" are both about money coming back, so by meaning alone the matcher mostly says refund.
-# A sentence that says it wants to cancel is a cancellation (a rule, not tuning: threshold and top-k are the same).
+# And the real cancel examples are broad, so by meaning cancel_order also wins messages about carts or promo codes.
+# So cancel_order is decided by this word, in both directions: a sentence that says cancel is a cancellation, and
+# cancel_order never wins by meaning alone. The threshold still applies (a rule, not tuning: same threshold and top-k).
 # Not "cancelled": "I cancelled it, where is my money?" is about what already happened. "cancle": a typo in real tweets.
 CANCEL_WORD_RE = re.compile(r"\b(?:cancel|cancle|cancell?ing)\b", re.IGNORECASE)
 # Cancelling a subscription or an account is not cancelling an order: the rule stays out of those sentences.
@@ -126,10 +128,11 @@ def match_reasons(text: str, threshold: float | None = None, company: str = comp
     for sentence, vector in zip(sentences, sentence_vectors):
         scores = reason_scores(vector, vectors, cfg["top_k"])
         sentence_scores.append({"sentence": sentence, "scores": {r: round(s, 3) for r, s in scores.items()}})
-        reason = max(scores, key=scores.get)               # this sentence's best reason
-        if ("cancel_order" in scores and CANCEL_WORD_RE.search(sentence)   # ShopNova only (T14a, see above)
-                and not NOT_AN_ORDER_RE.search(sentence)):
+        # This sentence's best reason. T14a (see above; Atlas has no cancel_order): by the word, never by meaning.
+        if "cancel_order" in scores and CANCEL_WORD_RE.search(sentence) and not NOT_AN_ORDER_RE.search(sentence):
             reason = "cancel_order"
+        else:
+            reason = max((r for r in scores if r != "cancel_order"), key=scores.get)
         score = scores[reason]
         if score >= threshold and score > best_per_reason.get(reason, {}).get("score", -1):
             best_per_reason[reason] = {"reason": reason, "score": round(score, 3), "sentence": sentence}
