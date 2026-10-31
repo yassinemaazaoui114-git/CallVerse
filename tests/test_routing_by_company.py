@@ -169,7 +169,7 @@ def test_shopnova_routes_reasons_and_rules_are_unchanged():
     assert shopnova["routes"] == {"order_status": "A", "late_delivery": "A", "refund_request": "B", "return_item": "B",
                                   "damaged_item": "B", "other": "A"}
     assert shopnova["reasons"] == reasons.REASONS
-    assert shopnova["reason_threshold"] == 0.66
+    assert shopnova["reason_threshold"] == 0.69   # T24: T23 benchmark value
     assert shopnova["main_reason_order"] == ["damaged_item", "refund_request", "return_item", "late_delivery",
                                              "order_status", "other"]
     assert shopnova["allowed_rules"] == {"refund": ["R-REF-03", "R-RET-01", "R-DMG-01"],
@@ -260,14 +260,15 @@ def test_atlas_facts_are_read_not_written():
 
 
 def test_atlas_threshold_comes_from_leave_one_out_on_its_examples():
-    row = reasons.leave_one_out([0.68], "atlas")[0]
-    assert (row["exact"], row["wrong"], row["needs_llm"], row["total"]) == (58, 10, 12, 80)
-    assert companies.get("atlas")["reason_threshold"] == 0.68
+    # T24: the threshold now comes from the T23 benchmark (val-tuned, bge-small, top_k 5); the leave-one-out is only reported
+    row = reasons.leave_one_out([0.54], "atlas")[0]
+    assert (row["exact"], row["wrong"], row["needs_llm"], row["total"]) == (62, 17, 1, 80)
+    assert companies.get("atlas")["reason_threshold"] == 0.54
 
 
 def test_shopnova_leave_one_out_is_unchanged():
-    row = reasons.leave_one_out([0.66])[0]
-    assert (row["exact"], row["wrong"], row["needs_llm"], row["total"]) == (47, 4, 9, 60)
+    row = reasons.leave_one_out([0.69])[0]      # T24: new setting (bge-small, top_k 5, 0.69)
+    assert (row["exact"], row["wrong"], row["needs_llm"], row["total"]) == (40, 5, 15, 60)
 
 
 @pytest.mark.parametrize("message, reason", [

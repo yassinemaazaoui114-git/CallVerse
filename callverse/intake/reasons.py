@@ -45,7 +45,9 @@ REASONS = ["order_status", "late_delivery", "refund_request", "return_item", "da
 def get_model():
     """Load the embedding model once (M3, local CPU). Imported here so other modules load fast."""
     from sentence_transformers import SentenceTransformer
-    return SentenceTransformer(load_config()["intake"]["embedding_model"], device="cpu")
+    cfg = load_config()["intake"]
+    # embedding_revision pins the exact Hugging Face files tested in T23 (optional: None = latest)
+    return SentenceTransformer(cfg["embedding_model"], device="cpu", revision=cfg.get("embedding_revision"))
 
 
 def embed(texts: list[str]) -> np.ndarray:

@@ -5,6 +5,7 @@ import hashlib
 import numpy as np
 
 from benchmarks.m3 import build_data, common
+from callverse.config import load_config
 from callverse.intake import reasons
 
 
@@ -27,10 +28,11 @@ def test_matcher_reproduces_reasons_py_on_the_system_settings(monkeypatch):
     names = list(examples)
     messages = ["Where is my order? It was due last week.", "I want my money back. The box arrived crushed.",
                 "Hi!", "My parcel never came and I want a refund", "Do you sell gift cards?"]
-    for threshold in (0.2, 0.35, 0.5, 0.66):
+    top_k = load_config()["intake"]["top_k"]      # T24: top_k 5 (was 3)
+    for threshold in (0.2, 0.35, 0.5, 0.69):
         for text in messages:
             system = [r["reason"] for r in reasons.match_reasons(text, threshold=threshold)["reasons"]]
-            scores = common.sentence_scores(fake_embed(common.split_sentences(text)), vectors, 3)  # top_k 3
+            scores = common.sentence_scores(fake_embed(common.split_sentences(text)), vectors, top_k)
             assert common.found_reasons(scores, names, threshold) == system
 
 

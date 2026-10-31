@@ -1,0 +1,40 @@
+{
+ "model": "BAAI/bge-small-en-v1.5",
+ "load_s": 17.9,
+ "intake": {
+  "shopnova": {
+   "n": 328,
+   "accuracy": 0.3232,
+   "macro_f1": 0.4108,
+   "critical_errors": 26,
+   "needs_llm_rate": 0.4055
+  },
+  "atlas": {
+   "n": 40,
+   "accuracy": 0.875,
+   "macro_f1": 0.8838,
+   "critical_errors": 1,
+   "needs_llm_rate": 0.025
+  },
+  "avg_macro_f1": 0.6473
+ },
+ "intake_latency_ms": {
+  "p50": 40.06,
+  "p95": 59.51,
+  "n": 368
+ },
+ "search": {
+  "n": 30,
+  "top1": 0.9,
+  "top2": 1.0,
+  "mrr": 0.95,
+  "top1_count": 27,
+  "top2_count": 30
+ },
+ "search_latency_ms": {
+  "p50": 41.45,
+  "p95": 47.32,
+  "n": 35
+ },
+ "peak_ram_mb": 662
+}
