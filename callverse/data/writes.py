@@ -204,6 +204,64 @@ def _insert_refund(con, order_id: int, amount: float, rule_id: str, proposal_id:
     return dict(con.execute("SELECT * FROM refunds WHERE id = ?", (cur.lastrowid,)).fetchone())
 
 
+def _stock_back(con, items_json: str) -> None:
+    """A cancelled order's items go back in stock (no commit). The "Delivery" line has no product."""
+    for item in json.loads(items_json):
+        if item.get("product_id") is not None:
+            con.execute("UPDATE products SET stock = stock + ? WHERE id = ?", (int(item["qty"]), item["product_id"]))
+
+
+def _cancel_problem(con, order_id: int, amount: float) -> str | None:
+    """The safety nets of a client's cancellation, on the caller's transaction. None = it may be written.
+    They hold even if the Coordinator has a bug: only a processing order, and the amount is exactly what is left."""
+    order = _row(con, "orders", int(order_id))
+    if order is None:
+        return f"order {order_id} not found"
+    if order["status"] != "processing":
+        return f"safety net R-CAN-01: order {order_id} is {order['status']}, not processing"
+    marks = ", ".join("?" for _ in COUNTED_REFUND_STATUSES)
+    refunded = con.execute(f"SELECT COALESCE(SUM(amount), 0) FROM refunds WHERE order_id = ? AND status IN ({marks})",
+                           (int(order_id), *COUNTED_REFUND_STATUSES)).fetchone()[0]
+    left = max(round(order["paid"] - refunded, 2), 0.0)
+    if isinstance(amount, bool) or not isinstance(amount, (int, float)) or round(float(amount), 2) != left:
+        return f"safety net R-CAN-01: amount {amount} is not paid {order['paid']} - refunded {refunded} = {left} TND"
+    return None
+
+
+def _apply_cancel(con, order_id: int, proposal_id: str, amount: float) -> tuple[dict, dict | None]:
+    """Status "cancelled", stock back, and the refund row if money is due (no commit). Returns (order row, refund row)."""
+    order = _row(con, "orders", int(order_id))
+    _apply_status(con, int(order_id), "cancelled", sim_today().isoformat())
+    _stock_back(con, order["items"])
+    refund = _insert_refund(con, order_id, amount, "R-CAN-01", proposal_id) if amount > 0 else None
+    return _row(con, "orders", int(order_id)), refund
+
+
+def cancel_order_by_user(order_id: int, proposal_id: str, amount: float) -> dict:
+    """T14a: the client's cancellation (rule R-CAN-01), approved by the Coordinator. ONE transaction: the status
+    "cancelled", the stock back, the refund row (when amount > 0) and the log row, all or nothing.
+
+    Safety nets: the proposal is a recorded, approved "cancel" proposal for this order, and the _cancel_problem checks.
+    Returns {"order": row, "refund": row or None}. Not the admin's cancel (admin_set_order_status), which stays as it is.
+    """
+    function, args = "cancel_order_by_user", {"order_id": order_id, "proposal_id": proposal_id, "amount": amount}
+    try:
+        with closing(connect()) as con:
+            con.execute("BEGIN IMMEDIATE")   # everything below is committed together, or not at all
+            _, reason = _approved_proposal(con, proposal_id, "cancel", order_id)
+            reason = reason or _cancel_problem(con, order_id, amount)
+            if reason:
+                return _refuse(function, args, reason)   # closing without commit = rollback
+            before = _row(con, "orders", int(order_id))
+            order, refund = _apply_cancel(con, order_id, proposal_id, amount)
+            _log_action(con, "coordinator", function, "orders", order_id, before,
+                        {"order": order, "refund": refund, "proposal_id": proposal_id})
+            con.commit()
+    except Exception as e:   # any failure: the transaction is not committed, so nothing is written
+        return _refuse(function, args, f"nothing was written: {type(e).__name__}: {e}")
+    return _done(function, args, {"order": order, "refund": refund})
+
+
 def mark_subscription_sent(subscription_id: int) -> dict:
     """The notifier sent the message: set the subscription to "sent" and return the updated row.
 
@@ -594,10 +652,7 @@ def admin_set_order_status(admin: str, order_id: int, new_status: str) -> dict:
             return _refuse(function, args, f"move {old} -> {new_status} is not allowed")
         _apply_status(con, int(order_id), new_status, sim_today().isoformat())
         if new_status == "cancelled":
-            for item in json.loads(before["items"]):
-                if item.get("product_id") is not None:   # the "Delivery" line has no product
-                    con.execute("UPDATE products SET stock = stock + ? WHERE id = ?",
-                                (int(item["qty"]), item["product_id"]))
+            _stock_back(con, before["items"])
         row = _row(con, "orders", order_id)
         _log_action(con, admin, function, "orders", order_id, before, row)
         con.commit()
@@ -648,9 +703,10 @@ def update_user(admin: str, user_id: int, **fields) -> dict:
 
 
 def admin_decide_refund(admin: str, proposal_id: str, approve: bool, reason: str = "",
-                        approval_id: int | None = None) -> dict:
+                        approval_id: int | None = None, cancel_amount: float | None = None) -> dict:
     """The admin's Layer 3 decision on a refund proposal, written in ONE transaction (T18 follow-up): if any part
-    fails, NOTHING is written.
+    fails, NOTHING is written. T14a: also a cancel proposal above 300 TND (cancel_amount = the amount of its approval):
+    approve = the same writes as cancel_order_by_user + the row "approve_cancel".
 
     Approve: the proposal's decision "approve" + the refund (create_refund's own safety nets, run here on the same
     transaction) + for R-REF-03 the order status "refunded" + the admin_actions row "approve_refund".
@@ -676,14 +732,24 @@ def admin_decide_refund(admin: str, proposal_id: str, approve: bool, reason: str
                 return _refuse(function, args, f"proposal {proposal_id} not found")
             if row["decision"] is not None:
                 return _refuse(function, args, f"proposal {proposal_id} already decided: {row['decision']}")
-            if row["action"] != "refund":
+            if row["action"] not in ("refund", "cancel"):
                 return _refuse(function, args, f"proposal {proposal_id} is not a refund")
             params = json.loads(row["params"])
-            order_id, amount = params.get("order_id"), params.get("amount")
+            # T14a: a cancel proposal carries no amount: the admin decides on the amount of the approval row.
+            order_id, amount = params.get("order_id"), cancel_amount if row["action"] == "cancel" else params.get("amount")
             con.execute("UPDATE proposals SET decision = ?, decision_reason = ?, decided_at = ? WHERE id = ?",
                         (decision, note, sim_today().isoformat(), str(proposal_id)))
             refund, status = None, None
-            if approve:
+            if approve and row["action"] == "cancel":
+                problem = _cancel_problem(con, order_id, amount)
+                if problem:
+                    return _refuse(function, args, problem)               # closing without commit = rollback
+                order, refund = _apply_cancel(con, order_id, proposal_id, amount)
+                status = order["status"]
+                _log_action(con, admin, "approve_cancel", "orders", order_id, None,
+                            {"refund": refund, "order_status": status, "proposal_id": proposal_id,
+                             "approval_id": approval_id, "reason": reason or None})
+            elif approve:
                 problem = _refund_problem(con, order_id, amount, proposal_id)   # sees the "approve" just set
                 if problem:
                     return _refuse(function, args, problem)               # closing without commit = rollback

@@ -98,7 +98,7 @@ intake:
   reason_threshold: 0.69
   # main_reason = the first reason of this list found in the ticket (T04, approved).
   # Money and damage come first: they need Agent B even when the client also asks "where is it?".
-  main_reason_order: &shopnova_reason_order [damaged_item, refund_request, return_item, late_delivery, order_status, other]
+  main_reason_order: &shopnova_reason_order [damaged_item, cancel_order, refund_request, return_item, late_delivery, order_status, other]
 
   priority:
     # severity (0-1) = base for the reason + bonuses, capped at 1
@@ -106,6 +106,7 @@ intake:
       order_status: 0.2
       late_delivery: 0.5
       refund_request: 0.5
+      cancel_order: 0.5
       return_item: 0.3
       damaged_item: 0.6
       other: 0.2
@@ -127,6 +128,7 @@ queues:
     order_status: A
     late_delivery: A
     refund_request: B
+    cancel_order: B
     return_item: B
     damaged_item: B
     other: A
@@ -136,6 +138,7 @@ queues:
     refund_request: "Your request is passed on for a refund check."
     return_item: "Your request is passed on for a returns check."
     damaged_item: "Your request is passed on for a damage check."
+    cancel_order: "Your request is passed on for a cancellation check."
 
 # Coordinator (task T07): rules only, no LLM. It checks every agent proposal before anything is written.
 coordinator:
@@ -144,6 +147,7 @@ coordinator:
   allowed_rules: &shopnova_allowed_rules
     refund: [R-REF-03, R-RET-01, R-DMG-01]
     subscribe: [R-NOT-01, R-DEL-02]
+    cancel: [R-CAN-01]
   # A case may be sent back to the agent this many times; the next send-back becomes "escalate".
   max_send_backs: 2
 
@@ -218,7 +222,7 @@ companies:
     rules_file: callverse/kb/policies_shopnova.json
     profile_file: callverse/data/company_profile.json
     policy_cache: callverse/kb/policy_vectors.npz
-    reasons: [order_status, late_delivery, refund_request, return_item, damaged_item, other]
+    reasons: [order_status, late_delivery, refund_request, cancel_order, return_item, damaged_item, other]
     reason_examples: callverse/intake/data/reason_examples.json
     reason_cache: callverse/intake/data/reason_vectors.npz
     reason_threshold: 0.69   # T23 benchmark, val-tuned (bge-small, top_k 5)

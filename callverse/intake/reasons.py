@@ -1,6 +1,7 @@
 """Find WHY the client writes (the contact reasons), by meaning, with sentence embeddings (M3).
 
-Idea: each of the 6 reasons has ~10 example messages (data/reason_examples.json, written by the Brain).
+Idea: each of the 7 reasons has ~10 example messages (data/reason_examples.json, written by the Brain;
+T14a: cancel_order's 10 examples are real tweets).
 The embedding model turns every text into a vector; two texts with a similar MEANING get vectors that
 point in a similar direction (high cosine similarity), even when they share no words:
 "my parcel never came" is close to "I'm still waiting for an order that was due last week".
@@ -38,7 +39,12 @@ from callverse.config import load_config
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
-REASONS = ["order_status", "late_delivery", "refund_request", "return_item", "damaged_item", "other"]
+# T14a: "cancel" and "refund" are both about money coming back, so by meaning alone the matcher mostly says refund.
+# A sentence that says it wants to cancel is a cancellation (a rule, not tuning: threshold and top-k are the same).
+# Not "cancelled": "I cancelled it, where is my money?" is about what already happened. "cancle": a typo in real tweets.
+CANCEL_WORD_RE = re.compile(r"\b(?:cancel|cancle|cancell?ing)\b", re.IGNORECASE)
+
+REASONS = ["order_status", "late_delivery", "refund_request", "cancel_order", "return_item", "damaged_item", "other"]
 
 
 @lru_cache(maxsize=1)
@@ -119,6 +125,8 @@ def match_reasons(text: str, threshold: float | None = None, company: str = comp
         scores = reason_scores(vector, vectors, cfg["top_k"])
         sentence_scores.append({"sentence": sentence, "scores": {r: round(s, 3) for r, s in scores.items()}})
         reason = max(scores, key=scores.get)               # this sentence's best reason
+        if "cancel_order" in scores and CANCEL_WORD_RE.search(sentence):   # ShopNova only (T14a, see above)
+            reason = "cancel_order"
         score = scores[reason]
         if score >= threshold and score > best_per_reason.get(reason, {}).get("score", -1):
             best_per_reason[reason] = {"reason": reason, "score": round(score, 3), "sentence": sentence}

@@ -26,6 +26,8 @@ OPENING = {
     # T09
     "layer3_refused": "we are sorry, we cannot approve this refund",
     "notify": "here is news",
+    # T14a: the reason itself is in must_say, added at the end of the template
+    "decline": "we have checked your request",
 }
 
 

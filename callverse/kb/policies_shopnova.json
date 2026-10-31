@@ -54,5 +54,12 @@
     "text": "A client can subscribe to a notification for an order. Notifications exist only for these events: shipped, out for delivery, delivered. Promise a notification only after the subscription is recorded.",
     "condition": "event in ['shipped', 'out_for_delivery', 'delivered']",
     "ai_generated": true
+  },
+  {
+    "id": "R-CAN-01",
+    "title": "Cancelling an order",
+    "text": "An order can be cancelled while it is still being processed (not yet shipped). If it was paid, the full amount paid is refunded.",
+    "condition": "status == 'processing'",
+    "ai_generated": true
   }
 ]

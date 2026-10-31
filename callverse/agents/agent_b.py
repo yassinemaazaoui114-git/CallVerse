@@ -2,7 +2,7 @@
 
 Handles refunds, returns and damaged items. Same tool-calling loop as Agent A (base_agent.py),
 different prompt and allow-list (tools/registry.py):
-    get_order, get_refunds, search_policy, propose_refund, ask_agent
+    get_order, get_refunds, search_policy, propose_refund, propose_cancellation, ask_agent
 
 How Agent B works on a refund request:
   1. in ONE model step: get_order (amount paid), get_refunds (already refunded, rule R-REF-05) and
@@ -21,7 +21,10 @@ T21: the same class works for Atlas Travel, with its own short prompt and tools.
 
 from callverse.agents.base_agent import BaseAgent
 from callverse.config import sim_today
-from callverse.tools.proposal_tools import ATLAS_ACTIONS, atlas_proposal, refund_proposal
+from callverse.tools.proposal_tools import ATLAS_ACTIONS, atlas_proposal, cancellation_proposal, refund_proposal
+
+# ShopNova's proposal tools -> the function that gives the proposal in the platform's shape.
+SHOPNOVA_PROPOSALS = {"propose_refund": refund_proposal, "propose_cancellation": cancellation_proposal}
 
 # Kept short on purpose: the prompt is re-sent with every model call of a turn (tokens, T07).
 SYSTEM_PROMPT = """You are Agent B - Payment & Refund of ShopNova (Tunisia). Today is {today}. Amounts in TND.
@@ -31,6 +34,7 @@ Use only facts from tools, never invent. No order number: ask for it and stop.
 3. Rules: full refund (R-REF-03) only if days_late > 5, not delivered and the client asks; amount = paid - refunded_total.
 Already fully refunded: no proposal (R-REF-05). Not late or 1-5 days late: no proposal (R-DEL-01, R-DEL-02).
 Damaged: no proposal, ask for a photo (R-DMG-01). Return: explain R-RET-01, no proposal. Above 300 TND: needs finance approval (R-ESC-01).
+Client asks to cancel the order: call propose_cancellation with user_quote (the client's exact words), whatever the status (R-CAN-01).
 4. When a refund rule applies, you MUST call propose_refund BEFORE your final answer; never write that you
 will send a proposal without calling it. Fields: facts_used (days_late, delivered, paid, refunded_total),
 user_confirmed (true only if the client asked), user_quote (the client's exact words).
@@ -82,8 +86,9 @@ class AgentB(BaseAgent):
             result["proposal"] = (atlas_proposal(self.agent_id, ATLAS_ACTIONS[accepted[-1]["tool"]], accepted[-1]["args"])
                                   if accepted else None)
             return result
-        accepted = [c["args"] for c in result["tool_calls"]
-                    if c["tool"] == "propose_refund" and isinstance(c["result"], dict)
+        accepted = [c for c in result["tool_calls"]
+                    if c["tool"] in SHOPNOVA_PROPOSALS and isinstance(c["result"], dict)
                     and "error" not in c["result"]]
-        result["proposal"] = refund_proposal(self.agent_id, accepted[-1]) if accepted else None
+        result["proposal"] = (SHOPNOVA_PROPOSALS[accepted[-1]["tool"]](self.agent_id, accepted[-1]["args"])
+                              if accepted else None)
         return result

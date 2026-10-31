@@ -91,6 +91,9 @@ OUTCOME_GUIDE = {
     "layer3_refused": "Tell the client the refund cannot be approved: the finance team did not approve it. "
                       "Do NOT promise a refund, another check or any later action.",
     "notify": "Tell the client the news about their order (the event). Do not promise anything else.",
+    # T14a: the Coordinator's answer is no; the reason is in must_say.
+    "decline": "Tell the client the request cannot be done, with the exact reason given. Do not offer anything else, "
+               "do not promise a refund or a later check.",
 }
 
 

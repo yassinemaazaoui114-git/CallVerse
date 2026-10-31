@@ -69,7 +69,7 @@ RERANKER = {"name": "BAAI/bge-reranker-base", "revision": "2cfc18c9415c912f9d815
 TODAY = {"model": "bge-small", "top_k": 3, "thresholds": {"shopnova": 0.66, "atlas": 0.68}}
 
 # Money reasons (item 8): mixing one of these with a non-money reason is a "critical error".
-MONEY = {"shopnova": {"refund_request", "return_item", "damaged_item"},
+MONEY = {"shopnova": {"refund_request", "cancel_order", "return_item", "damaged_item"},
          "atlas": {"refund_request", "compensation_request", "cancellation"}}
 
 THRESHOLDS = [round(0.40 + i / 100, 2) for i in range(51)]      # 0.40 .. 0.90, step 0.01

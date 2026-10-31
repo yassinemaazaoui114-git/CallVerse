@@ -119,6 +119,47 @@ SUBSCRIPTION_SCHEMA = {
 }
 
 
+# --- T14a: Agent B proposes a cancellation (rule R-CAN-01) -----------------------------------------------
+
+def cancellation_proposal(agent: str, args: dict) -> dict:
+    """The cancel proposal in the platform's shape, from propose_cancellation's arguments.
+
+    No amount and no user_confirmed: the Coordinator computes the refund from the data and decides by code
+    whether the client really asked (user_confirmed is False until then)."""
+    return {"agent": agent, "action": "cancel", "params": {"order_id": args["order_id"]}, "rule_id": "R-CAN-01",
+            "facts_used": {"order_id": args["order_id"]}, "user_confirmed": False, "user_quote": args["user_quote"]}
+
+
+def propose_cancellation(order_id=None, user_quote=None) -> dict:
+    """Ask the Coordinator to cancel an order. Cancels nothing, writes nothing in the database."""
+    fields = {"order_id": order_id, "user_quote": user_quote}
+    problems = []
+    if isinstance(order_id, bool) or not isinstance(order_id, int):
+        problems.append("order_id must be an integer")
+    if not isinstance(user_quote, str) or not user_quote.strip():
+        problems.append("user_quote must quote the client's own words")
+    if problems:
+        trace.log("proposal_refused", "proposal_tools", {"fields": fields, "problems": problems})
+        return {"error": "proposal refused: " + "; ".join(problems)}
+
+    trace.log("proposal", "proposal_tools", {"action": "cancel", **fields})
+    return {"status": "submitted to Coordinator"}
+
+
+CANCELLATION_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "propose_cancellation",
+        "description": "Send an order cancellation proposal to the Coordinator. Cancels nothing.",
+        "parameters": {
+            "type": "object",
+            "properties": {"order_id": {"type": "integer"}, "user_quote": {"type": "string"}},
+            "required": ["order_id", "user_quote"],
+        },
+    },
+}
+
+
 # --- T21: Atlas Travel's proposals: no amount ----------------------------------------------------------
 
 BOOKING_TYPES = ("hotel", "flight")

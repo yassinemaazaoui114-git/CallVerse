@@ -1,8 +1,8 @@
-﻿# NEXT TASK â€” Yassine's lane (core)
+# NEXT TASK â€” Yassine's lane (core)
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T14a_decline_and_cancel.md ("say no with the reason" by code + ShopNova cancellation rule R-CAN-01 and cancel action; tested on real TWCS messages) |
 | Approved by | Yassine â€” 2026-10-31 10:57 (all â­) |
 | Last done | T25b â€” merged cf3503e, NEXT DONE 6ce5b7d, pushed: LoRA adapter lost on val, no switch; M3 fine-tuning stopped |

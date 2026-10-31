@@ -350,34 +350,40 @@
    "subflow": "return_color"
   },
   {
+   "id": "abcd-3702",
+   "text": "Hello, I want to remove an item from my order. I accidentally chose the wrong size.",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
+  },
+  {
+   "id": "abcd-3227",
+   "text": "I need to remove an item from my order",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
+  },
+  {
    "id": "abcd-9754",
    "text": "Can you check to see where my package is? I've been waiting for over a week now for it.",
    "reason": "late_delivery",
    "subflow": "missing"
   },
   {
-   "id": "abcd-4767",
-   "text": "Hello, I am trying to add an item to my cart and it is not updating",
+   "id": "abcd-8472",
+   "text": "Hello, I am a little upset that the Tommy Hilfiger shirt is always out of stock",
    "reason": "other",
-   "subflow": "shopping_cart"
+   "subflow": "out_of_stock_general"
   },
   {
-   "id": "abcd-6338",
-   "text": "The website has been running really slow that it is not usable. I don't know what to do",
+   "id": "abcd-9255",
+   "text": "Hi! I was considering buying a pair of Guess boots but needed some information",
    "reason": "other",
-   "subflow": "slow_speed"
+   "subflow": "boots_other_3"
   },
   {
    "id": "abcd-1967",
    "text": "Hi, I was just looking at my order statement and noticed that the delivery time is wrong",
    "reason": "order_status",
    "subflow": "status_delivery_time"
-  },
-  {
-   "id": "abcd-2095",
-   "text": "I wanted to check on the order I made because the shipping was way too high for me.",
-   "reason": "other",
-   "subflow": "cost"
   },
   {
    "id": "abcd-2304",
@@ -390,6 +396,12 @@
    "text": "Hi there. I need to return an item.",
    "reason": "return_item",
    "subflow": "return_color"
+  },
+  {
+   "id": "abcd-3908",
+   "text": "Hey I'm trying to figure out if I can get an extension. My premium subscription fee is due, but I need more time to come up with the cahs.",
+   "reason": "other",
+   "subflow": "manage_extension"
   },
   {
    "id": "abcd-8054",
@@ -422,10 +434,16 @@
    "subflow": "status_delivery_time"
   },
   {
-   "id": "abcd-5055",
-   "text": "I am frustrated because the search function on your website doesn't seem to work",
+   "id": "abcd-2913",
+   "text": "I don't understand why items are always out of stock, i have been checking everyday",
    "reason": "other",
-   "subflow": "search_results"
+   "subflow": "out_of_stock_general"
+  },
+  {
+   "id": "abcd-9845",
+   "text": "Hello, I chose the wrong size for something and I wanted to remove the second item from my cart if I could.  I was going to buy it but it's not the right size and I didn't intend to actually purchase it.",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
   },
   {
    "id": "abcd-8119",
@@ -434,20 +452,20 @@
    "subflow": "status"
   },
   {
-   "id": "abcd-8541",
-   "text": "Hello. I am confused about something and I need help",
-   "reason": "other",
-   "subflow": "mistimed_billing_never_bought"
-  },
-  {
    "id": "abcd-1166",
    "text": "I need to make some changes to my shipping address",
    "reason": "other",
    "subflow": "manage"
   },
   {
-   "id": "abcd-7917",
-   "text": "Hi. I just placed an order but the cost of shipping seemed rather high. Can you look into that for me?",
+   "id": "abcd-2225",
+   "text": "can I append overnight shipping to an order I just made",
+   "reason": "other",
+   "subflow": "manage_upgrade"
+  },
+  {
+   "id": "abcd-981",
+   "text": "hi I'd like to check my order status",
    "reason": "other",
    "subflow": "cost"
   },
@@ -476,28 +494,22 @@
    "subflow": "return_size"
   },
   {
-   "id": "abcd-2335",
-   "text": "Hi I’d like to know if you have Calvin clein boots in a 9",
-   "reason": "other",
-   "subflow": "boots_other_3"
-  },
-  {
    "id": "abcd-206",
    "text": "i need to check the status of my order",
    "reason": "order_status",
    "subflow": "status"
   },
   {
-   "id": "abcd-9734",
-   "text": "I was curious about checking on my shipping details",
+   "id": "abcd-8844",
+   "text": "I needed to check my account for information on my order, but I forgot my password.",
    "reason": "other",
-   "subflow": "manage"
+   "subflow": "recover_password"
   },
   {
-   "id": "abcd-5744",
-   "text": "How is it going over there?",
+   "id": "abcd-2048",
+   "text": "I need to have a charge taken off my account because I got charged for something I never bought.",
    "reason": "other",
-   "subflow": "status_due_date"
+   "subflow": "mistimed_billing_never_bought"
   },
   {
    "id": "abcd-2362",
@@ -506,10 +518,10 @@
    "subflow": "mistimed_billing_already_returned"
   },
   {
-   "id": "abcd-7243",
-   "text": "Hi I was charged for an order, but I didn't buy anything.",
+   "id": "abcd-8471",
+   "text": "Hi. I would like to know more information on the Guess shirt that is $49.",
    "reason": "other",
-   "subflow": "mistimed_billing_never_bought"
+   "subflow": "shirt_other_2"
   },
   {
    "id": "abcd-6788",
@@ -524,16 +536,16 @@
    "subflow": "refund_initiate"
   },
   {
+   "id": "abcd-581",
+   "text": "my card information needs to be updated",
+   "reason": "other",
+   "subflow": "manage_payment_method"
+  },
+  {
    "id": "abcd-10211",
    "text": "Hello, I need to return some Calvin Klein jeans as they are the wrong color",
    "reason": "return_item",
    "subflow": "return_color"
-  },
-  {
-   "id": "abcd-5604",
-   "text": "I was wondering if I could change the delivery to overnight on the item I ordered.",
-   "reason": "other",
-   "subflow": "manage_upgrade"
   },
   {
    "id": "abcd-7589",
@@ -542,28 +554,34 @@
    "subflow": "missing"
   },
   {
-   "id": "abcd-2011",
-   "text": "I want to inquire about the advantage of premium service.",
+   "id": "abcd-8243",
+   "text": "Hi i just checked my account and it seems like there was a subscription service added to it?",
    "reason": "other",
-   "subflow": "membership_3"
+   "subflow": "status_service_added"
   },
   {
-   "id": "abcd-10040",
-   "text": "My cart is not updating when I try and add items",
+   "id": "abcd-1692",
+   "text": "hi i am so confused",
    "reason": "other",
    "subflow": "shopping_cart"
-  },
-  {
-   "id": "abcd-4032",
-   "text": "Hi, I have been following a pair of jeans online, and they were much cheaper yesterday. Was there some sort of sale that has stopped now?",
-   "reason": "other",
-   "subflow": "bad_price_yesterday"
   },
   {
    "id": "abcd-4523",
    "text": "I need to return an item because its the wrong size",
    "reason": "return_item",
    "subflow": "return_size"
+  },
+  {
+   "id": "abcd-9047",
+   "text": "I'm thinking about buying thses boots",
+   "reason": "other",
+   "subflow": "boots_how_3"
+  },
+  {
+   "id": "abcd-7553",
+   "text": "Hi, I am looking at a Michael Kors shirt but the collar looks like it might squeeze my neck. Do you know how wide it is?",
+   "reason": "other",
+   "subflow": "shirt_how_4"
   },
   {
    "id": "abcd-3336",
@@ -582,6 +600,12 @@
    "text": "I think my order may be missing.  I ordered it 9 days ago and still have not received it",
    "reason": "late_delivery",
    "subflow": "missing"
+  },
+  {
+   "id": "abcd-4917",
+   "text": "Hey, so every time I search the site it's showing 0 results. It does that for no matter what I search for.",
+   "reason": "other",
+   "subflow": "search_results"
   },
   {
    "id": "abcd-4640",
@@ -608,22 +632,10 @@
    "subflow": "return_size"
   },
   {
-   "id": "abcd-8458",
-   "text": "Hi I wondered if you guys were comparing your prices to others , I like a shirt but I can get it for like 40% less elsewhere",
-   "reason": "other",
-   "subflow": "bad_price_competitor"
-  },
-  {
    "id": "abcd-4387",
    "text": "I'm not sure of the status of my premium service.    I'm a Bronze level member.",
    "reason": "other",
    "subflow": "status_due_amount"
-  },
-  {
-   "id": "abcd-8811",
-   "text": "Hi! Quick question... There is something wrong with my cart. I cab't put an item in it. Can yoi help me?",
-   "reason": "other",
-   "subflow": "shopping_cart"
   },
   {
    "id": "abcd-7934",
@@ -632,10 +644,16 @@
    "subflow": "refund_initiate"
   },
   {
-   "id": "abcd-2453",
-   "text": "I have an issue with my account",
+   "id": "abcd-8246",
+   "text": "hi, can you please check on my subscription status? I don't want it to end",
    "reason": "other",
-   "subflow": "manage_change_name"
+   "subflow": "status_due_amount"
+  },
+  {
+   "id": "abcd-10038",
+   "text": "Can you help me?",
+   "reason": "other",
+   "subflow": "shirt_other_4"
   },
   {
    "id": "abcd-365",
@@ -644,16 +662,16 @@
    "subflow": "return_color"
   },
   {
-   "id": "abcd-4169",
-   "text": "I have an issue with my order",
-   "reason": "other",
-   "subflow": "shopping_cart"
+   "id": "abcd-8115",
+   "text": "I want to remove the second item on an order",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
   },
   {
-   "id": "abcd-6937",
-   "text": "I wanted to check the status of my order, but can't login because I forgot my password.",
+   "id": "abcd-9190",
+   "text": "I want to know more about this shirt",
    "reason": "other",
-   "subflow": "recover_password"
+   "subflow": "shirt_how_3"
   },
   {
    "id": "abcd-5251",
@@ -662,22 +680,22 @@
    "subflow": "return_color"
   },
   {
+   "id": "abcd-1667",
+   "text": "The site has been slow for me",
+   "reason": "other",
+   "subflow": "slow_speed"
+  },
+  {
    "id": "abcd-1399",
    "text": "Yes, I have an unwanted charge on my account.",
    "reason": "refund_request",
    "subflow": "mistimed_billing_already_returned"
   },
   {
-   "id": "abcd-10084",
-   "text": "I found a few pairs of boots on your website that I absolutelly LOOOOVE!!! I'm hoping maybe to save a little money or get some perks by going premium. Can you tell me about the membership benefits?",
+   "id": "abcd-4517",
+   "text": "I'd like to check status of my order because I only ordered one item but the email confirmations says I ordered two",
    "reason": "other",
-   "subflow": "membership_3"
-  },
-  {
-   "id": "abcd-321",
-   "text": "Hi, I'm looking for some info on the jacket. Is this a good jacket for windy days?",
-   "reason": "other",
-   "subflow": "jacket_other_4"
+   "subflow": "status_quantity"
   },
   {
    "id": "abcd-2162",
@@ -686,10 +704,10 @@
    "subflow": "refund_initiate"
   },
   {
-   "id": "abcd-5993",
-   "text": "I signed up for the premium account and wanted to see when I owe the next payment for it",
+   "id": "abcd-272",
+   "text": "Order Statement Address: 0436 Kennedy St  San Mateo, NY 80260  Product: Boots  Brand: Guess  Amount: $79",
    "reason": "other",
-   "subflow": "status_due_date"
+   "subflow": "status_credit_missing"
   },
   {
    "id": "abcd-1322",
@@ -698,10 +716,16 @@
    "subflow": "mistimed_billing_already_returned"
   },
   {
-   "id": "abcd-1878",
-   "text": "Hey, why isn't the site taking my credit card?",
+   "id": "abcd-9377",
+   "text": "i am unable to log in because i forgot what my username is.",
    "reason": "other",
-   "subflow": "credit_card"
+   "subflow": "recover_username"
+  },
+  {
+   "id": "abcd-8205",
+   "text": "I bought a shirt but after looking around I'm seeing it at a much lower price pretty much everywhere else but herer",
+   "reason": "other",
+   "subflow": "bad_price_competitor"
   },
   {
    "id": "abcd-3966",
@@ -710,34 +734,28 @@
    "subflow": "status_delivery_time"
   },
   {
+   "id": "abcd-10056",
+   "text": "I'm considering buying some stuff on your site but I want to know how to get the premium membership first maybe",
+   "reason": "other",
+   "subflow": "membership_2"
+  },
+  {
    "id": "abcd-5842",
    "text": "I received wrong color and I’m not happy",
    "reason": "return_item",
    "subflow": "return_color"
   },
   {
-   "id": "abcd-10024",
-   "text": "The website is really slow. What's going on?",
+   "id": "abcd-9475",
+   "text": "Hello! I want help with my premium subscription",
    "reason": "other",
-   "subflow": "slow_speed"
+   "subflow": "manage_pay_bill"
   },
   {
    "id": "abcd-5931",
    "text": "I would like to check the status of my refund.",
    "reason": "refund_request",
    "subflow": "refund_status"
-  },
-  {
-   "id": "abcd-8279",
-   "text": "Hi....The Tommy Hilfiger shirt I am looking for is 84$ but all other websites sell it for 49$. Is there any way you can match their price?",
-   "reason": "other",
-   "subflow": "bad_price_competitor"
-  },
-  {
-   "id": "abcd-9996",
-   "text": "can you tell me about the membership levels?",
-   "reason": "other",
-   "subflow": "membership_1"
   },
   {
    "id": "abcd-7958",
@@ -752,16 +770,28 @@
    "subflow": "status"
   },
   {
+   "id": "abcd-6146",
+   "text": "Hi there. I believe I've been charged double for my subscription so I want to figure it out.",
+   "reason": "other",
+   "subflow": "manage_dispute_bill"
+  },
+  {
    "id": "abcd-507",
    "text": "i need to update the address",
    "reason": "other",
    "subflow": "manage_change_address"
   },
   {
-   "id": "abcd-4829",
-   "text": "Can I change my shipping address?",
+   "id": "abcd-2441",
+   "text": "Can you help me with something?",
    "reason": "other",
-   "subflow": "manage"
+   "subflow": "reset_2fa"
+  },
+  {
+   "id": "abcd-8186",
+   "text": "How does the shirt shrink after I wash?",
+   "reason": "other",
+   "subflow": "shirt_other_1"
   },
   {
    "id": "abcd-8281",
@@ -776,10 +806,16 @@
    "subflow": "mistimed_billing_already_returned"
   },
   {
-   "id": "abcd-7105",
-   "text": "I'm pretty frustrated with your website right now",
+   "id": "abcd-7320",
+   "text": "Hi, I am trying to buy some boots and my cart will not update when I add them to it.",
    "reason": "other",
    "subflow": "shopping_cart"
+  },
+  {
+   "id": "abcd-5044",
+   "text": "Help I lost my phone and can't get into my account because of two factor authentication",
+   "reason": "other",
+   "subflow": "reset_2fa"
   },
   {
    "id": "abcd-1121",
@@ -802,20 +838,8 @@
   {
    "id": "abcd-4190",
    "text": "My name is Chloe Zhang and I need to remove an item from my order",
-   "reason": "other",
+   "reason": "cancel_order",
    "subflow": "manage_cancel"
-  },
-  {
-   "id": "abcd-7638",
-   "text": "Hi.  My name is Joyce Wu.  I would like to do some shopping on the website, but for some reason it is running really slow.  Can you help?",
-   "reason": "other",
-   "subflow": "slow_speed"
-  },
-  {
-   "id": "abcd-9808",
-   "text": "I am trying to make a purchase but my cart doesn't seem to be updating",
-   "reason": "other",
-   "subflow": "shopping_cart"
   },
   {
    "id": "abcd-9294",
@@ -828,6 +852,24 @@
    "text": "Hi, my name's Chloe Zhang.  I seem to have forgotten my password",
    "reason": "other",
    "subflow": "recover_password"
+  },
+  {
+   "id": "abcd-3305",
+   "text": "I have signed up for a a premium subscription shopping service and i just noticed that i got charged for something i had bought",
+   "reason": "other",
+   "subflow": "manage_dispute_bill"
+  },
+  {
+   "id": "abcd-7079",
+   "text": "Can you please tell me if the Michael Kors boots have black or brown lace on them?",
+   "reason": "other",
+   "subflow": "boots_other_2"
+  },
+  {
+   "id": "abcd-4599",
+   "text": "I am having problems accessing my account because I lost the phone I use for two-factor authentication.",
+   "reason": "other",
+   "subflow": "reset_2fa"
   },
   {
    "id": "abcd-8823",
@@ -860,22 +902,10 @@
    "subflow": "refund_status"
   },
   {
-   "id": "abcd-2606",
-   "text": "I think my subscription was removed on accident. I didn't request for it to be removed but my daughter said when she was trying to order some things that we didn't have a subscription anymore.",
-   "reason": "other",
-   "subflow": "status_service_removed"
-  },
-  {
    "id": "abcd-5766",
    "text": "Purchase Date: 2019-09-14  Order ID: 7974574621  Payment Method: Credit Card  Address: 8907 1st Ave  Jacksonville, MI 78777  In Original Packaging: No  Product: Boots  Brand: Tommy_Hilfiger  Amount: $64",
    "reason": "refund_request",
    "subflow": "refund_status"
-  },
-  {
-   "id": "abcd-9611",
-   "text": "I can't log into my account",
-   "reason": "other",
-   "subflow": "recover_password"
   },
   {
    "id": "abcd-792",
@@ -890,9 +920,15 @@
    "subflow": "status_due_amount"
   },
   {
+   "id": "abcd-6116",
+   "text": "Hi. I have a shipping issue. The shipping cost on my most recent purchase was too high.",
+   "reason": "other",
+   "subflow": "cost"
+  },
+  {
    "id": "abcd-8975",
    "text": "Hi, I placed this order but now my wife says she doesn;t want the jacket.  What do I do?",
-   "reason": "other",
+   "reason": "cancel_order",
    "subflow": "manage_cancel"
   },
   {
@@ -902,28 +938,34 @@
    "subflow": "return_size"
   },
   {
-   "id": "abcd-2778",
-   "text": "I want information about the fall collection",
+   "id": "abcd-6041",
+   "text": "I wanted to check on the status of my premium membership",
    "reason": "other",
-   "subflow": "timing_1"
+   "subflow": "manage_pay_bill"
   },
   {
-   "id": "abcd-5121",
-   "text": "I just wanted to check on the status of my premium subscription shopping service, to make sure it's still active.",
-   "reason": "other",
-   "subflow": "status_due_amount"
+   "id": "abcd-1147",
+   "text": "Hi I need some help",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
   },
   {
-   "id": "abcd-10147",
-   "text": "Hi i just was reading some news about premium subscribtions and i went to check mine. It seems mine has been removed but i do want it",
+   "id": "abcd-899",
+   "text": "Hello. I'm trying to check on the status of my order",
    "reason": "other",
-   "subflow": "status_service_removed"
+   "subflow": "recover_username"
   },
   {
    "id": "abcd-4647",
    "text": "I have a question about an order",
    "reason": "refund_request",
    "subflow": "refund_initiate"
+  },
+  {
+   "id": "abcd-6016",
+   "text": "I would like to add an item to my existing order",
+   "reason": "other",
+   "subflow": "manage_create"
   },
   {
    "id": "abcd-1408",
@@ -944,16 +986,22 @@
    "subflow": "recover_username"
   },
   {
+   "id": "abcd-7823",
+   "text": "I was looking to buy a pair of michael kors boots since I have the subscription with you guys but it is priced way higher than other sites",
+   "reason": "other",
+   "subflow": "bad_price_competitor"
+  },
+  {
+   "id": "abcd-3990",
+   "text": "I need to pay my annual subscription fee",
+   "reason": "other",
+   "subflow": "manage_pay_bill"
+  },
+  {
    "id": "abcd-5646",
    "text": "Hi! 4 days ago, I requested a refund and I just want to check the status of my refund.",
    "reason": "refund_request",
    "subflow": "refund_status"
-  },
-  {
-   "id": "abcd-3281",
-   "text": "Hi, sorry to bother you with something silly, but I seem to have forgotten my password",
-   "reason": "other",
-   "subflow": "recover_password"
   },
   {
    "id": "abcd-5494",
@@ -966,12 +1014,6 @@
    "text": "I would like to return an item because it is the wrong size",
    "reason": "return_item",
    "subflow": "return_size"
-  },
-  {
-   "id": "abcd-882",
-   "text": "Hi, I placed an order to buy a shirt but I was charged twice. I want my money returned",
-   "reason": "other",
-   "subflow": "manage_dispute_bill"
   },
   {
    "id": "abcd-9832",
@@ -992,40 +1034,34 @@
    "subflow": "status_quantity"
   },
   {
-   "id": "abcd-5486",
-   "text": "yes i would like to check tof your order because my payment seems to be wrong he staus",
+   "id": "abcd-3021",
+   "text": "Hello! I just signed up for the premium subscription for the shopping service but I don't have all the money yet so can I get an extension?",
    "reason": "other",
-   "subflow": "status_payment_method"
+   "subflow": "manage_extension"
   },
   {
-   "id": "abcd-4959",
-   "text": "Hi, I was wondering if you could tell me more about the Michael Kors Jacket that is on sale for 89$.",
+   "id": "abcd-2580",
+   "text": "My old phone died and now I can't log in my account because I can't do the two factor authentication.",
    "reason": "other",
-   "subflow": "jacket_how_2"
+   "subflow": "reset_2fa"
   },
   {
-   "id": "abcd-1894",
-   "text": "I want to check my order status because the shipping cost was too high",
+   "id": "abcd-7321",
+   "text": "Hi, I need to access my account but I forgot my password",
    "reason": "other",
-   "subflow": "cost"
+   "subflow": "recover_password"
   },
   {
-   "id": "abcd-7987",
-   "text": "is very slow today",
+   "id": "abcd-10129",
+   "text": "i have signed up for a premium subscription shopping service",
    "reason": "other",
-   "subflow": "slow_speed"
+   "subflow": "status_due_amount"
   },
   {
-   "id": "abcd-9681",
-   "text": "Hi i want to but some things",
+   "id": "abcd-4945",
+   "text": "Could you tell me the local store hours?",
    "reason": "other",
-   "subflow": "membership_2"
-  },
-  {
-   "id": "abcd-7503",
-   "text": "Hi I need you to look at my order and tell me why you guys are charging me extra for my order I don't recognize that fee",
-   "reason": "other",
-   "subflow": "status_mystery_fee"
+   "subflow": "timing_2"
   },
   {
    "id": "abcd-5313",
@@ -1034,10 +1070,28 @@
    "subflow": "missing"
   },
   {
+   "id": "abcd-291",
+   "text": "Hello, I would just like to ask about the status of my order",
+   "reason": "other",
+   "subflow": "cost"
+  },
+  {
+   "id": "abcd-7421",
+   "text": "Hi i need to remove these boots from my order. My partner doesnt want them anymore",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
+  },
+  {
    "id": "abcd-10081",
    "text": "I want to complain because the charge on my billing statement has not been reversed even though I have already completed the return.",
    "reason": "refund_request",
    "subflow": "mistimed_billing_already_returned"
+  },
+  {
+   "id": "abcd-4941",
+   "text": "I am trying to get information about a specific product, can you help me?",
+   "reason": "other",
+   "subflow": "jacket_how_3"
   },
   {
    "id": "abcd-2996",
@@ -1052,16 +1106,10 @@
    "subflow": "status_delivery_time"
   },
   {
-   "id": "abcd-4235",
-   "text": "Hi...I am trying to access my account but I lost my phone that I use for the two factor identification. Is it possible for you to help me?",
+   "id": "abcd-449",
+   "text": "I need to access my account, but I can't get in because I lost my phone. Can you help me?",
    "reason": "other",
    "subflow": "reset_2fa"
-  },
-  {
-   "id": "abcd-6368",
-   "text": "Hi I wanted to buy a jacket from you, but the price is suddenly much higher than it was yesterday",
-   "reason": "other",
-   "subflow": "bad_price_yesterday"
   },
   {
    "id": "abcd-2885",
@@ -1082,10 +1130,10 @@
    "subflow": "return_size"
   },
   {
-   "id": "abcd-7941",
-   "text": "I'm trying to purchase an item, but the cart will not update when I add another item to it,",
+   "id": "abcd-4139",
+   "text": "My credit cards keep saying it's invalid on the website.",
    "reason": "other",
-   "subflow": "shopping_cart"
+   "subflow": "credit_card"
   },
   {
    "id": "abcd-5730",
@@ -1094,10 +1142,10 @@
    "subflow": "status_due_amount"
   },
   {
-   "id": "abcd-9371",
-   "text": "Hi I have a general question",
+   "id": "abcd-6006",
+   "text": "Yes i was looking at a item on your site and would like to know more about it before i decide to buy it",
    "reason": "other",
-   "subflow": "membership_1"
+   "subflow": "jacket_how_1"
   },
   {
    "id": "abcd-8572",
@@ -1120,14 +1168,8 @@
   {
    "id": "abcd-8991",
    "text": "I want to remove the second item in my order.",
-   "reason": "other",
+   "reason": "cancel_order",
    "subflow": "manage_cancel"
-  },
-  {
-   "id": "abcd-5190",
-   "text": "Hi Anne, I am trying to log into my account to check my order status but i have forgotten my username, can you help me with this today?",
-   "reason": "other",
-   "subflow": "recover_username"
   },
   {
    "id": "abcd-10501",
@@ -1160,22 +1202,22 @@
    "subflow": "shopping_cart"
   },
   {
+   "id": "abcd-5664",
+   "text": "Hello, the website is running really slow for me. I normally do not have trouble but today I am.",
+   "reason": "other",
+   "subflow": "slow_speed"
+  },
+  {
+   "id": "abcd-4002",
+   "text": "I got paint on my Tommy Hilfiger boots that I purchased from there and I was wandering if you had any tips for removing the paint stains.",
+   "reason": "other",
+   "subflow": "boots_how_1"
+  },
+  {
    "id": "abcd-8484",
    "text": "Hi! I was planning to buy a Calvin Klein jacket and needed some information on it",
    "reason": "other",
    "subflow": "jacket_other_4"
-  },
-  {
-   "id": "abcd-2463",
-   "text": "I'm trying to buy something, but there's a problem with paying.",
-   "reason": "other",
-   "subflow": "credit_card"
-  },
-  {
-   "id": "abcd-2837",
-   "text": "Hi, what time does your store closest to Raleigh WA close?",
-   "reason": "other",
-   "subflow": "timing_2"
   },
   {
    "id": "abcd-9215",
@@ -1190,22 +1232,34 @@
    "subflow": "missing"
   },
   {
-   "id": "abcd-1794",
-   "text": "Yes, I was charged for a premium subscription for your site, but this was in error.",
+   "id": "abcd-8236",
+   "text": "I have this premium subscription shopping service and wanted to know what the status of my subscription is",
    "reason": "other",
-   "subflow": "status_service_added"
+   "subflow": "status_due_date"
   },
   {
-   "id": "abcd-6170",
-   "text": "I want to buy something and my credit card keeps getting rejected",
+   "id": "abcd-3851",
+   "text": "I am very upset that the shirt I really want is out of stock",
    "reason": "other",
-   "subflow": "credit_card"
+   "subflow": "out_of_stock_one_item"
   },
   {
-   "id": "abcd-2894",
-   "text": "Hi there, I need to update the phone number on my account",
+   "id": "abcd-6838",
+   "text": "Everything always seems to be out of stock. I'm getting a bit frustrated with this company.",
    "reason": "other",
-   "subflow": "manage_change_phone"
+   "subflow": "out_of_stock_general"
+  },
+  {
+   "id": "abcd-5992",
+   "text": "Hi! I am trying to find out whether the jacket is machine washable.",
+   "reason": "other",
+   "subflow": "jacket_how_2"
+  },
+  {
+   "id": "abcd-4178",
+   "text": "I wanna know more about some Calvin Klein jeans",
+   "reason": "other",
+   "subflow": "jeans_other_4"
   },
   {
    "id": "abcd-1210",
@@ -1214,8 +1268,20 @@
    "subflow": "refund_status"
   },
   {
-   "id": "abcd-5186",
-   "text": "Hi, I need some help. The website is so slow and I need to buy stuff right now.",
+   "id": "abcd-9616",
+   "text": "I need to remove the second item from my order my friend hated it",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
+  },
+  {
+   "id": "abcd-9004",
+   "text": "Hello I would like to know more about a product, specifically a Tommy Hilfiger jacket",
+   "reason": "other",
+   "subflow": "jacket_other_3"
+  },
+  {
+   "id": "abcd-3202",
+   "text": "Hi, am I connected?",
    "reason": "other",
    "subflow": "slow_speed"
   },
@@ -1224,6 +1290,12 @@
    "text": "I want to check on the status of an order I made that didn't receive.",
    "reason": "late_delivery",
    "subflow": "missing"
+  },
+  {
+   "id": "abcd-9787",
+   "text": "Hi! I had placed an order but I would like to remove an item from my order since my husband did not like it",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
   },
   {
    "id": "abcd-2255",
@@ -1244,34 +1316,16 @@
    "subflow": "refund_initiate"
   },
   {
-   "id": "abcd-6972",
-   "text": "Hi, I forgot my username.  Can you help?",
-   "reason": "other",
-   "subflow": "recover_username"
-  },
-  {
    "id": "abcd-511",
    "text": "Hi, I'm trying to figure out a way to remove the $64 hilfiger shirt from my order.",
-   "reason": "other",
+   "reason": "cancel_order",
    "subflow": "manage_cancel"
   },
   {
-   "id": "abcd-1787",
-   "text": "Hi! I need to access my account but unfortunately, I just lost my phone that i use for authentication",
+   "id": "abcd-3965",
+   "text": "Yes i would like to check the status of my subscription that was added to my account even though i never said i wanted it.",
    "reason": "other",
-   "subflow": "reset_2fa"
-  },
-  {
-   "id": "abcd-5473",
-   "text": "I forgot to add one item. Can I add it now to my existing order?",
-   "reason": "other",
-   "subflow": "manage_create"
-  },
-  {
-   "id": "abcd-3554",
-   "text": "Hello I keep getting unrelated search results and I'm getting frustated.",
-   "reason": "other",
-   "subflow": "search_results"
+   "subflow": "status_service_added"
   },
   {
    "id": "abcd-3101",
@@ -1280,10 +1334,10 @@
    "subflow": "manage_create"
   },
   {
-   "id": "abcd-4068",
-   "text": "Hi.  My name is Sanya Afzal.  I'm writing because I seem to have lost my password and can't get into my account.  Can you help?",
+   "id": "abcd-7992",
+   "text": "Hi.  My name is Norman Bouchard.  I have a question regarding the subscription program.",
    "reason": "other",
-   "subflow": "recover_password"
+   "subflow": "policy_4"
   },
   {
    "id": "abcd-6798",
@@ -1310,10 +1364,10 @@
    "subflow": "status"
   },
   {
-   "id": "abcd-8868",
-   "text": "i've been trying to search for an item and all i get is a spinning wheel and no search result.  why is your site so slow?",
+   "id": "abcd-6407",
+   "text": "I forgot my username, how can I check my shopping history?",
    "reason": "other",
-   "subflow": "search_results"
+   "subflow": "recover_username"
   },
   {
    "id": "abcd-10077",
@@ -1322,16 +1376,34 @@
    "subflow": "return_color"
   },
   {
+   "id": "abcd-5239",
+   "text": "I would like to check the status of my order because there was an extra fee added",
+   "reason": "other",
+   "subflow": "status_mystery_fee"
+  },
+  {
+   "id": "abcd-8742",
+   "text": "How do I pay for the subscription fee?",
+   "reason": "other",
+   "subflow": "manage_pay_bill"
+  },
+  {
+   "id": "abcd-8421",
+   "text": "Hi a premium subscription shopping service,",
+   "reason": "other",
+   "subflow": "manage_pay_bill"
+  },
+  {
    "id": "abcd-10073",
    "text": "HI! I just received my jacket but then I noticed a stain near the sleeve.",
    "reason": "damaged_item",
    "subflow": "return_stain"
   },
   {
-   "id": "abcd-3677",
-   "text": "Hi, this is Albert Sanders, Gold member",
+   "id": "abcd-1138",
+   "text": "Hi there! I was wondering if I would be able to ammend my order?",
    "reason": "other",
-   "subflow": "reset_2fa"
+   "subflow": "timing_1"
   },
   {
    "id": "abcd-10251",
@@ -1350,12 +1422,6 @@
    "text": "Hi, I'm having an issue, I just see a wheel spinning",
    "reason": "other",
    "subflow": "search_results"
-  },
-  {
-   "id": "abcd-3838",
-   "text": "I was wondering if it was possible to have an extension on my premium shopping service",
-   "reason": "other",
-   "subflow": "manage_extension"
   },
   {
    "id": "abcd-6252",
@@ -1382,6 +1448,12 @@
    "subflow": "refund_initiate"
   },
   {
+   "id": "abcd-7414",
+   "text": "Hi I forgot my user name and can't access my account!",
+   "reason": "other",
+   "subflow": "recover_username"
+  },
+  {
    "id": "abcd-1938",
    "text": "Hi, I need to return a jacket please, I got the wrong color",
    "reason": "return_item",
@@ -1394,22 +1466,28 @@
    "subflow": "status_delivery_time"
   },
   {
-   "id": "abcd-9632",
-   "text": "This is a little embarrassing and I'm going to blame it on being stuck in the house for four weeks. I can't see my shopping history online because I forgot my password.",
+   "id": "abcd-7038",
+   "text": "my item I got from your store is overpriced compared to your competition",
    "reason": "other",
-   "subflow": "recover_password"
+   "subflow": "bad_price_competitor"
   },
   {
-   "id": "abcd-9745",
-   "text": "Hi I have a premium subscription but I don't have the money to get it renewed right now.  Can I get an extension so I don't lose my benefits",
-   "reason": "other",
-   "subflow": "manage_extension"
+   "id": "abcd-1400",
+   "text": "Hi, I placed an order and I want to remove an item",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
   },
   {
-   "id": "abcd-2803",
-   "text": "Hi could you check the status of my account",
+   "id": "abcd-2994",
+   "text": "I want to know if my account allows international shipping.",
    "reason": "other",
-   "subflow": "status_service_removed"
+   "subflow": "status_shipping_question"
+  },
+  {
+   "id": "abcd-2870",
+   "text": "Hi, I would like to buy an item but it is way overpriced compared to the competition",
+   "reason": "other",
+   "subflow": "bad_price_competitor"
   },
   {
    "id": "abcd-7426",
@@ -1418,16 +1496,10 @@
    "subflow": "missing"
   },
   {
-   "id": "abcd-5711",
-   "text": "Why are the items so overpriced compared to the you guys competition",
+   "id": "abcd-3219",
+   "text": "Hiyas, i am looking at this beautiful pair of michael kors boots, the pair for 59$, and i need some more info.",
    "reason": "other",
-   "subflow": "bad_price_competitor"
-  },
-  {
-   "id": "abcd-3363",
-   "text": "I need to update the shipping address on my order.",
-   "reason": "other",
-   "subflow": "manage"
+   "subflow": "boots_how_2"
   },
   {
    "id": "abcd-7908",
@@ -1440,6 +1512,18 @@
    "text": "Hello, I would like to know the state of my refund because I want to add something and use the refund for it",
    "reason": "refund_request",
    "subflow": "refund_update"
+  },
+  {
+   "id": "abcd-5971",
+   "text": "I keep searching for items, but unrelated items keep popping up.",
+   "reason": "other",
+   "subflow": "search_results"
+  },
+  {
+   "id": "abcd-8032",
+   "text": "Yes I am not thrilled with seeing that I am paying $20 more for the same exact shirt",
+   "reason": "other",
+   "subflow": "bad_price_yesterday"
   },
   {
    "id": "abcd-4671",
@@ -1458,18 +1542,6 @@
    "text": "yes, i still haven't received my package",
    "reason": "late_delivery",
    "subflow": "missing"
-  },
-  {
-   "id": "abcd-8328",
-   "text": "Hi.  My name is Chloe Zhang.  I had a question about the subscription service.",
-   "reason": "other",
-   "subflow": "policy_3"
-  },
-  {
-   "id": "abcd-5784",
-   "text": "Hello, I would like to check and see if you have a size large available for a particular shirt",
-   "reason": "other",
-   "subflow": "shirt_other_2"
   },
   {
    "id": "abcd-6654",
@@ -1514,16 +1586,28 @@
    "subflow": "refund_initiate"
   },
   {
+   "id": "abcd-6278",
+   "text": "I think I may be missing some credits from my premium subscription",
+   "reason": "other",
+   "subflow": "status_credit_missing"
+  },
+  {
+   "id": "abcd-1472",
+   "text": "I want to change the name on my account becuase it is spelled incorrectly",
+   "reason": "other",
+   "subflow": "manage_change_name"
+  },
+  {
    "id": "abcd-10544",
    "text": "I want to check the status of my order",
    "reason": "order_status",
    "subflow": "status_delivery_time"
   },
   {
-   "id": "abcd-3142",
-   "text": "I want know the price of stitching my name",
+   "id": "abcd-5967",
+   "text": "Hi, I'm thinking about buying your guess shirt for my son",
    "reason": "other",
-   "subflow": "pricing_2"
+   "subflow": "shirt_how_1"
   },
   {
    "id": "abcd-9966",
@@ -1550,22 +1634,16 @@
    "subflow": "return_color"
   },
   {
-   "id": "abcd-7901",
-   "text": "I'm trying to use this promo code and it keeps saying invalid. When it shouldn't",
-   "reason": "other",
-   "subflow": "promo_code_invalid"
-  },
-  {
-   "id": "abcd-5603",
-   "text": "I would like more information about these $69 Guess boots",
-   "reason": "other",
-   "subflow": "boots_other_4"
-  },
-  {
    "id": "abcd-6977",
    "text": "Hi.  My name is ALessandro Phoenix.  My Order ID is 0130050222.  I would like to return these Tommy Hilfiger boots for $94 and add this refund onto my existing refund of $100 if possible?",
    "reason": "refund_request",
    "subflow": "refund_update"
+  },
+  {
+   "id": "abcd-2382",
+   "text": "I want to remove the second shirt I ordered. My wife doesn't want it now",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
   },
   {
    "id": "abcd-7288",
@@ -1574,16 +1652,34 @@
    "subflow": "status"
   },
   {
+   "id": "abcd-8554",
+   "text": "I am trying to sign into my account and have forgotten my password",
+   "reason": "other",
+   "subflow": "recover_password"
+  },
+  {
    "id": "abcd-3997",
    "text": "I have a refund that is owed to me that I haven't received yet, and now I have another item that I need a refund for.",
    "reason": "refund_request",
    "subflow": "refund_update"
   },
   {
-   "id": "abcd-5320",
-   "text": "Hi! I would like to check the status of my order. The thing is that I only ordered one item but the email i received an email saying I ordered 2 items",
+   "id": "abcd-1333",
+   "text": "Hi, I need to cancel part of my order",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
+  },
+  {
+   "id": "abcd-5529",
+   "text": "Hi, can you check my order please? I think I was charged an extra fee",
    "reason": "other",
-   "subflow": "status_quantity"
+   "subflow": "status_mystery_fee"
+  },
+  {
+   "id": "abcd-9437",
+   "text": "just placed an order and wouldlike to add to it",
+   "reason": "other",
+   "subflow": "manage_create"
   },
   {
    "id": "abcd-8544",
@@ -1592,22 +1688,10 @@
    "subflow": "status"
   },
   {
-   "id": "abcd-4498",
-   "text": "I went to buy this pair of jeans but the price went up by ten dollars since yesterday",
-   "reason": "other",
-   "subflow": "bad_price_yesterday"
-  },
-  {
    "id": "abcd-8454",
    "text": "i would like to check the state of my refund. just to double check the status along with the payment method",
    "reason": "refund_request",
    "subflow": "refund_status"
-  },
-  {
-   "id": "abcd-9613",
-   "text": "I'm kind of in a bind. My car broke down last week, and I am seriously strapped for cash. I need to save some money somewhere. I'm hoping you can help me out with shipping.",
-   "reason": "other",
-   "subflow": "manage_downgrade"
   },
   {
    "id": "abcd-6740",
@@ -1622,22 +1706,16 @@
    "subflow": "return_color"
   },
   {
-   "id": "abcd-917",
-   "text": "I would like to check the status of my account",
-   "reason": "other",
-   "subflow": "status_shipping_question"
-  },
-  {
    "id": "abcd-2971",
    "text": "i would like a refund i just brought the item but have changed my mind",
    "reason": "refund_request",
    "subflow": "refund_initiate"
   },
   {
-   "id": "abcd-9237",
-   "text": "Hi I have a question about a jacket you have on your site",
+   "id": "abcd-637",
+   "text": "Hi, I can't get into my account. I lost my phone for my 2 factor. Can you help me?",
    "reason": "other",
-   "subflow": "jacket_other_3"
+   "subflow": "reset_2fa"
   },
   {
    "id": "abcd-3188",
@@ -1652,16 +1730,22 @@
    "subflow": "refund_initiate"
   },
   {
+   "id": "abcd-7042",
+   "text": "I am inquiring about membership levels",
+   "reason": "other",
+   "subflow": "membership_1"
+  },
+  {
    "id": "abcd-1269",
    "text": "I want to know status of my order, shipping wise?",
    "reason": "late_delivery",
    "subflow": "missing"
   },
   {
-   "id": "abcd-7847",
-   "text": "Hi, the other day I signed up for the premium subscription service, but I was charged double the price.",
+   "id": "abcd-6995",
+   "text": "I would like to buy something but it won't accept my credit card. It keeps saying invalid.",
    "reason": "other",
-   "subflow": "manage_dispute_bill"
+   "subflow": "credit_card"
   },
   {
    "id": "abcd-4769",
@@ -1676,16 +1760,16 @@
    "subflow": "refund_initiate"
   },
   {
-   "id": "abcd-1416",
-   "text": "Hi, i am a question about the status of my subscription",
+   "id": "abcd-4322",
+   "text": "Hi, I'm trying to access my account but I lost the phone I have set up for the two factor authentication.",
    "reason": "other",
-   "subflow": "status_payment_method"
+   "subflow": "reset_2fa"
   },
   {
-   "id": "abcd-10154",
-   "text": "I wanted to manage my shipment",
+   "id": "abcd-8277",
+   "text": "Can you please tell me if the Guess boots for $59 come with a warranty?",
    "reason": "other",
-   "subflow": "manage"
+   "subflow": "boots_other_4"
   },
   {
    "id": "abcd-3251",
@@ -1700,16 +1784,16 @@
    "subflow": "status_delivery_time"
   },
   {
+   "id": "abcd-776",
+   "text": "Hi, I'm looking to make a few purchases and I'd like to know how much overnight shipping costs?",
+   "reason": "other",
+   "subflow": "pricing_3"
+  },
+  {
    "id": "abcd-853",
    "text": "Hello, I was checking on my refund",
    "reason": "refund_request",
    "subflow": "refund_update"
-  },
-  {
-   "id": "abcd-9793",
-   "text": "Hi I have a question about a product.",
-   "reason": "other",
-   "subflow": "jacket_how_2"
   },
   {
    "id": "abcd-7279",
@@ -1724,18 +1808,6 @@
    "subflow": "return_stain"
   },
   {
-   "id": "abcd-756",
-   "text": "It looks like the premium subscription was added to my account even though I did not add it.",
-   "reason": "other",
-   "subflow": "status_service_added"
-  },
-  {
-   "id": "abcd-6365",
-   "text": "Hey I'm looking at this Product: jacket  Brand: Guess  Amount: $79",
-   "reason": "other",
-   "subflow": "jacket_other_4"
-  },
-  {
    "id": "abcd-4688",
    "text": "i have the chloe zhang",
    "reason": "late_delivery",
@@ -1748,10 +1820,10 @@
    "subflow": "refund_update"
   },
   {
-   "id": "abcd-7704",
-   "text": "HI! I am trying to get something but my credit card keeps getting rejected. I only have one card. What to do?",
+   "id": "abcd-7588",
+   "text": "Yes i would like to know the price of stitching my name one ite?",
    "reason": "other",
-   "subflow": "credit_card"
+   "subflow": "pricing_2"
   },
   {
    "id": "abcd-9828",
@@ -1760,10 +1832,16 @@
    "subflow": "recover_username"
   },
   {
-   "id": "abcd-2929",
-   "text": "Yes i would like to move my shipping to next week",
+   "id": "abcd-10353",
+   "text": "Hi! I just need to vent. I bought a shirt and gosh... you guys charge alot for shipping fee",
    "reason": "other",
-   "subflow": "manage_downgrade"
+   "subflow": "cost"
+  },
+  {
+   "id": "abcd-4940",
+   "text": "I was looking at making a purchase and needed some more information on the product",
+   "reason": "other",
+   "subflow": "jeans_how_2"
   },
   {
    "id": "abcd-2868",
@@ -1802,6 +1880,18 @@
    "subflow": "pricing_3"
   },
   {
+   "id": "abcd-7666",
+   "text": "Hi! I am a silver member and I want to know what is the benefit?",
+   "reason": "other",
+   "subflow": "status_shipping_question"
+  },
+  {
+   "id": "abcd-4452",
+   "text": "i want to know what happens ifi am late on a subscription payment",
+   "reason": "other",
+   "subflow": "policy_4"
+  },
+  {
    "id": "abcd-9151",
    "text": "Hello, I would like to know the status of my refund",
    "reason": "refund_request",
@@ -1826,28 +1916,22 @@
    "subflow": "refund_status"
   },
   {
-   "id": "abcd-229",
-   "text": "So I am wanting to buy some stuff but I want to figure out what kind of benefits I get with a premium membership.",
-   "reason": "other",
-   "subflow": "membership_3"
+   "id": "abcd-6038",
+   "text": "Hi!   I need ot remove an item from my last order please",
+   "reason": "cancel_order",
+   "subflow": "manage_cancel"
   },
   {
-   "id": "abcd-1150",
-   "text": "Can you give me some background info non a tommy hilfigr shirt?",
+   "id": "abcd-7021",
+   "text": "I'm wondering about a weird fee that got added on to my order",
    "reason": "other",
-   "subflow": "shirt_how_2"
+   "subflow": "status_mystery_fee"
   },
   {
-   "id": "abcd-9502",
-   "text": "I feel so silly, I forgot the email and username to log back in",
+   "id": "abcd-8846",
+   "text": "Hello, I would like to know what all the membership levels are as I am planning to join and purchase some things",
    "reason": "other",
-   "subflow": "recover_username"
-  },
-  {
-   "id": "abcd-1872",
-   "text": "The site is running slow. what is going on?",
-   "reason": "other",
-   "subflow": "slow_speed"
+   "subflow": "membership_1"
   },
   {
    "id": "abcd-6015",
@@ -1856,22 +1940,34 @@
    "subflow": "return_color"
   },
   {
-   "id": "abcd-6096",
-   "text": "Do you guys do price matching, because the tommy hilfiger boots are 20 dollars more than other sites?",
+   "id": "abcd-1365",
+   "text": "What is your return policy if the jeans do not fit me?",
    "reason": "other",
-   "subflow": "bad_price_competitor"
+   "subflow": "jeans_how_3"
   },
   {
-   "id": "abcd-3066",
-   "text": "Good morning! I am thinking to buy a shirt from your website. But can you explain about the return policy? I am new to your company.",
+   "id": "abcd-8498",
+   "text": "Hi! I would like to check the status of my order. Actually the payment method seems to be wrong",
    "reason": "other",
-   "subflow": "policy_1"
+   "subflow": "status_payment_method"
   },
   {
-   "id": "abcd-1277",
-   "text": "Hi, I'm trying to add an item to my cart but every time I try nothing happens",
+   "id": "abcd-3330",
+   "text": "want to check the status of my order because i only ordered one but on the email confirmation it says that i ordered two",
    "reason": "other",
-   "subflow": "shopping_cart"
+   "subflow": "status_quantity"
+  },
+  {
+   "id": "abcd-4432",
+   "text": "Hello my name is Chloe Zhang",
+   "reason": "other",
+   "subflow": "timing_3"
+  },
+  {
+   "id": "abcd-1932",
+   "text": "I would like to know more about one of you guys products because i'm thinking about buying it",
+   "reason": "other",
+   "subflow": "boots_other_3"
   },
   {
    "id": "abcd-7522",
@@ -1880,28 +1976,10 @@
    "subflow": "status_delivery_time"
   },
   {
-   "id": "abcd-4804",
-   "text": "hi! I was trying to access my account but I seem to have forgotten my username",
+   "id": "abcd-8290",
+   "text": "Yes i would like to know when the annual sales end because i'm thinking about buying some things",
    "reason": "other",
-   "subflow": "recover_username"
-  },
-  {
-   "id": "abcd-8809",
-   "text": "Hello, I would like to check the shipping fee on my most recent order, I believe it was too high",
-   "reason": "other",
-   "subflow": "cost"
-  },
-  {
-   "id": "abcd-2576",
-   "text": "Hi! So the website is really slow.  When I use the search function, all I get is a spinning wheel.  I don't get any results",
-   "reason": "other",
-   "subflow": "search_results"
-  },
-  {
-   "id": "abcd-6023",
-   "text": "I am thinking of making a purchase, but I wanted to know the cost for overnight shipping.",
-   "reason": "other",
-   "subflow": "pricing_3"
+   "subflow": "timing_3"
   },
   {
    "id": "abcd-9877",
@@ -1914,6 +1992,12 @@
    "text": "i want to double check the status of my refund",
    "reason": "refund_request",
    "subflow": "refund_status"
+  },
+  {
+   "id": "abcd-4881",
+   "text": "want to be buy something but my credit card keeps being rejected",
+   "reason": "other",
+   "subflow": "credit_card"
   },
   {
    "id": "abcd-8463",
@@ -1940,10 +2024,22 @@
    "subflow": "missing"
   },
   {
-   "id": "abcd-1245",
-   "text": "I need to return something that I purchased",
+   "id": "abcd-4299",
+   "text": "Hello. I'm trying to buy those Michael Kors boots but they are always out of stock.",
    "reason": "other",
-   "subflow": "reset_2fa"
+   "subflow": "out_of_stock_one_item"
+  },
+  {
+   "id": "abcd-5732",
+   "text": "Hi there, I've been charged for an order that I never placed.",
+   "reason": "other",
+   "subflow": "mistimed_billing_never_bought"
+  },
+  {
+   "id": "abcd-5382",
+   "text": "Thank you. :)  I'm trying to order some things on the website but I'm finding that I can't really even use it right now, because as I'm clicking around nothing much is really happening because it's so slow and stalling out.  Can you tell me what's go",
+   "reason": "other",
+   "subflow": "slow_speed"
   },
   {
    "id": "abcd-7731",

@@ -52,7 +52,8 @@ STATUS_MOVES = {
 ALWAYS_ALLOWED = ("cancelled", "refunded")
 SUBSCRIPTION_STATUSES = ("waiting", "sent")
 # Coordinator decisions on a proposal (review(proposal) outcomes). Only "approve" lets a refund be written.
-DECISIONS = ("approve", "send_back", "ask_user", "ask_proof", "layer3", "escalate")
+# T14a: "decline" = the rule says no (a cancel proposal on an order that has already left).
+DECISIONS = ("approve", "send_back", "ask_user", "ask_proof", "layer3", "escalate", "decline")
 # Order statuses that create an `events` row (and can be subscribed to).
 # Read from rule R-NOT-01 in the policy file, so the list is written in one place only.
 NOTIFICATION_EVENTS = tuple(notification_events())

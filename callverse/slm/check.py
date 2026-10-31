@@ -95,8 +95,8 @@ def check_reply(reply: str, decision: dict) -> dict:
         if match and keyword not in approved_text:
             problems.append(f"forbidden promise: '{match.group(0)}'")
 
-    # T21: an approved hotel cancellation can carry its refund.
-    refund_ok = decision.get("outcome") == "approve" and decision.get("action") in ("refund", "cancel_hotel")
+    # T21: an approved hotel cancellation can carry its refund. T14a: a ShopNova order cancellation too.
+    refund_ok = decision.get("outcome") == "approve" and decision.get("action") in ("refund", "cancel_hotel", "cancel")
     if not refund_ok and (m := REFUND_PROMISE.search(text)):
         problems.append(f"promises a refund that is not approved: '{m.group(0)}'")
 

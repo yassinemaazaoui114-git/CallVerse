@@ -54,7 +54,7 @@ def test_other_reads_return_what_the_functions_return():
     assert client.get("/orders/4506/refunds").json() == get_refunds(4506)
     assert client.get("/users/1").json()["name"].startswith("Sara")
     assert client.get("/company").json()["name"] == "ShopNova"
-    assert len(client.get("/policies").json()) == 8
+    assert len(client.get("/policies").json()) == 9
     assert client.get("/policies/R-REF-05").json()["condition"] == "amount <= paid - refunded_total"
 
 
