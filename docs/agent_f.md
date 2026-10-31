@@ -27,6 +27,27 @@ Validation (model choice): TF-IDF+logreg MAE 0.638, Spearman 0.75 · TF-IDF+ridg
 Held-out test, n=5000 (read once), expected-stars output: **MAE 0.644, Spearman 0.80**, rounded accuracy 0.48, within ±1 0.92.
 MiniLM not benchmarked (sentence-transformers not installed in build env). Fine-tuning not justified at 2 ms / budget 200 ms.
 
+## Verified state (2026-10-31)
+- Artifact: `models/agent_f/satisfaction.pkl` (18.6 MB, git-ignored), from `train.py`; no `stacker.pkl` yet.
+- Selection: on validation only, argmax MAE (logreg 0.638 vs ridge 0.659). Test read once after.
+- Reproducible: fixed 60k train sample (seed 0), deterministic solvers; `olist_delay.py` rebuilds the table.
+- Spec file `RL_interface_spec.md` is not in the repo (shared by upload only).
+
+## Style-insensitive reward (open)
+Today F reads only user turns + `days_late`, so the same ticket gets the same score for every `style`.
+Proposed fix (F side only; Mahmoud's `react()` unchanged):
+1. Mahmoud runs `react(situation, reply, persona)` with the **training** persona set -> records
+   `{conversation record, "rating", "source": "simulated"}` (JSONL, spec record shape).
+2. F fits `stacker.pkl` (Ridge, few features: text, delay, style one-hot, emotion one-hot, style x emotion)
+   on those records; choose alpha on a held-out simulator seed. Never on the evaluation persona set or team ratings.
+3. Guard against circularity: Mahmoud's ratings come from his MiniLM scorer trained on real CSAT, so a big F would
+   just copy it. Keep the stacker small and keep the real-data parts frozen; RL6 checks F on the team's real ratings.
+4. Report F with and without the stacker on the team set; keep the stacker only if it is not worse there.
+
+Extra real data seen (not used yet): Mahmoud's branch documents the Kaggle `ddosad` support CSAT set (85,907 contacts,
+28,742 with a remark, customer-given 1-5) - closer to support chats than Amazon reviews. Not downloadable here
+(Kaggle login); also shares data with the simulator's scorer (circularity risk above).
+
 ## Not yet measured
 - Team real ratings: MAE, Spearman vs "predict average" and "delay-only" baselines → `python -m benchmarks.agent_f.evaluate_rated <file.jsonl>`.
 - Domain gap: product reviews ≠ support chats; the team set is the real check.
