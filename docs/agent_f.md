@@ -1,33 +1,38 @@
-# Agent F — Satisfaction Predictor (Semah)
+# Agent F (RL3) — satisfaction predictor · model card
 
-`callverse.satisfaction.predict_satisfaction(record) -> int 1..5`. CPU only.
-Record: `{"text": ...}` or `{"messages": [{"role": "customer", "text": ...}, ...]}` (customer turns scored).
-**Provisional interface**: `RL_interface_spec.md` was not available; adapt when it lands.
+**Contract** (RL_interface_spec v1): `callverse.quality.satisfaction.predict_satisfaction(record) -> {"score": float 1..5}`.
+CPU only, no API, no database write. Measured: ~2 ms mean, p95 3.4 ms per record (limit 200 ms).
+
+## How it scores
+1. **Text** (user turns only): TF-IDF (word 1-2 + char 2-5 grams) + logistic regression → expected stars.
+2. **Delay prior**: `situation.days_late` → mean real Olist score for that delay (table below).
+3. **Blend**: 0.5 text + 0.5 delay if `days_late` known, else text. **Provisional weights** — no real rated
+   conversations exist for fitting (the team set is test-only).
+4. **Optional stacker** (`models/agent_f/stacker.pkl`, Ridge on text, delay, style, emotion): fit on Mahmoud's
+   SIMULATED ratings (flagged) when they exist. Without it the reward does **not** depend on `style`.
 
 ## Data
-Real reviews with real 1-5 stars: `SetFit/amazon_reviews_multi_en` (balanced; downloaded to `data/raw/`).
-Train = 60k fixed-seed sample of train split; model chosen on validation (5k); test (5k) read once.
-The repo's Olist sample has real scores but no text, so it cannot train a text model.
-No simulated ratings used.
+| Use | Source | Real? | Licence |
+|---|---|---|---|
+| Text model | `SetFit/amazon_reviews_multi_en` (60k train sample, 5k val, 5k test; balanced 1-5) | real stars | Amazon Reviews Multi licence: non-commercial research |
+| Delay prior | ShopNova Olist sample (`callverse/data/real/`), review score vs delivered − promised | real | CC BY-NC-SA 4.0 |
+| Final check | team ratings (Notion 31, ~100) | real | test only, never trained on |
 
-## Benchmark (validation, `benchmarks/agent_f/results/benchmark.json`)
-| model | MAE | acc | within±1 | p95 ms |
-|---|---|---|---|---|
-| baseline constant mean | 1.20 | 0.20 | 0.60 | - |
-| TF-IDF + ridge | 0.659 | 0.436 | 0.911 | 2.8 |
-| **TF-IDF + logreg (chosen)** | **0.638** | **0.512** | 0.883 | 3.2 |
-| MiniLM + logreg | not run (sentence-transformers not installed in build env) | | | |
+Olist delay table (`python -m benchmarks.agent_f.olist_delay`): on time 4.22 (n=1801) · 1-2 d 3.07 (27) ·
+3-5 d 2.50 (32) · 6-10 d 1.57 (35) · >10 d 1.40 (48).
+Earlier simulated-only F experiments (`research/agents-e-f-tiny-models`) are not used: synthetic labels.
 
-Fine-tuning not justified: TF-IDF is ~60x under the 200 ms budget.
+## Results — Amazon reviews (real stars)
+Validation (model choice): TF-IDF+logreg MAE 0.638, Spearman 0.75 · TF-IDF+ridge MAE 0.696 (float) · predict-mean MAE 1.20.
+Held-out test, n=5000 (read once), expected-stars output: **MAE 0.644, Spearman 0.80**, rounded accuracy 0.48, within ±1 0.92.
+MiniLM not benchmarked (sentence-transformers not installed in build env). Fine-tuning not justified at 2 ms / budget 200 ms.
 
-## Held-out test (`results/test_eval.json`)
-n=5000: MAE 0.628, accuracy 0.517, within±1 0.888, latency mean 1.9 ms / p95 2.8 ms.
+## Not yet measured
+- Team real ratings: MAE, Spearman vs "predict average" and "delay-only" baselines → `python -m benchmarks.agent_f.evaluate_rated <file.jsonl>`.
+- Domain gap: product reviews ≠ support chats; the team set is the real check.
 
-## Run
+## Rebuild
 ```
-python -m benchmarks.agent_f.benchmark      # choose model (validation)
-python -m benchmarks.agent_f.train          # train + save models/agent_f/satisfaction.pkl + test eval
-python -m benchmarks.agent_f.evaluate_rated rated.jsonl   # final eval: team's real rated conversations
+python -m benchmarks.agent_f.benchmark   # choose on validation
+python -m benchmarks.agent_f.train       # train, save models/agent_f/satisfaction.pkl, test once
 ```
-Final evaluation on the ~100 team-rated conversations and RL comparison: pending (data / RL not available yet).
-Domain caveat: product reviews ≠ support conversations; the rated set is the real check.

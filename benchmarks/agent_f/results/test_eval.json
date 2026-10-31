@@ -2,9 +2,20 @@
   "model": "tfidf_logreg",
   "split": "test (real, held out)",
   "n": 5000,
-  "mae": 0.6284,
-  "accuracy": 0.5168,
-  "within_1": 0.8884,
-  "ms_mean": 1.87,
-  "ms_p95": 2.806
+  "argmax": {
+    "mae_raw": 0.6284,
+    "spearman": 0.7531,
+    "mae": 0.6284,
+    "accuracy": 0.5168,
+    "within_1": 0.8884
+  },
+  "expected": {
+    "mae_raw": 0.6439,
+    "spearman": 0.8016,
+    "mae": 0.6054,
+    "accuracy": 0.4834,
+    "within_1": 0.9218
+  },
+  "ms_mean": 2.116,
+  "ms_p95": 3.37
 }
