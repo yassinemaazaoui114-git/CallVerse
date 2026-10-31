@@ -35,6 +35,8 @@ COMPLETED_ACTION = re.compile(
     r"\b(?:we have|we've|has been|have been|is now|was) (?:already )?"
     r"(?:re-?booked|re-?shipped|re-?sent|cancelled|canceled|replaced|exchanged|changed|upgraded|compensated)\b",
     re.IGNORECASE)
+# Approve + refusal in the same reply (or the reverse) contradicts the decision.
+REFUSAL = re.compile(r"\b(?:we )?cannot (?:approve|refund|accept)|\bnot possible to (?:refund|approve)|\bis refused\b", re.IGNORECASE)
 DELIVERY_PROMISE = re.compile(r"\b(?:will|should) (?:arrive|be delivered|be there)\b", re.IGNORECASE)
 ACTION_WORDS = {"rebook": "book", "reship": "ship", "cancel_hotel": "cancel", "replace": "replac", "refund": "refund"}
 
@@ -140,6 +142,14 @@ def check_correctness(record: dict) -> dict:
                                                     ACTION_WORDS.get(decision.get("action"), "\0") in m.group(0)):
         fail = True
         evidence.append(f"claims a completed action that was not approved: '{m.group(0)}'")
+    approved_text = " ".join([str(decision.get("next_step") or "")] + [str(x) for x in decision.get("must_say") or []]).lower()
+    refusal_decided = any(w in approved_text for w in ("cannot", "not possible", "nothing to refund", "no refund", "refused", "no compensation"))
+    if (m := REFUSAL.search(low)) and (decision.get("outcome") == "approve" or not refusal_decided):
+        fail = True
+        evidence.append(f"refuses something the Coordinator did not refuse: '{m.group(0)}'")
+    if decision.get("outcome") != "approve" and re.search(r"\bhas been approved\b", low):
+        fail = True
+        evidence.append("says 'approved' for a decision that is not an approval")
     if (m := DELIVERY_PROMISE.search(low)) and not decision.get("facts", {}).get("promised_date"):
         fail = True
         evidence.append(f"delivery promise without a promised date in the facts: '{m.group(0)}'")

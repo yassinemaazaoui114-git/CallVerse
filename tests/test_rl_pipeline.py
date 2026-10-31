@@ -20,8 +20,12 @@ KW = {"model": MODEL, "stacker": False}
 
 
 @pytest.fixture(scope="module")
-def situations():
-    seed_atlas()                      # ShopNova is seeded per test by conftest; Atlas here
+def situations(tmp_path_factory):
+    """ShopNova is seeded per test by conftest; Atlas here, in a temporary file (never the real atlas.db)."""
+    from callverse.data.atlas import db as atlas_db
+    path = tmp_path_factory.mktemp("atlas") / "atlas_test.db"
+    atlas_db.use_db(path)
+    seed_atlas(path)
     return sim.make_situations()
 
 
@@ -130,3 +134,108 @@ def test_end_to_end_episode(situations):
         pol.update(rec["situation"], style, out["reward"])
         seen.add(out["reward"])
     assert pol.n_updates == 12
+
+
+class _Msg:
+    def __init__(self, content):
+        self.content, self.tool_calls = content, None
+
+
+def test_slm_path_and_template_fallback(situations):
+    from callverse.learning.style_writer import write_with_slm
+    d = next(s for s in situations if s["decision"]["rule_id"] == "R-REF-03")["decision"]
+    seen = {}
+
+    def obedient(role_key, messages, **kw):          # a fake model that follows the prompt
+        seen["prompt"] = messages[-1]["content"]
+        return _Msg("I am sorry for the trouble with your order 4512. Your request has been approved. "
+                    "Your refund of 59.90 TND is approved. The money goes back to the card you paid with.")
+
+    out = write_with_slm(d, "apology_first", chat_fn=obedient)
+    assert not out["used_template"] and out["check"]["passed"] and "Style: start with one short apology" in seen["prompt"]
+    assert check_correctness(_rec(d, out["reply"]))["status"] == "PASS"
+
+    def down(role_key, messages, **kw):
+        raise ConnectionError("ollama down")
+
+    out = write_with_slm(d, "short", chat_fn=down)
+    assert out["used_template"] and out["reply"] == write(d, "short")
+
+    def liar(role_key, messages, **kw):              # invents a number: the SLM check rejects, template is used
+        return _Msg("Your order 4512 refund of 80.00 TND is approved. The money goes back to the card you paid with.")
+
+    assert write_with_slm(d, "short", chat_fn=liar)["used_template"]
+
+
+def test_new_adversarial_cases_never_pass(situations):
+    approve = next(s for s in situations if s["decision"]["rule_id"] == "R-REF-03")["decision"]
+    info = next(s for s in situations if s["reason"] == "order_status" and s["decision"]["outcome"] == "info"
+                and s["decision"]["facts"].get("days_late"))["decision"]
+    cases = {
+        "approved refund + wrong amount": (approve, sim.corrupt(write(approve, "short"), approve, "unapproved_refund")),
+        "contradiction": (approve, sim.corrupt(write(approve, "short"), approve, "contradiction")),
+        "voucher": (info, sim.corrupt(write(info, "short"), info, "voucher_overclaim")),
+        "stale delay": (info, sim.corrupt(write(info, "short"), info, "stale_fact")),
+        "'approved' on info": (info, write(info, "short") + " Your request has been approved."),
+        "rule of the other tenant": ({**approve, "rule_id": "AT-FLT-01"}, write(approve, "short")),
+        "approve with condition not met": ({**info, "outcome": "approve", "rule_id": "R-REF-03", "action": "refund",
+                                           "facts": {**info["facts"], "amount_tnd": 10.0, "amount": 10.0, "paid": 108.9, "refunded_total": 0}},
+                                          None),
+    }
+    for name, (d, reply) in cases.items():
+        reply = reply or write(d, "short")
+        out = check_correctness(_rec(d, reply))
+        assert out["status"] == "FAIL", (name, out)
+    for kind in sim.DEGRADATIONS:                     # correct but weaker replies still PASS
+        assert check_correctness(_rec(approve, sim.degrade(write(approve, "short"), approve, kind)))["status"] == "PASS", kind
+
+
+def test_other_bandits_learn_and_persist(tmp_path):
+    from callverse.learning.style_policy import EpsilonGreedy, GaussianThompson, LinUCB, context_vector
+    sit = {"company": "atlas", "emotion": "anger", "outcome": "approve", "reason": "refund_request", "days_late": 0, "priority": "high"}
+    assert len(context_vector(sit)) == 32 and sum(context_vector(sit)) == 7.0
+    for pol in (LinUCB(seed=1), EpsilonGreedy(seed=1), GaussianThompson(seed=1)):
+        pol.update(sit, "short", None)
+        assert pol.n_updates == 0
+        for _ in range(60):
+            st = pol.choose(sit)
+            pol.update(sit, st, 4.5 if st == "apology_first" else 2.0)
+        assert pol.best(sit) == "apology_first", type(pol).__name__
+        pol.save(tmp_path / f"{type(pol).__name__}.json")
+    again = LinUCB.load(tmp_path / "LinUCB.json")
+    assert again.best(sit) == "apology_first" and again.n_updates == 60
+
+
+def test_unknown_or_failed_correctness_never_gives_positive_learning(situations):
+    from callverse.learning.style_policy import GaussianThompson, StylePolicy
+    d = next(s for s in situations if s["decision"]["rule_id"] == "R-REF-03")["decision"]
+    wrong = _rec(d, sim.corrupt(write(d, "short"), d, "wrong_amount"), emotion="joy")
+    out = evaluate_response(wrong, **KW)
+    assert out["correctness"] == "FAIL" and out["reward"] == -1
+    unknown = evaluate_response(_rec({**d, "company": "nova"}, write(d, "short"), company="nova"), **KW)
+    assert unknown["reward"] is None and not unknown["train"]
+    pol = StylePolicy(seed=0)
+    pol.update(wrong["situation"], "short", unknown["reward"])
+    assert pol.n_updates == 0
+    g = GaussianThompson(seed=0)
+    g.update(wrong["situation"], "short", 1.0 if out["correctness"] == "FAIL" else out["satisfaction"])
+    assert g.stats[list(g.stats)[0]]["short"][0] == 1.0
+
+
+def test_inference_entry_point(situations, tmp_path):
+    from callverse.learning import inference as inf
+    s = next(s for s in situations if s["decision"]["rule_id"] == "R-REF-03")
+    sit = {"company": "shopnova", "emotion": "anger", "outcome": "approve", "reason": "refund_request", "days_late": 6}
+    assert inf.select_style(sit) == inf.DEFAULT_STYLE and inf.load_policy(tmp_path / "none.json") is None
+
+    def down(role_key, messages, **kw):
+        raise ConnectionError("no ollama")
+
+    pol = StylePolicy(seed=0)
+    out = inf.respond(s["decision"], sit, history=[{"role": "user", "content": "where is my refund"}], policy=pol,
+                      chat_fn=down, explore=True, stacker=False)
+    assert out["style"] in STYLES and out["used_template"] and out["evaluation"]["correctness"] == "PASS"
+    inf.learn(out, pol)
+    assert pol.n_updates == 1
+    pol.save(tmp_path / "p.json")
+    assert inf.load_policy(tmp_path / "p.json").n_updates == 1

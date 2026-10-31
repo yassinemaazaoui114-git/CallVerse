@@ -50,3 +50,37 @@ def write(decision: dict, style: str) -> str:
         if " ".join(item.lower().split()) not in " ".join(text.lower().split()):
             text += " " + item
     return text
+
+
+# ----------------------------------------------------------------------------- real writer (SLM) path
+STYLE_HINTS = {
+    "short": "Style: be brief and direct, no apology sentence, state the decision then the next step.",
+    "apology_first": "Style: start with one short apology sentence for the trouble, then the decision.",
+    "apology_next_step": "Style: one short apology, the decision, and finish with 'Next step:' followed by the next step.",
+}
+
+
+def write_with_slm(decision: dict, style: str, history: list[dict] | None = None, chat_fn=None) -> dict:
+    """The REAL reply writer (callverse/slm/writer.py, Qwen via Ollama) with the RL style as an extra instruction.
+
+    The style only changes the wording instruction given to the model; the decision (facts, amounts, must_say,
+    next step) is passed untouched and the SLM's own rule check still runs. If the model is unavailable or its
+    reply fails the check, the style template of write() is used instead (used_template = True).
+    Returns {"reply", "used_template", "attempts", "check"}.
+    """
+    from callverse import llm
+    from callverse.slm import writer
+
+    if style not in STYLES:
+        raise ValueError(f"unknown style {style!r}")
+    base_chat = chat_fn or llm.chat
+
+    def chat_with_style(role_key, messages, **kw):
+        msgs = [dict(m) for m in messages]
+        msgs[-1]["content"] = msgs[-1]["content"].replace("Write the reply now.", STYLE_HINTS[style] + "\n\nWrite the reply now.")
+        return base_chat(role_key, msgs, **kw)
+
+    out = writer.write_reply(decision, history, chat_fn=chat_with_style)
+    if out["used_template"]:
+        return {"reply": write(decision, style), "used_template": True, "attempts": out["attempts"], "check": out["check"]}
+    return {"reply": out["reply"], "used_template": False, "attempts": out["attempts"], "check": out["check"]}

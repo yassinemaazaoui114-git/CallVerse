@@ -32,7 +32,10 @@ ARCHETYPES = {   # style preference (added to the rating) by persona type
     "neutral": {"short": 0.1, "apology_first": 0.0, "apology_next_step": 0.1},
 }
 BASE = {"approve": 4.3, "info": 3.3, "ask_proof": 3.1, "ask_user": 3.0, "layer3": 2.9, "send_back": 2.8, "escalate": 2.6}
-CORRUPTIONS = ["invented_amount", "unapproved_refund", "false_delivery_promise", "fabricated_action"]
+# Wrong replies (must FAIL the verifier) and degraded replies (correct but less helpful: must PASS, rate lower).
+CORRUPTIONS = ["invented_amount", "unapproved_refund", "false_delivery_promise", "fabricated_action",
+               "wrong_amount", "voucher_overclaim", "contradiction", "stale_fact"]
+DEGRADATIONS = ["incomplete", "generic"]
 
 
 # ----------------------------------------------------------------------------- personas
@@ -170,12 +173,38 @@ def make_situations() -> list[dict]:
 
 # ----------------------------------------------------------------------------- wrong replies
 def corrupt(reply: str, decision: dict, kind: str) -> str:
+    """A reply that is WRONG in one way. For an approved refund, "unapproved_refund" would be true, so it becomes
+    a wrong amount instead (the label must always mean a real error)."""
+    approved_refund = decision.get("outcome") == "approve" and decision.get("action") in ("refund", "cancel_hotel")
+    if kind == "unapproved_refund" and approved_refund:
+        kind = "wrong_amount"
     extra = {"invented_amount": " You will also get 20 TND as a goodwill gesture.",
              "unapproved_refund": " Your refund has been approved and the money is on its way.",
              "false_delivery_promise": " It will arrive within 2 days, guaranteed.",
              "fabricated_action": (" We have already rebooked you on the next flight." if decision.get("company") == "atlas"
-                                   else " We have already reshipped your order.")}
+                                   else " We have already reshipped your order."),
+             "wrong_amount": " We refunded 99.00 TND to your account.",
+             "voucher_overclaim": " We also added a 10% voucher to your account.",
+             "contradiction": " Actually we cannot approve this refund.",
+             "stale_fact": None}
+    if kind == "stale_fact":   # the reply states a delay that contradicts the connector (facts are re-read live)
+        late = decision.get("facts", {}).get("days_late")
+        wrong_late = (late or 0) + 3
+        import re
+        return (re.sub(rf"\bit is {late} day", f"it is {wrong_late} day", reply, flags=re.IGNORECASE)
+                if late else reply + " It is 3 days late.")
     return reply + extra[kind]
+
+
+def degrade(reply: str, decision: dict, kind: str) -> str:
+    """A reply that is still correct but less helpful (incomplete or generic)."""
+    if kind == "incomplete" and decision.get("next_step"):
+        return reply.replace(" " + str(decision["next_step"]).strip(), "").replace("Next step: ", "")
+    if kind == "generic":
+        ref = decision.get("order_id")
+        keep = " ".join(str(x) for x in decision.get("must_say") or [])
+        return f"Thank you for contacting us about your {decision.get('case_word', 'order')} {ref}. We have noted your request. {keep}".strip()
+    return reply
 
 
 # ----------------------------------------------------------------------------- reaction
@@ -193,6 +222,10 @@ def react(situation: dict, reply: str, persona: dict, corruption: str | None, rn
         x += {"short": 0.2, "apology_first": -0.2, "apology_next_step": 0.0}[style]
     if d["outcome"] == "approve" and d["facts"].get("amount_tnd"):
         x += 0.3
+    if situation.get("degradation") == "incomplete":
+        x -= 0.5 * (1.2 - persona["patience"])
+    elif situation.get("degradation") == "generic":
+        x -= 0.9
     noticed = corruption is not None and rng.random() < persona["notices_errors"]
     if corruption and not noticed:
         x += 0.4      # a false promise sounds nice when the customer does not notice: this is why correctness is checked
@@ -207,35 +240,43 @@ def react(situation: dict, reply: str, persona: dict, corruption: str | None, rn
     return {"rating": rating, "comment": comment, "noticed_error": noticed}
 
 
-def record_for(situation: dict, persona: dict, style: str, corruption: str | None, rng: random.Random) -> dict:
-    """One spec conversation record (plus simulated rating and labels) for a situation x persona x style."""
+def record_for(situation: dict, persona: dict, style: str, corruption: str | None, rng: random.Random,
+               degradation: str | None = None, reply: str | None = None) -> dict:
+    """One spec conversation record (plus simulated rating and labels) for a situation x persona x style.
+    `reply` lets the caller pass a reply written elsewhere (e.g. the SLM); otherwise the template writer is used."""
     d = situation["decision"]
-    reply = write(d, style)
+    reply = reply or write(d, style)
+    if degradation:
+        reply = degrade(reply, d, degradation)
     if corruption:
         reply = corrupt(reply, d, corruption)
     sit = {"company": situation["company"], "reason": situation["reason"], "outcome": d["outcome"],
            "action": d["action"], "rule_id": d.get("rule_id"), "emotion": persona["emotion"],
            "sentiment": persona["sentiment"], "priority": "high" if persona["emotion"] in UPSET else "normal",
-           "days_late": d["facts"].get("days_late")}
+           "days_late": d["facts"].get("days_late"), "scenario_id": situation["scenario_id"]}
     rec = {"ticket_id": f"SIM-{situation['scenario_id']}-{persona['id']}-{style}", "company": situation["company"],
            "messages": [{"role": "user", "text": _first_message(situation["company"], situation["reason"], situation["ref"], rng)},
                         {"role": "assistant", "text": reply}],
            "situation": sit, "style": style, "decision": d, "scenario_id": situation["scenario_id"],
-           "persona_id": persona["id"], "source": "simulated", "corruption": corruption,
+           "persona_id": persona["id"], "source": "simulated", "corruption": corruption, "degradation": degradation,
            "first_message_source": "ai_generated_intake_examples"}
-    reaction = react({**situation, "style": style}, reply, persona, corruption, rng)
+    reaction = react({**situation, "style": style, "degradation": degradation}, reply, persona, corruption, rng)
     return {**rec, "rating": reaction["rating"], "comment": reaction["comment"], "noticed_error": reaction["noticed_error"]}
 
 
-def build_dataset(personas: list[dict], seed: int, corruption_rate: float = 0.25, situations=None) -> list[dict]:
+def build_dataset(personas: list[dict], seed: int, corruption_rate: float = 0.25, situations=None,
+                  degradation_rate: float = 0.15) -> list[dict]:
+    """Every persona x situation x style once; 25% of replies wrong (one corruption), 15% degraded."""
     rng = random.Random(seed)
     situations = situations or make_situations()
     rows = []
     for p in personas:
         for s in situations:
             for style in STYLES:
-                c = rng.choice(CORRUPTIONS) if rng.random() < corruption_rate else None
-                rows.append(record_for(s, p, style, c, rng))
+                u = rng.random()
+                c = rng.choice(CORRUPTIONS) if u < corruption_rate else None
+                g = rng.choice(DEGRADATIONS) if c is None and u < corruption_rate + degradation_rate else None
+                rows.append(record_for(s, p, style, c, rng, degradation=g))
     return rows
 
 

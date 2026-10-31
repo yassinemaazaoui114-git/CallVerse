@@ -20,9 +20,9 @@ from callverse.quality.satisfaction import MODEL_DIR               # noqa: E402
 
 def main(episodes: int = 30):
     seed_shopnova(); seed_atlas()
-    cand = MODEL_DIR / "stacker_candidate.pkl"
-    stacker = pickle.loads(cand.read_bytes()) if cand.exists() else False
-    print("satisfaction model:", "style candidate (simulated-trained)" if stacker else "fixed text + delay")
+    sel = MODEL_DIR / "stacker_selected.pkl"
+    stacker = pickle.loads(sel.read_bytes()) if sel.exists() else False
+    print("satisfaction model:", "response-aware selected model (simulated-trained)" if stacker else "fixed text + delay")
     sits, personas, rng, policy = make_situations(), make_personas(4, 303, "demo"), random.Random(0), StylePolicy(seed=0)
     for i in range(episodes):
         s, p = rng.choice(sits), rng.choice(personas)
