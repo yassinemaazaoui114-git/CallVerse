@@ -16,7 +16,7 @@ from callverse.data.atlas import reads, writes
 from callverse.kb.policies import check_condition, get_policy
 from callverse.tools.atlas_c_tools import ASSISTANCE_KINDS, RULES, alternatives
 
-ACTIONS = tuple(RULES)
+ACTIONS = tuple(RULES) + ("hotel_deal",)   # hotel_deal = Agent D's (AT-DEAL-01), see review_deal
 
 
 def user_words(outcome: str, action: str, facts: dict, booking_id) -> tuple[list[str], str]:
@@ -36,8 +36,47 @@ def user_words(outcome: str, action: str, facts: dict, booking_id) -> tuple[list
     return [], ""
 
 
+def review_deal(proposal: dict, case: dict) -> dict:
+    """Agent D's hotel deal (AT-DEAL-01): facts re-read (derived capacity, coming occupancy), rule condition, then
+    "owner_pending": the deal is stored as pending and only the owner approves it. Nothing else is written."""
+    from callverse.tools.capacity_tools import hotel_facts
+    params = proposal.get("params") if isinstance(proposal.get("params"), dict) else {}
+    recorded = writes.record_proposal(proposal)
+    pid = recorded.get("id")
+    facts = hotel_facts(params.get("hotel_id")) if isinstance(params.get("hotel_id"), int) else {"error": "bad id"}
+    facts = {**facts, "discount_pct": params.get("discount_pct")}
+
+    def out(outcome, reason, row=None):
+        if outcome != "owner_pending" and pid:
+            writes.record_decision(pid, outcome, reason)
+        d = _decision(outcome, "hotel_deal", None, "hotel", proposal.get("rule_id"), {}, [], "", reason, pid)
+        if row:
+            d["deal_id"] = row["id"]
+        trace.log("coordinator_decision", "coordinator", {**d, "checked_facts": {k: facts.get(k) for k in (
+            "hotel_id", "capacity", "min_occupancy_pct", "discount_pct")}})
+        return d
+
+    if pid is None or "error" in facts or proposal.get("rule_id") != "AT-DEAL-01":
+        return out("send_back", facts.get("error") or "a hotel deal is justified only by AT-DEAL-01")
+    rule = get_policy("AT-DEAL-01", COMPANY)
+    try:
+        holds = facts["min_occupancy_pct"] is not None and check_condition(rule["condition"], facts)
+    except ValueError:
+        holds = False
+    if not _check("rule_condition", holds, "AT-DEAL-01", {k: facts.get(k) for k in ("min_occupancy_pct", "discount_pct")},
+                  rule["condition"]):
+        return out("send_back", f"AT-DEAL-01 does not apply: '{rule['condition']}' is false for this hotel")
+    row = writes.create_hotel_deal(params["hotel_id"], facts["low_nights"], params["discount_pct"], proposal.get("note"),
+                                   pid)
+    if "error" in row:
+        return out("send_back", f"deal not stored: {row['error']}")
+    return out("owner_pending", f"AT-DEAL-01: deal {row['id']} waits for the owner", row)
+
+
 def review(proposal: dict, case: dict) -> dict:
     action = proposal.get("action")
+    if action == "hotel_deal":
+        return review_deal(proposal, case)
     params = proposal.get("params") if isinstance(proposal.get("params"), dict) else {}
     booking_id, rule_id = params.get("booking_id"), proposal.get("rule_id")
     facts: dict = {}

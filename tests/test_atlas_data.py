@@ -377,7 +377,8 @@ def test_scripted_bookings_are_labelled():
 def test_rules_file_has_the_approved_rules():
     assert set(POLICIES) == {"AT-FLT-01", "AT-FLT-02", "AT-FLT-03", "AT-FLT-04", "AT-FLT-05", "AT-FLT-06",
                              "AT-AST-01", "AT-HOT-01", "AT-HOT-02", "AT-HOT-03", "AT-HOT-04", "AT-HOT-05",
-                             "AT-REF-01", "AT-ESC-01"}
+                             "AT-REF-01", "AT-ESC-01",
+                             "AT-CAP-01", "AT-DEAL-01"}   # P20: Agent D (overbooking risk, deals)
     assert all(r["ai_generated"] and r["condition"] for r in POLICIES.values())
 
 

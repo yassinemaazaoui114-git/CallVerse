@@ -69,7 +69,6 @@ else:
 
 
 # ---------- P20: promotions proposed by Agent D (Availability & Supply); the owner decides ----------
-from callverse.agents.agent_d import AgentD   # noqa: E402  (kept next to the part of the page that uses it)
 
 st.divider()
 st.header("Promotions (Agent D)")
@@ -78,8 +77,8 @@ st.caption("Agent D compares stock with the sales of the last 30 days. For an ov
 
 
 def run_scan() -> None:
-    out = AgentD(use_model=False).scan()
-    st.session_state["scan_result"] = (len(out["shortages"]), len(out["overstock"]), len(out["proposals"]))
+    out = approvals.run_stock_scan("shopnova")
+    st.session_state["scan_result"] = (out["short"], out["over"], out["proposed"])
 
 
 def decide_promo(promotion_id: int, approve: bool) -> None:

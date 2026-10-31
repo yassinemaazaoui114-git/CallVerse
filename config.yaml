@@ -132,6 +132,9 @@ intake:
 # main_reason -> agent. Layer L1 = the first-line agents A and B.
 queues:
   layer: L1
+  # P20: a ticket whose main reason passed Intake's reason_threshold by less than this goes to Agent C (Layer 2,
+  # "low confidence"). 0.02 = 2 points of cosine score. NOT tuned on any test set: a first value, to review.
+  low_confidence_margin: 0.02
   routes: &shopnova_routes
     order_status: A
     late_delivery: A

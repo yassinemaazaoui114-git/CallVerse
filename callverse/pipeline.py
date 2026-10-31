@@ -81,19 +81,29 @@ def claims_proposal(answer: str) -> bool:
 def ticket_note(ticket: dict) -> str:
     """Short note from Intake added to the client message, so the agent knows the order and the reason."""
     if companies.of(ticket) == "atlas":
-        return (f"[Intake note: booking id = {ticket['order_id']}, booking type = {ticket.get('booking_type')}, "
+        note = (f"[Intake note: booking id = {ticket['order_id']}, booking type = {ticket.get('booking_type')}, "
                 f"main reason = {ticket['main_reason']}]")
+        warning = stock_warning(ticket)
+        return f"{note}\n{warning}" if warning else note
     note = f"[Intake note: order id = {ticket['order_id']}, main reason = {ticket['main_reason']}]"
     warning = stock_warning(ticket)
     return f"{note}\n{warning}" if warning else note
 
 
 def stock_warning(ticket: dict) -> str | None:
-    """P20: Agent D's shortage line for the ticket's order (ShopNova), or None. Traced as "stock_warning"."""
-    if companies.of(ticket) != companies.DEFAULT or not isinstance(ticket.get("order_id"), int):
+    """P20: Agent D's warning for A about the ticket's case, or None. Traced as "stock_warning".
+    ShopNova: a product of the order is short (R-STK-01). Atlas: the hotel stay has a night at risk of overbooking."""
+    if not isinstance(ticket.get("order_id"), int):
         return None
-    from callverse.tools.shopnova_tools import get_order
-    warning = shortage_note(get_order(ticket["order_id"]))
+    if companies.of(ticket) == "atlas":
+        if ticket.get("booking_type") != "hotel":
+            return None
+        from callverse.agents.agent_d import atlas_overbooking_note
+        from callverse.data.atlas.reads import get_hotel_booking
+        warning = atlas_overbooking_note(get_hotel_booking(ticket["order_id"]))
+    else:
+        from callverse.tools.shopnova_tools import get_order
+        warning = shortage_note(get_order(ticket["order_id"]))
     if warning:
         trace.log("stock_warning", "agent_D", {"ticket_id": ticket.get("ticket_id"), "order_id": ticket["order_id"],
                                                "note": warning})

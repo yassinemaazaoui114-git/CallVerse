@@ -64,3 +64,46 @@ if decided:
                  hide_index=True, use_container_width=True)
 else:
     st.caption("No decision yet.")
+
+
+# ---------- P20: hotel deals proposed by Agent D (Availability & Supply); the owner decides ----------
+
+st.divider()
+st.header("Hotel deals (Agent D)")
+st.caption("Agent D compares the rooms booked on the coming 30 nights with each hotel's capacity (the most rooms ever "
+           "occupied on one past night, from the bookings). Nights at 30% or less (rule AT-DEAL-01) get a deal proposal; "
+           "nothing starts until you approve it, and no price changes by itself.")
+
+
+def run_atlas_scan() -> None:
+    out = approvals.run_stock_scan("atlas")
+    st.session_state["atlas_scan"] = (out["overbooked"], out["low"], out["proposed"])
+
+
+def decide_deal(deal_id: int, approve: bool) -> None:
+    admin = accounts.check_permission(st.session_state, "approve_refunds", ui.COMPANY)
+    out = ({"error": accounts.LOGIN_MESSAGE} if admin is None else
+           approvals.decide_atlas_deal(deal_id, admin["username"], approve, st.session_state.get(f"deal_reason_{deal_id}")))
+    st.session_state["deal_result"] = (deal_id, out)
+
+
+st.button("Check rooms now", on_click=run_atlas_scan)
+if "atlas_scan" in st.session_state:
+    over, low, proposed = st.session_state.pop("atlas_scan")
+    st.info(f"{over} hotels at risk of overbooking (rule AT-CAP-01), {low} with empty nights; {proposed} deals proposed.")
+if "deal_result" in st.session_state:
+    deal_id, out = st.session_state.pop("deal_result")
+    if "error" in out:
+        st.error(f"Deal {deal_id}: nothing was done. {out['error']}")
+    else:
+        st.success(f"Deal {deal_id}: {out['status']}.")
+for d in approvals.atlas_deals("pending"):
+    with st.container(border=True):
+        st.markdown(f"#### {d['discount_pct']:g}% at {d['hotel_name']} · {len(d['nights'])} nights")
+        st.caption(f"Proposal {d['proposal_id']} · rule AT-DEAL-01 · {d['note'] or ''}")
+        st.text_input("Reason (required to refuse)", key=f"deal_reason_{d['id']}")
+        b1, b2 = st.columns(2)
+        b1.button("Approve", key=f"deal_approve_{d['id']}", type="primary", on_click=decide_deal, args=(d["id"], True),
+                  use_container_width=True)
+        b2.button("Refuse", key=f"deal_refuse_{d['id']}", on_click=decide_deal, args=(d["id"], False),
+                  use_container_width=True)

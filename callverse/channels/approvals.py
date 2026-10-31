@@ -215,3 +215,27 @@ def decide_promotion(promotion_id: int, admin: str, approve: bool, reason: str |
     trace.log("owner_decision", "owner", {"promotion_id": promotion_id, "admin": admin, "approve": approve,
                                           "result": out})
     return out
+
+
+def run_stock_scan(company: str = "shopnova") -> dict:
+    """P20: Agent D's scan for the owner's "Check now" button (template wording). Returns counts only."""
+    from callverse.agents.agent_d import AgentD
+    out = AgentD(use_model=False, company=company).scan()
+    if company == "atlas":
+        return {"overbooked": len(out["overbooked"]), "low": len(out["low_occupancy"]), "proposed": len(out["proposals"])}
+    return {"short": len(out["shortages"]), "over": len(out["overstock"]), "proposed": len(out["proposals"])}
+
+
+def atlas_deals(status: str | None = None) -> list[dict]:
+    """P20: Atlas's hotel deals proposed by Agent D (a read)."""
+    from callverse.data.atlas import writes as atlas_writes
+    return atlas_writes.hotel_deals(status)
+
+
+def decide_atlas_deal(deal_id: int, admin: str, approve: bool, reason: str | None = None) -> dict:
+    """P20: the Atlas owner approves or refuses a pending hotel deal (one transaction in atlas writes.py)."""
+    from callverse.data.atlas import writes as atlas_writes
+    with _lock:
+        out = atlas_writes.admin_decide_deal(admin, deal_id, approve, reason or "")
+    trace.log("owner_decision", "owner", {"deal_id": deal_id, "admin": admin, "approve": approve, "result": out})
+    return out

@@ -460,7 +460,7 @@ def test_shopnova_search_is_unchanged():
 def test_each_company_has_its_own_cache_file():
     assert companies.path("atlas", "policy_cache") != companies.path("shopnova", "policy_cache")
     assert companies.path("atlas", "reason_cache") != companies.path("shopnova", "reason_cache")
-    assert search.policy_vectors("atlas").shape[0] == 14
+    assert search.policy_vectors("atlas").shape[0] == 16   # P20: + AT-CAP-01, AT-DEAL-01 (Agent D)
 
 
 # ---------- the Coordinator: amounts by code ----------
