@@ -1,0 +1,205 @@
+{
+ "_note": "Atlas Intake VALIDATION set (Brain, 2026-10-30, AI-generated): 5 messages per reason. Used to tune thresholds / top-k and to choose the model. Not the Atlas examples, not the test set.",
+ "messages": [
+  {
+   "id": "av01",
+   "text": "Could you confirm my reservation at the resort for next month?",
+   "reason": "booking_status"
+  },
+  {
+   "id": "av02",
+   "text": "What gate does my flight leave from and at what time?",
+   "reason": "booking_status"
+  },
+  {
+   "id": "av03",
+   "text": "I can't remember how many nights I booked, can you check?",
+   "reason": "booking_status"
+  },
+  {
+   "id": "av04",
+   "text": "Is my booking with breakfast or without?",
+   "reason": "booking_status"
+  },
+  {
+   "id": "av05",
+   "text": "Please check that my flight booking went through.",
+   "reason": "booking_status"
+  },
+  {
+   "id": "av06",
+   "text": "The screen says my flight is delayed by two hours, what happens now?",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "av07",
+   "text": "We are still sitting on the plane, it hasn't moved for ninety minutes.",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "av08",
+   "text": "My connection was late and the whole trip is a mess.",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "av09",
+   "text": "How late is my flight to Miami going to be today?",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "av10",
+   "text": "Nobody at the airport can tell us when we will leave.",
+   "reason": "delay_disruption"
+  },
+  {
+   "id": "av11",
+   "text": "I won't be able to go anymore, please cancel my stay.",
+   "reason": "cancellation"
+  },
+  {
+   "id": "av12",
+   "text": "How do I cancel the hotel I booked for December?",
+   "reason": "cancellation"
+  },
+  {
+   "id": "av13",
+   "text": "Please cancel my reservation at the city hotel.",
+   "reason": "cancellation"
+  },
+  {
+   "id": "av14",
+   "text": "Can I cancel my room booking without losing money?",
+   "reason": "cancellation"
+  },
+  {
+   "id": "av15",
+   "text": "I have to call off my holiday, cancel everything please.",
+   "reason": "cancellation"
+  },
+  {
+   "id": "av16",
+   "text": "They cancelled my flight, I want the ticket money back.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "av17",
+   "text": "I was charged for a hotel I cancelled weeks ago, refund me.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "av18",
+   "text": "Please return my deposit, I cancelled in time.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "av19",
+   "text": "My room was not the one I paid for, I want part of the price back.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "av20",
+   "text": "The flight was so late I gave up on the trip, I'd like my money returned.",
+   "reason": "refund_request"
+  },
+  {
+   "id": "av21",
+   "text": "What am I owed for a flight that landed four hours late?",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "av22",
+   "text": "I want to claim the money airlines must pay for cancellations.",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "av23",
+   "text": "Am I entitled to anything because my flight was cancelled this morning?",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "av24",
+   "text": "Please process my compensation claim for the delay last week.",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "av25",
+   "text": "The rules say long delays are compensated, I'd like mine.",
+   "reason": "compensation_request"
+  },
+  {
+   "id": "av26",
+   "text": "Put me on any flight that leaves tonight please.",
+   "reason": "rebooking"
+  },
+  {
+   "id": "av27",
+   "text": "Can I move my hotel stay to the following weekend?",
+   "reason": "rebooking"
+  },
+  {
+   "id": "av28",
+   "text": "I need a different flight, the new time doesn't work for me.",
+   "reason": "rebooking"
+  },
+  {
+   "id": "av29",
+   "text": "Is it possible to fly one day earlier instead?",
+   "reason": "rebooking"
+  },
+  {
+   "id": "av30",
+   "text": "Book me on the next available plane to Chicago.",
+   "reason": "rebooking"
+  },
+  {
+   "id": "av31",
+   "text": "My grandmother can't walk long distances, can she have a wheelchair at the gate?",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "av32",
+   "text": "I am deaf, how will I hear the boarding announcements?",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "av33",
+   "text": "Can you arrange help for a passenger who uses a walker?",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "av34",
+   "text": "I'm travelling with an autism assistance dog.",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "av35",
+   "text": "I need someone to help me board, I had surgery on my leg.",
+   "reason": "special_assistance"
+  },
+  {
+   "id": "av36",
+   "text": "Is it hot in the Algarve in November?",
+   "reason": "other"
+  },
+  {
+   "id": "av37",
+   "text": "Do you offer car rental too?",
+   "reason": "other"
+  },
+  {
+   "id": "av38",
+   "text": "I forgot the password to my account.",
+   "reason": "other"
+  },
+  {
+   "id": "av39",
+   "text": "Can you suggest things to do in Lisbon?",
+   "reason": "other"
+  },
+  {
+   "id": "av40",
+   "text": "Good morning, I just want to say thanks.",
+   "reason": "other"
+  }
+ ]
+}

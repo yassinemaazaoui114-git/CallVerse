@@ -1,0 +1,67 @@
+{
+ "intake": {
+  "winner": "bge-base",
+  "best_macro_f1": 0.6906,
+  "tied_within_0.01": [
+   "bge-base"
+  ],
+  "eligible": [
+   "bge-base",
+   "bge-small",
+   "minilm"
+  ],
+  "not_eligible": [
+   "qwen3-0.6b"
+  ],
+  "settings": {
+   "model": "bge-base",
+   "name": "BAAI/bge-base-en-v1.5",
+   "revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+   "top_k": 1,
+   "thresholds": {
+    "shopnova": 0.7,
+    "atlas": 0.51
+   }
+  }
+ },
+ "rag": {
+  "winner": "dense bge-base+prompt",
+  "best_top2_mrr": [
+   1.0,
+   0.9667
+  ],
+  "tied": [
+   "dense bge-base+prompt",
+   "dense qwen3-0.6b+prompt"
+  ],
+  "eligible": [
+   "bm25",
+   "dense bge-base",
+   "dense bge-base+prompt",
+   "dense bge-small",
+   "dense bge-small+prompt",
+   "dense minilm",
+   "dense qwen3-0.6b",
+   "dense qwen3-0.6b+prompt",
+   "hybrid bge-base",
+   "hybrid bge-base+prompt",
+   "hybrid bge-small",
+   "hybrid bge-small+prompt",
+   "hybrid minilm",
+   "hybrid qwen3-0.6b",
+   "hybrid qwen3-0.6b+prompt"
+  ],
+  "not_eligible": [
+   "hybrid+rerank bge-base",
+   "hybrid+rerank bge-base+prompt",
+   "hybrid+rerank bge-small",
+   "hybrid+rerank bge-small+prompt",
+   "hybrid+rerank minilm",
+   "hybrid+rerank qwen3-0.6b",
+   "hybrid+rerank qwen3-0.6b+prompt"
+  ],
+  "settings": {
+   "method": "dense bge-base+prompt"
+  }
+ }
+}

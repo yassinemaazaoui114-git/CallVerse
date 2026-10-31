@@ -1,0 +1,276 @@
+{
+ "_note": "Rule-search VALIDATION set (Brain, 2026-10-30, AI-generated): 30 questions (12 ShopNova, 18 Atlas) + 5 'no rule fits' (expected []). Each question is searched in its own company's rules only. A hit = any expected rule id. Used to choose the method and model.",
+ "questions": [
+  {
+   "id": "rv01",
+   "company": "shopnova",
+   "question": "My parcel is three days past the date you promised, what happens now?",
+   "expected": [
+    "R-DEL-02"
+   ]
+  },
+  {
+   "id": "rv02",
+   "company": "shopnova",
+   "question": "The package is ten days overdue and still not here, can I get all my money back?",
+   "expected": [
+    "R-REF-03"
+   ]
+  },
+  {
+   "id": "rv03",
+   "company": "shopnova",
+   "question": "When should an order arrive after I buy it?",
+   "expected": [
+    "R-DEL-01"
+   ]
+  },
+  {
+   "id": "rv04",
+   "company": "shopnova",
+   "question": "Can I send back headphones I received last week? They're still sealed.",
+   "expected": [
+    "R-RET-01"
+   ]
+  },
+  {
+   "id": "rv05",
+   "company": "shopnova",
+   "question": "The speaker came with a cracked cover.",
+   "expected": [
+    "R-DMG-01"
+   ]
+  },
+  {
+   "id": "rv06",
+   "company": "shopnova",
+   "question": "Can I get more back than what I paid if I had extra trouble?",
+   "expected": [
+    "R-REF-05"
+   ]
+  },
+  {
+   "id": "rv07",
+   "company": "shopnova",
+   "question": "My refund would be 450 dinars, who has to agree to it?",
+   "expected": [
+    "R-ESC-01"
+   ]
+  },
+  {
+   "id": "rv08",
+   "company": "shopnova",
+   "question": "Can you text me when my order is out for delivery?",
+   "expected": [
+    "R-NOT-01"
+   ]
+  },
+  {
+   "id": "rv09",
+   "company": "shopnova",
+   "question": "It's two days late, will you at least tell me where it is?",
+   "expected": [
+    "R-DEL-02"
+   ]
+  },
+  {
+   "id": "rv10",
+   "company": "shopnova",
+   "question": "I already got part of my money back, can I get the full amount again?",
+   "expected": [
+    "R-REF-05"
+   ]
+  },
+  {
+   "id": "rv11",
+   "company": "shopnova",
+   "question": "The screen of my watch was broken when I opened the box, I want a new one.",
+   "expected": [
+    "R-DMG-01"
+   ]
+  },
+  {
+   "id": "rv12",
+   "company": "shopnova",
+   "question": "How long do I have to return something I don't like?",
+   "expected": [
+    "R-RET-01"
+   ]
+  },
+  {
+   "id": "rv13",
+   "company": "atlas",
+   "question": "My flight was cancelled, do I get my money back or a new flight?",
+   "expected": [
+    "AT-FLT-01"
+   ]
+  },
+  {
+   "id": "rv14",
+   "company": "atlas",
+   "question": "How much do I get if my 1,000 km flight is cancelled on the day?",
+   "expected": [
+    "AT-FLT-02"
+   ]
+  },
+  {
+   "id": "rv15",
+   "company": "atlas",
+   "question": "I landed three and a half hours late, is there money for that?",
+   "expected": [
+    "AT-FLT-03"
+   ]
+  },
+  {
+   "id": "rv16",
+   "company": "atlas",
+   "question": "My flight is now leaving six hours late, can I just not go and get refunded?",
+   "expected": [
+    "AT-FLT-04"
+   ]
+  },
+  {
+   "id": "rv17",
+   "company": "atlas",
+   "question": "We've waited at the gate for over two hours, do we get food?",
+   "expected": [
+    "AT-FLT-05"
+   ]
+  },
+  {
+   "id": "rv18",
+   "company": "atlas",
+   "question": "The flight was cancelled because of a storm, do I still get compensation?",
+   "expected": [
+    "AT-FLT-06"
+   ]
+  },
+  {
+   "id": "rv19",
+   "company": "atlas",
+   "question": "How do I ask for a wheelchair for my flight?",
+   "expected": [
+    "AT-AST-01"
+   ]
+  },
+  {
+   "id": "rv20",
+   "company": "atlas",
+   "question": "I booked without paying anything upfront, can I cancel for free?",
+   "expected": [
+    "AT-HOT-01"
+   ]
+  },
+  {
+   "id": "rv21",
+   "company": "atlas",
+   "question": "I paid a refundable deposit, I'm cancelling 4 days before arrival, do I get it back?",
+   "expected": [
+    "AT-HOT-02"
+   ]
+  },
+  {
+   "id": "rv22",
+   "company": "atlas",
+   "question": "I took the cheapest non-refundable rate, will I get anything back if I cancel?",
+   "expected": [
+    "AT-HOT-03"
+   ]
+  },
+  {
+   "id": "rv23",
+   "company": "atlas",
+   "question": "The hotel gave me a smaller room than I booked, what do I get?",
+   "expected": [
+    "AT-HOT-04"
+   ]
+  },
+  {
+   "id": "rv24",
+   "company": "atlas",
+   "question": "I didn't show up at the hotel, can I get my money back?",
+   "expected": [
+    "AT-HOT-05"
+   ]
+  },
+  {
+   "id": "rv25",
+   "company": "atlas",
+   "question": "Can my refund be bigger than the price of my ticket?",
+   "expected": [
+    "AT-REF-01"
+   ]
+  },
+  {
+   "id": "rv26",
+   "company": "atlas",
+   "question": "My refund is 2,000 dinars, does someone have to approve it?",
+   "expected": [
+    "AT-ESC-01"
+   ]
+  },
+  {
+   "id": "rv27",
+   "company": "atlas",
+   "question": "Air traffic control problems delayed us by 4 hours, any compensation?",
+   "expected": [
+    "AT-FLT-06",
+    "AT-FLT-03"
+   ]
+  },
+  {
+   "id": "rv28",
+   "company": "atlas",
+   "question": "How long do I have to wait before the airline gives a meal?",
+   "expected": [
+    "AT-FLT-05"
+   ]
+  },
+  {
+   "id": "rv29",
+   "company": "atlas",
+   "question": "My hotel stay had a deposit I could get back, I cancelled yesterday and arrival is tomorrow.",
+   "expected": [
+    "AT-HOT-02"
+   ]
+  },
+  {
+   "id": "rv30",
+   "company": "atlas",
+   "question": "Do I need to tell you in advance if I need help boarding?",
+   "expected": [
+    "AT-AST-01"
+   ]
+  },
+  {
+   "id": "rv31",
+   "company": "shopnova",
+   "question": "Do you sell gift cards?",
+   "expected": []
+  },
+  {
+   "id": "rv32",
+   "company": "shopnova",
+   "question": "Can I change the colour of a product after ordering?",
+   "expected": []
+  },
+  {
+   "id": "rv33",
+   "company": "atlas",
+   "question": "Can I bring my cat on the plane?",
+   "expected": []
+  },
+  {
+   "id": "rv34",
+   "company": "atlas",
+   "question": "Is there a gym at the hotel?",
+   "expected": []
+  },
+  {
+   "id": "rv35",
+   "company": "atlas",
+   "question": "Do you sell travel insurance?",
+   "expected": []
+  }
+ ]
+}

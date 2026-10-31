@@ -50,3 +50,18 @@ Labelled `ai_generated = 1`: all user names, emails, phones and cities; all flig
 names. Flight bookings: lead time drawn from the real hotel lead times; price = **$377** (BTS, 2015 average domestic
 fare) × (distance ÷ the sample's average distance), kept between 0.5× and 2.5×, × **3.005** TND per USD (Wise,
 2026-10-30). The processed sample `callverse/data/real/atlas_sample.json` keeps the CC BY 4.0 credit above.
+
+## ABCD — Action-Based Conversations Dataset (benchmark only, task T23)
+- **Source:** Derek Chen, Howard Chen, Yi Yang, Alexander Lin, Zhou Yu (2021), "Action-Based Conversations Dataset:
+  A Corpus for Building More In-Depth Task-Oriented Dialogue Systems", *NAACL 2021*; ASAPP —
+  https://github.com/asappresearch/abcd (file `data/abcd_v1.1.json.gz`).
+- **Licence:** **MIT** — https://github.com/asappresearch/abcd/blob/master/LICENSE
+- **Credit line:** "Contains data from ABCD (ASAPP, Chen et al., NAACL 2021), licensed under MIT."
+- **Where it is used:** only to benchmark M3 for ShopNova's Intake reasons (`benchmarks/m3/`). Not used by the running
+  system. The raw file is put by hand into `data/raw/abcd/` and is **not** in git.
+- **Taken:** for each chat of the `dev` split (validation) and, once at the end, of the `test` split (locked test):
+  the first customer message with at least 4 words and the chat's `subflow` label.
+- **Changes made:** subflows mapped to ShopNova reasons by `benchmarks/m3/data/abcd_mapping.json` (every other
+  subflow = `other`, sampled to 150 per split, seed 2026). The validation file
+  `benchmarks/m3/data/shopnova_intake_val.json` (committed, 328 messages) is derived from ABCD and keeps its MIT licence;
+  the test file is only built into git-ignored `out/`.

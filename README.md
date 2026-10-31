@@ -110,10 +110,23 @@ unless `PLATFORM_COORDINATOR_TOKEN` is set. Details: [docs/platform_contract.md]
 ## Run the tests
 
 ```powershell
-python -m pytest -q --ignore=tests/data   # 1043 tests, about 2 minutes
+python -m pytest -q --ignore=tests/data   # 1048 tests, about 2 minutes
 ```
 No API key, no API call and no Ollama needed: the tests use fake LLMs and a fresh copy of the database.
 `tests/data/` holds the held-out test sets: they are only for final evaluations, never for building or tuning.
+
+## Benchmarks
+
+Measured comparisons of models and methods, kept apart from the running system (`benchmarks/`). They never change
+`config.yaml`: switching to a winner is a separate step.
+- **M3 (T23)**: embeddings for Intake's reasons and for the rule search. Table, winners and locked-test numbers:
+  [docs/benchmarks/M3.md](docs/benchmarks/M3.md). Needs ABCD in `data/raw/abcd/abcd_v1.1.json` (see DATA_LICENCES.md).
+  ```powershell
+  python -m benchmarks.m3.build_data            # ShopNova validation set from ABCD dev
+  python -m benchmarks.m3.embed_run bge-small   # one model at a time (bge-small, minilm, bge-base, embeddinggemma, qwen3-0.6b, reranker)
+  python -m benchmarks.m3.benchmark             # scores on validation + the choice (benchmarks/m3/results/)
+  python -m benchmarks.m3.locked_test           # the winners on the locked test sets, ONCE (already done)
+  ```
 
 ## Folders
 
@@ -145,6 +158,7 @@ apps/atlas/         the Atlas Travel Streamlit app (app.py, Home.py, pages/: My 
                     Approvals, Records)
 config/             accounts.example.yaml (the real accounts.yaml is not in git)
 scripts/            runnable entry points
+benchmarks/m3/      the M3 embeddings benchmark (T23): code, validation data, results
 tests/              pytest tests (tests/data: held-out sets)
 tasks/              NEXT.md, task files, reports
 docs/               design and contract documents
@@ -168,6 +182,7 @@ through the same center as ShopNova (T21): Intake, router, agents A / B, Coordin
 Its website is the Atlas Travel app (T22, see above).
 - **Real** data: 2,000 bookings of **Hotel Booking Demand** (CC BY 4.0, ids 20001+) and 2,000 flights of the
   **US DOT 2015 Flight Delays** (CC0, ids 1+), moved to 2026, prices in TND.
+
 - **Generated:** one Tunisian user per booking (ids 101+) and one flight booking per flight (ids 30001+).
 - **Scripted** demo data (`callverse/data/atlas/seed.py`): users 1–5, bookings 7001–7012, one for each rule case.
 - Rules: `callverse/kb/policies_atlas.json` (ids `AT-…`). Profile: `callverse/data/atlas_profile.json`.
@@ -186,6 +201,8 @@ amount: the Coordinator computes it from the rules, and it decides by code wheth
 and its reason are stored on the proposal, next to the agent's own flag, and shown in the Console and in Approvals). A
 refund above 1,500 TND and every compensation wait for finance (Approvals page, `approvals.decide`); rebooking and
 special assistance go straight to a colleague until agent C exists.
+
+**ABCD** (ASAPP, MIT) is used only by the M3 benchmark (T23), never by the running system; credit in DATA_LICENCES.md.
 
 ## Task history
 
@@ -219,6 +236,8 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   rule search, amounts by code, writes, approvals); ShopNova unchanged.
 - **T22** Routing by company, part B: the Atlas Travel app (My bookings, Help chat, Admin dashboard, Approvals, Records),
   accounts with a company, Atlas admin log, the code's confirmation decision stored and shown.
+- **T23** Benchmark of M3 (embeddings) for Intake reasons and rule search, on ABCD + Brain's sets, chosen on validation,
+  locked test once: winner bge-base-en-v1.5 for both jobs (not switched yet; [docs/benchmarks/M3.md](docs/benchmarks/M3.md)).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 
@@ -231,4 +250,5 @@ The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes
 - [docs/decision_format.md](docs/decision_format.md) — what the Coordinator gives the reply writer
 - [docs/ui_design.md](docs/ui_design.md) — the ShopNova app and the Console (design)
 - [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md) — how to run the demo
+- [docs/benchmarks/M3.md](docs/benchmarks/M3.md) — the M3 embeddings benchmark (T23): table, winners, locked test
 - [DATA_LICENCES.md](DATA_LICENCES.md) — data sources and licences
