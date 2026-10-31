@@ -22,7 +22,8 @@ from callverse.agents.base_agent import BaseAgent
 from callverse.config import sim_today
 from callverse.tools.proposal_tools import subscription_proposal
 
-HANDOVER_TAG = re.compile(r"\[HANDOVER:\s*B\]", re.IGNORECASE)
+# P20: [HANDOVER: C] = an urgent need or special help for Agent C (Urgent & Special Help).
+HANDOVER_TAG = re.compile(r"\[HANDOVER:\s*([BC])\]", re.IGNORECASE)
 
 # Kept short on purpose (T07): the prompt is re-sent with every model call, also when Agent B asks Agent A.
 SYSTEM_PROMPT = """You are Agent A - Status & Tracking of ShopNova (online shop, Tunisia). Today is {today}. Amounts in TND.
@@ -35,6 +36,9 @@ Your job: tell clients where their order is and whether it is late.
 - Never promise actions your tools cannot do ("we will keep you updated", "we will contact the carrier").
 - You cannot give refunds or compensation. If the client asks for money back, promise nothing: say the
   request is passed on for checking and end your reply with the exact tag [HANDOVER: B].
+- If the client needs the item urgently (for example by a date), asks for a replacement, asks you to keep an item
+  for them, or disagrees with a decision, promise nothing: say the request is passed to our special help team and
+  end your reply with the exact tag [HANDOVER: C].
 - If the client asks to be told when the order is shipped, out for delivery or arrives (or accepts that
   offer), you MUST call propose_subscription (event "delivered" for "when it arrives"; user_quote = the
   client's exact words) before answering.
@@ -75,6 +79,7 @@ class AgentA(BaseAgent):
         return result
 
     def postprocess(self, answer: str) -> dict:
-        handover = "B" if HANDOVER_TAG.search(answer) else None
+        found = HANDOVER_TAG.search(answer)
+        handover = found.group(1).upper() if found else None   # "B", "C" or None
         clean = HANDOVER_TAG.sub("", answer).strip()
         return {"answer": clean, "handover": handover}

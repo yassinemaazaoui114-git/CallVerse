@@ -1,0 +1,555 @@
+{
+ "about": "Practice (dev) cases for agents A, B, C, D (P20). A and B: hand-written by the team (2026-10-28), A04 updated to main's Agent A. A08, C and D: DRAFT written by Claude for P20 to the official C/D spec; the team must review them. Facts on sim_today 2026-10-09. Run: python -m scripts.eval_agents --file tests/dev/agents_cases.json --model <ollama model>. Held-out cases: tests/data/agents_heldout.json (final check only).",
+ "written_by": "A01-A07, B01-B07: team (hand-written). A11, C01-C07, D01-D04: Claude draft (P20), to be reviewed.",
+ "cases": [
+  {
+   "id": "A01",
+   "agent": "A",
+   "split": "dev",
+   "source": "S0",
+   "order_id": 4510,
+   "reason": "order_status",
+   "message": "Hi, where is my order 4510?",
+   "must_call": [
+    [
+     "get_tracking",
+     "get_order"
+    ]
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "none",
+    "handover": null
+   }
+  },
+  {
+   "id": "A02",
+   "agent": "A",
+   "split": "dev",
+   "source": "4512 stuck",
+   "order_id": 4512,
+   "reason": "late_delivery",
+   "message": "Where is my order 4512?",
+   "must_call": [
+    [
+     "get_tracking",
+     "get_order"
+    ]
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "none",
+    "handover": null
+   }
+  },
+  {
+   "id": "A03",
+   "agent": "A",
+   "split": "dev",
+   "source": "money request",
+   "order_id": 4512,
+   "reason": "late_delivery",
+   "message": "Order 4512 is late, I want my money back.",
+   "must_call": [
+    [
+     "get_tracking",
+     "get_order"
+    ]
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "handover",
+    "handover": "B"
+   }
+  },
+  {
+   "id": "A04",
+   "agent": "A",
+   "split": "dev",
+   "source": "S3 text (P20: Agent A proposes it itself, as on main)",
+   "order_id": 4510,
+   "reason": "order_status",
+   "message": "Can you tell me when 4510 arrives?",
+   "must_call": [],
+   "must_not_call": [],
+   "expect": {
+    "act": "propose",
+    "action": "subscribe",
+    "rule_id": "R-NOT-01",
+    "params": {
+     "order_id": 4510,
+     "event": "delivered"
+    }
+   }
+  },
+  {
+   "id": "A05",
+   "agent": "A",
+   "split": "dev",
+   "source": "no number",
+   "order_id": null,
+   "reason": "order_status",
+   "message": "Where is my order?",
+   "must_call": [],
+   "must_not_call": [
+    "get_order",
+    "get_tracking"
+   ],
+   "expect": {
+    "act": "none",
+    "handover": null
+   }
+  },
+  {
+   "id": "A06",
+   "agent": "A",
+   "split": "dev",
+   "source": "company question",
+   "order_id": null,
+   "reason": "other",
+   "message": "Which carriers do you use?",
+   "must_call": [
+    "get_company_profile"
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "none",
+    "handover": null
+   }
+  },
+  {
+   "id": "A07",
+   "agent": "A",
+   "split": "dev",
+   "source": "unknown order",
+   "order_id": 9999,
+   "reason": "order_status",
+   "message": "Where is order 9999?",
+   "must_call": [
+    [
+     "get_order",
+     "get_tracking"
+    ]
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "none",
+    "handover": null
+   }
+  },
+  {
+   "id": "A11",
+   "agent": "A",
+   "split": "dev",
+   "source": "P20 urgent need -> C",
+   "order_id": 4512,
+   "reason": "late_delivery",
+   "message": "Order 4512 is late and I need it tomorrow, it's a birthday gift!",
+   "must_call": [],
+   "must_not_call": [],
+   "expect": {
+    "act": "handover",
+    "handover": "C"
+   }
+  },
+  {
+   "id": "B01",
+   "agent": "B",
+   "split": "dev",
+   "source": "S1",
+   "order_id": 4512,
+   "reason": "refund_request",
+   "message": "Order 4512 is a week late. I want my money back.",
+   "must_call": [
+    "get_order",
+    "get_refunds",
+    "ask_agent",
+    "search_policy"
+   ],
+   "must_not_call": [],
+   "cite": "R-REF-03",
+   "expect": {
+    "act": "propose",
+    "action": "refund",
+    "rule_id": "R-REF-03",
+    "params": {
+     "order_id": 4512,
+     "amount": 59.9
+    }
+   }
+  },
+  {
+   "id": "B02",
+   "agent": "B",
+   "split": "dev",
+   "source": "late3 pair of B01",
+   "order_id": 4512,
+   "reason": "refund_request",
+   "message": "Order 4512 is a week late. I want my money back.",
+   "overrides": {
+    "get_tracking": {
+     "days_late": 3
+    }
+   },
+   "must_call": [
+    "get_order",
+    "ask_agent",
+    "search_policy"
+   ],
+   "must_not_call": [
+    "propose_refund"
+   ],
+   "expect": {
+    "act": "none"
+   }
+  },
+  {
+   "id": "B03",
+   "agent": "B",
+   "split": "dev",
+   "source": "S4",
+   "order_id": 4515,
+   "reason": "refund_request",
+   "message": "Order 4515 is very late, I want a full refund.",
+   "must_call": [
+    "get_order",
+    "get_refunds",
+    "ask_agent",
+    "search_policy"
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "propose",
+    "action": "refund",
+    "rule_id": "R-REF-03",
+    "params": {
+     "order_id": 4515,
+     "amount": 378.0
+    }
+   }
+  },
+  {
+   "id": "B04",
+   "agent": "B",
+   "split": "dev",
+   "source": "already refunded",
+   "order_id": 4506,
+   "reason": "refund_request",
+   "message": "I want a refund for order 4506.",
+   "must_call": [
+    "get_refunds"
+   ],
+   "must_not_call": [
+    "propose_refund"
+   ],
+   "expect": {
+    "act": "none"
+   }
+  },
+  {
+   "id": "B05",
+   "agent": "B",
+   "split": "dev",
+   "source": "not late",
+   "order_id": 4510,
+   "reason": "refund_request",
+   "message": "Refund my order 4510 please.",
+   "must_call": [
+    "get_order",
+    "ask_agent"
+   ],
+   "must_not_call": [
+    "propose_refund"
+   ],
+   "expect": {
+    "act": "none"
+   }
+  },
+  {
+   "id": "B06",
+   "agent": "B",
+   "split": "dev",
+   "source": "cash on delivery, nothing paid",
+   "order_id": 4514,
+   "reason": "refund_request",
+   "message": "I want my money back for 4514.",
+   "must_call": [
+    "get_order"
+   ],
+   "must_not_call": [
+    "propose_refund"
+   ],
+   "expect": {
+    "act": "none"
+   }
+  },
+  {
+   "id": "B07",
+   "agent": "B",
+   "split": "dev",
+   "source": "no number",
+   "order_id": null,
+   "reason": "refund_request",
+   "message": "I want my money back.",
+   "must_call": [],
+   "must_not_call": [
+    "propose_refund",
+    "get_order"
+   ],
+   "expect": {
+    "act": "none"
+   }
+  },
+  {
+   "id": "C01",
+   "agent": "C",
+   "split": "dev",
+   "source": "spec example: gift tomorrow, late order, no yes yet",
+   "order_id": 4512,
+   "reason": "late_delivery",
+   "message": "Order 4512 is late and I need it tomorrow, it's a birthday gift!",
+   "must_call": [
+    "get_order",
+    "get_stock"
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "propose",
+    "action": "replace",
+    "rule_id": "R-RPL-01",
+    "params": {
+     "order_id": 4512,
+     "product_id": 1
+    },
+    "outcome": "ask_user"
+   }
+  },
+  {
+   "id": "C02",
+   "agent": "C",
+   "split": "dev",
+   "source": "pair of C01: the client says yes",
+   "order_id": 4512,
+   "reason": "late_delivery",
+   "message": "Yes please, send me a replacement for order 4512, I need it for tomorrow.",
+   "must_call": [
+    "get_order",
+    "get_stock"
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "propose",
+    "action": "replace",
+    "rule_id": "R-RPL-01",
+    "params": {
+     "order_id": 4512,
+     "product_id": 1
+    },
+    "outcome": "approve"
+   }
+  },
+  {
+   "id": "C03",
+   "agent": "C",
+   "split": "dev",
+   "source": "Smart Watch order, very late",
+   "order_id": 4515,
+   "reason": "late_delivery",
+   "message": "My watches from order 4515 are still not here. I need one by Saturday, can you send one now?",
+   "must_call": [
+    "get_order",
+    "get_stock"
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "propose",
+    "action": "replace",
+    "rule_id": "R-RPL-01",
+    "params": {
+     "order_id": 4515,
+     "product_id": 4
+    }
+   }
+  },
+  {
+   "id": "C04",
+   "agent": "C",
+   "split": "dev",
+   "source": "hold an item",
+   "order_id": 4513,
+   "reason": "other",
+   "message": "Can you keep one more Smart Watch for me for 2 days? I will order it after my order 4513 arrives.",
+   "must_call": [
+    "get_stock"
+   ],
+   "must_not_call": [
+    "propose_replacement"
+   ],
+   "expect": {
+    "act": "propose",
+    "action": "hold",
+    "rule_id": "R-HLD-01",
+    "params": {
+     "product_id": 4,
+     "hold_days": 2
+    }
+   }
+  },
+  {
+   "id": "C05",
+   "agent": "C",
+   "split": "dev",
+   "source": "refunded order: no replacement",
+   "order_id": 4506,
+   "reason": "other",
+   "message": "Please send me a new Smart Watch for order 4506, I need it urgently.",
+   "must_call": [
+    "get_order"
+   ],
+   "must_not_call": [
+    "propose_replacement"
+   ],
+   "expect": {
+    "act": "any"
+   }
+  },
+  {
+   "id": "C06",
+   "agent": "C",
+   "split": "dev",
+   "source": "dispute -> colleague (Layer 2)",
+   "order_id": 4510,
+   "reason": "other",
+   "message": "I do not agree with your answer about order 4510. I want a person to look at my case.",
+   "must_call": [],
+   "must_not_call": [
+    "propose_replacement",
+    "propose_hold"
+   ],
+   "expect": {
+    "act": "propose",
+    "action": "assistance",
+    "rule_id": "R-AST-01",
+    "params": {
+     "order_id": 4510
+    }
+   }
+  },
+  {
+   "id": "C07",
+   "agent": "C",
+   "split": "dev",
+   "source": "no number",
+   "order_id": null,
+   "reason": "other",
+   "message": "I need my parcel tomorrow, please help!",
+   "must_call": [],
+   "must_not_call": [
+    "propose_replacement",
+    "propose_hold",
+    "get_order"
+   ],
+   "expect": {
+    "act": "none"
+   }
+  },
+  {
+   "id": "D01",
+   "agent": "D",
+   "split": "dev",
+   "source": "seeded data: Phone Case overstocked, Earbuds fine",
+   "order_id": null,
+   "reason": null,
+   "message": "(stock scan)",
+   "expect": {
+    "promote": [
+     2
+    ],
+    "not_promote": [
+     1,
+     4
+    ],
+    "not_shortage": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "warn_order": {
+     "order_id": 4512,
+     "warned": false
+    }
+   }
+  },
+  {
+   "id": "D02",
+   "agent": "D",
+   "split": "dev",
+   "source": "Earbuds about to run out: warn A",
+   "order_id": null,
+   "reason": null,
+   "message": "(stock scan)",
+   "stock": {
+    "1": 3
+   },
+   "expect": {
+    "shortage": [
+     1
+    ],
+    "not_promote": [
+     1
+    ],
+    "warn_order": {
+     "order_id": 4512,
+     "warned": true
+    }
+   }
+  },
+  {
+   "id": "D03",
+   "agent": "D",
+   "split": "dev",
+   "source": "Phone Case sold down: no promotion",
+   "order_id": null,
+   "reason": null,
+   "message": "(stock scan)",
+   "stock": {
+    "2": 30
+   },
+   "expect": {
+    "not_promote": [
+     2
+    ],
+    "not_shortage": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "D04",
+   "agent": "D",
+   "split": "dev",
+   "source": "Smart Watch: 14 days of cover limit",
+   "order_id": null,
+   "reason": null,
+   "message": "(stock scan)",
+   "stock": {
+    "4": 1
+   },
+   "expect": {
+    "shortage": [
+     4
+    ],
+    "not_promote": [
+     4
+    ],
+    "warn_order": {
+     "order_id": 4513,
+     "warned": true
+    }
+   }
+  }
+ ]
+}

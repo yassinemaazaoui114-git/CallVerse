@@ -64,3 +64,59 @@ if decided:
                                      "reason")} for a in decided], hide_index=True, use_container_width=True)
 else:
     st.caption("No decision yet.")
+
+
+# ---------- P20: promotions proposed by Agent D (Availability & Supply); the owner decides ----------
+from callverse.agents.agent_d import AgentD   # noqa: E402  (kept next to the part of the page that uses it)
+
+st.divider()
+st.header("Promotions (Agent D)")
+st.caption("Agent D compares stock with the sales of the last 30 days. For an overstocked product (rule R-PRM-01) it "
+           "proposes a promotion; nothing starts until you approve it, and the price is never changed by itself.")
+
+
+def run_scan() -> None:
+    out = AgentD(use_model=False).scan()
+    st.session_state["scan_result"] = (len(out["shortages"]), len(out["overstock"]), len(out["proposals"]))
+
+
+def decide_promo(promotion_id: int, approve: bool) -> None:
+    admin = accounts.check_permission(st.session_state, "approve_refunds")
+    if admin is None:
+        out = {"error": accounts.LOGIN_MESSAGE}
+    else:
+        out = approvals.decide_promotion(promotion_id, admin["username"], approve,
+                                         st.session_state.get(f"promo_reason_{promotion_id}"))
+    st.session_state["promo_result"] = (promotion_id, out)
+
+
+st.button("Check stock now", on_click=run_scan)
+if "scan_result" in st.session_state:
+    short, over, proposed = st.session_state.pop("scan_result")
+    st.info(f"{short} products are short (rule R-STK-01), {over} are overstocked; {proposed} promotions proposed.")
+if "promo_result" in st.session_state:
+    promotion_id, out = st.session_state.pop("promo_result")
+    if "error" in out:
+        st.error(f"Promotion {promotion_id}: nothing was done. {out['error']}")
+    else:
+        st.success(f"Promotion {promotion_id}: {out['status']}.")
+
+waiting = approvals.promotions("pending")
+st.subheader(f"Waiting ({len(waiting)})")
+if not waiting:
+    st.caption("No promotion is waiting.")
+for p in waiting:
+    with st.container(border=True):
+        st.markdown(f"#### {p['discount_pct']:g}% on {p['product_name']} (product {p['product_id']})")
+        st.caption(f"Proposal {p['proposal_id']} · rule R-PRM-01 · {p['note'] or ''}")
+        st.metric("Stock", p["stock"])
+        st.text_input("Reason (required to refuse)", key=f"promo_reason_{p['id']}")
+        b1, b2 = st.columns(2)
+        b1.button("Approve", key=f"promo_approve_{p['id']}", type="primary", on_click=decide_promo,
+                  args=(p["id"], True), use_container_width=True)
+        b2.button("Refuse", key=f"promo_refuse_{p['id']}", on_click=decide_promo, args=(p["id"], False),
+                  use_container_width=True)
+done = [p for p in approvals.promotions() if p["status"] != "pending"]
+if done:
+    st.dataframe([{k: p[k] for k in ("id", "product_name", "discount_pct", "status", "decided_by", "decided_at",
+                                     "reason")} for p in done], hide_index=True, use_container_width=True)

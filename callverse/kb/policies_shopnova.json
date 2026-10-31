@@ -54,5 +54,40 @@
     "text": "A client can subscribe to a notification for an order. Notifications exist only for these events: shipped, out for delivery, delivered. Promise a notification only after the subscription is recorded.",
     "condition": "event in ['shipped', 'out_for_delivery', 'delivered']",
     "ai_generated": true
+  },
+  {
+    "id": "R-RPL-01",
+    "title": "Replacement for an urgent need",
+    "text": "When a client urgently needs an item of an order that is late or arrived damaged (photo received), ShopNova may send a replacement of that item from its stock, as a new order at no cost. The replacement is offered only if the product is in stock, the order was not refunded or cancelled, and the client says yes to it. One replacement per order.",
+    "condition": "in_order and stock >= qty and not status in ['refunded', 'cancelled'] and (days_late > 0 or proof_received)",
+    "ai_generated": true
+  },
+  {
+    "id": "R-HLD-01",
+    "title": "Hold an item for a client",
+    "text": "ShopNova may keep (hold) units of a product in stock for a client for at most 3 days, for example while an urgent problem with their order is solved. A hold is made only if enough stock is left and the client says yes to it. Held units are not sold to others during the hold.",
+    "condition": "stock >= qty and 1 <= hold_days <= 3",
+    "ai_generated": true
+  },
+  {
+    "id": "R-AST-01",
+    "title": "Special help from a colleague",
+    "text": "A hard or disputed case (the client disagrees with a decision, the case was sent back several times, or no rule fits) can be passed to a human colleague of the special help team, with the reason. The request is made only if the client says yes to it.",
+    "condition": "has_reason",
+    "ai_generated": true
+  },
+  {
+    "id": "R-STK-01",
+    "title": "Low stock warning",
+    "text": "A product is short when 5 units or fewer are left, or when the stock covers less than 14 days of sales at the rate of the last 30 days. The availability team then warns the status team, so clients are not promised items that may run out.",
+    "condition": "stock <= 5 or days_of_cover < 14",
+    "ai_generated": true
+  },
+  {
+    "id": "R-PRM-01",
+    "title": "Promotion for overstock",
+    "text": "A product is overstocked when 50 units or more are in stock and the stock covers more than 180 days of sales at the rate of the last 30 days. The availability team may then propose a promotion of at most 20 percent. The shop owner must approve every promotion before it starts; a promotion never changes the price by itself.",
+    "condition": "stock >= 50 and days_of_cover > 180 and 0 < discount_pct <= 20",
+    "ai_generated": true
   }
 ]

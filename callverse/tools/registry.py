@@ -18,7 +18,7 @@ from the ticket); the model can never choose it.
 from callverse import trace
 from callverse.agents import ask
 from callverse.kb import search
-from callverse.tools import atlas_tools, proposal_tools, shopnova_tools
+from callverse.tools import atlas_tools, proposal_tools, shopnova_tools, stock_tools
 
 # All tools that exist in the prototype (name -> function / schema).
 TOOL_FUNCTIONS = {
@@ -27,6 +27,9 @@ TOOL_FUNCTIONS = {
     "propose_refund": proposal_tools.propose_refund,
     "propose_subscription": proposal_tools.propose_subscription,
     "ask_agent": ask.ask_agent,
+    # P20: Agent C's stock read and its three proposal tools (they only propose).
+    "get_stock": stock_tools.get_stock,
+    **proposal_tools.C_FUNCTIONS,
 }
 TOOL_SCHEMAS = {
     **shopnova_tools.SCHEMAS,
@@ -34,6 +37,8 @@ TOOL_SCHEMAS = {
     "propose_refund": proposal_tools.SCHEMA,
     "propose_subscription": proposal_tools.SUBSCRIPTION_SCHEMA,
     "ask_agent": ask.SCHEMA,
+    "get_stock": stock_tools.SCHEMA,
+    **proposal_tools.C_SCHEMAS,
 }
 
 # Tools that run another agent: they get the caller's LLM function (so tests can use a fake LLM).
@@ -47,9 +52,16 @@ AGENT_A = ["get_user", "get_order", "get_tracking", "get_company_profile", "sear
 # propose_refund only creates a proposal.
 AGENT_B = ["get_order", "get_refunds", "search_policy", "propose_refund", "ask_agent"]
 
+# P20: Urgent & Special Help: reads what A (tracking), B (order) and D (stock) read (not refunds: T06, B only); its three action tools
+# only create a proposal (replacement, hold, assistance); the Coordinator writes after the client says yes.
+AGENT_C = ["get_order", "get_tracking", "get_stock", "search_policy",
+           "propose_replacement", "propose_hold", "propose_assistance"]
+# Agent D (Availability & Supply) is NOT here: it is rules, not an LLM with tools (agents/agent_d.py).
+
 ALLOW_LISTS = {
     "A": AGENT_A,
     "B": AGENT_B,
+    "C": AGENT_C,
     # Intake is not an agent, but it reads facts through the same gate: order + tracking only, no user data.
     "INTAKE": ["get_order", "get_tracking"],
 }

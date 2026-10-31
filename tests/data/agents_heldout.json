@@ -1,0 +1,130 @@
+{
+ "about": "HIDDEN (held-out) cases for agents A, B, C, D. Do NOT run, read for tuning, or use to choose prompts, models or training data (CLAUDE.md rule 2). Only the final check (plan step 7) runs this file, once. Source: docs/test_cases_explained.md, approved 2026-10-28. P20: only the A and B cases are kept; the old C and D cases tested the wrong jobs (returns, delivery messages) and were removed. New held-out C and D cases must be written by the team, not by a model.",
+ "written_by": "team (hand-written, no model output)",
+ "cases": [
+  {
+   "id": "A08",
+   "agent": "A",
+   "split": "heldout",
+   "source": "delivered late",
+   "order_id": 4507,
+   "reason": "order_status",
+   "message": "Has order 4507 been delivered?",
+   "must_call": [
+    [
+     "get_tracking",
+     "get_order"
+    ]
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "none",
+    "handover": null
+   }
+  },
+  {
+   "id": "A09",
+   "agent": "A",
+   "split": "heldout",
+   "source": "processing",
+   "order_id": 4511,
+   "reason": "order_status",
+   "message": "Is order 4511 shipped yet?",
+   "must_call": [
+    [
+     "get_tracking",
+     "get_order"
+    ]
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "none",
+    "handover": null
+   }
+  },
+  {
+   "id": "A10",
+   "agent": "A",
+   "split": "heldout",
+   "source": "promised date only",
+   "order_id": 4513,
+   "reason": "order_status",
+   "message": "When will 4513 arrive?",
+   "must_call": [
+    [
+     "get_tracking",
+     "get_order"
+    ]
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "none",
+    "handover": null
+   }
+  },
+  {
+   "id": "B08",
+   "agent": "B",
+   "split": "heldout",
+   "source": "delivered late",
+   "order_id": 4507,
+   "reason": "refund_request",
+   "message": "Order 4507 came late, refund me.",
+   "must_call": [
+    "get_order",
+    "ask_agent"
+   ],
+   "must_not_call": [
+    "propose_refund"
+   ],
+   "expect": {
+    "act": "none"
+   }
+  },
+  {
+   "id": "B09",
+   "agent": "B",
+   "split": "heldout",
+   "source": "client does not ask yet",
+   "order_id": 4512,
+   "reason": "refund_request",
+   "message": "Is 4512 late enough for a refund? I don't want one yet.",
+   "must_call": [
+    "get_order",
+    "ask_agent",
+    "search_policy"
+   ],
+   "must_not_call": [
+    "propose_refund"
+   ],
+   "expect": {
+    "act": "none"
+   }
+  },
+  {
+   "id": "B10",
+   "agent": "B",
+   "split": "heldout",
+   "source": "S2-like amount",
+   "order_id": 4512,
+   "reason": "refund_request",
+   "message": "Order 4512 is late, refund me 70 TND.",
+   "must_call": [
+    "get_order",
+    "get_refunds",
+    "ask_agent",
+    "search_policy"
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "propose",
+    "action": "refund",
+    "rule_id": "R-REF-03",
+    "params": {
+     "order_id": 4512,
+     "amount": 59.9
+    }
+   }
+  }
+ ]
+}

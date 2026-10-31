@@ -62,6 +62,15 @@ models:
     - {provider: groq,       model: "openai/gpt-oss-120b", options: {reasoning_effort: low}}
     - {provider: groq,       model: "openai/gpt-oss-20b",  options: {reasoning_effort: low}}
   agent_b_local: *agents_local   # the same entries as agents_local, so the two can never drift
+  # P20: Agent C (Urgent & Special Help) has its own list, like B: Groq for now, local with CALLVERSE_AGENT_C_SET=local.
+  # Goal (team, 2026-10-28): every agent on local Qwen; the switch waits for the C/D eval (tasks/P20_report.md).
+  agent_c:
+    - {provider: groq,       model: "openai/gpt-oss-120b", options: {reasoning_effort: low}}
+    - {provider: groq,       model: "openai/gpt-oss-20b",  options: {reasoning_effort: low}}
+  agent_c_local: *agents_local
+  # P20: Agent D (Availability & Supply) is rules; the model only words the note to the owner (template if it fails).
+  # A small local model is enough for one sentence, so D is local by default.
+  agent_d: *agents_local
   simulator: # M1, different family (used in task 4)
     # T08 (approved 2026-10-21): gemini-3.5-flash, the Flash model this key accepts that answers fast
     # (gemini-3.8-flash took 47-76 s per call in T07).
@@ -136,6 +145,8 @@ queues:
     refund_request: "Your request is passed on for a refund check."
     return_item: "Your request is passed on for a returns check."
     damaged_item: "Your request is passed on for a damage check."
+    # P20: Agent A hands an urgent need / special help over to Agent C.
+    urgent_help: "Your request is passed on to our special help team."
 
 # Coordinator (task T07): rules only, no LLM. It checks every agent proposal before anything is written.
 coordinator:
@@ -153,6 +164,12 @@ pipeline:
   # OFF by default (Brain review 2026-10-28): in T13c it fired mostly on "no proposal needed" sentences and
   # never helped. Turn on with true to test it again.
   proposal_claim_retry: false
+  # P20 Layer 2: when Agent A or B ends in "escalate", Agent C gets the case once (it may offer a replacement, a hold
+  # or pass it to a human colleague). OFF by default until the Brain decides (tasks/P20_report.md, question 2).
+  layer2_agent_c: false
+  # P20: Agent C named an offer in its text but called no proposal tool -> one more run with a note (C only).
+  # ON: base Qwen did this in 5 of 7 C practice cases (tasks/P20_report.md). The net itself writes nothing.
+  c_offer_retry: true
 
 # SLM reply writer (tasks T05, T05b): rule-check settings and the calm openers added by code.
 slm:

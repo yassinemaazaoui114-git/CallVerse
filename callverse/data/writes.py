@@ -705,3 +705,201 @@ def admin_decide_refund(admin: str, proposal_id: str, approve: bool, reason: str
         return _refuse(function, args, f"nothing was written: {type(e).__name__}: {e}")
     return _done(function, args, {"proposal_id": str(proposal_id), "decision": decision, "refund": refund,
                                   "order_status": status, "log": log})
+
+# ---------------------------------------------------------------------------
+# P20: the writes of Agents C (Urgent & Special Help) and D (Availability & Supply).
+# Called ONLY by the Coordinator after its checks (callverse/coordinator/special.py) and, for a promotion, by the
+# owner's decision (callverse/channels/approvals.py). Never in an agent allow-list. Same safety nets as above:
+# the proposal behind a write must be recorded, approved, of the same action, with EXACTLY the same params, and
+# used once. Stock never goes below 0 (checked in the same transaction as the decrease).
+# ---------------------------------------------------------------------------
+
+MAX_HOLD_QTY = 10
+
+
+def _cd_tables(con) -> None:
+    from callverse.data.seed import ensure_cd_tables   # imported here: seed imports this module's neighbours
+    ensure_cd_tables(con)
+
+
+def _same_params(proposal: dict, **expected) -> str | None:
+    """None if every expected param equals the approved one, else the reason to refuse."""
+    for key, value in expected.items():
+        if proposal["params"].get(key) != value:
+            return (f"safety net: {key} {value!r} does not match the approved {key} "
+                    f"{proposal['params'].get(key)!r} of proposal {proposal['id']}")
+    return None
+
+
+def _whole(value, low: int, high: int) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and low <= value <= high
+
+
+def create_replacement(order_id: int, product_id: int, qty: int, proposal_id: str) -> dict:
+    """R-RPL-01: send a new unit of an order's item, as a NEW order at no cost (total 0, paid 0). One transaction:
+    the new order + the stock decrease + the replacements row. Returns the replacements row (with new_order_id).
+
+    Safety nets: approved "replace" proposal with the same order / product / qty, used once; ONE replacement per
+    order; the product is in the order, on sale and in stock."""
+    function, args = "create_replacement", {"order_id": order_id, "product_id": product_id, "qty": qty,
+                                            "proposal_id": proposal_id}
+    if not _whole(qty, 1, MAX_ORDER_QTY) or not _whole(product_id, 1, 10**9):
+        return _refuse(function, args, f"product_id must be an id and qty a whole number 1-{MAX_ORDER_QTY}")
+    from callverse.tools.shopnova_tools import get_company_profile
+    promise_days = get_company_profile().get("delivery_promise_days", {}).get("min")
+    if not isinstance(promise_days, int):
+        return _refuse(function, args, "company profile has no delivery promise (min days)")
+    today = sim_today()
+    with closing(connect()) as con:
+        _cd_tables(con)
+        con.execute("BEGIN IMMEDIATE")
+        proposal, reason = _approved_proposal(con, proposal_id, "replace", order_id)
+        reason = reason or _same_params(proposal, product_id=product_id, qty=qty)
+        if reason:
+            return _refuse(function, args, reason)
+        if con.execute("SELECT 1 FROM replacements WHERE proposal_id = ? OR order_id = ?",
+                       (str(proposal_id), int(order_id))).fetchone():
+            return _refuse(function, args, f"safety net R-RPL-01: order {order_id} already has a replacement")
+        order = _row(con, "orders", int(order_id))
+        if product_id not in [i.get("product_id") for i in json.loads(order["items"])]:
+            return _refuse(function, args, f"product {product_id} is not in order {order_id}")
+        product = _row(con, "products", product_id)
+        if product is None or not product["active"]:
+            return _refuse(function, args, f"product {product_id} is not on sale")
+        if product["stock"] < qty:
+            return _refuse(function, args, f"not enough stock for product {product_id}: {product['stock']} left")
+        new_id = con.execute("SELECT COALESCE(MAX(id), 0) + 1 FROM orders").fetchone()[0]
+        items = [{"product_id": product_id, "name": product["name"], "qty": qty, "price": 0.0}]
+        con.execute(
+            "INSERT INTO orders (id, user_id, items, total, paid, status, order_date, promised_date, delivered_date,"
+            " carrier, tracking_number, payment, source, source_id, ai_generated, scripted)"
+            " VALUES (?, ?, ?, 0, 0, 'processing', ?, ?, NULL, ?, NULL, ?, NULL, NULL, 0, 0)",
+            (new_id, order["user_id"], json.dumps(items), today.isoformat(),
+             (today + timedelta(days=promise_days)).isoformat(), order["carrier"], order["payment"]))
+        con.execute("UPDATE products SET stock = stock - ? WHERE id = ?", (qty, product_id))
+        cur = con.execute("INSERT INTO replacements (order_id, new_order_id, product_id, qty, status, proposal_id,"
+                          " created_at) VALUES (?, ?, ?, ?, 'created', ?, ?)",
+                          (int(order_id), new_id, product_id, qty, str(proposal_id), today.isoformat()))
+        row = dict(con.execute("SELECT * FROM replacements WHERE id = ?", (cur.lastrowid,)).fetchone())
+        con.commit()
+    row["product_name"] = product["name"]
+    return _done(function, args, row)
+
+
+def create_hold(order_id: int, product_id: int, qty: int, hold_days: int, proposal_id: str) -> dict:
+    """R-HLD-01: keep `qty` units of a product for the client of `order_id` for `hold_days` days (1-3). The stock
+    goes down in the same transaction (held units cannot be sold). Returns the holds row."""
+    function, args = "create_hold", {"order_id": order_id, "product_id": product_id, "qty": qty,
+                                     "hold_days": hold_days, "proposal_id": proposal_id}
+    if not _whole(qty, 1, MAX_HOLD_QTY) or not _whole(hold_days, 1, 3) or not _whole(product_id, 1, 10**9):
+        return _refuse(function, args, f"qty must be 1-{MAX_HOLD_QTY} and hold_days 1-3 (R-HLD-01)")
+    today = sim_today()
+    with closing(connect()) as con:
+        _cd_tables(con)
+        con.execute("BEGIN IMMEDIATE")
+        proposal, reason = _approved_proposal(con, proposal_id, "hold", order_id)
+        reason = reason or _same_params(proposal, product_id=product_id, qty=qty, hold_days=hold_days)
+        if reason:
+            return _refuse(function, args, reason)
+        if con.execute("SELECT 1 FROM holds WHERE proposal_id = ?", (str(proposal_id),)).fetchone():
+            return _refuse(function, args, f"safety net: proposal {proposal_id} was already used for a hold")
+        product = _row(con, "products", product_id)
+        if product is None or not product["active"]:
+            return _refuse(function, args, f"product {product_id} is not on sale")
+        if product["stock"] < qty:
+            return _refuse(function, args, f"not enough stock for product {product_id}: {product['stock']} left")
+        con.execute("UPDATE products SET stock = stock - ? WHERE id = ?", (qty, product_id))
+        cur = con.execute("INSERT INTO holds (order_id, product_id, qty, held_until, status, proposal_id, created_at)"
+                          " VALUES (?, ?, ?, ?, 'held', ?, ?)",
+                          (int(order_id), product_id, qty, (today + timedelta(days=hold_days)).isoformat(),
+                           str(proposal_id), today.isoformat()))
+        row = dict(con.execute("SELECT * FROM holds WHERE id = ?", (cur.lastrowid,)).fetchone())
+        con.commit()
+    row["product_name"] = product["name"]
+    return _done(function, args, row)
+
+
+def create_assistance_request(order_id, reason: str, proposal_id: str) -> dict:
+    """R-AST-01: a hard or disputed case goes to a human colleague (status "requested"). Returns the row."""
+    function, args = "create_assistance_request", {"order_id": order_id, "reason": reason,
+                                                   "proposal_id": proposal_id}
+    if not isinstance(reason, str) or not reason.strip():
+        return _refuse(function, args, "a reason is required (R-AST-01)")
+    with closing(connect()) as con:
+        _cd_tables(con)
+        row = con.execute("SELECT * FROM proposals WHERE id = ?", (str(proposal_id),)).fetchone()
+        if row is None or row["decision"] != "approve" or row["action"] != "assistance":
+            return _refuse(function, args, f"safety net: proposal {proposal_id} is not an approved assistance request")
+        if json.loads(row["params"]).get("order_id") != order_id:
+            return _refuse(function, args, f"safety net: proposal {proposal_id} is for another order")
+        if con.execute("SELECT 1 FROM assistance_requests WHERE proposal_id = ?", (str(proposal_id),)).fetchone():
+            return _refuse(function, args, f"safety net: proposal {proposal_id} was already used")
+        cur = con.execute("INSERT INTO assistance_requests (order_id, reason, status, proposal_id, created_at)"
+                          " VALUES (?, ?, 'requested', ?, ?)",
+                          (order_id, reason.strip(), str(proposal_id), sim_today().isoformat()))
+        out = dict(con.execute("SELECT * FROM assistance_requests WHERE id = ?", (cur.lastrowid,)).fetchone())
+        con.commit()
+    return _done(function, args, out)
+
+
+def create_promotion(product_id: int, discount_pct: float, note: str, proposal_id: str) -> dict:
+    """R-PRM-01: a PENDING promotion for the owner to decide (Refund approvals page, Promotions part). Changes no
+    price. Safety nets: the proposal is a recorded "promotion", NOT decided yet (the owner decides), same product
+    and discount, used once; one open (pending or approved) promotion per product."""
+    function, args = "create_promotion", {"product_id": product_id, "discount_pct": discount_pct,
+                                          "proposal_id": proposal_id}
+    with closing(connect()) as con:
+        _cd_tables(con)
+        row = con.execute("SELECT * FROM proposals WHERE id = ?", (str(proposal_id),)).fetchone()
+        if row is None or row["action"] != "promotion" or row["decision"] is not None:
+            return _refuse(function, args, f"safety net: proposal {proposal_id} is not an undecided promotion")
+        params = json.loads(row["params"])
+        if params.get("product_id") != product_id or params.get("discount_pct") != discount_pct:
+            return _refuse(function, args, f"safety net: product / discount do not match proposal {proposal_id}")
+        if con.execute("SELECT 1 FROM promotions WHERE proposal_id = ? OR (product_id = ? AND status != 'refused')",
+                       (str(proposal_id), product_id)).fetchone():
+            return _refuse(function, args, f"product {product_id} already has an open promotion")
+        cur = con.execute("INSERT INTO promotions (product_id, discount_pct, status, note, proposal_id, created_at)"
+                          " VALUES (?, ?, 'pending', ?, ?, ?)",
+                          (product_id, discount_pct, note, str(proposal_id), sim_today().isoformat()))
+        out = dict(con.execute("SELECT * FROM promotions WHERE id = ?", (cur.lastrowid,)).fetchone())
+        con.commit()
+    return _done(function, args, out)
+
+
+def admin_decide_promotion(admin: str, promotion_id: int, approve: bool, reason: str = "") -> dict:
+    """The owner's decision on a pending promotion, in ONE transaction: the proposal's decision ("approve", or
+    "layer3" = refused by the owner) + the promotion's status + the admin_actions row. Refuse needs a reason.
+    The price is NOT changed (R-PRM-01): an approved promotion is only recorded. Returns the promotion row."""
+    function = "admin_decide_promotion"
+    args = {"admin": admin, "promotion_id": promotion_id, "approve": approve, "reason": reason}
+    if bad := _bad_admin(admin):
+        return _refuse(function, args, bad)
+    reason = (reason or "").strip()
+    if not approve and not reason:
+        return _refuse(function, args, "a reason is required to refuse")
+    status, decision = ("approved", "approve") if approve else ("refused", "layer3")
+    try:
+        with closing(connect()) as con:
+            _cd_tables(con)
+            con.execute("BEGIN IMMEDIATE")
+            before = _row(con, "promotions", promotion_id)
+            if before is None:
+                return _refuse(function, args, f"promotion {promotion_id} not found")
+            if before["status"] != "pending":
+                return _refuse(function, args, f"promotion {promotion_id} is already {before['status']}")
+            proposal = con.execute("SELECT decision FROM proposals WHERE id = ?", (before["proposal_id"],)).fetchone()
+            if proposal is None or proposal["decision"] is not None:
+                return _refuse(function, args, f"proposal {before['proposal_id']} is missing or already decided")
+            note = f"R-PRM-01: {status} by the owner ({admin})" + (f": {reason}" if reason else "")
+            con.execute("UPDATE proposals SET decision = ?, decision_reason = ?, decided_at = ? WHERE id = ?",
+                        (decision, note, sim_today().isoformat(), before["proposal_id"]))
+            con.execute("UPDATE promotions SET status = ?, decided_by = ?, decided_at = ?, reason = ? WHERE id = ?",
+                        (status, admin, sim_today().isoformat(), reason or None, promotion_id))
+            after = _row(con, "promotions", promotion_id)
+            _log_action(con, admin, f"{'approve' if approve else 'refuse'}_promotion", "promotions", promotion_id,
+                        before, after)
+            con.commit()
+    except Exception as e:   # nothing committed = nothing written
+        return _refuse(function, args, f"nothing was written: {type(e).__name__}: {e}")
+    return _done(function, args, after)

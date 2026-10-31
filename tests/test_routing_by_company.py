@@ -140,7 +140,9 @@ def sha(text_value: str) -> str:
 
 def test_shopnova_prompts_are_byte_identical_to_main():
     """Fingerprints taken on main (1a1c6ee) before T21 touched any code."""
-    assert sha(agent_a.SYSTEM_PROMPT) == "3b102f36fb9db23facab8bd358a10f731f28e454ade59c49e84e66fbda2bc2dc"
+    # P20: Agent A got ONE new rule line, the [HANDOVER: C] for an urgent need (Agent C). New fingerprint; the old
+    # one was 3b102f36fb9db23facab8bd358a10f731f28e454ade59c49e84e66fbda2bc2dc.
+    assert sha(agent_a.SYSTEM_PROMPT) == "1fcc2acc130f7fff1d6dbdaf92b4f850f336e2272e47fae3aedd94acf0bb0135"
     assert sha(agent_b.SYSTEM_PROMPT) == "054a224631ae0d5184d5d1cd4c6f95d8e489838646037e1407f7ffbc55c49aa8"
     assert sha(llm_fallback.PROMPT) == "e74367e65a93afdffc806e2f2e4035b3cea0c145a468027790acebfc56475f17"
     assert sha(writer.SYSTEM_PROMPT) == "2a468702bf7f0393fb322bfcca84e48529e466067a6e88f432590dd0655448f2"
@@ -152,7 +154,10 @@ def test_shopnova_agents_use_those_prompts():
 
 
 def test_shopnova_tool_schemas_are_identical_to_main():
-    assert sha(json.dumps(registry.TOOL_SCHEMAS, sort_keys=True)) == (
+    # P20 added Agent C's tools (get_stock + 3 proposal tools); every tool that existed before is still identical.
+    p20 = {"get_stock", "propose_replacement", "propose_hold", "propose_assistance"}
+    before = {k: v for k, v in registry.TOOL_SCHEMAS.items() if k not in p20}
+    assert sha(json.dumps(before, sort_keys=True)) == (
         "d49abf10a9c8b26e2282479fa359d2c5a80ddb778619fb1484775f2176dd14d9")
 
 

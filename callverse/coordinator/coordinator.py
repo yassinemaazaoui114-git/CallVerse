@@ -29,6 +29,8 @@ Outcomes:
   escalate       -> a human colleague takes over
   refused        -> the proposal was already decided (a proposal is decided once); nothing written
 Every check is traced (coordinator_check) and so is the final decision (coordinator_decision).
+P20: the proposals of Agents C (replace, hold, assistance) and D (promotion) are checked by special.py, with
+the same steps; a promotion ends in "owner_pending" (the shop owner decides it on the approvals page).
 
 What the user is told (T08): the decision carries `must_say` (the key fact, copied word for word) and
 `next_step`, both written TO THE USER by this file (user_words), plus `facts` in the SLM's format
@@ -38,6 +40,7 @@ What the user is told (T08): the decision carries `must_say` (the key fact, copi
 
 from callverse import trace
 from callverse.config import load_config
+from callverse.coordinator import special
 from callverse.data.layer3 import layer3_decide, layer3_mode
 from callverse.data.writes import (create_refund, create_subscription, is_valid_amount, record_decision,
                                    record_proposal, set_order_status)
@@ -222,6 +225,8 @@ def review(proposal: dict, case: dict) -> dict:
     {outcome, action, order_id, rule_id, facts (only verified facts), next_step, reason, proposal_id}."""
     cfg = load_config()["coordinator"]
     action = proposal.get("action") if isinstance(proposal, dict) else None
+    if action in special.ACTIONS:   # P20: Agent C (replace, hold, assistance) and Agent D (promotion)
+        return special.review(proposal, case)
     params = proposal.get("params") if isinstance(proposal, dict) and isinstance(proposal.get("params"), dict) else {}
     rule_id = proposal.get("rule_id") if isinstance(proposal, dict) else None
     order_id = params.get("order_id")
