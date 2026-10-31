@@ -57,3 +57,14 @@ Extra real data seen (not used yet): Mahmoud's branch documents the Kaggle `ddos
 python -m benchmarks.agent_f.benchmark   # choose on validation
 python -m benchmarks.agent_f.train       # train, save models/agent_f/satisfaction.pkl, test once
 ```
+
+## Dual reward (correctness + satisfaction) — `callverse/quality/reward.py`
+`evaluate_response(record) -> {"satisfaction", "correctness": PASS|FAIL|UNKNOWN, "reward": 1|-1|None, "train", "evidence"}`.
+Record = spec conversation record + `"decision"` (Coordinator decision, `docs/decision_format.md`); the checked reply
+is the last assistant message. Correctness reuses existing plain-code checks: `kb.policies.get_policy` (rule must be
+in THIS company's file: tenant isolation), `kb.policies.check_condition` (rule condition vs decision facts),
+`slm.check.check_reply` (numbers only from facts, no unapproved refund / forbidden promise, must_say). UNKNOWN when
+decision, reply or facts are missing. Reward: PASS and satisfaction >= 4 -> +1, PASS and < 4 -> -1, FAIL -> -1,
+UNKNOWN -> None (excluded from training). A friendly but wrong reply never gets +1.
+Satisfaction stays the provisional text + Olist-delay proxy: it is **not** reply-aware until `stacker.pkl` is
+promoted (see `docs/agent_f_style_reward.md`). Tests: `tests/test_agent_f_reward.py`.
