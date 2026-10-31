@@ -15,8 +15,13 @@ from benchmarks.agent_f.common import ROOT, TRAIN_N, candidates, load
 
 
 def metrics(y, p):
-    y, p = np.array(y), np.clip(np.rint(p), 1, 5).astype(int)
-    return {"mae": round(float(np.abs(y - p).mean()), 4), "accuracy": round(float((y == p).mean()), 4),
+    """MAE + Spearman on the raw (float) prediction; accuracy / within-1 on the rounded one."""
+    from scipy.stats import spearmanr
+    y, raw = np.array(y), np.clip(np.asarray(p, dtype=float), 1, 5)
+    rho = spearmanr(y, raw).statistic if len(set(raw)) > 1 else 0.0
+    p = np.rint(raw).astype(int)
+    return {"mae_raw": round(float(np.abs(y - raw).mean()), 4), "spearman": round(float(rho), 4),
+            "mae": round(float(np.abs(y - p).mean()), 4), "accuracy": round(float((y == p).mean()), 4),
             "within_1": round(float((np.abs(y - p) <= 1).mean()), 4)}
 
 

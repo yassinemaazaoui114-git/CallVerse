@@ -11,7 +11,9 @@ import sys
 
 from benchmarks.agent_f.benchmark import latency, metrics
 from benchmarks.agent_f.common import ROOT, TRAIN_N, candidates, load
-from callverse.satisfaction.predictor import MODEL_PATH
+import numpy as np
+
+from callverse.quality.satisfaction import TEXT_MODEL as MODEL_PATH
 
 
 def main():
@@ -24,7 +26,8 @@ def main():
     MODEL_PATH.write_bytes(pickle.dumps(model))
     xte, yte = load("test")
     out = {"model": name, "split": "test (real, held out)", "n": len(xte),
-           **metrics(yte, model.predict(xte)), **latency(model, xte, 1000)}
+           "argmax": metrics(yte, model.predict(xte)),
+           "expected": metrics(yte, model.predict_proba(xte) @ model.classes_), **latency(model, xte, 1000)}
     (res / "test_eval.json").write_text(json.dumps(out, indent=2))
     print(out)
 
