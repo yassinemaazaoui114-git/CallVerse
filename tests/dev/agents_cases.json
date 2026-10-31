@@ -310,7 +310,7 @@
    "message": "Order 4512 is late and I need it tomorrow, it's a birthday gift!",
    "must_call": [
     "get_order",
-    "get_stock"
+    "check_availability_with_d"
    ],
    "must_not_call": [],
    "expect": {
@@ -334,7 +334,7 @@
    "message": "Yes please, send me a replacement for order 4512, I need it for tomorrow.",
    "must_call": [
     "get_order",
-    "get_stock"
+    "check_availability_with_d"
    ],
    "must_not_call": [],
    "expect": {
@@ -358,7 +358,7 @@
    "message": "My watches from order 4515 are still not here. I need one by Saturday, can you send one now?",
    "must_call": [
     "get_order",
-    "get_stock"
+    "check_availability_with_d"
    ],
    "must_not_call": [],
    "expect": {
@@ -380,7 +380,7 @@
    "reason": "other",
    "message": "Can you keep one more Smart Watch for me for 2 days? I will order it after my order 4513 arrives.",
    "must_call": [
-    "get_stock"
+    "check_availability_with_d"
    ],
    "must_not_call": [
     "propose_replacement"

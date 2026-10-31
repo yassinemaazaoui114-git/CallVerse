@@ -110,7 +110,8 @@ CREATE TABLE IF NOT EXISTS approvals (
     reason      TEXT,
     company      TEXT NOT NULL DEFAULT 'shopnova',  -- T21
     booking_type TEXT,                              -- T21: hotel / flight (Atlas)
-    action       TEXT NOT NULL DEFAULT 'refund'     -- T21: refund / compensation
+    action       TEXT NOT NULL DEFAULT 'refund',    -- T21: refund / compensation
+    urgent       INTEGER NOT NULL DEFAULT 0         -- P20: 1 = handed over by Agent C ("urgent refund"): top of the list
 );
 CREATE TABLE IF NOT EXISTS system_tokens (
     id       INTEGER PRIMARY KEY,
@@ -159,7 +160,8 @@ NEW_COLUMNS = [("tickets", "created_real", "TEXT"), ("tickets", "updated_real", 
                ("steps", "at_real", "TEXT"), ("system_tokens", "at_real", "TEXT"),
                # T21: old approvals are ShopNova refunds, which is what the defaults say.
                ("approvals", "company", "TEXT NOT NULL DEFAULT 'shopnova'"), ("approvals", "booking_type", "TEXT"),
-               ("approvals", "action", "TEXT NOT NULL DEFAULT 'refund'")]
+               ("approvals", "action", "TEXT NOT NULL DEFAULT 'refund'"),
+               ("approvals", "urgent", "INTEGER NOT NULL DEFAULT 0")]   # P20
 
 
 def _columns(con: sqlite3.Connection, table: str) -> set[str]:
@@ -322,12 +324,14 @@ def unread_tickets(company: str, user_id: int) -> list[dict]:
 # ---------- approvals (T18: the real Layer 3 queue) ----------
 
 def create_approval(ticket_id: str, order_id: int, amount: float, proposal_id: str | None,
-                    company: str = "shopnova", booking_type: str | None = None, action: str = "refund") -> dict:
-    """A case waiting for the company's finance (status "pending")."""
+                    company: str = "shopnova", booking_type: str | None = None, action: str = "refund",
+                    urgent: bool = False) -> dict:
+    """A case waiting for the company's finance (status "pending"). urgent (P20): Agent C's "urgent refund"."""
     with closing(connect()) as con:
         cur = con.execute("INSERT INTO approvals (ticket_id, order_id, amount, proposal_id, status, company,"
-                          " booking_type, action) VALUES (?, ?, ?, ?, 'pending', ?, ?, ?)",
-                          (str(ticket_id), int(order_id), float(amount), proposal_id, company, booking_type, action))
+                          " booking_type, action, urgent) VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?)",
+                          (str(ticket_id), int(order_id), float(amount), proposal_id, company, booking_type, action,
+                           1 if urgent else 0))
         con.commit()
     return get_approval(cur.lastrowid)
 
@@ -339,14 +343,16 @@ def get_approval(approval_id: int) -> dict | None:
 
 
 def approvals(status: str | None = None, company: str | None = None) -> list[dict]:
-    """All approvals (or those with one status): pending ones oldest first, the others newest first.
+    """All approvals (or those with one status): pending ones oldest first (P20: urgent ones first), the others
+    newest first.
     company: only that company's (T21: one company's admin never sees another's cases)."""
     with closing(connect()) as con:
         if status is None:
             rows = con.execute("SELECT * FROM approvals ORDER BY status != 'pending', "
+                               "CASE WHEN status = 'pending' THEN -urgent ELSE 0 END, "
                                "CASE WHEN status = 'pending' THEN id ELSE -id END").fetchall()
         else:
-            rows = con.execute("SELECT * FROM approvals WHERE status = ? ORDER BY id", (status,)).fetchall()
+            rows = con.execute("SELECT * FROM approvals WHERE status = ? ORDER BY -urgent, id", (status,)).fetchall()
     return [dict(r) for r in rows if company is None or r["company"] == company]
 
 

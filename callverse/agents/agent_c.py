@@ -4,8 +4,9 @@ The ONLY agent that changes a client's situation. At ShopNova it can offer three
     replacement  a free new unit of the order's item, from stock (rule R-RPL-01), e.g. "the gift is needed tomorrow"
     hold         keep units of a product for the client for 1-3 days (rule R-HLD-01)
     assistance   pass a hard or disputed case to a human colleague (rule R-AST-01)
-It combines what the other agents read: delivery facts (like A: get_tracking), order and money facts (like B:
-get_order) and stock (like D: get_stock).
+It combines A, B and D through the spec's links: it ASKS A for the delivery facts and "can it arrive by the client's
+deadline?" (get_facts_from_a), ASKS D whether the item is available (check_availability_with_d), and hands a money
+request to B as an urgent refund ([HANDOVER: B]). It reads the order itself (get_order: the items).
 
 Like every agent it never acts: its three tools only build a PROPOSAL. The Coordinator (rules, no LLM) re-reads the
 facts, checks the rule, and writes only after the client said yes (user_confirmed). Until then the client is
@@ -16,16 +17,23 @@ or special help; and as Layer 2 (switch pipeline.layer2_agent_c) when A or B end
 Same tool-calling loop as A and B (base_agent.py); allow-list in tools/registry.py.
 """
 
+import re
+
 from callverse.agents.base_agent import BaseAgent
 from callverse.config import sim_today
 from callverse.tools.proposal_tools import C_ACTIONS, c_proposal
+
+# Link (2) "C asks B: urgent refund": C never pays, so a money request goes to Agent B, marked urgent (pipeline.py).
+HANDOVER_TAG = re.compile(r"\[HANDOVER:\s*B\]", re.IGNORECASE)
 
 # Short on purpose (T07): the prompt is re-sent with every model call of a turn.
 SYSTEM_PROMPT = """You are Agent C - Urgent & Special Help of ShopNova (online shop, Tunisia). Today is {today}.
 You are the only agent that can change a client's situation, and nothing changes until the client says yes.
 Use only facts from tools, never invent. No order number: ask for it and stop.
-1. Call get_order and get_tracking, together. Then call get_stock with the product_id of the order's item.
-2. Choose ONE offer:
+1. Call get_order and get_facts_from_a together (deadline = the date the client needs it, YYYY-MM-DD, if they say one;
+   "tomorrow" = the day after today). Then call check_availability_with_d with the product_id of the order's item.
+2. If the client wants money back, make no offer: say it is passed on as urgent and end with the exact tag
+   [HANDOVER: B]. Otherwise choose ONE offer:
 - replacement (rule R-RPL-01): the order is late (days_late > 0) or arrived damaged with a photo received,
   the product is in stock, and the order is not refunded or cancelled. Call propose_replacement.
 - hold (rule R-HLD-01): the client asks to keep an item for 1 to 3 days and it is in stock. Call propose_hold.
@@ -48,6 +56,10 @@ class AgentC(BaseAgent):
 
     def system_prompt(self) -> str:
         return SYSTEM_PROMPT.format(today=sim_today().isoformat())
+
+    def postprocess(self, answer: str) -> dict:
+        handover = "B" if HANDOVER_TAG.search(answer) else None
+        return {"answer": HANDOVER_TAG.sub("", answer).strip(), "handover": handover}
 
     def run(self, user_message: str, history: list[dict] | None = None) -> dict:
         """Normal agent turn, plus the last proposal a C proposal tool accepted (platform shape), or None."""

@@ -42,6 +42,8 @@ if not pending:
 for a in pending:
     f = admin_reads.approval_facts(a["order_id"], a["proposal_id"])
     with st.container(border=True):
+        if a.get("urgent"):   # P20: Agent C's "urgent refund"
+            st.error("URGENT: handed over by Agent C (Urgent & Special Help)")
         st.markdown(f"#### {ui.tnd(a['amount'])} · order {a['order_id']} · {f['user_name'] or 'unknown client'}")
         st.caption(f"Ticket {a['ticket_id']} · proposal {a['proposal_id']} · rule {f['rule_id']}: {f['rule_title']}")
         c1, c2, c3, c4 = st.columns(4)

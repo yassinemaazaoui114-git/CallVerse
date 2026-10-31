@@ -80,7 +80,7 @@ def cd_tables():
 
 def test_agent_c_sees_its_reads_and_three_proposal_tools_only():
     names = [t["function"]["name"] for t in registry.schemas_for("C")]
-    assert names == ["get_order", "get_tracking", "get_stock", "search_policy",
+    assert names == ["get_order", "get_facts_from_a", "check_availability_with_d", "search_policy",
                      "propose_replacement", "propose_hold", "propose_assistance"]
     assert "error" in registry.run_tool("C", "propose_refund", {"order_id": 4512})
     assert "error" in registry.run_tool("A", "propose_replacement", REPLACE_4512)
@@ -267,8 +267,8 @@ def c_llm(confirmed: bool):
     """Fake models: Agent A hands over to C; C reads, checks the stock and proposes a replacement."""
     a_steps = iter([tool_call_reply(("get_tracking", {"order_id": 4512})),
                     text_reply("I am sorry. Your request is passed to our special help team. [HANDOVER: C]")])
-    c_steps = iter([tool_call_reply(("get_order", {"order_id": 4512}), ("get_tracking", {"order_id": 4512})),
-                    tool_call_reply(("get_stock", {"product_id": 1})),
+    c_steps = iter([tool_call_reply(("get_order", {"order_id": 4512})),
+                    tool_call_reply(("check_availability_with_d", {"product_id": 1})),
                     tool_call_reply(("propose_replacement", {**REPLACE_4512, "user_confirmed": confirmed,
                                                              "user_quote": "I need it tomorrow, it is a gift."}))])
 
@@ -314,12 +314,12 @@ def test_layer2_switch(monkeypatch, cd_tables):
             return real(agent_cls, message, ticket, chat_fn)
         return {"answer": "x", "tool_calls": [], "handover": None}, [], escalated
     monkeypatch.setattr(pipeline, "run_agent_with_coordinator", run)
-    off = pipeline.handle_ticket(dict(TICKET), chat_fn=c_llm(confirmed=False))
-    assert off["decision"]["outcome"] == "escalate"            # switch OFF (default): C is not called
-    cfg = pipeline.load_config()
-    monkeypatch.setattr(pipeline, "load_config", lambda: {**cfg, "pipeline": {**cfg["pipeline"], "layer2_agent_c": True}})
-    on = pipeline.handle_ticket(dict(TICKET), chat_fn=c_llm(confirmed=False))
+    on = pipeline.handle_ticket(dict(TICKET), chat_fn=c_llm(confirmed=False))   # switch ON (default, spec)
     assert on["handover"] == "C" and on["decision"]["outcome"] == "ask_user" and "layer2" in steps()
+    cfg = pipeline.load_config()
+    monkeypatch.setattr(pipeline, "load_config", lambda: {**cfg, "pipeline": {**cfg["pipeline"], "layer2_agent_c": False}})
+    off = pipeline.handle_ticket(dict(TICKET), chat_fn=c_llm(confirmed=False))
+    assert off["decision"]["outcome"] == "escalate"            # switch OFF: C is not called
 
 
 def test_web_chat_sends_the_answer_to_c_after_its_question(tmp_path, cd_tables):
@@ -355,3 +355,55 @@ def test_c_offer_written_as_text_gets_one_retry(cd_tables):
     result, proposals, decision = pipeline.run_agent_with_coordinator(AgentC, "I need 4512 tomorrow", TICKET, fake)
     assert decision["outcome"] == "ask_user" and len(proposals) == 1
     assert "c_offer_retry" in steps() and any("no proposal tool was called" in s for s in seen)
+
+
+# ---------- P20 gaps: the links C -> A, C -> D, C -> B (urgent refund) ----------
+
+def test_can_meet_deadline_is_computed_from_a_facts():
+    from callverse.agents.ask_c import can_meet
+    on_time = {"status": "shipped", "delivered": False, "days_late": 0, "promised_date": "2026-10-10"}
+    assert can_meet(on_time, "2026-10-10") == ("2026-10-10", True, "on time")
+    assert can_meet(on_time, "2026-10-09")[1] is False
+    stuck = {"status": "stuck_at_depot", "delivered": False, "days_late": 8, "promised_date": "2026-10-01"}
+    assert can_meet(stuck, "2026-10-10")[:2] == (None, False)
+    assert can_meet({"delivered": True, "delivered_date": "2026-09-14"}, "2026-10-10")[1] is True
+    assert can_meet({"error": "no order"}, "2026-10-10")[1] is None
+
+
+def test_c_asks_a_for_the_facts_and_d_for_the_stock():
+    def a_model(role_key, messages, tools=None, **kw):
+        assert role_key == "agent_c" and messages[0]["content"].startswith("You are Agent A")
+        if messages[-1]["role"] == "user":
+            return tool_call_reply(("get_tracking", {"order_id": 4510}))
+        return text_reply("Order 4510 is on its way.")
+    out = registry.run_tool("C", "get_facts_from_a", {"order_id": 4510, "deadline": "2026-10-12"}, chat_fn=a_model)
+    assert out["facts"]["source"] == "get_tracking" and out["can_meet_deadline"] is True and out["eta"] == "2026-10-10"
+    d = registry.run_tool("C", "check_availability_with_d", {"product_id": 1, "qty": 2})
+    assert d["agent"] == "D" and d["available"] is True and d["stock"] == 40
+    assert registry.run_tool("C", "check_availability_with_d", {"product_id": 1, "qty": 41})["available"] is False
+
+
+def test_c_hands_a_money_request_to_b_as_urgent(tmp_path, cd_tables):
+    b_steps = iter([tool_call_reply(("get_order", {"order_id": 4515}), ("get_refunds", {"order_id": 4515})),
+                    tool_call_reply(("propose_refund", {"order_id": 4515, "amount": 378.0, "rule_id": "R-REF-03",
+                                                        "facts_used": {"days_late": 8}, "user_confirmed": True,
+                                                        "user_quote": "I want my money back now"}))])
+
+    def fake(role_key, messages, tools=None, **kw):
+        if role_key == "agent_c":
+            if messages[-1]["role"] == "user":
+                return tool_call_reply(("get_order", {"order_id": 4515}))
+            return text_reply("I pass this on as urgent. [HANDOVER: B]")
+        return next(b_steps, None) or text_reply("Sent for checking.")
+    ticket = {**TICKET, "order_id": 4515, "text": "I need my money back now, urgent!", "continue_agent": "C"}
+    out = pipeline.handle_ticket(ticket, chat_fn=fake)
+    assert out["handover"] == "B" and ticket["urgent"] is True
+    assert out["proposal"]["action"] == "refund"
+    store.use_db(tmp_path / "t.db")
+    try:
+        t = store.create_ticket("shopnova", 2)
+        normal = store.create_approval(t["id"], 4512, 59.9, "P-1")
+        urgent = store.create_approval(t["id"], 4515, 378.0, "P-2", urgent=True)
+        assert [a["id"] for a in store.approvals("pending")] == [urgent["id"], normal["id"]]
+    finally:
+        store.use_db(store.DEFAULT_DB_PATH)

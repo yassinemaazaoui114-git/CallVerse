@@ -164,9 +164,9 @@ pipeline:
   # OFF by default (Brain review 2026-10-28): in T13c it fired mostly on "no proposal needed" sentences and
   # never helped. Turn on with true to test it again.
   proposal_claim_retry: false
-  # P20 Layer 2: when Agent A or B ends in "escalate", Agent C gets the case once (it may offer a replacement, a hold
-  # or pass it to a human colleague). OFF by default until the Brain decides (tasks/P20_report.md, question 2).
-  layer2_agent_c: false
+  # P20 Layer 2 (spec: "C = Layer 2 escalation"): when Agent A or B ends in "escalate" (e.g. sent back twice, a dispute),
+  # Agent C gets the case once: it may offer a replacement / hold, or pass it to a human colleague (Layer 3). ON.
+  layer2_agent_c: true
   # P20: Agent C named an offer in its text but called no proposal tool -> one more run with a note (C only).
   # ON: base Qwen did this in 5 of 7 C practice cases (tasks/P20_report.md). The net itself writes nothing.
   c_offer_retry: true

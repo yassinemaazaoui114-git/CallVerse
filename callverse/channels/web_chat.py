@@ -283,7 +283,8 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
                 # T18: the refund waits for the ShopNova admin (Refund approvals page).
                 approval = store.create_approval(tid, decision["order_id"], decision["facts"]["amount_tnd"],
                                                  decision["proposal_id"], company, decision.get("booking_type"),
-                                                 "compensation" if decision.get("action") == "compensation" else "refund")
+                                                 "compensation" if decision.get("action") == "compensation" else "refund",
+                                                 urgent=bool(intake_ticket.get("urgent")))
                 channel_step("approval", {"approval_id": approval["id"], "order_id": approval["order_id"],
                                           "amount": approval["amount"], "proposal_id": approval["proposal_id"],
                                           "status": "pending"})

@@ -82,6 +82,19 @@ class AgentD:
         return {"shortages": shortages, "overstock": overstock, "proposals": proposals, "decisions": decisions}
 
 
+def availability(product_id, qty=1) -> dict:
+    """Link (4) "C asks D: is it available?": D's answer from its stock rules (no model).
+    {product_id, name, stock, qty, available, shortage, units_sold_30d} or {"error": ...}."""
+    if isinstance(qty, bool) or not isinstance(qty, int) or qty < 1:
+        return {"error": "qty must be a whole number of 1 or more"}
+    f = stock_facts(product_id)
+    if "error" in f:
+        return f
+    return {"agent": "D", "product_id": f["product_id"], "name": f["name"], "stock": f["stock"], "qty": qty,
+            "available": f["active"] and f["stock"] >= qty, "shortage": f["shortage"],
+            "units_sold_30d": f["units_sold_30d"]}
+
+
 def shortage_note(order: dict) -> str | None:
     """D's warning for Agent A about an order: one line naming each product of the order that is short, else None."""
     if not isinstance(order, dict) or "error" in order:

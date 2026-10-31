@@ -16,7 +16,7 @@ from the ticket); the model can never choose it.
 """
 
 from callverse import trace
-from callverse.agents import ask
+from callverse.agents import ask, ask_c
 from callverse.kb import search
 from callverse.tools import atlas_tools, proposal_tools, shopnova_tools, stock_tools
 
@@ -30,6 +30,7 @@ TOOL_FUNCTIONS = {
     # P20: Agent C's stock read and its three proposal tools (they only propose).
     "get_stock": stock_tools.get_stock,
     **proposal_tools.C_FUNCTIONS,
+    **ask_c.FUNCTIONS,   # C asks A ("get the facts") and D ("is it available?")
 }
 TOOL_SCHEMAS = {
     **shopnova_tools.SCHEMAS,
@@ -39,10 +40,11 @@ TOOL_SCHEMAS = {
     "ask_agent": ask.SCHEMA,
     "get_stock": stock_tools.SCHEMA,
     **proposal_tools.C_SCHEMAS,
+    **ask_c.SCHEMAS,
 }
 
 # Tools that run another agent: they get the caller's LLM function (so tests can use a fake LLM).
-RUNS_AN_AGENT = {"ask_agent"}
+RUNS_AN_AGENT = {"ask_agent", *ask_c.FUNCTIONS}
 
 # Allow-lists: which tools each agent may use.
 # Status & Tracking: read-only tools + rules + company profile (carriers, delivery promise, cities).
@@ -52,9 +54,11 @@ AGENT_A = ["get_user", "get_order", "get_tracking", "get_company_profile", "sear
 # propose_refund only creates a proposal.
 AGENT_B = ["get_order", "get_refunds", "search_policy", "propose_refund", "ask_agent"]
 
-# P20: Urgent & Special Help: reads what A (tracking), B (order) and D (stock) read (not refunds: T06, B only); its three action tools
-# only create a proposal (replacement, hold, assistance); the Coordinator writes after the client says yes.
-AGENT_C = ["get_order", "get_tracking", "get_stock", "search_policy",
+# P20: Urgent & Special Help. Its facts come through the spec's links: it ASKS A for the delivery facts and D for the
+# stock (no get_tracking / get_stock of its own), reads the order (items) itself, and hands a refund to B
+# ([HANDOVER: B], not a tool; no refunds read: T06, B only). Its three action tools only create a proposal
+# (replacement, hold, assistance); the Coordinator writes after the client says yes.
+AGENT_C = ["get_order", "get_facts_from_a", "check_availability_with_d", "search_policy",
            "propose_replacement", "propose_hold", "propose_assistance"]
 # Agent D (Availability & Supply) is NOT here: it is rules, not an LLM with tools (agents/agent_d.py).
 

@@ -246,8 +246,7 @@ def _run_agents(ticket: dict, decision: dict, message: str, chat_fn) -> tuple:
         # P20: the client answers a question Agent C asked (e.g. "yes, send the replacement"): C takes it again.
         trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "C", "by": "channel",
                                            "text": None})
-        result, proposals, final = run_agent_with_coordinator(AgentC, message, ticket, chat_fn)
-        return result["answer"], "C", None, proposals, final
+        return run_c(ticket, message, chat_fn, "channel")
     if decision["agent"] == "A":
         result, proposals, final = run_agent_with_coordinator(AgentA, message, ticket, chat_fn)
         answer, handover = result["answer"], result.get("handover")
@@ -264,10 +263,7 @@ def _run_agents(ticket: dict, decision: dict, message: str, chat_fn) -> tuple:
                                                    else "Agent C works for ShopNova only"})
         handover = None
     if handover == "C":
-        text = companies.get(companies.of(ticket))["handover_texts"].get("urgent_help")
-        trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "C", "by": "agent_A", "text": text})
-        result, proposals, final = run_agent_with_coordinator(AgentC, message, ticket, chat_fn)
-        return result["answer"], handover, text, proposals, final
+        return run_c(ticket, message, chat_fn, "agent_A")
 
     if decision["agent"] == "B" or handover == "B":
         handover = "B"
@@ -282,16 +278,34 @@ def _run_agents(ticket: dict, decision: dict, message: str, chat_fn) -> tuple:
         # the case to a human colleague). Its result replaces the escalate decision only if C reached a decision.
         note = f"[Layer 2: this case was escalated by the first agent: {final['reason']}]"
         trace.log("layer2", "pipeline", {"ticket_id": ticket["ticket_id"], "from": final["reason"], "note": note})
-        c_result, c_proposals, c_final = run_agent_with_coordinator(AgentC, f"{message}\n{note}", ticket, chat_fn)
+        c_answer, c_handover, c_text, c_proposals, c_final = run_c(ticket, f"{message}\n{note}", chat_fn, "layer2",
+                                                                   urgent_b=False)
         proposals = proposals + c_proposals
         if c_final is not None:
-            answer, handover, final = c_result["answer"], "C", c_final
+            answer, handover, text, final = c_answer, c_handover, c_text, c_final
     return answer, handover, text, proposals, final
 
 
+def run_c(ticket: dict, message: str, chat_fn, by: str, urgent_b: bool = True) -> tuple:
+    """P20: one Agent C turn (with the Coordinator), as (answer, handover, handover text, proposals, final decision).
+    If C hands a money request to B ([HANDOVER: B], link "C asks B: urgent refund"), B runs on the same message and
+    the ticket is marked urgent: a refund that waits for finance goes to the top of its list (web_chat).
+    urgent_b=False (Layer 2): B already had the case, so C does not send it back to B."""
+    text = companies.get(companies.of(ticket))["handover_texts"].get("urgent_help") if by == "agent_A" else None
+    trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "C", "by": by, "text": text})
+    result, proposals, final = run_agent_with_coordinator(AgentC, message, ticket, chat_fn)
+    if result.get("handover") == "B" and final is None and urgent_b:
+        ticket["urgent"] = True
+        trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "B", "by": "agent_C",
+                                           "urgent": True, "text": handover_text("refund_request", companies.of(ticket))})
+        b_result, b_proposals, final = run_agent_with_coordinator(AgentB, message, ticket, chat_fn)
+        return b_result["answer"], "B", handover_text("refund_request", companies.of(ticket)), proposals + b_proposals, final
+    return result["answer"], "C", text, proposals, final
+
+
 def layer2_on() -> bool:
-    """P20 switch: does Agent C take the cases A or B escalate? (config.yaml pipeline.layer2_agent_c, default OFF)"""
-    return bool(load_config().get("pipeline", {}).get("layer2_agent_c", False))
+    """P20 switch: does Agent C take the cases A or B escalate (spec: C = Layer 2)? config.yaml pipeline.layer2_agent_c."""
+    return bool(load_config().get("pipeline", {}).get("layer2_agent_c", True))
 
 
 def handle(message: str, chat_fn=None, use_llm: bool = True, slm_chat_fn=None,
