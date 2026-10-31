@@ -1,0 +1,20 @@
+{
+ "_note": "Bitext intent -> CallVerse reason, written by the Brain 2026-10-31 for T25b (LoRA v2), to be approved by Yassine before the Colab run. Sources: bitext/Bitext-retail-ecommerce-llm-chatbot-training-dataset (ShopNova) and bitext/Bitext-travel-llm-chatbot-training-dataset (Atlas), CDLA-Sharing 1.0, synthetic. Column 'instruction' = message, 'intent' = label. Messages with < 4 words dropped; {{placeholders}} filled. Cap 300 per reason (seed 2026). 'exclude' = ambiguous intents left out (they sit between two reasons). Every other intent -> 'other' (cap 300).",
+ "shopnova": {
+  "order_status": ["track_order", "track_delivery", "delivery_time"],
+  "late_delivery": ["delivery_issue"],
+  "refund_request": ["request_refund", "refund_status"],
+  "return_item": ["return_product", "return_product_online"],
+  "damaged_item": ["damaged_delivery"],
+  "exclude": ["return_product_in_store", "refund_policy", "return_policy", "missing_item", "product_issue", "wrong_item", "exchange_product", "exchange_product_in_store"]
+ },
+ "atlas": {
+  "booking_status": ["check_flight_reservation", "check_trip_details", "check_flight_status"],
+  "cancellation": ["cancel_flight", "cancel_trip"],
+  "refund_request": ["get_refund"],
+  "rebooking": ["change_flight", "change_trip"],
+  "exclude": ["check_cancellation_fee", "check_arrival_time", "check_departure_time"]
+ },
+ "cap_per_reason": 300,
+ "seed": 2026
+}

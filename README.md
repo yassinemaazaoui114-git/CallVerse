@@ -125,7 +125,8 @@ Measured comparisons of models and methods, kept apart from the running system (
   thresholds ShopNova 0.69 / Atlas 0.54, and the BGE query prompt in rule search. Re-measure on the PC:
   `python -m benchmarks.m3.pc_check` (validation sets only). **T25:** the Colab fine-tuned models (`models/`, git-ignored)
   lost on validation (bge-small-ft: Atlas F1 and rule-search top-2 fall), so nothing changed in the system;
-  scoring: `python -m benchmarks.m3.t25_score <bge-small|bge-small-ft|bge-base-ft|table>`. Needs ABCD in `data/raw/abcd/abcd_v1.1.json` (see DATA_LICENCES.md).
+  scoring: `python -m benchmarks.m3.t25_score <bge-small|bge-small-ft|bge-base-ft|bge-small-lora|table>`.
+  **T25b:** a LoRA adapter on bge-small (Intake only) also lost on validation (avg 0.642 < 0.667, Atlas 0.791 < 0.884); no change. Needs ABCD in `data/raw/abcd/abcd_v1.1.json` (see DATA_LICENCES.md).
   ```powershell
   python -m benchmarks.m3.build_data            # ShopNova validation set from ABCD dev
   python -m benchmarks.m3.embed_run bge-small   # one model at a time (bge-small, minilm, bge-base, embeddinggemma, qwen3-0.6b, reranker)

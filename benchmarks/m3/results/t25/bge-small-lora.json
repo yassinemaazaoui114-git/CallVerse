@@ -1,0 +1,356 @@
+{
+ "model": "bge-small-lora",
+ "loaded": "BAAI/bge-small-en-v1.5",
+ "load_s": 1.9,
+ "intake": {
+  "model": "bge-small-lora",
+  "top_k": 1,
+  "avg_macro_f1": 0.6421,
+  "avg_accuracy": 0.6606,
+  "companies": {
+   "shopnova": {
+    "threshold": 0.54,
+    "n": 328,
+    "accuracy": 0.5213,
+    "macro_f1": 0.4935,
+    "critical_errors": 25,
+    "needs_llm_rate": 0.0518,
+    "per_reason": {
+     "order_status": {
+      "precision": 0.189,
+      "recall": 0.378,
+      "f1": 0.252,
+      "support": 37
+     },
+     "late_delivery": {
+      "precision": 0.067,
+      "recall": 0.115,
+      "f1": 0.085,
+      "support": 26
+     },
+     "refund_request": {
+      "precision": 0.961,
+      "recall": 0.731,
+      "f1": 0.831,
+      "support": 67
+     },
+     "return_item": {
+      "precision": 0.554,
+      "recall": 0.816,
+      "f1": 0.66,
+      "support": 38
+     },
+     "damaged_item": {
+      "precision": 0.462,
+      "recall": 0.6,
+      "f1": 0.522,
+      "support": 10
+     },
+     "other": {
+      "precision": 0.944,
+      "recall": 0.453,
+      "f1": 0.613,
+      "support": 150
+     }
+    }
+   },
+   "atlas": {
+    "threshold": 0.52,
+    "n": 40,
+    "accuracy": 0.8,
+    "macro_f1": 0.7907,
+    "critical_errors": 1,
+    "needs_llm_rate": 0.0,
+    "per_reason": {
+     "booking_status": {
+      "precision": 0.75,
+      "recall": 0.6,
+      "f1": 0.667,
+      "support": 5
+     },
+     "delay_disruption": {
+      "precision": 0.667,
+      "recall": 0.8,
+      "f1": 0.727,
+      "support": 5
+     },
+     "cancellation": {
+      "precision": 0.833,
+      "recall": 1.0,
+      "f1": 0.909,
+      "support": 5
+     },
+     "refund_request": {
+      "precision": 0.8,
+      "recall": 0.8,
+      "f1": 0.8,
+      "support": 5
+     },
+     "compensation_request": {
+      "precision": 0.667,
+      "recall": 0.4,
+      "f1": 0.5,
+      "support": 5
+     },
+     "rebooking": {
+      "precision": 0.714,
+      "recall": 1.0,
+      "f1": 0.833,
+      "support": 5
+     },
+     "special_assistance": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.889,
+      "support": 5
+     },
+     "other": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 5
+     }
+    }
+   }
+  },
+  "by_top_k": {
+   "1": {
+    "avg_macro_f1": 0.6421,
+    "thresholds": {
+     "shopnova": 0.54,
+     "atlas": 0.52
+    }
+   },
+   "3": {
+    "avg_macro_f1": 0.6256,
+    "thresholds": {
+     "shopnova": 0.48,
+     "atlas": 0.45
+    }
+   },
+   "5": {
+    "avg_macro_f1": 0.5946,
+    "thresholds": {
+     "shopnova": 0.43,
+     "atlas": 0.41
+    }
+   }
+  }
+ },
+ "intake_latency_ms": {
+  "p50": 11.33,
+  "p95": 17.96,
+  "n": 368
+ },
+ "search": {
+  "no_prompt": {
+   "all": {
+    "n": 30,
+    "top1": 0.9,
+    "top2": 0.9667,
+    "mrr": 0.9444,
+    "top1_count": 27,
+    "top2_count": 29
+   },
+   "shopnova": {
+    "n": 12,
+    "top1": 0.8333,
+    "top2": 0.9167,
+    "mrr": 0.9028,
+    "top1_count": 10,
+    "top2_count": 11
+   },
+   "atlas": {
+    "n": 18,
+    "top1": 0.9444,
+    "top2": 1.0,
+    "mrr": 0.9722,
+    "top1_count": 17,
+    "top2_count": 18
+   },
+   "misses": [
+    {
+     "id": "rv02",
+     "expected": [
+      "R-REF-03"
+     ],
+     "top2": [
+      "R-RET-01",
+      "R-DEL-02"
+     ]
+    }
+   ],
+   "no_rule_separable": 3,
+   "latency_ms": {
+    "p50": 10.92,
+    "p95": 14.66
+   }
+  },
+  "prompt": {
+   "all": {
+    "n": 30,
+    "top1": 0.9,
+    "top2": 1.0,
+    "mrr": 0.95,
+    "top1_count": 27,
+    "top2_count": 30
+   },
+   "shopnova": {
+    "n": 12,
+    "top1": 0.8333,
+    "top2": 1.0,
+    "mrr": 0.9167,
+    "top1_count": 10,
+    "top2_count": 12
+   },
+   "atlas": {
+    "n": 18,
+    "top1": 0.9444,
+    "top2": 1.0,
+    "mrr": 0.9722,
+    "top1_count": 17,
+    "top2_count": 18
+   },
+   "misses": [],
+   "no_rule_separable": 4,
+   "latency_ms": {
+    "p50": 11.2,
+    "p95": 15.35
+   }
+  },
+  "adapter_on_prompt": {
+   "all": {
+    "n": 30,
+    "top1": 0.3667,
+    "top2": 0.6667,
+    "mrr": 0.5784,
+    "top1_count": 11,
+    "top2_count": 20
+   },
+   "shopnova": {
+    "n": 12,
+    "top1": 0.4167,
+    "top2": 0.75,
+    "mrr": 0.6389,
+    "top1_count": 5,
+    "top2_count": 9
+   },
+   "atlas": {
+    "n": 18,
+    "top1": 0.3333,
+    "top2": 0.6111,
+    "mrr": 0.5381,
+    "top1_count": 6,
+    "top2_count": 11
+   },
+   "misses": [
+    {
+     "id": "rv01",
+     "expected": [
+      "R-DEL-02"
+     ],
+     "top2": [
+      "R-NOT-01",
+      "R-DEL-01"
+     ]
+    },
+    {
+     "id": "rv02",
+     "expected": [
+      "R-REF-03"
+     ],
+     "top2": [
+      "R-RET-01",
+      "R-DEL-02"
+     ]
+    },
+    {
+     "id": "rv09",
+     "expected": [
+      "R-DEL-02"
+     ],
+     "top2": [
+      "R-ESC-01",
+      "R-REF-05"
+     ]
+    },
+    {
+     "id": "rv14",
+     "expected": [
+      "AT-FLT-02"
+     ],
+     "top2": [
+      "AT-FLT-05",
+      "AT-FLT-03"
+     ]
+    },
+    {
+     "id": "rv18",
+     "expected": [
+      "AT-FLT-06"
+     ],
+     "top2": [
+      "AT-FLT-02",
+      "AT-HOT-01"
+     ]
+    },
+    {
+     "id": "rv20",
+     "expected": [
+      "AT-HOT-01"
+     ],
+     "top2": [
+      "AT-FLT-03",
+      "AT-FLT-05"
+     ]
+    },
+    {
+     "id": "rv23",
+     "expected": [
+      "AT-HOT-04"
+     ],
+     "top2": [
+      "AT-FLT-05",
+      "AT-AST-01"
+     ]
+    },
+    {
+     "id": "rv24",
+     "expected": [
+      "AT-HOT-05"
+     ],
+     "top2": [
+      "AT-HOT-01",
+      "AT-FLT-04"
+     ]
+    },
+    {
+     "id": "rv25",
+     "expected": [
+      "AT-REF-01"
+     ],
+     "top2": [
+      "AT-ESC-01",
+      "AT-HOT-04"
+     ]
+    },
+    {
+     "id": "rv29",
+     "expected": [
+      "AT-HOT-02"
+     ],
+     "top2": [
+      "AT-FLT-03",
+      "AT-FLT-05"
+     ]
+    }
+   ],
+   "no_rule_separable": 3,
+   "latency_ms": {
+    "p50": 10.53,
+    "p95": 15.75
+   }
+  }
+ },
+ "peak_ram_mb": 810
+}

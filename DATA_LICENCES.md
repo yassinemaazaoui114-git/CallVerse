@@ -65,3 +65,8 @@ fare) × (distance ÷ the sample's average distance), kept between 0.5× and 2.5
   subflow = `other`, sampled to 150 per split, seed 2026). The validation file
   `benchmarks/m3/data/shopnova_intake_val.json` (committed, 328 messages) is derived from ABCD and keeps its MIT licence;
   the test file is only built into git-ignored `out/`.
+
+## Data used to train the M3 LoRA adapter (T25b, adapter not adopted)
+- **ABCD train** (MIT): fine-tuning of bge-small / bge-base (T25) and the adapter (T25b). Models stay in `models/` (git-ignored).
+- **Bitext Retail + Bitext Travel customer-support datasets** (CDLA-Sharing 1.0, synthetic): training of the LoRA adapter
+  only; no Bitext text is stored in this repository except the label mapping `benchmarks/m3/data/bitext_mapping.json`.

@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Status | DONE |
-| Task file | tasks/T25_ft_embeddings.md (score the Colab fine-tuned bge-small-ft / bge-base-ft on val with the T23 code and PC limits; switch Intake only if bge-small-ft wins by the fixed rule) |
-| Approved by | Yassine — 2026-10-31 09:46 (all ⭐) |
-| Last done | T25 — reviewed by the Brain, merged by Yassine into local main (merge f18bc62, not pushed): bge-small-ft lost on val, no switch. Before it: T24 merge 432a8f8 (pushed, de24fa3), T23 merge 4ea501b |
+| Status | WAITING FOR REVIEW |
+| Task file | tasks/T25b_lora_adapter.md (score the Colab LoRA adapter on bge-small on val with the T25 rule; adapter on for Intake only, rule search stays on the plain model; switch only if it wins) |
+| Approved by | Yassine — 2026-10-31 10:32 (all ⭐) |
+| Last done | T25 — merged f18bc62, NEXT DONE cac2490, pushed (origin/main = cac2490): bge-small-ft lost on val, no switch |
 
-Next task: none approved yet.
+Before starting: models/bge-small-callverse-lora.zip must be on the PC; Ollama running only if step 7 (live check) is reached.
 
 Status values: READY · IN PROGRESS · WAITING FOR REVIEW · DONE
 Roadmap (Notion): CallVerse — Full Version Roadmap (finished tasks in its "Done" table) · Dali's lane: tasks/NEXT_PLATFORM.md · Semah's lane: tasks/NEXT_VOICE.md
