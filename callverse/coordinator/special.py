@@ -10,7 +10,8 @@ Same steps as for a refund:
   1. record the proposal (audit), known action, the cited rule is the action's rule;
   2. RE-READ the facts itself (get_order, get_tracking, stock_facts): the agent's facts_used are only traced;
   3. the rule's condition must hold on those facts (check_condition, no eval), else send_back;
-  4. C: the client must have said yes (user_confirmed), else ask_user: NOTHING changes until the client says yes;
+  4. C: the client must have said yes, else ask_user: NOTHING changes until the client says yes. Two things are
+     needed: the agent's user_confirmed AND the message answers C's own question (case["client_said_yes"]);
      D: no client; the owner decides -> owner_pending (the promotion is stored as "pending", nothing else);
   5. approve -> only then the platform writes (writes.create_replacement / create_hold / create_assistance_request).
 """
@@ -146,8 +147,14 @@ def review(proposal: dict, case: dict) -> dict:
         trace.log("coordinator_check", "coordinator", {"check": "owner", "rule_id": rule_id, "facts": facts,
                                                         "result": "pending", "detail": "the owner decides"})
         return done("owner_pending", f"R-PRM-01: promotion {row['id']} waits for the owner", row)
-    if not _check("user_confirmed", proposal.get("user_confirmed") is True, None,
-                  {"user_quote": proposal.get("user_quote")}, "user_confirmed must be true"):
+    # The yes must come from the CONVERSATION, not from the model: case["client_said_yes"] is set by the pipeline only
+    # when this message answers a question Agent C asked before (ticket continue_agent = "C"). In the P20 eval the
+    # fine-tuned model set user_confirmed true for "I need it tomorrow" (no yes), so the model's flag alone is not enough.
+    said_yes = proposal.get("user_confirmed") is True and case.get("client_said_yes") is True
+    if not _check("user_confirmed", said_yes, None,
+                  {"user_quote": proposal.get("user_quote"), "agent_flag": proposal.get("user_confirmed"),
+                   "answers_c_question": case.get("client_said_yes", False)},
+                  "user_confirmed true AND the message answers Agent C's question"):
         return done("ask_user", "the client has not said yes yet: nothing changes before that")
 
     # 5. Approve, then (only then) the platform writes.

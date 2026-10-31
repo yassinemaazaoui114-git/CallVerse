@@ -328,7 +328,7 @@
    "id": "C02",
    "agent": "C",
    "split": "dev",
-   "source": "pair of C01: the client says yes",
+   "source": "pair of C01: the client says yes (answers C's question)", "continue_agent": "C",
    "order_id": 4512,
    "reason": "late_delivery",
    "message": "Yes please, send me a replacement for order 4512, I need it for tomorrow.",

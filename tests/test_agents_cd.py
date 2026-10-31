@@ -64,6 +64,11 @@ def c_proposal(action, params, confirmed=True):
 REPLACE_4512 = {"order_id": 4512, "product_id": 1, "qty": 1}   # stuck at the depot, 8 days late, Wireless Earbuds
 
 
+def yes_case(case_id="T-1"):
+    """A case where the client's message answers Agent C's question (what the channel sets with continue_agent)."""
+    return {**coordinator.new_case(case_id), "client_said_yes": True}
+
+
 @pytest.fixture
 def cd_tables():
     """The seeded test DB already has the C/D tables (seed creates them); this just makes the dependency visible."""
@@ -125,14 +130,17 @@ def test_d_warns_a_about_a_short_product_of_the_order():
 # ---------- Coordinator: Agent C's proposals ----------
 
 def test_replace_waits_for_the_clients_yes_and_writes_nothing_before(cd_tables):
-    d = coordinator.review(c_proposal("replace", REPLACE_4512, confirmed=False), coordinator.new_case("T-1"))
+    d = coordinator.review(c_proposal("replace", REPLACE_4512, confirmed=False), yes_case("T-1"))
+    assert d["outcome"] == "ask_user"
+    # the model says "confirmed" but the message does not answer C's question: still only a question
+    d = coordinator.review(c_proposal("replace", REPLACE_4512, confirmed=True), coordinator.new_case("T-9"))
     assert d["outcome"] == "ask_user"
     assert d["must_say"] == ["Please confirm that you want a free replacement Wireless Earbuds for order 4512."]
     assert scalar("SELECT COUNT(*) FROM replacements") == 0 and scalar("SELECT stock FROM products WHERE id = 1") == 40
 
 
 def test_replace_approved_creates_a_free_order_and_takes_stock_once(cd_tables):
-    case = coordinator.new_case("T-1")
+    case = yes_case("T-1")
     d = coordinator.review(c_proposal("replace", REPLACE_4512), case)
     assert d["outcome"] == "approve" and d["rule_id"] == "R-RPL-01"
     new_id = d["facts"]["new_order_id"]
@@ -140,47 +148,47 @@ def test_replace_approved_creates_a_free_order_and_takes_stock_once(cd_tables):
     assert scalar("SELECT status FROM orders WHERE id = ?", new_id) == "processing"
     assert scalar("SELECT stock FROM products WHERE id = 1") == 39
     assert f"new order {new_id}" in d["must_say"][0]
-    again = coordinator.review(c_proposal("replace", REPLACE_4512), coordinator.new_case("T-2"))
+    again = coordinator.review(c_proposal("replace", REPLACE_4512), yes_case("T-2"))
     assert again["outcome"] == "escalate" and "already has a replacement" in again["reason"]
     assert scalar("SELECT stock FROM products WHERE id = 1") == 39
 
 
 def test_replace_sent_back_when_the_rule_does_not_hold(cd_tables):
     not_late = coordinator.review(c_proposal("replace", {"order_id": 4510, "product_id": 1, "qty": 1}),
-                                  coordinator.new_case("T-1"))
+                                  yes_case("T-1"))
     assert not_late["outcome"] == "send_back" and "R-RPL-01 does not apply" in not_late["reason"]
     other_item = coordinator.review(c_proposal("replace", {"order_id": 4512, "product_id": 4, "qty": 1}),
-                                    coordinator.new_case("T-2"))
+                                    yes_case("T-2"))
     assert other_item["outcome"] == "send_back"      # product 4 is not in order 4512
     refunded = coordinator.review(c_proposal("replace", {"order_id": 4506, "product_id": 4, "qty": 1}),
-                                  coordinator.new_case("T-3"))
+                                  yes_case("T-3"))
     assert refunded["outcome"] == "send_back"        # order 4506 is refunded
     set_stock(1, 0)
-    no_stock = coordinator.review(c_proposal("replace", REPLACE_4512), coordinator.new_case("T-4"))
+    no_stock = coordinator.review(c_proposal("replace", REPLACE_4512), yes_case("T-4"))
     assert no_stock["outcome"] == "send_back"
     wrong_rule = coordinator.review({**c_proposal("replace", REPLACE_4512), "rule_id": "R-REF-03"},
-                                    coordinator.new_case("T-5"))
+                                    yes_case("T-5"))
     assert wrong_rule["outcome"] == "send_back" and "use R-RPL-01" in wrong_rule["reason"]
     assert scalar("SELECT COUNT(*) FROM replacements") == 0
 
 
 def test_hold_keeps_stock_for_up_to_3_days(cd_tables):
     d = coordinator.review(c_proposal("hold", {"order_id": 4510, "product_id": 4, "qty": 1, "hold_days": 3}),
-                           coordinator.new_case("T-1"))
+                           yes_case("T-1"))
     assert d["outcome"] == "approve"
     assert d["must_say"] == ["We are keeping 1 unit of Smart Watch for you until 2026-10-12."]
     assert scalar("SELECT stock FROM products WHERE id = 4") == 14
     long = coordinator.review(c_proposal("hold", {"order_id": 4510, "product_id": 4, "qty": 1, "hold_days": 5}),
-                              coordinator.new_case("T-2"))
+                              yes_case("T-2"))
     assert long["outcome"] == "send_back" and scalar("SELECT COUNT(*) FROM holds") == 1
 
 
 def test_assistance_request_for_a_colleague(cd_tables):
     d = coordinator.review(c_proposal("assistance", {"order_id": 4512, "reason": "client disputes the refund"}),
-                           coordinator.new_case("T-1"))
+                           yes_case("T-1"))
     assert d["outcome"] == "approve" and "special help team" in d["must_say"][0]
     assert scalar("SELECT reason FROM assistance_requests") == "client disputes the refund"
-    empty = coordinator.review(c_proposal("assistance", {"order_id": 4512, "reason": " "}), coordinator.new_case("T-2"))
+    empty = coordinator.review(c_proposal("assistance", {"order_id": 4512, "reason": " "}), yes_case("T-2"))
     assert empty["outcome"] == "send_back"
 
 
@@ -199,7 +207,7 @@ def test_cd_tables_are_added_to_an_older_database():
         con.executescript("DROP TABLE replacements; DROP TABLE holds; DROP TABLE assistance_requests;"
                           " DROP TABLE promotions;")
     d = coordinator.review(c_proposal("hold", {"order_id": 4510, "product_id": 4, "qty": 1, "hold_days": 1}),
-                           coordinator.new_case("T-1"))
+                           yes_case("T-1"))
     assert d["outcome"] == "approve" and scalar("SELECT COUNT(*) FROM holds") == 1
 
 

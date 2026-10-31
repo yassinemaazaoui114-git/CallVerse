@@ -201,7 +201,7 @@ def run_case(case: dict, tmp: Path) -> dict:
     path = _fresh_db(case, tmp)
     base_agent.run_tool = with_overrides(case.get("overrides", {}))
     ticket = {"ticket_id": case["id"], "text": case["message"], "order_id": case["order_id"],
-              "main_reason": case["reason"], "priority_label": "low"}
+              "main_reason": case["reason"], "priority_label": "low", "continue_agent": case.get("continue_agent")}
     message = f"{case['message']}\n\n{pipeline.ticket_note(ticket)}"
     start = time.time()
     try:

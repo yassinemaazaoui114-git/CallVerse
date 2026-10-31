@@ -164,6 +164,8 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
         return agent_cls(chat_fn=chat_fn, company=company)
 
     case = new_case(ticket["ticket_id"])
+    # P20: a yes counts for Agent C only when this message answers C's own question (set by the channel).
+    case["client_said_yes"] = ticket.get("continue_agent") == "C"
     if company != companies.DEFAULT:   # the gate checks that a proposal is about the ticket's own booking
         case.update(order_id=ticket.get("order_id"), booking_type=ticket.get("booking_type"),
                     main_reason=ticket.get("main_reason"), user_message=ticket.get("text"))
