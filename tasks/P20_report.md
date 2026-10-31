@@ -9,6 +9,24 @@ with what sold in the last 30 days, warns Agent A when an item of an order is ru
 for products that sell too slowly, which the shop owner must approve. On the fine-tuned local model
 (`callverse-m2-v3`) the four agents pass 24 of 26 practice cases, with no Groq call.
 
+## 1b. Second round: gaps with the project spec (`PIDS_project_spec.md`, checked 2026-10-31)
+| Spec | Before | Now |
+|---|---|---|
+| Link (1) C asks A "get the facts" (+ deadline: can meet yes / no) | C read tracking itself | tool `get_facts_from_a`: Agent A reads with its tools; "can meet the deadline" is computed by code from A's facts (`agents/ask_c.py`) |
+| Link (2) C asks B "urgent refund" (top of the human's list) | missing | C ends with `[HANDOVER: B]`; B runs, the ticket is marked urgent; urgent approvals come first (`approvals.urgent`, page shows URGENT) |
+| Link (4) C asks D "is it available?" | C read stock itself | tool `check_availability_with_d` (by order: the product ids come from the order) |
+| Link (5) D tells A "stock-out warning" | done | unchanged (line in A's Intake note) |
+| C = Layer 2 (escalated, sent back twice, disputed) | built, OFF | ON by default (`pipeline.layer2_agent_c: true`) |
+| C at Atlas: rebook, assistance with explicit consent | Atlas routed both to "a colleague" | routes `rebooking` / `special_assistance` -> C; `propose_rebooking` (AT-FLT-01: cancelled flight -> later flight on the same route) and `propose_assistance` (AT-AST-01: wheelchair, >= 48 h); `coordinator/atlas_special.py`; new table `rebookings` |
+| C never pays; nothing changes without the yes | done | unchanged (C has no money tool; yes = answer to C's own question) |
+| D at Atlas (overbooked hotels, empty seats) | missing | **NOT built: the Atlas data has no seat or room counts** (needs a data decision, question 6) |
+| Low-confidence tickets to C | missing | **NOT built**: Intake gives no confidence score today (question 7) |
+| Urgent cases never go to fallback | n/a | fallback mode is out of the prototype (CLAUDE.md) |
+| "Agents A-D are not trained, only E" | - | **the switch to `callverse-m2-v3` (a fine-tuned model) needs Yassine's OK and a written reason** (question 1) |
+
+Found on the way: with the links, v3 asked D about invented product ids (123, 1001) and C fell to 3/7; fixed by asking D
+per ORDER and letting the replacement / hold use the order's own item. C is back to 5/7.
+
 ## 2. Done
 - Old local branch `feature/agents-cd` (wrong C = returns, D = delivery messages) deleted, on the user's go (no backup).
   New branch `claude/project-thread-xbs9wx` from the latest `main`. Not pushed.
@@ -36,16 +54,18 @@ for products that sell too slowly, which the shop owner must approve. On the fin
   now with D cases (rules) and an optional expected Coordinator outcome. Cases `tests/dev/agents_cases.json` (26).
 
 ## 3. Evidence
-- `pytest`: **1075 passed / 1075** (27 new in `tests/test_agents_cd.py`, `tests/test_eval_agents.py`; 3 old guard
+- `pytest`: **1085 passed** after the second round (Atlas C tests in `tests/test_agent_c_atlas.py`; the Atlas route
+  tests and practice message a11 now expect Agent C, which asks the client first, instead of "a colleague");
+  first round: 1075 passed (27 new in `tests/test_agents_cd.py`, `tests/test_eval_agents.py`; 3 old guard
   tests updated on purpose: Agent A's prompt fingerprint (one new line), the tool-schema fingerprint now covers the
   tools that existed before, rule count 8 -> 13).
 - Practice cases, all local, no Groq call (`traces/eval_v3_all.json`, `eval_base_all.json`, `eval_*_C2.json`):
 
 | Agent | callverse-m2-v3 | base Qwen (cv-qwen3-4b-instruct) |
 |---|---|---|
-| A (8) | 8/8, avg 12.8 s | 5/8 |
+| A (8) | 8/8, avg 10.7 s (rerun after the links, `eval_v3_A3.json`) | 5/8 |
 | B (7) | 7/7, avg 29.9 s | 5/7 |
-| C (7) | 5/7, avg 24.3 s (after the yes rule + retry) | 2/7 |
+| C (7) | 5/7, avg 27.9 s (after the links, the yes rule + retry; `eval_v3_C4.json`) | 2/7 (before the links) |
 | D (4, rules) | 4/4 | 4/4 |
 | **Total** | **24/26** | **16/26** |
 
@@ -74,6 +94,11 @@ for products that sell too slowly, which the shop owner must approve. On the fin
 3. Promotions: keep the `approve_refunds` permission, or a new `approve_promotions`?
 4. Atlas C (rebooking, special assistance: today routed to `escalate`) as the next task?
 5. Pickup points / nearby stock (spec example) need data the platform does not have; add it?
+6. Atlas D (overbooked hotels, deals on empty seats) and real Atlas rebooking need capacity data (seats per flight,
+   rooms per hotel) and future flights; the real schedule has no later flight on the cancelled routes. Add generated
+   capacity data (labelled ai_generated) or keep Atlas D out?
+7. Low-confidence tickets to C: add a confidence score to Intake, or keep it out?
+8. Yassine planned to build C and D himself: is P20 the version to review, and who owns it from here?
 
 ## 6. Next step
 Team writes held-out C/D cases and reviews the drafts; run the held-out set once on v3; then decide question 1.
