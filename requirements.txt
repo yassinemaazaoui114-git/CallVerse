@@ -22,3 +22,6 @@ httpx>=0.27
 streamlit==1.66.1
 streamlit-authenticator==0.4.2
 bcrypt==5.0.0
+
+# Agent F satisfaction predictor (Semah): TF-IDF + logistic regression, CPU only.
+scikit-learn>=1.5
