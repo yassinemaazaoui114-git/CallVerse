@@ -261,7 +261,25 @@ def _c_problems(fields: dict) -> list[str]:
     return problems
 
 
+def order_product(order_id):
+    """The product of an order that has ONE product (its id), else None. A read, used when C gives no product_id."""
+    from callverse.tools.shopnova_tools import get_order
+    if not _int_id(order_id):
+        return None
+    order = get_order(order_id)
+    ids = {i.get("product_id") for i in order.get("items", [])} if "error" not in order else set()
+    return ids.pop() if len(ids) == 1 else None
+
+
+def _with_product(fields: dict) -> dict:
+    """No product_id given: the order's only product (traced in the proposal, so nothing is hidden)."""
+    if fields.get("product_id") is None and "product_id" in fields:
+        fields = {**fields, "product_id": order_product(fields.get("order_id"))}
+    return fields
+
+
 def _propose_c(action: str, fields: dict) -> dict:
+    fields = _with_product(fields)
     problems = _c_problems(fields)
     if action in ("replace", "hold") and fields.get("order_id") is None:
         problems.insert(0, "order_id is required")
@@ -299,6 +317,8 @@ def c_proposal(agent: str, tool: str, args: dict) -> dict:
             "assistance": ("order_id", "reason")}[action]
     defaults = {"qty": 1, "hold_days": 3, "order_id": None}
     params = {k: args.get(k, defaults.get(k)) for k in keys}
+    if "product_id" in params and params["product_id"] is None:
+        params["product_id"] = order_product(params["order_id"])
     facts = args.get("facts_used") if isinstance(args.get("facts_used"), dict) else {}
     return {"agent": agent, "action": action, "params": params, "rule_id": C_RULES[action], "facts_used": facts,
             "user_confirmed": args["user_confirmed"], "user_quote": args["user_quote"]}
@@ -310,9 +330,9 @@ C_SCHEMAS = {
         "name": "propose_replacement",
         "description": "Propose a free replacement of an order's item from stock (rule R-RPL-01). Sends nothing.",
         "parameters": {"type": "object", "properties": {
-            "order_id": {"type": "integer"}, "product_id": {"type": "integer"}, "qty": {"type": "integer"},
-            "user_confirmed": _CONFIRM, "user_quote": {"type": "string"}},
-            "required": ["order_id", "product_id", "user_confirmed", "user_quote"]}}},
+            "order_id": {"type": "integer"}, "product_id": {"type": "integer", "description": "leave out: the order's item"},
+            "qty": {"type": "integer"}, "user_confirmed": _CONFIRM, "user_quote": {"type": "string"}},
+            "required": ["order_id", "user_confirmed", "user_quote"]}}},
     "propose_hold": {"type": "function", "function": {
         "name": "propose_hold",
         "description": "Propose keeping units of a product for the client, 1 to 3 days (rule R-HLD-01).",

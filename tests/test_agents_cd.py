@@ -407,3 +407,13 @@ def test_c_hands_a_money_request_to_b_as_urgent(tmp_path, cd_tables):
         assert [a["id"] for a in store.approvals("pending")] == [urgent["id"], normal["id"]]
     finally:
         store.use_db(store.DEFAULT_DB_PATH)
+
+
+def test_d_answers_for_the_orders_items_and_replacement_uses_the_orders_item(cd_tables):
+    d = registry.run_tool("C", "check_availability_with_d", {"order_id": 4512})
+    assert [i["product_id"] for i in d["items"]] == [1] and d["items"][0]["available"] is True
+    assert registry.run_tool("C", "propose_replacement", {"order_id": 4512, "user_confirmed": False,
+                                                          "user_quote": "I need it"}) == {"status": "submitted to Coordinator"}
+    from callverse.tools.proposal_tools import c_proposal as build
+    p = build("C", "propose_replacement", {"order_id": 4512, "user_confirmed": False, "user_quote": "I need it"})
+    assert p["params"] == {"order_id": 4512, "product_id": 1, "qty": 1}

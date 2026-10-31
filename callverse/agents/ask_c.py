@@ -56,10 +56,21 @@ def get_facts_from_a(order_id=None, deadline=None, chat_fn=None, company: str = 
     return out
 
 
-def check_availability_with_d(product_id=None, qty=1, chat_fn=None, company: str = companies.DEFAULT) -> dict:
-    """Ask Agent D (rules) whether `qty` units of a product are available."""
+def check_availability_with_d(order_id=None, product_id=None, qty=1, chat_fn=None,
+                              company: str = companies.DEFAULT) -> dict:
+    """Ask Agent D (rules) whether the items of an order (order_id), or `qty` units of one product, are available.
+    By order: the product ids come from the order itself, so the model never has to guess one (seen in the P20 eval)."""
     from callverse.agents.agent_d import availability   # imported here: agent_d -> coordinator -> registry
-    out = availability(product_id, qty)
+    if order_id is not None:
+        from callverse.tools.shopnova_tools import get_order
+        order = get_order(order_id) if isinstance(order_id, int) and not isinstance(order_id, bool) else {"error": "bad id"}
+        if "error" in order:
+            return {"error": f"order {order_id} not found"}
+        out = {"agent": "D", "order_id": order_id,
+               "items": [availability(i["product_id"], int(i.get("qty") or 1)) for i in order["items"]
+                         if isinstance(i.get("product_id"), int)]}
+    else:
+        out = availability(product_id, qty)
     trace.log("ask_agent", "ask", {"from": "C", "to": "D", "product_id": product_id, "qty": qty, "result": out})
     return out
 
@@ -74,8 +85,8 @@ SCHEMAS = {
             "required": ["order_id"]}}},
     "check_availability_with_d": {"type": "function", "function": {
         "name": "check_availability_with_d",
-        "description": "Ask Agent D if a product is available in stock.",
-        "parameters": {"type": "object", "properties": {"product_id": {"type": "integer"}, "qty": {"type": "integer"}},
-                       "required": ["product_id"]}}},
+        "description": "Ask Agent D if the items of an order (give order_id) or one product are available in stock.",
+        "parameters": {"type": "object", "properties": {"order_id": {"type": "integer"}, "product_id": {"type": "integer"},
+                                                        "qty": {"type": "integer"}}}}},
 }
 FUNCTIONS = {"get_facts_from_a": get_facts_from_a, "check_availability_with_d": check_availability_with_d}
