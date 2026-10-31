@@ -12,20 +12,27 @@ When Yassine types **"Do the next task"**:
 
 ## What CallVerse is
 A university data-science project: a digital twin of a fully AI customer relation center.
-This repo is the **prototype** for the next validation. The teacher grades **architectural reasoning**
+This repo is the **full version** of CallVerse (the first prototype is finished). One shared center serves two
+companies: **ShopNova** (e-commerce) and **Atlas Travel** (hotels and flights). Apps: ShopNova on port 8501,
+CallVerse Console on 8502, Atlas on 8503. The teacher grades **architectural reasoning**
 ("why is this model / agent / rule here?"). Yassine must understand every file: write simple, commented code.
 
 ## Locked decisions (do not change)
-- Prototype flow: Client Simulator → Intake → Queues (rules) → Agent A / Agent B → Coordinator (rules) → SLM → reply.
-- Company: **ShopNova** (mock e-commerce). Data and policies come from the teammate's platform; until ready,
-  placeholder data with the **same structure** (`callverse/data/seed.py`).
-- Out of scope for the prototype: agents C, D, E, F, fallback mode, fine-tuning, benchmarking.
-- Models, switchable in `config.yaml` only:
-  M2 agents' shared LLM = `openai/gpt-oss-120b` on Groq (backup `openai/gpt-oss-20b`);
-  M1 simulator = an API model of a **different family** (Gemini Flash);
-  M3 embeddings = `BAAI/bge-small-en-v1.5` (local CPU);
-  M4 classifiers = ready-made emotion/sentiment models (chosen later);
-  M5 SLM = small local model 1–4B via Ollama (chosen later). Max 6 GB VRAM: big LLMs only via API.
+- Flow: Intake (M3 + M4) → Router per company + priority queue → Agent A / Agent B → Coordinator (rules; ShopNova
+  `coordinator.py`, Atlas `atlas_coordinator.py`) → SLM → reply. Rebooking and special assistance are escalated
+  until agent C exists. (The Client Simulator is not part of this flow: it is Mahmoud's lane.)
+- Company data: **ShopNova** = real Olist sample + scripted orders 4505–4515. **Atlas** = real hotel bookings +
+  real 2015 US flights + scripted bookings 7001–7012.
+- Scope: agent E is dropped. Agent F and RL are Semah's lane. Agents C and D are planned and are built only in their
+  own tasks. Fine-tuning and benchmarks only when a task asks for them. Training runs on Colab / Kaggle, not on the PC.
+- Models: `config.yaml` is the source of truth (switch models there only). Today:
+  M2 Agent B = Groq `openai/gpt-oss-120b` → backup `openai/gpt-oss-20b`; Agent A + Intake fallback = local
+  `cv-qwen3.5-4b` (`CALLVERSE_AGENTS_SET=local`);
+  M3 embeddings = `BAAI/bge-small-en-v1.5`, pinned revision, top-k 5, thresholds 0.69 (ShopNova) / 0.54 (Atlas),
+  BGE query prompt in rule search;
+  M4 = `j-hartmann` emotion + `cardiffnlp` sentiment;
+  M5 SLM = `qwen2.5:1.5b` via Ollama (backup 3b);
+  M1 simulator = Gemini Flash (a **different family** from the agents). Max 6 GB VRAM: big LLMs only via API.
 - **Agents never act directly.** Read tools only within the agent's allow-list; action tools only create a
   **proposal**; only the **Coordinator** (rules, no LLM) executes after its checks.
 - **Facts come from tools**, never from model memory. Allow-list per agent, enforced in code (`tools/registry.py`).
@@ -44,6 +51,12 @@ This repo is the **prototype** for the next validation. The teacher grades **arc
 6. Respect the task's **time box**; when it runs out, stop and report what is done and what is left.
 7. Keep all tests passing. Explain new files in simple words.
 8. At the end of every task, update README.md with what changed (only what is necessary).
+9. **Locked test sets** (`tests/data/*`, ABCD `test`) are opened only when a task says so, and only once.
+10. **Real data first.** Write messages only when no real source fits, and mark them as written / AI-generated.
+11. **Never merge into `main`.** Yassine runs the merges himself (with `!`); then you run the tests and set `tasks/NEXT.md` to DONE.
+12. **WIP protocol (in every task):** if Yassine has to leave, write a progress file (`tasks/Txx_progress.md`),
+    make a "WIP" commit and push the branch.
+13. Never commit `models/` or `data/raw/`. Never read `.env`.
 
 ## Git and branches
 - `main` must always work (tests pass, demo runs). It only changes through a reviewed merge.
@@ -65,10 +78,14 @@ This repo is the **prototype** for the next validation. The teacher grades **arc
 README.md  CLAUDE.md  config.yaml  .env.example  requirements.txt  .gitignore
 callverse/     code: llm, config, trace, data, tools, agents, kb, coordinator, queues,
                intake, slm, simulator, notifier
+apps/          the three apps: shopnova, console, atlas
 scripts/       runnable entry points (run_demo.py, ...)
+benchmarks/    model comparisons, kept apart from the running system (e.g. m3/)
 tests/
 tasks/         NEXT.md, Txx task files, Txx reports
-docs/          architecture.md, platform_contract.md, briefs_archive/
+docs/          architecture.md, platform_contract.md, benchmarks/, briefs_archive/
+models/        local model files (git-ignored)
+data/raw/      raw downloaded datasets (git-ignored)
 traces/        run logs (git-ignored)
 ```
 
