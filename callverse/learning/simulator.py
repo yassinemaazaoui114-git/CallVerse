@@ -34,7 +34,7 @@ ARCHETYPES = {   # style preference (added to the rating) by persona type
 BASE = {"approve": 4.3, "info": 3.3, "ask_proof": 3.1, "ask_user": 3.0, "layer3": 2.9, "send_back": 2.8, "escalate": 2.6}
 # Wrong replies (must FAIL the verifier) and degraded replies (correct but less helpful: must PASS, rate lower).
 CORRUPTIONS = ["invented_amount", "unapproved_refund", "false_delivery_promise", "fabricated_action",
-               "wrong_amount", "voucher_overclaim", "contradiction", "stale_fact"]
+               "wrong_amount", "voucher_overclaim", "contradiction", "stale_fact", "false_approval"]
 DEGRADATIONS = ["incomplete", "generic"]
 
 
@@ -178,6 +178,11 @@ def corrupt(reply: str, decision: dict, kind: str) -> str:
     approved_refund = decision.get("outcome") == "approve" and decision.get("action") in ("refund", "cancel_hotel")
     if kind == "unapproved_refund" and approved_refund:
         kind = "wrong_amount"
+    refused = any(w in str(decision.get("next_step", "")).lower() for w in ("nothing to refund", "cannot", "no compensation", "not possible"))
+    if kind == "contradiction" and (refused or decision.get("outcome") != "approve"):
+        kind = "false_approval" if decision.get("outcome") != "approve" else kind
+    if kind == "contradiction" and refused:
+        kind = "false_approval"
     extra = {"invented_amount": " You will also get 20 TND as a goodwill gesture.",
              "unapproved_refund": " Your refund has been approved and the money is on its way.",
              "false_delivery_promise": " It will arrive within 2 days, guaranteed.",
@@ -186,6 +191,7 @@ def corrupt(reply: str, decision: dict, kind: str) -> str:
              "wrong_amount": " We refunded 99.00 TND to your account.",
              "voucher_overclaim": " We also added a 10% voucher to your account.",
              "contradiction": " Actually we cannot approve this refund.",
+             "false_approval": " Your request has been approved.",
              "stale_fact": None}
     if kind == "stale_fact":   # the reply states a delay that contradicts the connector (facts are re-read live)
         late = decision.get("facts", {}).get("days_late")

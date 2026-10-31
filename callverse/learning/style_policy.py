@@ -48,7 +48,9 @@ class StylePolicy:
 
     def best(self, situation: dict) -> str:
         arms = self._arms(situation)
-        return max(STYLES, key=lambda s: (self.prior + arms[s][0]) / (2 * self.prior + arms[s][0] + arms[s][1]))
+        score = {s: (self.prior + arms[s][0]) / (2 * self.prior + arms[s][0] + arms[s][1]) for s in STYLES}
+        top = max(score.values())
+        return random.Random(self.seed).choice([s for s in STYLES if score[s] == top])   # seeded tie-break
 
     def update(self, situation: dict, style: str, reward) -> None:
         if reward is None:
@@ -88,6 +90,11 @@ def random_style(seed: int = 0):
 def rule_based(situation: dict) -> str:
     """Hand-written rule: upset customer -> apology first, else short."""
     return "apology_first" if situation.get("emotion") in UPSET else "short"
+
+
+def rule_based_v2(situation: dict) -> str:
+    """Rule read off the TRAIN simulator audit: upset -> apology first, calm -> apology + next step."""
+    return "apology_first" if situation.get("emotion") in UPSET else "apology_next_step"
 
 
 # ----------------------------------------------------------------------------- richer context + more algorithms
@@ -169,7 +176,9 @@ class EpsilonGreedy:
 
     def best(self, situation: dict) -> str:
         arms = self._arms(situation)
-        return max(STYLES, key=lambda s: (arms[s][0] / arms[s][1]) if arms[s][1] else 0.0)
+        score = {s: (arms[s][0] / arms[s][1]) if arms[s][1] else 0.0 for s in STYLES}
+        top = max(score.values())
+        return random.Random(self.seed).choice([s for s in STYLES if score[s] == top])   # seeded tie-break
 
     def choose(self, situation: dict) -> str:
         arms = self._arms(situation)
