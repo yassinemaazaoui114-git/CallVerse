@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T25b_lora_adapter.md (score the Colab LoRA adapter on bge-small on val with the T25 rule; adapter on for Intake only, rule search stays on the plain model; switch only if it wins) |
 | Approved by | Yassine — 2026-10-31 10:32 (all ⭐) |
 | Last done | T25 — merged f18bc62, NEXT DONE cac2490, pushed (origin/main = cac2490): bge-small-ft lost on val, no switch |
