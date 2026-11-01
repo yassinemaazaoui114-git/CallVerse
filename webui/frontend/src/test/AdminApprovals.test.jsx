@@ -100,34 +100,74 @@ describe("Refund approvals", () => {
     expect(await net.waitFor("status=pending", { index: 1 })).toBeTruthy();
   });
 
-  it("a lost answer is not resent: the recorded state is read and shown", async () => {
+  it("a lost answer is not resent: the recorded state is read; complete / in flight / partial / nothing", async () => {
+    const net = installFakeFetch();
+    await start(net, list([approval(1), approval(2), approval(3), approval(4)]));
+    const stateUrl = (id) => new RegExp(`/api/admin/approvals/${id}$`);
+    async function lose(id, reason) {
+      await userEvent.type(screen.getByLabelText(`Reason (required to refuse; never shown to the client)`, { selector: `#reason-${id}` }), reason);
+      const card = screen.getByRole("article", { name: new RegExp(`approval ${id} `, "i") });
+      await act(async () => { within(card).getByRole("button", { name: /^approve$/i }).click(); });
+      const dialog = screen.getByRole("dialog");
+      await act(async () => { within(dialog).getByRole("button", { name: /confirm approval/i }).click(); });
+      const req = await net.waitFor(`/api/admin/approvals/${id}/decide`);
+      const clientId = JSON.parse(req.options.body).client_id;
+      await act(async () => { req.fail(); });
+      return { clientId, state: await net.waitFor(stateUrl(id)) };
+    }
+    // 1: complete on the server
+    let r = await lose(1, "ok");
+    await act(async () => { r.state.respond(200, { approval: { ...approval(1), status: "approved" }, in_flight: null, evidence: { stage: "complete", stage_words: "Complete.", approval: { ...approval(1), status: "approved", decided_by: "admin", decided_at: "2026-10-09T09:00:00" } } }); });
+    expect(screen.getByRole("status")).toHaveTextContent("recorded it as approved by admin at 2026-10-09T09:00:00");
+    await act(async () => { screen.getByRole("button", { name: /dismiss/i }).click(); });
+    await act(async () => { (await net.waitFor("status=pending", { index: 1 })).respond(200, list([approval(2), approval(3), approval(4)])); });
+    // 2: still running in the API -> not confirmed, Check status, NO Confirm again
+    r = await lose(2, "ok");
+    await act(async () => { r.state.respond(200, { approval: approval(2), in_flight: { admin: "admin", client_id: r.clientId, approve: true, started_at: "t" }, evidence: { stage: "nothing_written", stage_words: "No write found." } }); });
+    let alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("may still be processing; its result is not confirmed");
+    expect(within(alert).getByRole("button", { name: /check status/i })).toBeInTheDocument();
+    expect(within(alert).queryByRole("button", { name: /confirm again/i })).toBeNull();
+    await act(async () => { within(alert).getByRole("button", { name: /check status/i }).click(); });
+    const again = await net.waitFor(stateUrl(2), { index: 1 });
+    await act(async () => { again.respond(200, { approval: { ...approval(2), status: "approved" }, in_flight: null, evidence: { stage: "complete", stage_words: "Complete.", approval: { ...approval(2), status: "approved", decided_by: "admin", decided_at: "t2" } } }); });
+    expect(screen.getByRole("status")).toHaveTextContent("recorded it as approved");
+    expect(net.all("/decide")).toHaveLength(2);   // one per approval, never a second one
+    await act(async () => { screen.getByRole("button", { name: /dismiss/i }).click(); });
+    await act(async () => { (await net.waitFor("status=pending", { index: 2 })).respond(200, list([approval(3), approval(4)])); });
+    // 3: partial (money moved, approval row still pending) -> do NOT decide again, no Confirm again
+    r = await lose(3, "ok");
+    await act(async () => { r.state.respond(200, { approval: approval(3), in_flight: null, evidence: { stage: "company_written_approval_pending", stage_words: "PARTIAL: the company's transaction is committed.", refund: { amount: 378 }, proposal_decision: "approve", ticket_status: "Waiting for finance" } }); });
+    alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("partially completed — do NOT decide again");
+    expect(alert).toHaveTextContent("Refund row: 378.00 TND");
+    expect(within(alert).queryByRole("button", { name: /confirm again/i })).toBeNull();
+    await act(async () => { screen.getByRole("button", { name: /dismiss/i }).click(); });
+    await act(async () => { (await net.waitFor("status=pending", { index: 3 })).respond(200, list([approval(4)])); });
+    // 4: nothing written and nothing running -> Confirm again with the SAME request id
+    r = await lose(4, "ok");
+    await act(async () => { r.state.respond(200, { approval: approval(4), in_flight: null, evidence: { stage: "nothing_written", stage_words: "No write found." } }); });
+    alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("result is not confirmed. No write was found");
+    await act(async () => { within(alert).getByRole("button", { name: /confirm again/i }).click(); });
+    await act(async () => { within(screen.getByRole("dialog")).getByRole("button", { name: /confirm approval/i }).click(); });
+    const r3 = await net.waitFor("/api/admin/approvals/4/decide", { index: 1 });
+    expect(JSON.parse(r3.options.body).client_id).toBe(r.clientId);
+  });
+
+  it("an error raised mid-decision shows the API's evidence, never 'nothing was done'", async () => {
     const net = installFakeFetch();
     await start(net);
     const dialog = await openConfirm(true, "ok");
     await act(async () => { within(dialog).getByRole("button", { name: /confirm approval/i }).click(); });
     const req = await net.waitFor("/decide");
-    await act(async () => { req.fail(); });
-    const state = await net.waitFor(/\/api\/admin\/approvals\/1$/);
-    await act(async () => { state.respond(200, { approval: { ...approval(1), status: "approved", decided_by: "admin", decided_at: "2026-10-09T09:00:00" } }); });
-    expect(screen.getByRole("status")).toHaveTextContent("recorded it as approved by admin at 2026-10-09T09:00:00");
-    expect(net.all("/decide")).toHaveLength(1);
-    // still pending on the server: the admin may confirm again with the SAME request id
-    const net2 = net;
-    await act(async () => { screen.getByRole("button", { name: /dismiss/i }).click(); });
-    const refresh = await net2.waitFor("status=pending", { index: 1 });
-    await act(async () => { refresh.respond(200, list([approval(2)])); });
-    const d2 = await openConfirm(true, "again");
-    await act(async () => { within(d2).getByRole("button", { name: /confirm approval/i }).click(); });
-    const r2 = await net2.waitFor("/api/admin/approvals/2/decide");
-    const id2 = JSON.parse(r2.options.body).client_id;
-    await act(async () => { r2.fail(); });
-    const s2 = await net2.waitFor(/\/api\/admin\/approvals\/2$/);
-    await act(async () => { s2.respond(200, { approval: approval(2) }); });
-    expect(screen.getByRole("alert")).toHaveTextContent("still pending on the server. Nothing was written");
-    await act(async () => { screen.getByRole("button", { name: /confirm again/i }).click(); });
-    await act(async () => { within(screen.getByRole("dialog")).getByRole("button", { name: /confirm approval/i }).click(); });
-    const r3 = await net2.waitFor("/api/admin/approvals/2/decide", { index: 1 });
-    expect(JSON.parse(r3.options.body).client_id).toBe(id2);   // the same request id: the server dedupes
+    await act(async () => { req.respond(500, { error: "decision_uncertain", message: "RuntimeError: SLM down — recorded state: PARTIAL", evidence: { stage: "approval_closed_reply_missing", stage_words: "PARTIAL: the customer's reply is missing.", refund: { amount: 378 }, proposal_decision: "approve", ticket_status: "Waiting for finance", approval: { ...approval(1), status: "approved" } } }); });
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("partially completed");
+    expect(alert).toHaveTextContent("RuntimeError: SLM down");
+    expect(alert).toHaveTextContent("customer's reply is missing");
+    expect(alert).not.toHaveTextContent("nothing was done");
+    expect(within(alert).queryByRole("button", { name: /confirm again/i })).toBeNull();
   });
 
   it("denied access and empty states", async () => {

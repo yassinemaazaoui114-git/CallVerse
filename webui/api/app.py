@@ -60,6 +60,9 @@ ERRORS = {
     "already_decided": "This approval was already decided.",
     "recheck_refused": "The Coordinator's re-check refused the approval: nothing was written.",
     "write_refused": "Nothing was written.",
+    "decision_uncertain": "The decision raised an error after it started. Its result is not confirmed: see the "
+                          "recorded state.",
+    "client_id_reused": "This request id was already used for a different decision. Send the new one with a new id.",
     "setup_required": "ShopNova's data is not set up on this PC yet (shopnova.db is missing). Run the seed "
                       "command from docs/DEMO_RUNBOOK.md, then try again.",
     "bad_login": "Wrong username or password.",
@@ -69,14 +72,15 @@ ERRORS = {
 }
 
 
-def _error(status: int, code: str, message: str | None = None) -> JSONResponse:
-    """Every error answer has the same shape: {error: code, message: words}. The browser keys on `error`."""
-    return JSONResponse({"error": code, "message": message or ERRORS.get(code, code)}, status_code=status)
+def _error(status: int, code: str, message: str | None = None, extra: dict | None = None) -> JSONResponse:
+    """Every error answer has the same shape: {error: code, message: words, ...extra}. The browser keys on `error`."""
+    return JSONResponse({"error": code, "message": message or ERRORS.get(code, code), **(extra or {})},
+                        status_code=status)
 
 
 class ApiError(Exception):
-    def __init__(self, status: int, code: str, message: str | None = None):
-        self.status, self.code, self.message = status, code, message
+    def __init__(self, status: int, code: str, message: str | None = None, extra: dict | None = None):
+        self.status, self.code, self.message, self.extra = status, code, message, extra
 
 
 class LoginIn(BaseModel):
@@ -110,7 +114,7 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
 
     @app.exception_handler(ApiError)
     async def api_error(request: Request, exc: ApiError):
-        return _error(exc.status, exc.code, exc.message)
+        return _error(exc.status, exc.code, exc.message, exc.extra)
 
     # ---------- dependencies ----------
 
@@ -344,11 +348,14 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
 
     @app.get("/api/admin/approvals/{approval_id}")
     def admin_approval(approval_id: int, _: dict = Depends(shopnova_admin)):
+        """The recorded state: the approval with its facts, what a decision has written so far (`evidence`,
+        with its stage) and whether a decision on it is running in this process right now (`in_flight`)."""
         shop_data_ready()
         found = admin.one(approval_id)
         if found is None:
             raise ApiError(404, "not_found", f"Approval {approval_id} is not one of ShopNova's.")
-        return {"approval": found}
+        return {"approval": found, "evidence": admin.evidence(approval_id),
+                "in_flight": decisions.in_flight(approval_id)}
 
     @app.post("/api/admin/approvals/{approval_id}/decide", dependencies=[Depends(csrf_checked)])
     def admin_decide(approval_id: int, body: DecisionIn, who: dict = Depends(shopnova_admin)):
@@ -356,13 +363,21 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
         recovery). The admin's username and the company come from the account. The approval's CURRENT state is
         re-read here (and again inside decide(), under its lock) before anything runs. The handler is a plain
         `def`: FastAPI runs it in a worker thread, so the slow part (re-check + write + the reply writer) never
-        blocks the event loop."""
+        blocks the event loop.
+
+        Three kinds of answer: the core REFUSED (its error dict: nothing written, mapped to 4xx / 409); the core
+        COMPLETED (200 with its result, recorded under the client_id); something RAISED after decide() began
+        (500 `decision_uncertain` with the re-read evidence: the core may have committed its transaction, closed
+        the approval, or not; the browser must not call that "nothing was done")."""
         shop_data_ready()
         reason = body.reason.strip()
         if len(reason) > 1000:
             raise ApiError(400, "reason_too_long", "A reason may have at most 1000 characters.")
-        recorded = decisions.recorded(who["username"], approval_id, body.client_id)
-        if recorded is not None:   # the same decision asked again (lost response): its recorded result
+        kind, recorded = decisions.recorded(companies.DEFAULT, who["username"], approval_id, body.client_id,
+                                            body.approve, reason)
+        if kind == "mismatch":
+            raise ApiError(409, "client_id_reused")
+        if kind == "same":   # the identical decision asked again (lost response): its recorded result
             return {**recorded, "recorded": True}
         current = admin.one(approval_id)
         if current is None:
@@ -372,22 +387,32 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
                            f"(by {current.get('decided_by') or '—'} at {current.get('decided_at') or '—'}).")
         if not body.approve and not reason:
             raise ApiError(400, "reason_required")
-        if not decisions.begin(approval_id):
+        if not decisions.begin(approval_id, {"admin": who["username"], "client_id": body.client_id,
+                                             "approve": body.approve, "reason": reason}):
             raise ApiError(409, "decision_in_progress")
         try:
-            out = admin.run_decision(who["username"], approval_id, body.approve, reason)
-        except Exception as e:   # noqa: BLE001 — report, never leave the guard set
-            out = {"error": f"{type(e).__name__}: {e}"[:300], "exception": True}
+            try:
+                out = admin.run_decision(who["username"], approval_id, body.approve, reason)
+            except Exception as e:   # noqa: BLE001 — raised after the core started: the outcome is unknown
+                found = admin.evidence(approval_id)
+                raise ApiError(500, "decision_uncertain",
+                               f"{type(e).__name__}: {e}"[:300] + f" — recorded state: {found.get('stage_words')}",
+                               {"evidence": found})
+            if "error" in out:   # the core refused explicitly: by its contract nothing was written
+                status, code = admin.classify(out)
+                raise ApiError(status, code, str(out["error"]))
+            try:
+                result = admin.result_view(out)   # response preparation: a failure here must not look like a refusal
+            except Exception as e:   # noqa: BLE001
+                found = admin.evidence(approval_id)
+                raise ApiError(500, "decision_uncertain",
+                               f"the decision completed but its answer could not be prepared ({type(e).__name__}: {e})"
+                               f" — recorded state: {found.get('stage_words')}", {"evidence": found})
+            decisions.record(companies.DEFAULT, who["username"], approval_id, body.client_id, body.approve, reason,
+                             result)
+            return result
         finally:
-            pass
-        if "error" in out:
-            decisions.end(who["username"], approval_id, None, out)   # an error is not a recorded decision
-            status, code = admin.classify(out)
-            raise ApiError(status, code, str(out["error"]))
-        result = {"approval": out["approval"], "outcome": out["outcome"], "ticket": out["ticket"],
-                  "refund": out.get("refund"), "reply_source": out.get("reply_source")}
-        decisions.end(who["username"], approval_id, body.client_id, result)
-        return result
+            decisions.end(approval_id)   # whatever happened above: the guard is released
 
     @app.get("/api/health")
     def health():

@@ -137,11 +137,21 @@ the company come from the account. The route re-reads the approval (404 / 409 `a
 when), applies the reason rule, refuses a concurrent request on the same approval (409 `decision_in_progress`),
 then calls the core's `decide()` in a worker thread: its own pending check under its lock, the Coordinator's
 re-check on fresh data (a failure → 409 `recheck_refused`, nothing written, still pending), the one write
-transaction, the customer reply and the unread notice. The result is kept 15 min under the `client_id`: the same
-request asked again (lost answer) returns the recorded result, never a second run. The screen never retries by
-itself: on a lost answer it reads the recorded state and says whether the approval is decided or still pending.
-Across processes (this API + the Streamlit app) the core decides once: `admin_decide_refund` refuses an already
-decided proposal inside one SQLite transaction and `close_approval` only closes a pending row.
+transaction, the customer reply and the unread notice. The result is kept 15 min under the `client_id`, bound
+to admin, company, approval, choice and reason: the identical request asked again (lost answer) returns the
+recorded result, never a second run; the same id with other content → 409 `client_id_reused`.
+
+Three kinds of answer: the core refused (4xx / 409, nothing written by its contract); the core completed (200);
+an exception after the core started → 500 `decision_uncertain` with `evidence` (the re-read approval row,
+proposal decision, refund row, ticket status, last message, and a stage: `nothing_written`,
+`company_written_approval_pending`, `approval_closed_reply_missing`, `complete`). `GET /api/admin/approvals/{id}`
+returns the same `evidence` plus `in_flight` (a decision running in this process). The screen never retries by
+itself: on a lost answer it reads that state and says "still processing", "recorded as …", "partially completed,
+do not decide again" or "no write found" (only then "Confirm again" with the same request id).
+Transaction safety is the core's: `admin_decide_refund` decides the proposal and writes the refund in one SQLite
+transaction and refuses an already decided proposal; `close_approval` only closes a pending row. Closing the
+approval row and writing the customer reply happen after that transaction, so a crash in between leaves a partial
+state the API reports but cannot finish (a core function is requested in the step-4 report).
 
 ## Chat transport (step 3)
 

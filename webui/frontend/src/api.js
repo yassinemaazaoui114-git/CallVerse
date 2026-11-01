@@ -43,7 +43,9 @@ async function request(path, options = {}) {
     }
     const code = (body && body.error) || `http_${response.status}`;
     const message = (body && body.message) || `The API answered ${response.status}.`;
-    throw new ApiError(code, message, response.status);
+    const error = new ApiError(code, message, response.status);
+    error.body = body;   // e.g. the admin route's `evidence` on an uncertain decision
+    throw error;
   }
   return body;
 }

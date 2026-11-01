@@ -5,7 +5,10 @@
 // one transaction, the new reply to the customer). This screen only shows what the API returns:
 // - a decision in flight disables every other submission on that approval; a second click is not a second run
 //   (the request id is kept, so asking again returns the recorded result);
-// - a lost response is NOT retried: the screen re-reads the approval's recorded state and says what it found;
+// - a lost response or an error raised mid-decision is NOT retried: the screen reads the API's recorded state
+//   (what was actually written: nothing / the company transaction / the approval record / the customer reply,
+//   and whether a decision is still running) and says exactly that; "Confirm again" with the same request id
+//   is offered only when nothing was written and nothing is running;
 // - a refused re-check leaves the approval pending and shows the Coordinator's words;
 // - an outcome the UI has never seen is shown as text.
 import { useEffect, useRef, useState } from "react";
@@ -68,16 +71,21 @@ export default function AdminApprovals() {
       if (err instanceof ApiError && err.code === "recheck_refused") {
         setConfirm(null);
         setNotice({ kind: "refused", approvalId: approval.id, text: `Approval ${approval.id}: the Coordinator's re-check refused it, nothing was written. It stays pending.`, detail: err.message });
-      } else if (err instanceof ApiError && (err.code === "already_decided" || err.code === "decision_in_progress")) {
+      } else if (err instanceof ApiError && err.code === "decision_uncertain") {
+        // the core raised after it started: the API re-read what was written; show THAT, never "nothing was done"
+        setConfirm(null);
+        showEvidence(approval, (err.body && err.body.evidence) || null, null, { approve, reason, clientId }, err.message);
+      } else if (err instanceof ApiError && (err.code === "already_decided" || err.code === "decision_in_progress" || err.code === "client_id_reused")) {
         setConfirm(null);
         setNotice({ kind: "error", approvalId: approval.id, text: `Approval ${approval.id}: ${err.message}` });
         reload();
       } else if (err instanceof ApiError && err.code !== "unavailable") {
+        // an explicit refusal by the core or the API (its contract: nothing written)
         setConfirm(null);
-        setNotice({ kind: "error", approvalId: approval.id, text: `Approval ${approval.id}: nothing was done. ${err.message}` });
+        setNotice({ kind: "error", approvalId: approval.id, text: `Approval ${approval.id}: the server refused it. ${err.message}` });
       } else {
         // the answer was lost (network drop, proxy error): do NOT send again; read the recorded state
-        await recover(approval, clientId, approve, reason);
+        await recover(approval, { approve, reason, clientId });
       }
     } finally {
       inflightRef.current = null;
@@ -85,23 +93,55 @@ export default function AdminApprovals() {
     }
   }
 
-  async function recover(approval, clientId, approve, reason) {
-    try {
-      const { approval: state } = await api.approval(approval.id);
-      if (state.status === "pending") {
-        setConfirm(null);
-        setNotice({ kind: "uncertain", approvalId: approval.id,
-          text: `Approval ${approval.id}: the connection dropped and the approval is still pending on the server. Nothing was written. You can confirm again.`,
-          retry: { approval, approve, reason, clientId } });
-      } else {
-        setConfirm(null);
-        setNotice({ kind: "ok", approvalId: approval.id,
-          text: `Approval ${approval.id}: the connection dropped, but the server recorded it as ${words(state.status)} by ${state.decided_by || "—"} at ${state.decided_at || "—"}.` });
-        reload();
-      }
-    } catch (e) {
+  // What the recorded state says, in words the admin can act on. `evidence` is the API's re-read (stage:
+  // nothing_written / company_written_approval_pending / approval_closed_reply_missing / complete),
+  // `inFlight` the decision running in the API right now, `request` the submission whose answer is unknown.
+  function showEvidence(approval, evidence, inFlight, request, prefix) {
+    const stage = evidence && evidence.stage;
+    const head = prefix ? `${prefix} ` : "";
+    const check = { approval, request };
+    if (inFlight) {
       setNotice({ kind: "uncertain", approvalId: approval.id,
-        text: `Approval ${approval.id}: the connection dropped and the recorded state could not be read. Reload the queue before deciding again; nothing was sent twice.` });
+        text: `Approval ${approval.id}: the decision may still be processing; its result is not confirmed.`,
+        detail: `${head}A decision (${inFlight.approve ? "approve" : "refuse"}, started ${inFlight.started_at}) is running in the API. Do not decide again; check its status in a moment.`,
+        check });
+      return;
+    }
+    if (!evidence || stage === "unknown") {
+      setNotice({ kind: "uncertain", approvalId: approval.id,
+        text: `Approval ${approval.id}: the result is not confirmed and the recorded state could not be read.`,
+        detail: `${head}Reload the queue before deciding again; nothing was sent twice.`, check });
+      return;
+    }
+    if (stage === "complete") {
+      const a = evidence.approval || {};
+      setNotice({ kind: "ok", approvalId: approval.id,
+        text: `Approval ${approval.id}: the server recorded it as ${words(a.status)} by ${a.decided_by || "—"} at ${a.decided_at || "—"}.`,
+        detail: head ? `${head}${evidence.stage_words}` : evidence.stage_words });
+      reload();
+      return;
+    }
+    if (stage === "nothing_written") {
+      setNotice({ kind: "uncertain", approvalId: approval.id,
+        text: `Approval ${approval.id}: the result is not confirmed. No write was found (proposal undecided, no refund row, no decision running in the API).`,
+        detail: `${head}If the request never reached the server, "Confirm again" sends it with the SAME request id; the server will not run it twice if it did arrive.`,
+        check, retry: request ? { approval, ...request } : null });
+      return;
+    }
+    // partial completion: money or the decision moved, the record or the customer reply did not
+    setNotice({ kind: "uncertain", approvalId: approval.id,
+      text: `Approval ${approval.id}: partially completed — do NOT decide again.`,
+      detail: `${head}${evidence.stage_words}${evidence.refund ? ` Refund row: ${tnd(evidence.refund.amount)}.` : ""}${evidence.proposal_decision ? ` Proposal decision: ${words(evidence.proposal_decision)}.` : ""} Ticket ${words(evidence.ticket_status)}. Finishing the record or the customer reply needs a core step (reported to Yassine).`,
+      check });
+    reload();
+  }
+
+  async function recover(approval, request) {
+    try {
+      const state = await api.approval(approval.id);
+      showEvidence(approval, state.evidence || null, state.in_flight || null, request, null);
+    } catch (e) {
+      showEvidence(approval, null, null, request, null);
     }
   }
 
@@ -133,7 +173,8 @@ export default function AdminApprovals() {
             {notice.detail && <span className="small">{notice.detail}</span>}
           </div>
           <div className="actions row">
-            {notice.retry && <button type="button" className="btn btn-sm" onClick={() => { setConfirm(notice.retry); setNotice(null); }}>Confirm again</button>}
+            {notice.check && <button type="button" className="btn btn-sm" onClick={() => recover(notice.check.approval, notice.check.request)}><Icon name="refresh" size={14} />Check status</button>}
+            {notice.retry && <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setConfirm(notice.retry); setNotice(null); }}>Confirm again</button>}
             <button type="button" className="btn btn-ghost btn-sm" aria-label="Dismiss" onClick={() => setNotice(null)}><Icon name="x" size={14} /></button>
           </div>
         </div>

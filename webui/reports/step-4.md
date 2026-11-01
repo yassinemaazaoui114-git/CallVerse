@@ -67,29 +67,86 @@ instead of sending again. Checked in the browser with a fake reply writer (no mo
 
 ## 4. Problems
 
-- **Cross-process safety is the core's, not the UI's.** Two processes (this API and the Streamlit app) can both
-  pass `decide()`'s pending check (its lock is per process), but `writes.admin_decide_refund` decides the
-  proposal inside one `BEGIN IMMEDIATE` transaction and refuses an already decided proposal, and
-  `close_approval` only closes a pending row: the loser gets "already decided", nothing is paid twice. The
-  API's in-flight guard and recorded results only cover this process. No core change needed for money; the
-  loser's customer reply is simply not written twice either (the write failed before the reply step).
+- **Transaction safety vs. completion of the record and the notification** (corrected in the second commit).
+  The core guarantees the MONEY step: `writes.admin_decide_refund` decides the proposal and writes the refund in
+  one `BEGIN IMMEDIATE` transaction and refuses an already decided proposal, `close_approval` only closes a
+  pending row; two processes (this API and the Streamlit app) cannot pay twice. But `decide()` does three
+  things in sequence AFTER that transaction, outside it: close the approval row, write the customer reply, set
+  the ticket Solved + unread. A crash between them leaves a **partial** state: money moved and the approval row
+  still `pending` (a naive retry looks "safe" and is exactly the danger: the core refuses it, which is right,
+  but the row never closes), or the row closed and the customer never told. The API now re-reads this with
+  the existing functions (`admin.evidence`: approval row, proposal decision, refund row of the proposal, ticket
+  status, last message) and names the stage; the screen shows it and offers no retry for a partial stage.
+  **Needs a core function to finish**: there is no existing function that closes the approval row / writes the
+  customer reply for a proposal already decided; the API does not invent one. Listed for Yassine below.
 - **The demo fixture's approval 1** (from step 1) points at a proposal id that the real seed does not own; it
   now serves as the "core refuses, nothing written" example. Not a product case.
-- **Recorded results are in memory** (15 min, this process): after an API restart a retry with the old
-  `client_id` gets 409 `already_decided` with who / when, which is still a correct, non-repeating answer.
+- **Recorded results and the in-flight state are in memory** (15 min, this process): after an API restart a
+  retry with the old `client_id` gets 409 `already_decided` with who / when (correct, non-repeating), and a
+  decision that was running dies with the process (daemon worker thread: only what the core had committed
+  survives; the screen's recorded state then shows the stage reached).
 - `decided_at` is the simulation clock (the core's choice); the screen labels it so.
 - Not verified in the browser: a lost answer (covered by the screen test: the recorded state is read, the same
   request id reused), concurrent clicks from two tabs (API test).
 
 ## 5. Questions for the Brain
 
-1. The decided list reads `approval_facts` for every row (tracking + refunds reads per row). Fine for a demo;
+1. **Core function wanted for partial decisions**: `decide()` commits the company transaction, then closes the
+   approval row, then writes the customer reply, outside that transaction. If it dies in between, the UI can
+   only report the stage (it does). A small core function such as `approvals.finish(approval_id)` (close the
+   row if the proposal is decided and the row still pending; write the reply / unread if missing) would let the
+   admin finish such a case from the UI. Until then those cases are for you by hand; the UI says "do NOT decide
+   again" and shows the evidence.
+2. The decided list reads `approval_facts` for every row (tracking + refunds reads per row). Fine for a demo;
    should the API cap the decided list (e.g. last 50) for later?
-2. Should the admin see the customer reply text after a decision? `decide()` returns it; the screen shows
+3. Should the admin see the customer reply text after a decision? `decide()` returns it; the screen shows
    only the outcome and the ticket status today (the reply belongs to the customer's chat).
-3. Step 5 (Atlas): the same queue serves Atlas (`company="atlas"`, compensations). Plan: reuse these routes under
+4. Step 5 (Atlas): the same queue serves Atlas (`company="atlas"`, compensations). Plan: reuse these routes under
    an `atlas_admin` guard with `company="atlas"` and `atlas_app_reads` for the facts. OK?
 
 ## 6. Next step
 
 Step 5 of the brief: Atlas Travel customer and admin pages. After your review of this step.
+
+## 7. Correction pass (second step-4 commit)
+
+Asked by the Brain after review. Changes under `webui/` only; `callverse/` unchanged.
+
+1. **Explicit refusal vs. unexpected exception.** A `decide()` error dict is the core's explicit refusal (by its
+   contract nothing was written) and keeps its 4xx / 409 mapping. An exception raised after `decide()` began is
+   now answered 500 `decision_uncertain` with `evidence` = the re-read state (`admin.evidence`: approval row,
+   proposal decision, the proposal's refund row via `get_refunds`, ticket status, last message) and its stage:
+   `nothing_written`, `company_written_approval_pending` (PARTIAL), `approval_closed_reply_missing` (PARTIAL),
+   `complete`. The screen never says "nothing was done" for it.
+2. **Lost-response recovery.** `GET /api/admin/approvals/{id}` returns `evidence` and `in_flight` (the decision
+   running in this process: admin, client_id, choice, started at). The screen, after a lost answer or an uncertain
+   result: in flight → "may still be processing; its result is not confirmed" + Check status, no retry;
+   complete → recorded as X by Y at Z; partial → "do NOT decide again" + the evidence, no retry;
+   nothing written and nothing running → "not confirmed, no write found" + Check status + Confirm again with the
+   SAME request id. A pending approval row alone is never taken as proof of no write.
+3. **Retry identity bound to its payload.** The recorded result is keyed by company, admin, approval id and
+   `client_id`, and stores the normalised payload (choice, trimmed reason). An identical request gets the recorded
+   result; a reused id with another choice or reason → 409 `client_id_reused`.
+4. **In-flight guard in a real `finally`** that covers the core call, the error mapping and the response
+   preparation (`admin.result_view`); a failure while preparing the answer is reported as uncertain with the
+   evidence (stage `complete`) and the guard is still released.
+
+**Regression tests** (API, real `decide()` on temp databases, fake reply writer): refund committed then the reply
+writer raises → uncertain, stage `approval_closed_reply_missing`, retry → 409 already decided, one refund row;
+company transaction committed then `close_approval` raises → stage `company_written_approval_pending`, retry refused
+by the core, one refund row; lost response while the original request runs → recorded state shows `in_flight`,
+same id → 409 `decision_in_progress`, one run; same id with other choice / reason → 409 `client_id_reused`,
+identical (normalised) → recorded; response-preparation failure → uncertain with stage `complete`, guard released
+(next request → already decided, not in progress). Screen: the four recovery outcomes (complete / in flight /
+partial / nothing) and a mid-decision error shown as evidence, with exactly one decision request per approval.
+
+**Results**
+
+| Check | Result |
+|---|---|
+| `python -m pytest webui/api/tests -q` | **56 passed** |
+| `npm --prefix webui/frontend test` | **39 passed** |
+| `npm --prefix webui/frontend run build` | OK, JS 231.9 kB (72.2 kB gzip) |
+
+Not re-checked in the browser this pass (the step-4 browser checks were done before the correction; the corrected
+paths are covered by the tests above).

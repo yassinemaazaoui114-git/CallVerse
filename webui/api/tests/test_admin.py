@@ -195,15 +195,16 @@ def test_lost_response_recovery_does_not_repeat_the_decision(client):
     assert state["status"] == "approved" and state["decided_by"] == "admin"
 
 
-def test_worker_exception_is_reported_and_the_guard_is_released(client):
+def test_exception_before_any_write_is_uncertain_with_evidence_and_the_guard_is_released(client):
     a = pending_approval()
     admin.use_decide_fn(lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("boom")))
     login(client, "admin")
     r = decide(client, a["id"], True, client_id="e1")
-    assert r.status_code == 409 and r.json()["error"] == "write_refused" and "RuntimeError" in r.json()["message"]
+    assert r.status_code == 500 and r.json()["error"] == "decision_uncertain" and "RuntimeError" in r.json()["message"]
+    assert r.json()["evidence"]["stage"] == "nothing_written"   # evidence, not a claim
     assert store.get_approval(a["id"])["status"] == "pending"
     admin.use_decide_fn(None)
-    assert decide(client, a["id"], False, "after the failure").status_code == 200
+    assert decide(client, a["id"], False, "after the failure").status_code == 200   # the guard was released
 
 
 def test_unknown_outcome_passes_through(client):
@@ -213,3 +214,117 @@ def test_unknown_outcome_passes_through(client):
         "ticket": store.get_ticket(a["ticket_id"]), "refund": None, "reply_source": "fake"})
     login(client, "admin")
     assert decide(client, a["id"], True).json()["outcome"] == "approve_with_proof_pending"
+
+
+# ---------- correction pass: partial completion, in-flight state, bound retry identity ----------
+
+def refund_rows(order_id=4515):
+    return get_refunds(order_id)["refunds"]
+
+
+def boom(message):
+    def raise_it(*args, **kwargs):
+        raise RuntimeError(message)
+    return raise_it
+
+
+def test_refund_committed_then_reply_generation_fails(client, monkeypatch):
+    """The core wrote its transaction and closed the approval, then the reply writer raised: the API answers
+    uncertain with the evidence (stage approval_closed_reply_missing); a retry never pays twice."""
+    a = pending_approval()
+    from callverse.channels import approvals as channel
+    monkeypatch.setattr(channel.pipeline, "final_reply", boom("SLM down"))
+    login(client, "admin")
+    r = decide(client, a["id"], True, "ok", client_id="p1")
+    assert r.status_code == 500 and r.json()["error"] == "decision_uncertain"
+    ev = r.json()["evidence"]
+    assert ev["stage"] == "approval_closed_reply_missing"
+    assert ev["refund"]["amount"] == 378.0 and ev["proposal_decision"] == "approve" and ev["approval"]["status"] == "approved"
+    assert ev["ticket_status"] == "Waiting for finance"   # the customer was not told
+    assert len(refund_rows()) == 1
+    # recovery: the recorded state says so; the same request again is NOT a replay (nothing recorded) and the
+    # core refuses a second run; no second payment
+    state = client.get(f"/api/admin/approvals/{a['id']}").json()
+    assert state["evidence"]["stage"] == "approval_closed_reply_missing" and state["in_flight"] is None
+    again = decide(client, a["id"], True, "ok", client_id="p1")
+    assert again.status_code == 409 and again.json()["error"] == "already_decided"
+    assert len(refund_rows()) == 1
+
+
+def test_company_transaction_committed_then_approval_update_fails(client, monkeypatch):
+    """The core's transaction committed (proposal decided, refund row) and then close_approval raised: the
+    approval row is still pending but money moved. The API must say PARTIAL, and a retry must not pay again."""
+    a = pending_approval()
+    from callverse.channels import approvals as channel
+    monkeypatch.setattr(channel.store, "close_approval", boom("disk full"))
+    login(client, "admin")
+    r = decide(client, a["id"], True, "ok", client_id="p2")
+    assert r.status_code == 500 and r.json()["error"] == "decision_uncertain"
+    ev = r.json()["evidence"]
+    assert ev["stage"] == "company_written_approval_pending"
+    assert ev["approval"]["status"] == "pending" and ev["refund"]["amount"] == 378.0 and ev["proposal_decision"] == "approve"
+    assert "PARTIAL" in ev["stage_words"]
+    monkeypatch.undo()
+    # the approval row still says pending: a naive retry is exactly the danger; the core refuses the proposal
+    again = decide(client, a["id"], True, "ok", client_id="p2")
+    assert again.status_code == 409 and again.json()["error"] == "already_decided"   # "proposal ... already decided"
+    assert len(refund_rows()) == 1
+    assert client.get(f"/api/admin/approvals/{a['id']}").json()["evidence"]["stage"] == "company_written_approval_pending"
+
+
+def test_lost_response_while_the_original_request_is_still_running(client):
+    a = pending_approval()
+    gate, calls = threading.Event(), []
+
+    def slow(approval_id, who, approve, reason, slm_chat_fn=None, company=None):
+        calls.append(1)
+        gate.wait(10)
+        return {"approval": {**store.get_approval(approval_id), "status": "approved"}, "outcome": "approve",
+                "ticket": {"id": a["ticket_id"], "status": "Solved"}, "refund": None, "reply_source": "fake"}
+    admin.use_decide_fn(slow)
+    login(client, "admin")
+    results = []
+    t = threading.Thread(target=lambda: results.append(decide(client, a["id"], True, "ok", client_id="run-1").status_code))
+    t.start()
+    for _ in range(100):
+        if calls:
+            break
+        time.sleep(0.02)
+    # the browser lost the answer and asks for the recorded state: the decision is IN FLIGHT, not "nothing"
+    state = client.get(f"/api/admin/approvals/{a['id']}").json()
+    assert state["in_flight"]["client_id"] == "run-1" and state["in_flight"]["approve"] is True
+    assert state["evidence"]["stage"] == "nothing_written"   # nothing yet, but a run is going on
+    # the same request again while it runs is NOT replayed and NOT run twice
+    again = decide(client, a["id"], True, "ok", client_id="run-1")
+    assert again.status_code == 409 and again.json()["error"] == "decision_in_progress"
+    gate.set()
+    t.join(10)
+    assert results == [200] and len(calls) == 1
+    assert client.get(f"/api/admin/approvals/{a['id']}").json()["in_flight"] is None
+
+
+def test_same_client_id_with_changed_choice_or_reason_is_rejected(client):
+    a = pending_approval()
+    login(client, "admin")
+    first = decide(client, a["id"], False, "duplicate claim", client_id="same-1")
+    assert first.status_code == 200
+    for other in ({"approve": True, "reason": "duplicate claim"}, {"approve": False, "reason": "other words"}):
+        r = client.post(f"/api/admin/approvals/{a['id']}/decide", json={"client_id": "same-1", **other}, headers=CSRF)
+        assert r.status_code == 409 and r.json()["error"] == "client_id_reused", other
+    same = decide(client, a["id"], False, "  duplicate claim ", client_id="same-1")   # normalised reason: identical
+    assert same.status_code == 200 and same.json()["recorded"] is True
+
+
+def test_response_preparation_failure_releases_the_guard(client, monkeypatch):
+    a = pending_approval()
+    monkeypatch.setattr(admin, "result_view", boom("ticket"))
+    login(client, "admin")
+    r = decide(client, a["id"], True, "ok", client_id="prep-1")
+    assert r.status_code == 500 and r.json()["error"] == "decision_uncertain"
+    assert r.json()["evidence"]["stage"] == "complete"   # the decision itself completed
+    monkeypatch.undo()
+    state = client.get(f"/api/admin/approvals/{a['id']}").json()
+    assert state["in_flight"] is None                      # the guard was released
+    again = decide(client, a["id"], True, "ok", client_id="prep-1")
+    assert again.status_code == 409 and again.json()["error"] == "already_decided"   # not decision_in_progress
+    assert len(refund_rows()) == 1
