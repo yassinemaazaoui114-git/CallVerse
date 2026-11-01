@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | Status | IN PROGRESS |
-| Task file | tasks/M2T3_dali_model_60_and_switch.md (Dali's callverse-m2-v3 vs our cv-qwen3.5-4b for Agents A + B on all 60 real test messages, local only; if it wins: default with Groq as backup; no merge) |
-| Approved by | Yassine — 2026-11-01 21:57 |
-| Paused | T14d (tasks/T14d_request_action_match.md, branch feat/t14d-request-match): items 0–4 done, items 5–6 (live). M2T3's last step puts NEXT.md back to T14d IN PROGRESS. |
-| Last done | M2T2 — A + B on m2-v3: 21/24, 0 wrong writes; rule false on speed only (19.19 vs 19.10 s, same system as M2T) |
+| Task file | tasks/T14d_request_action_match.md (a write must match what the user asked: money words are not an order cancellation, Atlas ticket refund needs a money-back request, wrong-write check counts order status, "not refunded yet" = complaint; 12 new held-out real tweets) |
+| Approved by | Yassine — 2026-11-01 13:33 (B1 + C1–C3) |
+| Progress | items 0–4 done (tasks/T14d_progress.md); items 5–6 (live) next |
+| Last done | M2T3 — A + B on all 60 real messages, local (test/m2-v3-agent-b, not merged): m2-v3 53/56 vs cv-qwen3.5-4b 46/56, 0 API calls, but m2-v3 made 2 wrong writes (t14c h03 690 TND refund, h12 order cancelled; both T14d cases, Groq does the same) → WIN RULE false, no switch; report tasks/M2T3_report.md on that branch |
 
 Next after T14d: RL1 merge → step 09 → agent C → agent D.
 
