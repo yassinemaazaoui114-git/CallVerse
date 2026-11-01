@@ -4,6 +4,9 @@
 
 Everything runs on this PC: the local ShopNova server, the demo page, the local reply model (Ollama).
 The agents use the free Groq models (backup chain: gpt-oss-120b → gpt-oss-20b → Gemini Flash).
+> **T14d finish (2026-11-01):** Agents A and B now run on Dali's local model `callverse-m2-v3` (Ollama). Groq / Gemini are
+> only Agent B's backups, used if the local model fails, so the daily Groq limit no longer blocks the demo. Before the
+> demo check `ollama list` shows `callverse-m2-v3` (create it from `models/m2/Modelfile_v3`, see README).
 No key is written in this file: keys stay in `.env` (never shown, never committed).
 
 ## The day before

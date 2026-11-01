@@ -16,7 +16,8 @@ A client message goes through these steps (each one is traced in `traces/`, one 
    client's style and the order number; a small LLM only when the reason is unclear.
 3. **Queues** (rules) — order status / late delivery → **Agent A** (Status & Tracking); refund / cancel / return /
    damaged item → **Agent B** (Payment & Refund). Agent A hands money requests over to B.
-4. **Agents** (shared LLM `openai/gpt-oss-120b` on Groq) — read facts with their allowed tools only
+4. **Agents** (Dali's fine-tuned local model `callverse-m2-v3` for A and B; B falls back to Groq
+   `openai/gpt-oss-120b` → `gpt-oss-20b` → Gemini Flash, A to the local `cv-qwen3.5-4b`) — read facts with their allowed tools only
    (`callverse/tools/registry.py`), find the company rule with the policy search (RAG), and submit a **proposal**.
 5. **Coordinator** (rules, no LLM) — re-reads the facts, checks the cited rule, the refund limit and the client's
    confirmation, then approves (only then the platform writes), sends back, asks the client, escalates, or declines
@@ -48,6 +49,8 @@ python -m callverse.data.seed   # builds the ShopNova database (callverse/data/s
   # the app uses copies with an 8,192-token context (Ollama's default 4,096 can cut a prompt):
   Set-Content Modelfile.qwen "FROM qwen3.5:4b`nPARAMETER num_ctx 8192";  ollama create cv-qwen3.5-4b -f Modelfile.qwen
   Set-Content Modelfile.phi  "FROM phi4-mini`nPARAMETER num_ctx 8192";   ollama create cv-phi4-mini  -f Modelfile.phi
+  # M2 = Dali's fine-tuned model (Agents A + B, T14d finish); the GGUF file is in models/m2/ (git-ignored, from Dali):
+  cd models\m2;  ollama create callverse-m2-v3 -f Modelfile_v3;  cd ..\..
   ```
   The Intake models (embeddings, emotion, sentiment) download by themselves on the first run (about 1 GB).
 - **Demo logins**, once, by yourself (only bcrypt hashes go into the git-ignored `config/accounts.yaml`):
@@ -68,7 +71,8 @@ python -m callverse.data.seed   # builds the ShopNova database (callverse/data/s
 What is in it: Shop (everyone; buying needs a login), My orders and Help chat (a logged-in client); as `admin` also
 Admin dashboard, Manage (products, orders, users, refunds, admin log) and Refund approvals. In the app a refund above
 300 TND waits for the admin (`CALLVERSE_LAYER3_MODE=queue`); the client gets the decision as a new reply.
-Models in the app: Intake + Agent A + reply writer local, Agent B on Groq. The app does not watch its files: **after a
+Models in the app: all local while Ollama answers (Intake fallback `cv-qwen3.5-4b`, Agents A + B `callverse-m2-v3`,
+reply writer `qwen2.5:1.5b`); Agent B falls back to Groq, then Gemini, only if the local model fails. The app does not watch its files: **after a
 code change, restart it** (close the window or Ctrl+C, then start again).
 Clean demo data: `python -m callverse.data.seed` and delete `callverse/data/callverse.db` (the tickets).
 
@@ -270,6 +274,10 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   (`atlas_coordinator.ACTION_REASONS`; a mismatching proposal gets the rule's no to what was asked, else ask first);
   "amount not refunded till date / yet / for 10 days" is a complaint, not a negation (`negation.py`); `run_t14c` also
   counts an order-status change that `expect.order_status` does not allow as a wrong write. Report: `tasks/T14d_report.md`.
+  **Model switch (T14d finish):** on the 60 real messages with T14d's code, Dali's `callverse-m2-v3` scored 56/56 with
+  0 wrong writes (our `cv-qwen3.5-4b`: 46/56), so Agent A (`models.agent_a`, new list, all local) and Agent B
+  (`models.agent_b`: callverse-m2-v3 → Groq 120b → 20b → Gemini) now start with it; the Intake fallback is unchanged.
+  `scripts/quota_check.py` stops at a local first model that answers (no Groq ping). Compare: `python -m scripts.compare_m2t --t14d`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

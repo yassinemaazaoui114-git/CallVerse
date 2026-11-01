@@ -49,10 +49,18 @@ models:
   agents_local: &agents_local
     - {provider: ollama,     model: "cv-qwen3.5-4b", temperature: 0, seed: 42, options: {reasoning_effort: none}}
     - {provider: ollama,     model: "cv-phi4-mini",  temperature: 0, seed: 42}
-    # M2T (test only, branch test/m2-v3-agent-b): Dali's fine-tuned Qwen3-4B-Instruct-2507 + LoRA (GGUF Q4_K_M),
-    # Ollama copy made from models/m2/Modelfile_v3 (num_ctx 8192). Last in the list, so it is used only when forced
-    # with CALLVERSE_FORCE_AGENT_B_MODEL=callverse-m2-v3. No reasoning_effort: it is a non-thinking model.
+    # M2T: Dali's fine-tuned Qwen3-4B-Instruct-2507 + LoRA (GGUF Q4_K_M), Ollama copy made from
+    # models/m2/Modelfile_v3 (num_ctx 8192). No reasoning_effort: it is a non-thinking model. In this TEST list it
+    # stays last (used only when forced); in the real lists agent_a and agent_b below it is FIRST (T14d finish).
     - {provider: ollama,     model: "callverse-m2-v3", temperature: 0, seed: 42}
+  # T14d finish (WIN RULE true, approved by Yassine 2026-11-01): Agent A's OWN turns have their own list, so the switch
+  # to Dali's model does not change the Intake LLM fallback (that one keeps the "agents" lists above).
+  # All local: no API, no quota. callverse-m2-v3 first; our cv-qwen3.5-4b is the local backup, then cv-phi4-mini.
+  # Measured on the 60 real messages with T14d's code: callverse-m2-v3 56/56, 0 wrong writes (cv-qwen3.5-4b 46/56).
+  agent_a:
+    - {provider: ollama,     model: "callverse-m2-v3", temperature: 0, seed: 42}
+    - {provider: ollama,     model: "cv-qwen3.5-4b", temperature: 0, seed: 42, options: {reasoning_effort: none}}
+    - {provider: ollama,     model: "cv-phi4-mini",  temperature: 0, seed: 42}
   # T16 (option A, approved 2026-10-29): a TEMPORARY test setup, the final one is decided after the M2 benchmark.
   # Agent B (refunds) has its own model list, so it can stay on Groq while Intake + Agent A run locally:
   # the local model reads and routes well but almost never calls propose_refund (T13c/T13f).
@@ -61,10 +69,14 @@ models:
   # Switches: CALLVERSE_AGENTS_SET=local does NOT move B (B stays here, on Groq);
   # CALLVERSE_AGENT_B_SET=local moves B (and its sub-call) to agent_b_local;
   # CALLVERSE_FORCE_AGENT_B_MODEL=<model> keeps one model of B's list. CALLVERSE_FORCE_AGENTS_MODEL no longer
-  # affects B. No Gemini here (no third backup for B).
+  # affects B.
+  # T14d finish (WIN RULE true): Dali's local model first (no API call while it answers); the Groq chain is the backup,
+  # then Gemini (other provider, other limits), as in the "agents" chain.
   agent_b:
+    - {provider: ollama,     model: "callverse-m2-v3", temperature: 0, seed: 42}
     - {provider: groq,       model: "openai/gpt-oss-120b", options: {reasoning_effort: low}}
     - {provider: groq,       model: "openai/gpt-oss-20b",  options: {reasoning_effort: low}}
+    - {provider: google,     model: "gemini-3.5-flash"}
   agent_b_local: *agents_local   # the same entries as agents_local, so the two can never drift
   simulator: # M1, different family (used in task 4)
     # T08 (approved 2026-10-21): gemini-3.5-flash, the Flash model this key accepts that answers fast

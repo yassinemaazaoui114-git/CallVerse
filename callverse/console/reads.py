@@ -16,7 +16,7 @@ shown with "—" and only counted in the period "All".
 
 Who did a step (the Agents page and the tokens per agent): steps are read in order, per user message.
 Intake reads first (its LLM fallback uses the "agents" models, before the intake step); then an "agents" model
-call is Agent A's, an "agent_b" call is Agent B's (also its "ask Agent A" question), an "slm" call is the reply
+call is Agent A's (T14d finish: an "agent_a" call too), an "agent_b" call is Agent B's (also its "ask Agent A" question), an "slm" call is the reply
 writer's; a proposal belongs to the agent that worked just before it; checks, decisions, Layer 3 and the writes
 the Coordinator approved belong to the Coordinator.
 
@@ -213,7 +213,8 @@ def _actor(step: dict, intake_done: bool) -> str | None:
         role = data.get("role")
         if role == "agents":
             return "A" if intake_done else "intake"   # before the intake step: Intake's LLM fallback
-        return {"agent_b": "B", "slm": "writer"}.get(role)
+        # T14d finish: Agent A's own turns ask role "agent_a" ("agents" above = older traces, or Intake's fallback)
+        return {"agent_a": "A", "agent_b": "B", "slm": "writer"}.get(role)
     if kind in ("coordinator", "layer3", "write"):
         return "coordinator"
     if kind == "slm":
