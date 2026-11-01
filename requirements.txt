@@ -25,4 +25,4 @@ bcrypt==5.0.0
 
 # Agent F satisfaction predictor (Semah, accepted in F1): TF-IDF + logistic regression, CPU only.
 # scikit-learn also brings scipy, which F's metrics use (Spearman).
-scikit-learn>=1.5
+scikit-learn>=1.9.1,<1.10
