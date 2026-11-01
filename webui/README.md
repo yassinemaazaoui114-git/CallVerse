@@ -57,10 +57,14 @@ To try the UI **without** the real accounts or the real tickets database, make a
 python -m webui.api.dev_fixture C:\path\to\a\temp\folder
 ```
 
-It prints the three variables to set before starting the API (`CALLVERSE_WEBUI_ACCOUNTS`,
-`CALLVERSE_WEBUI_TICKETS_DB`, `CALLVERSE_WEBUI_SHOPNOVA_DB`, `CALLVERSE_WEBUI_ATLAS_DB`) and
-`CALLVERSE_LAYER3_MODE=queue` (the fixture holds one pending ShopNova refund and one pending Atlas compensation,
-test data). Delete the folder when done.
+It prints the variables to set before starting the API (`CALLVERSE_WEBUI_ACCOUNTS`,
+`CALLVERSE_WEBUI_TICKETS_DB`, `CALLVERSE_WEBUI_SHOPNOVA_DB`, `CALLVERSE_WEBUI_ATLAS_DB`,
+`CALLVERSE_LAYER3_MODE=queue`, `CALLVERSE_WEBUI_FAKE_CHAT=1`) and the three pending approvals it made with the
+real Coordinators in queue mode (test data): youssef's order 4515 (refund 378.00 TND), nizar's flight 7004
+(compensation 839.50 TND), sonia's flight 7006 (refund 1,900.00 TND). One approval is decided once: for a second
+approve / refuse of the same case, make a second fixture folder. `webui/api/tests/test_dev_fixture.py` runs the
+fixture in a fresh folder and decides the three cases through the API. The walkthrough sheet with PowerShell
+setup lines is `reports/acceptance.md`. Delete the folder when done.
 
 To look at the **chat screen without Ollama / Groq**, add `CALLVERSE_WEBUI_FAKE_CHAT=1`: the chat then uses the
 fake channel of `webui/api/dev_fixture.py` (no model, every reply starts with `[TEST DATA]`; the words "busy",

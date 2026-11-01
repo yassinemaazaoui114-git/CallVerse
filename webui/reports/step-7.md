@@ -30,7 +30,9 @@ Screenshots: `webui/reports/screenshots/step-7/` (20 files). **Final state** = e
 prefix: `01`–`08` from this pass (supervisor desktop tickets and detail; supervisor, ShopNova admin and Atlas
 customer on the phone; the dialog with the keyboard), `10_atlas_booking_detail_phone_final.jpg` (the fact list
 after the fix: label above value, page 375 px wide), `desktop_*` = the final desktop state of the chat, approvals,
-bookings and the four dashboards (unchanged since steps 3–6, copied here for one index). **Historical** =
+bookings and the four dashboards (`desktop_40`, `42`, `53`–`56`, `60` and
+`desktop_01_supervisor_live_tickets_after_decisions` retaken on the corrected fixture; the others unchanged
+since steps 3–6, copied here for one index). **Historical** =
 `before_09_atlas_booking_detail_phone.jpg`, the same page before the fix (kept to show the defect; not the
 current UI).
 
@@ -63,6 +65,16 @@ In this step's commit (browser / accessibility pass):
 - `webui/reports/acceptance.md`: the walkthrough sheet for Yassine (startup, accounts, expected results per
   flow, dashboard comparison on identical data and periods, fake-model vs real checks, open core blockers,
   pass / fail / not-run fields).
+- **Demo fixture corrected** (acceptance preparation): a fresh `dev_fixture` used to make a ShopNova approval on
+  order 4505 (a 34.50 TND order) with a proposal id that existed nowhere, for a ticket of user 3, and no Atlas
+  refund. Now the three pending cases are made by the real Coordinators in queue mode, like the API test
+  fixtures: youssef's order 4515 (refund 378.00, R-REF-03, P-0001), nizar's flight 7004 (compensation 839.50,
+  AT-FLT-03, AP-0001), sonia's flight 7006 (refund 1,900.00, AT-FLT-04, AP-0002); every other ticket talks about
+  an order / booking its customer owns (sara 4512, youssef 4510, leila 4514, hedi 7005, lobna 7008). New test
+  `webui/api/tests/test_dev_fixture.py` (3): runs `dev_fixture.main` in a fresh folder, decides the three cases
+  through the API with the fake writer, checks one money record each (never two, never the wrong kind), the
+  right customer told, a refusal paying nothing. The walkthrough of `acceptance.md` part 4 was run on two fresh
+  folders in the browser and the API, with the results recorded; screenshots 40, 42, 53–56, 60 retaken.
 - **Fact lists on a phone** (`dl.kv`: booking detail, order detail, approval dialog): a long label left the value
   a few characters wide. Under 480 px the label sits above the value.
 
@@ -83,7 +95,7 @@ Supervisor-only numbers (Groq today, tokens per agent) are on supervisor routes 
 
 | Check | Result |
 |---|---|
-| `python -m pytest webui/api/tests -q` | **79 passed** |
+| `python -m pytest webui/api/tests -q` | **82 passed** (79 + `test_dev_fixture.py`) |
 | `npm --prefix webui/frontend test` | **51 passed** (10 files; rerun after the in-flight dialog fix) |
 | `npm --prefix webui/frontend run build` | OK, JS 272.3 kB (81.4 kB gzip), CSS 23.6 kB |
 | `git diff main --stat -- . ':!webui'` | nothing outside `webui/` (`.agents/`, `.claude/` untracked, not committed) |
