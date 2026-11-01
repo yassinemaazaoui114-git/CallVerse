@@ -161,11 +161,12 @@ describe("Refund approvals", () => {
     const dialog = await openConfirm(true, "ok");
     await act(async () => { within(dialog).getByRole("button", { name: /confirm approval/i }).click(); });
     const req = await net.waitFor("/decide");
-    await act(async () => { req.respond(500, { error: "decision_uncertain", message: "RuntimeError: SLM down — recorded state: PARTIAL", evidence: { stage: "approval_closed_reply_missing", stage_words: "PARTIAL: the customer's reply is missing.", refund: { amount: 378 }, proposal_decision: "approve", ticket_status: "Waiting for finance", approval: { ...approval(1), status: "approved" } } }); });
+    await act(async () => { req.respond(500, { error: "decision_uncertain", message: "RuntimeError: SLM down — recorded state: PARTIAL", evidence: { stage: "approval_closed_notification_unconfirmed", stage_words: "The customer's reply for this approval is not confirmed.", refund: { amount: 378 }, proposal_decision: "approve", ticket_status: "Waiting for finance", approval: { ...approval(1), status: "approved" } } }); });
     const alert = screen.getByRole("alert");
-    expect(alert).toHaveTextContent("partially completed");
+    expect(alert).toHaveTextContent("decided and recorded, but the customer's reply for it is not confirmed");
+    expect(alert).toHaveTextContent("do NOT decide again");
     expect(alert).toHaveTextContent("RuntimeError: SLM down");
-    expect(alert).toHaveTextContent("customer's reply is missing");
+    expect(alert).toHaveTextContent("reply for this approval is not confirmed");
     expect(alert).not.toHaveTextContent("nothing was done");
     expect(within(alert).queryByRole("button", { name: /confirm again/i })).toBeNull();
   });

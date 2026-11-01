@@ -91,17 +91,26 @@ STAGES = {
     "company_written_approval_pending": "PARTIAL: the company's transaction is committed (proposal decided"
                                         " and, for an approval, the refund row written) but the approval record"
                                         " is still pending and the customer was not told.",
-    "approval_closed_reply_missing": "PARTIAL: the company's transaction and the approval record are done, but"
-                                     " the customer's reply / ticket update is missing.",
-    "complete": "Complete: transaction, approval record and customer reply are all recorded.",
+    "approval_closed_notification_unconfirmed": "The company's transaction and the approval record are done, but"
+                                                " the customer's reply for THIS approval is not confirmed: no"
+                                                " decision step of this approval is recorded on the ticket. Check"
+                                                " the ticket before telling the customer again.",
+    "complete": "Complete: transaction, approval record and the customer reply of this approval are recorded.",
 }
 
 
 def evidence(approval_id: int) -> dict:
     """Re-read, with the existing functions, everything a decision writes: the approval row (store), the proposal
-    decision (admin_reads), the refund row of this proposal (shopnova_tools.get_refunds), the ticket and its last
-    message (store). Then name the STAGE the decision reached. Used after an unexpected exception and by the
-    recorded-state route, so the browser never has to guess from the approval row alone."""
+    decision (admin_reads), the refund row of this proposal (shopnova_tools.get_refunds), the ticket, its last
+    message and its steps (store). Then name the STAGE the decision reached. Used after an unexpected exception
+    and by the recorded-state route, so the browser never has to guess from the approval row alone.
+
+    The customer notification is judged by DURABLE evidence tied to the approval: decide() saves the trace of a
+    completed decision as steps of the ticket, among them the `layer3_decision` line carrying this approval's id
+    (written only once the reply was saved). Ticket status and the unread flag are NOT used: the customer reading
+    the reply or a later message reopening the ticket must not turn a completed decision into "unconfirmed", and
+    an unrelated assistant message must not pass for this approval's reply. Without that step the notification is
+    reported as UNCONFIRMED, never as missing."""
     from callverse.tools.shopnova_tools import get_refunds
     approval = store.get_approval(approval_id)
     if approval is None:
@@ -112,21 +121,25 @@ def evidence(approval_id: int) -> dict:
     ticket = store.get_ticket(approval["ticket_id"])
     messages = store.messages(approval["ticket_id"]) if ticket else []
     last = messages[-1] if messages else None
+    steps = store.steps(approval["ticket_id"]) if ticket else []
+    decision_step = next((s for s in steps if s["step"] == "layer3"
+                          and s["data"].get("trace_step") == "layer3_decision"
+                          and s["data"].get("approval_id") == approval["id"]), None)
     decided_proposal = bool(proposal and proposal.get("decision") is not None)
     closed = approval["status"] != "pending"
-    replied = bool(ticket and ticket["status"] == "Solved" and last and last["sender"] == "assistant"
-                   and ticket.get("user_unread") == 1)
     if not decided_proposal and refund is None and not closed:
         stage = "nothing_written"
     elif (decided_proposal or refund is not None) and not closed:
         stage = "company_written_approval_pending"
-    elif closed and not replied:
-        stage = "approval_closed_reply_missing"
+    elif closed and decision_step is None:
+        stage = "approval_closed_notification_unconfirmed"
     else:
         stage = "complete"
     return {"stage": stage, "stage_words": STAGES[stage], "approval": approval,
             "proposal_decision": proposal.get("decision") if proposal else None,
             "refund": refund, "ticket_status": ticket["status"] if ticket else None,
+            "notification": "confirmed" if decision_step else "unconfirmed",
+            "decision_step_at": decision_step.get("at_real") if decision_step else None,
             "last_message": {"sender": last["sender"], "at_real": last.get("at_real")} if last else None}
 
 

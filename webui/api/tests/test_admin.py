@@ -238,14 +238,14 @@ def test_refund_committed_then_reply_generation_fails(client, monkeypatch):
     r = decide(client, a["id"], True, "ok", client_id="p1")
     assert r.status_code == 500 and r.json()["error"] == "decision_uncertain"
     ev = r.json()["evidence"]
-    assert ev["stage"] == "approval_closed_reply_missing"
+    assert ev["stage"] == "approval_closed_notification_unconfirmed" and ev["notification"] == "unconfirmed"
     assert ev["refund"]["amount"] == 378.0 and ev["proposal_decision"] == "approve" and ev["approval"]["status"] == "approved"
     assert ev["ticket_status"] == "Waiting for finance"   # the customer was not told
     assert len(refund_rows()) == 1
     # recovery: the recorded state says so; the same request again is NOT a replay (nothing recorded) and the
     # core refuses a second run; no second payment
     state = client.get(f"/api/admin/approvals/{a['id']}").json()
-    assert state["evidence"]["stage"] == "approval_closed_reply_missing" and state["in_flight"] is None
+    assert state["evidence"]["stage"] == "approval_closed_notification_unconfirmed" and state["in_flight"] is None
     again = decide(client, a["id"], True, "ok", client_id="p1")
     assert again.status_code == 409 and again.json()["error"] == "already_decided"
     assert len(refund_rows()) == 1
@@ -327,4 +327,47 @@ def test_response_preparation_failure_releases_the_guard(client, monkeypatch):
     assert state["in_flight"] is None                      # the guard was released
     again = decide(client, a["id"], True, "ok", client_id="prep-1")
     assert again.status_code == 409 and again.json()["error"] == "already_decided"   # not decision_in_progress
+    assert len(refund_rows()) == 1
+
+
+# ---------- correction: the customer notification is judged by the approval's own decision step ----------
+
+def evidence_of(client, approval_id):
+    return client.get(f"/api/admin/approvals/{approval_id}").json()["evidence"]
+
+
+def test_reading_the_reply_or_reopening_the_ticket_keeps_the_decision_complete(client):
+    a = pending_approval()
+    login(client, "admin")
+    assert decide(client, a["id"], True, "ok").status_code == 200
+    ev = evidence_of(client, a["id"])
+    assert ev["stage"] == "complete" and ev["notification"] == "confirmed" and ev["decision_step_at"]
+    # the customer reads the reply (the chat marks it read) ...
+    store.set_unread(a["ticket_id"], False)
+    assert evidence_of(client, a["id"])["stage"] == "complete"
+    # ... and later writes again: the ticket is reopened and a new reply arrives
+    store.update_ticket(a["ticket_id"], status="Open")
+    store.add_message(a["ticket_id"], "user", "thanks, one more question")
+    store.add_message(a["ticket_id"], "assistant", "Of course.")
+    assert evidence_of(client, a["id"])["stage"] == "complete"
+
+
+def test_an_unrelated_assistant_message_does_not_prove_the_notification(client):
+    """The approval row was closed but decide() never reached its end (no decision step): a later assistant
+    message on the ticket (another conversation turn) must not pass for this approval's reply."""
+    a = pending_approval()
+    from callverse.data import writes
+    assert "error" not in writes.admin_decide_refund("admin", a["proposal_id"], True, "", approval_id=a["id"])
+    assert store.close_approval(a["id"], "approved", "admin", None)
+    store.add_message(a["ticket_id"], "assistant", "Hello again, how can I help?")   # unrelated
+    store.update_ticket(a["ticket_id"], status="Solved")
+    store.set_unread(a["ticket_id"], True)
+    login(client, "admin")
+    ev = evidence_of(client, a["id"])
+    assert ev["stage"] == "approval_closed_notification_unconfirmed" and ev["notification"] == "unconfirmed"
+    assert ev["last_message"]["sender"] == "assistant"   # it is there, but it is not evidence for this approval
+    assert "not confirmed" in ev["stage_words"] and "missing" not in ev["stage_words"]
+    # and nothing here replays the decision
+    again = decide(client, a["id"], True, "ok", client_id="x")
+    assert again.status_code == 409 and again.json()["error"] == "already_decided"
     assert len(refund_rows()) == 1

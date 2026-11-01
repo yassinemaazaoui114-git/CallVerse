@@ -150,3 +150,22 @@ partial / nothing) and a mid-decision error shown as evidence, with exactly one 
 
 Not re-checked in the browser this pass (the step-4 browser checks were done before the correction; the corrected
 paths are covered by the tests above).
+
+## 8. Correction (third step-4 commit): how the customer notification is judged
+
+`evidence()` used `ticket.status == "Solved"` and `user_unread == 1` as the sign of a completed customer reply.
+Wrong on both sides: the customer reading the reply (the chat marks it read) or a later message reopening the
+ticket turned a completed decision into "reply missing", and any assistant message on the ticket passed for
+this approval's reply. Now the notification is judged by durable evidence tied to the approval: `decide()`
+saves the trace of a completed decision as steps of the ticket, among them the `layer3_decision` line that
+carries this approval's id, written only once the reply was saved. With that step: stage `complete`,
+`notification: confirmed` (with the step's time). Without it, and the approval closed: stage
+`approval_closed_notification_unconfirmed`, `notification: unconfirmed` — reported as not confirmed, never as
+missing (the screen says "decided and recorded, but the customer's reply for it is not confirmed — do NOT
+decide again"). Ticket status and the unread flag are no longer used for this; no decision is replayed; no
+core change.
+
+Tests added: reading the reply then reopening the ticket (new user + assistant messages) keeps the decision
+`complete`; an approval closed by hand with an unrelated assistant message afterwards is `unconfirmed`, not
+complete, and a retry is still refused with one refund row. Results: API **58 passed**, vitest **39 passed**,
+build OK.

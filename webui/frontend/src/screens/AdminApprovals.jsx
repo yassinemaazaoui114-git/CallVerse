@@ -128,9 +128,11 @@ export default function AdminApprovals() {
         check, retry: request ? { approval, ...request } : null });
       return;
     }
-    // partial completion: money or the decision moved, the record or the customer reply did not
+    // partial completion: money or the decision moved, the record or the customer notification is not confirmed
     setNotice({ kind: "uncertain", approvalId: approval.id,
-      text: `Approval ${approval.id}: partially completed — do NOT decide again.`,
+      text: stage === "approval_closed_notification_unconfirmed"
+        ? `Approval ${approval.id}: decided and recorded, but the customer's reply for it is not confirmed — do NOT decide again.`
+        : `Approval ${approval.id}: partially completed — do NOT decide again.`,
       detail: `${head}${evidence.stage_words}${evidence.refund ? ` Refund row: ${tnd(evidence.refund.amount)}.` : ""}${evidence.proposal_decision ? ` Proposal decision: ${words(evidence.proposal_decision)}.` : ""} Ticket ${words(evidence.ticket_status)}. Finishing the record or the customer reply needs a core step (reported to Yassine).`,
       check });
     reload();
