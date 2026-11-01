@@ -158,6 +158,8 @@ callverse/          the code
   console/            the Console's read-only queries (reads.py: all its SQL)
   auth/               demo logins, roles and permissions
   server/             the platform server (FastAPI)
+  web/                customer website: text + voice chat + photo check (Molka), see below
+  vision/             photo check: Qwen3-VL-2B + QLoRA adapter, base-model fallback, late fusion
   simulator/          Client Simulator (planned)
 apps/shopnova/      the ShopNova Streamlit app (app.py, Home.py, pages/)
 apps/console/       the CallVerse Console Streamlit app (app.py, pages/: Live tickets, Ticket detail, Agents, Dashboard)
@@ -171,6 +173,20 @@ tasks/              NEXT.md, task files, reports
 docs/               design and contract documents
 traces/             run logs (not in git)
 ```
+
+## Voice + text website (Molka's channel, merged from `feature/molka-multimodality`)
+
+Customers can type **or speak** to CallVerse and get a written and spoken answer. Voice is a channel
+adapter: speech-to-text (Groq Whisper, backup: faster-whisper in the server) → the same pipeline as text
+→ the reply is spoken by a Piper voice. REAL mode = Agent A (after an identity check by email);
+MOCK mode (no API key) = clearly labelled demo replies.
+
+```bash
+pip install -r requirements-voice.txt
+python -m scripts.download_voice_models   # once, ~210 MB into ./models
+python -m scripts.run_web                 # http://127.0.0.1:8080/
+```
+Docker / Hugging Face Spaces deployment, API, security and limits: [docs/voice_channel.md](docs/voice_channel.md).
 
 ## Data and licences
 
@@ -189,6 +205,8 @@ through the same center as ShopNova (T21): Intake, router, agents A / B, Coordin
 Its website is the Atlas Travel app (T22, see above).
 - **Real** data: 2,000 bookings of **Hotel Booking Demand** (CC BY 4.0, ids 20001+) and 2,000 flights of the
   **US DOT 2015 Flight Delays** (CC0, ids 1+), moved to 2026, prices in TND.
+
+
 
 - **Generated:** one Tunisian user per booking (ids 101+) and one flight booking per flight (ids 30001+).
 - **Scripted** demo data (`callverse/data/atlas/seed.py`): users 1–5, bookings 7001–7012, one for each rule case.

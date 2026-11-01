@@ -1,0 +1,31 @@
+model,filename,category,reference,prediction,expected_number,wer,latency_seconds
+tiny,audio-1.wav,order,"Hello, I would like to check the status of my order number four five one two.","Hello, I would like to check the status of my order number 4-5-1-2.",4512,0.25,0.568
+tiny,audio-2.wav,order,Can you track order eight seven three nine six for me?,Can you track order 87396 for me?,87396,0.4545,0.455
+tiny,audio-3.wav,order,"My order number is one zero five two eight, and it hasn't arrived.","My order number is 1, 0, 5, 2, 8 and it hasn't arrived.",10528,0.3571,0.424
+tiny,audio-4.wav,order,I need to cancel order six four zero one seven.,I need to cancel order 64017.,64017,0.5,0.41
+tiny,audio-5.wav,order,There is a problem with order nine two three five zero.,There is a problem with order 92350.,92350,0.4545,0.407
+tiny,audio-6.wav,amount,"I paid forty-nine euros and ninety-nine cents, but my refund hasn't arrived.","I paid 49 euros, and 99 cents, but my refund hasn't arrived.",49.99,0.2667,0.445
+tiny,audio-7.wav,amount,The product costs one hundred and twenty euros.,The product costs 120 euros.,120.00,0.5,0.42
+tiny,audio-8.wav,amount,I was charged seventy-five euros and fifty cents twice.,I was charged 75 euros and 50 cents twice.,75.50,0.3,0.429
+tiny,audio-9.wav,amount,My refund should be two hundred and thirty-four euros.,My refound should be 234 euros.,234.00,0.6,0.415
+tiny,audio-10.wav,amount,I received only nineteen euros and ninety cents.,I received only 19 euros and 90 cents.,19.90,0.25,0.407
+base,audio-1.wav,order,"Hello, I would like to check the status of my order number four five one two.","Hello, I would like to check the status of my order number 4512",4512,0.25,0.849
+base,audio-2.wav,order,Can you track order eight seven three nine six for me?,"Can you track order 8, 7, 3, 9, 6 for me?",87396,0.4545,0.808
+base,audio-3.wav,order,"My order number is one zero five two eight, and it hasn't arrived.",My order number is 10528 and it hasn't arrived.,10528,0.3571,0.762
+base,audio-4.wav,order,I need to cancel order six four zero one seven.,I need to cancel order 64017.,64017,0.5,0.691
+base,audio-5.wav,order,There is a problem with order nine two three five zero.,There is a problem with order 9-2-3-5-0.,92350,0.4545,0.708
+base,audio-6.wav,amount,"I paid forty-nine euros and ninety-nine cents, but my refund hasn't arrived.","I paid 49 euros and 99 cents, but my refund hasn't arrived.",49.99,0.2667,0.698
+base,audio-7.wav,amount,The product costs one hundred and twenty euros.,The product costs 120 euros.,120.00,0.5,0.649
+base,audio-8.wav,amount,I was charged seventy-five euros and fifty cents twice.,I was charged 75 euros and 50 cents twice.,75.50,0.3,0.713
+base,audio-9.wav,amount,My refund should be two hundred and thirty-four euros.,My refund should be 234 euros.,234.00,0.5,0.673
+base,audio-10.wav,amount,I received only nineteen euros and ninety cents.,I received only 19 euros and 90 cents.,19.90,0.25,0.653
+small,audio-1.wav,order,"Hello, I would like to check the status of my order number four five one two.","Hello, I would like to check the status of my order number 4512.",4512,0.25,2.349
+small,audio-2.wav,order,Can you track order eight seven three nine six for me?,"Can you track order 8, 7, 3, 9, 6 for me?",87396,0.4545,2.145
+small,audio-3.wav,order,"My order number is one zero five two eight, and it hasn't arrived.",My order number is 10528 and it hasn't arrived.,10528,0.3571,2.085
+small,audio-4.wav,order,I need to cancel order six four zero one seven.,I need to cancel order 64017.,64017,0.5,2.033
+small,audio-5.wav,order,There is a problem with order nine two three five zero.,There is a problem with order 92350.,92350,0.4545,2.05
+small,audio-6.wav,amount,"I paid forty-nine euros and ninety-nine cents, but my refund hasn't arrived.","I paid 49 euros and 99 cents, but my refund hasn't arrived.",49.99,0.2667,2.147
+small,audio-7.wav,amount,The product costs one hundred and twenty euros.,The product costs 120 euros.,120.00,0.5,2.021
+small,audio-8.wav,amount,I was charged seventy-five euros and fifty cents twice.,I was charged 75 euros and 50 cents twice.,75.50,0.3,2.085
+small,audio-9.wav,amount,My refund should be two hundred and thirty-four euros.,My refund should be 234 euros.,234.00,0.5,2.082
+small,audio-10.wav,amount,I received only nineteen euros and ninety cents.,I received only 19 euros and 90 cents.,19.90,0.25,2.131

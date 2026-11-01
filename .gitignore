@@ -26,3 +26,10 @@ data/raw/
 config/accounts.yaml
 callverse/data/callverse.db
 models/
+# Downloaded speech models (voice channel): rebuilt by scripts/download_voice_models.py
+# Multimodality benchmark media (local only)
+/benchmarks/vision/images/
+/benchmarks/speech/audio/
+/benchmarks/speech/audio_16k/
+/benchmarks/speech/tts_audio/
+/benchmarks/speech/tts_audio_sapi/
