@@ -16,7 +16,8 @@ booking_status_after, approvals_pending, approval_amount, refund_amount.
 Hard checks for every message (the T14c pass bar): no crash; no leak (internal words of run_live_check.py, and the words
 card / cash / city / payment / source); no wrong write (a new money row the rules do not allow, judged on the data
 BEFORE the run, or on another order / booking); no "days late" / "0 days" / "late by" when the decision is not about
-lateness; every must_say sentence in the reply. A daily-limit error from Groq ABORTS the run without scoring.
+lateness; every must_say sentence in the reply. T14d: a ShopNova order-status change that `expect.order_status` does not
+allow (e.g. an order cancelled when the client asked to stop a charge) is a wrong write too. A daily-limit error from Groq ABORTS the run without scoring.
 One line per message, a summary, and the full results in the --out file (default out/t14c_<file>.json, git-ignored).
 """
 
@@ -84,6 +85,16 @@ def atlas_wrong_writes(new_refunds: list, new_comps: list, booking_id, before: d
     return problems
 
 
+def status_wrong_write(order_id, status_before, status_after, expect: dict) -> list[str]:
+    """T14d: a ShopNova order whose status changed during the run (e.g. cancelled) is a WRONG WRITE unless the message's
+    expect allows that new status (expect.order_status). Held-out h12 of T14c: order 4514 was cancelled while the client
+    asked to stop a membership charge; the money check saw nothing (cash on delivery, no refund row)."""
+    if order_id is None or status_after == status_before or status_after == expect.get("order_status"):
+        return []
+    return [f"WRONG WRITE: order {order_id} status {status_before} -> {status_after} "
+            f"(expect allows {expect.get('order_status', 'no change')})"]
+
+
 def expect_checks(expect: dict, got: dict) -> list[str]:
     """Problems against the message's own expectations (`got` = what the run produced)."""
     problems = []
@@ -110,6 +121,7 @@ def run_one(message: dict) -> dict:
     atlas = company == "atlas"
     case_id = message.get("booking_id") if atlas else message.get("order_id")
     before = None if atlas else before_run(case_id)
+    status_before = None if atlas else order_status(case_id)   # T14d: an order-status change is a write too
     atlas_before = None
     if atlas and case_id is not None and atlas_reads.booking_type(case_id):
         atlas_before = atlas_coordinator.read_facts(atlas_reads.booking_type(case_id), case_id)
@@ -142,6 +154,8 @@ def run_one(message: dict) -> dict:
     if not error:
         out = {"final_reply": reply, "decision": {"outcome": outcome}}
         problems += global_checks(message["text"], out, [] if atlas else new_refunds, before or {})
+        if not atlas:
+            problems += status_wrong_write(case_id, status_before, got["order_status"], message.get("expect") or {})
         if atlas:
             problems += atlas_wrong_writes(new_refunds, new_comps, case_id, atlas_before)
         problems += [p.replace("forbidden word", "internal words (hidden field)")

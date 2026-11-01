@@ -263,6 +263,13 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   (damaged, broken, ...) in Intake; the off-topic reply is a fixed text (no SLM call) for both companies; the agents no
   longer see `ai_generated` / `scripted`. Check both companies: `python -m scripts.run_t14c --file tests/dev/t14c_practice_messages.json`.
   Report: `tasks/T14c_report.md`.
+- **T14d** A write must match what the client asked (`callverse/intake/request_words.py`, word checks, no model):
+  "cancel this payment / charge / membership" or a cancel button pressed by accident is not an order cancellation
+  (Intake, the LLM fallback and the ShopNova Coordinator all use `cancels_order`); at Atlas, hotel costs / meals / taxi /
+  "reimbursement" are a `compensation_request`, and a ticket refund or hotel cancellation needs a money-back request
+  (`atlas_coordinator.ACTION_REASONS`; a mismatching proposal gets the rule's no to what was asked, else ask first);
+  "amount not refunded till date / yet / for 10 days" is a complaint, not a negation (`negation.py`); `run_t14c` also
+  counts an order-status change that `expect.order_status` does not allow as a wrong write. Report: `tasks/T14d_report.md`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

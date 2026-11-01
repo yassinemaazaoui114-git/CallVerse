@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | READY |
+| Status | IN PROGRESS |
 | Task file | tasks/T14d_request_action_match.md (a write must match what the user asked: money words are not an order cancellation, Atlas ticket refund needs a money-back request, wrong-write check counts order status, "not refunded yet" = complaint; 12 new held-out real tweets) |
 | Approved by | Yassine — 2026-11-01 13:33 (B1 + C1–C3) |
 | Model | Sonnet 5.5 (use /model — T14c ran on Opus), new conversation, branch from main after T14c merge. Offline coding now; live runs on Monday's Groq quota |

@@ -565,9 +565,10 @@ def test_a_rule_that_cannot_justify_the_action_is_sent_back():
 
 def test_a_rule_whose_condition_is_false_is_sent_back():
     # T14c: under a refund request, 7007 (1 h late) is now DECLINED by code (AT-FLT-04), see tests/test_t14c.py.
-    # The send-back stays for a proposal that is not about the client's request.
-    case = {**case_for("flight", 7007), "main_reason": "compensation_request"}
-    assert gate.review(proposal("refund", "flight", 7007, "AT-FLT-01"), case)["outcome"] == "send_back"
+    # T14d: a refund proposed for a compensation request gets the rule's no to the compensation when there is one
+    # (tests/test_t14d.py). 7004 (4 h late): no rule refuses the compensation, so the false condition is sent back.
+    case = {**case_for("flight", 7004), "main_reason": "compensation_request"}
+    assert gate.review(proposal("refund", "flight", 7004, "AT-FLT-01"), case)["outcome"] == "send_back"
 
 
 @pytest.mark.parametrize("rule_id", ["AT-FLT-05", "AT-FLT-06", "AT-REF-01", "AT-ESC-01", "AT-AST-01", "AT-HOT-05"])
@@ -729,8 +730,9 @@ def test_the_hint_only_names_real_actions_and_tools():
 
 def test_three_send_backs_become_escalate():
     # T14c: a refund request on 7007 is now declined at once; a refund proposal under another request is sent back.
-    case = {**case_for("flight", 7007), "main_reason": "compensation_request"}
-    outcomes = [gate.review(proposal("refund", "flight", 7007, "AT-FLT-01"), case)["outcome"] for _ in range(3)]
+    # T14d: on 7004, where no rule refuses the compensation request (on 7007 AT-FLT-03 now declines it).
+    case = {**case_for("flight", 7004), "main_reason": "compensation_request"}
+    outcomes = [gate.review(proposal("refund", "flight", 7004, "AT-FLT-01"), case)["outcome"] for _ in range(3)]
     assert outcomes == ["send_back", "send_back", "escalate"]
 
 

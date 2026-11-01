@@ -17,7 +17,8 @@ import json
 import re
 
 from callverse import companies, llm, trace
-from callverse.intake.reasons import CANCEL_WORD_RE, NOT_AN_ORDER_RE, REASONS, split_sentences
+from callverse.intake.reasons import REASONS, split_sentences
+from callverse.intake.request_words import CANCEL_WORD_RE, NOT_AN_ORDER_RE, cancels_order  # noqa: F401 (old names)
 
 PROMPT = """You sort customer messages of ShopNova, an online shop.
 Possible contact reasons (use ONLY these names):
@@ -84,8 +85,9 @@ def parse_answer(text: str | None, allowed: list[str] = REASONS) -> dict:
 
 
 def cancel_is_justified(text: str) -> bool:
-    """True when a sentence of the message has the cancel word and is not about a subscription / account (reasons.py rules)."""
-    return any(CANCEL_WORD_RE.search(s) and not NOT_AN_ORDER_RE.search(s) for s in split_sentences(text))
+    """True when a sentence of the message asks to cancel the ORDER (request_words.cancels_order: the cancel word, not a
+    subscription / account, T14d: not a payment / charge, not a pressed cancel button)."""
+    return any(cancels_order(s, text) for s in split_sentences(text))
 
 
 def drop_unjustified_cancel(result: dict, text: str) -> dict:
