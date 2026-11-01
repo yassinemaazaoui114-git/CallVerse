@@ -171,6 +171,29 @@ describe("Refund approvals", () => {
     expect(within(alert).queryByRole("button", { name: /confirm again/i })).toBeNull();
   });
 
+  it("the confirmation dialog keeps Tab inside, closes on Escape and returns the focus to the opener", async () => {
+    const net = installFakeFetch();
+    await start(net);
+    const opener = screen.getByRole("button", { name: /^approve$/i });
+    opener.focus();
+    await userEvent.type(screen.getByLabelText(/^reason/i), "ok");
+    await act(async () => { opener.click(); });
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveFocus();
+    await userEvent.tab();                                  // first control
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    await userEvent.tab();                                  // last control (Cancel)
+    expect(screen.getByRole("button", { name: /cancel/i })).toHaveFocus();
+    await userEvent.tab();                                  // wraps to the first control
+    expect(within(dialog).getByRole("button", { name: /confirm approval/i })).toHaveFocus();
+    await userEvent.tab({ shift: true });                   // and back to the last
+    expect(screen.getByRole("button", { name: /cancel/i })).toHaveFocus();
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(opener).toHaveFocus();                           // back where the admin was
+    expect(net.all("/decide")).toHaveLength(0);             // nothing was sent
+  });
+
   it("denied access and empty states", async () => {
     const net = installFakeFetch();
     render(<MemoryRouter initialEntries={["/admin/approvals"]}><AuthProvider><Routes><Route path="/admin/approvals" element={<AdminApprovals />} /></Routes></AuthProvider></MemoryRouter>);

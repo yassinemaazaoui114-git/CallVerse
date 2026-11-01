@@ -61,6 +61,30 @@ export default function AdminApprovals({ company = "shopnova" }) {
     else if (!confirm && openerRef.current) { openerRef.current.focus(); openerRef.current = null; }
   }, [confirm]);
 
+  // While the dialog is open: Escape closes it (not while a decision runs) and Tab stays inside it, whatever
+  // element has the focus (the handler is on the document, so it also works once the focus left the dialog).
+  useEffect(() => {
+    if (!confirm) return undefined;
+    const onKey = (e) => {
+      const dialog = confirmRef.current;
+      if (!dialog) return;
+      if (e.key === "Escape") {
+        if (!inflightRef.current) { e.preventDefault(); setConfirm(null); }
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const focusable = [...dialog.querySelectorAll("button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")];
+      if (focusable.length === 0) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      const inside = dialog.contains(document.activeElement);
+      if (!inside) { e.preventDefault(); (e.shiftKey ? last : first).focus(); return; }
+      if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && (document.activeElement === first || document.activeElement === dialog)) { e.preventDefault(); last.focus(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [confirm]);
+
   function ask(approval, approve, opener) {
     openerRef.current = opener || null;
     const reason = (reasons[approval.id] || "").trim();
@@ -267,8 +291,7 @@ export default function AdminApprovals({ company = "shopnova" }) {
 
       {confirm && (
         <div className="confirm-backdrop" role="presentation">
-          <div className="panel confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title" ref={confirmRef} tabIndex={-1}
-            onKeyDown={(e) => { if (e.key === "Escape" && !inflight) setConfirm(null); }}>
+          <div className="panel confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title" ref={confirmRef} tabIndex={-1}>
             <h2 id="confirm-title">{confirm.approve ? "Approve" : "Refuse"} approval {confirm.approval.id}?</h2>
             <dl className="kv">
               <dt>Approval</dt><dd>{confirm.approval.id} · {caseOf(confirm.approval, company)} · ticket {confirm.approval.ticket_id}</dd>

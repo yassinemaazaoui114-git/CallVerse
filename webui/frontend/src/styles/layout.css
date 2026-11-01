@@ -119,6 +119,11 @@ table.tickets td.id a:hover { text-decoration: underline; }
 .timeline .d { color: var(--cv-muted); overflow-wrap: anywhere; }
 .timeline .when { color: var(--cv-muted); font-size: var(--cv-text-xs); }
 
-.kv { display: grid; grid-template-columns: max-content 1fr; gap: var(--cv-s1) var(--cv-s3); font-size: var(--cv-text-sm); }
+.kv { display: grid; grid-template-columns: minmax(0, max-content) minmax(0, 1fr); gap: var(--cv-s1) var(--cv-s3); font-size: var(--cv-text-sm); }
+@media (max-width: 479px) {
+  /* on a phone a long label would squeeze the value into a few characters: label above, value below */
+  .kv { grid-template-columns: minmax(0, 1fr); row-gap: 0; }
+  .kv dt { margin-top: var(--cv-s2); }
+}
 .kv dt { color: var(--cv-muted); }
 .kv dd { margin: 0; overflow-wrap: anywhere; }
