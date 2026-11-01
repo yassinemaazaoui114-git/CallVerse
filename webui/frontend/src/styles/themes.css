@@ -83,3 +83,8 @@
 .notice-list { display: grid; gap: var(--cv-s2); }
 .context-chip { display: inline-flex; align-items: center; gap: var(--cv-s1); padding: var(--cv-s1) var(--cv-s2); border-radius: 999px; background: var(--cv-primary-soft); color: var(--cv-primary-text); font-size: var(--cv-text-sm); font-weight: 600; }
 .context-chip .btn { min-height: 24px; padding: 0 var(--cv-s1); }
+
+/* ---------- admin approvals ---------- */
+.confirm-backdrop { position: fixed; inset: 0; background: rgba(11, 18, 32, 0.55); display: grid; place-items: center; padding: var(--cv-gutter); z-index: var(--cv-z-toast); }
+.confirm { width: 100%; max-width: 520px; display: grid; gap: var(--cv-s3); }
+.confirm:focus { outline: none; }

@@ -30,6 +30,13 @@ PASSWORD = "demo-only"
 TEST_DATA = "[TEST DATA] "   # every fake reply starts with this, so a screenshot can never pass for a real one
 
 
+def fake_slm(role_key, messages, **kwargs):
+    """A FAKE reply writer for the admin decision screen (no Ollama): the reply text is marked as test data."""
+    from types import SimpleNamespace
+    return SimpleNamespace(content=TEST_DATA + "Fake reply written after the finance decision (no model ran).",
+                           tool_calls=None)
+
+
 def fake_send(user_id, company, text, ticket_id=None, on_step=None, about_order=None, **kwargs):
     """A FAKE channel for looking at the chat screen without Ollama / Groq (CALLVERSE_WEBUI_FAKE_CHAT=1).
     It behaves like web_chat.send from the outside (ticket rule, saved messages, live steps, result dict) but

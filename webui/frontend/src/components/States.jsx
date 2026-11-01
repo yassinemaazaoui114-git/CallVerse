@@ -30,7 +30,7 @@ export function ApiErrorView({ error, onRetry, note }) {
   if (code === "unavailable") {
     title = "The CallVerse API is not reachable";
     text = "Start it with `python -m webui.api.run` (see webui/README.md), then retry.";
-  } else if (code === "forbidden" || code === "customer_only") {
+  } else if (code === "forbidden" || code === "customer_only" || code === "admin_only") {
     icon = "lock"; title = "Not available for your account";
     text = (error && error.message) || "Your account does not have the role this page needs.";
     kind = "alert-warn";

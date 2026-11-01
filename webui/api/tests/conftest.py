@@ -151,3 +151,30 @@ def live_server():
     yield f"http://127.0.0.1:{port}"
     server.should_exit = True
     thread.join(5)
+
+
+def pending_approval(user_id: int = 2, order_id: int = 4515, amount: float = 378.0) -> dict:
+    """A pending ShopNova approval as the channel makes it (same recipe as tests/test_layer3_queue.py): the
+    Coordinator in queue mode records the proposal and answers layer3_pending; a ticket + the approvals row.
+    Needs CALLVERSE_LAYER3_MODE=queue (the `queue_mode` fixture) and the seeded shop_db."""
+    from callverse.coordinator.coordinator import new_case, review
+    proposal = {"agent": "B", "action": "refund", "params": {"order_id": order_id, "amount": amount},
+                "rule_id": "R-REF-03", "facts_used": {"days_late": 8, "delivered": False, "paid": amount,
+                                                       "refunded_total": 0.0},
+                "user_confirmed": True, "user_quote": "I want a refund please."}
+    decision = review(proposal, new_case("T-0001"))
+    assert decision["outcome"] == "layer3_pending", decision
+    ticket = store.create_ticket("shopnova", user_id)
+    store.add_message(ticket["id"], "user", f"My order {order_id} is very late, I want a refund please.")
+    store.add_step(ticket["id"], None, "intake", "intake",
+                   {"style": {"formality": "formal", "length": "short"}, "emotion": {"label": "anger"},
+                    "sentiment": {"label": "negative"}, "main_reason": "refund_request"})
+    store.update_ticket(ticket["id"], status="Waiting for finance")
+    return store.create_approval(ticket["id"], order_id, decision["facts"]["amount_tnd"], decision["proposal_id"])
+
+
+@pytest.fixture
+def queue_mode(monkeypatch, shop_db):
+    """Layer 3 in queue mode (the real admin queue), on the seeded temp shop database."""
+    monkeypatch.setenv("CALLVERSE_LAYER3_MODE", "queue")
+    return shop_db

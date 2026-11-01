@@ -4,7 +4,7 @@ import { useAuth } from "../auth.jsx";
 import Icon from "../components/Icon.jsx";
 
 const WHERE = {
-  "admin:shopnova": "the ShopNova back office (approvals, catalogue, orders)",
+  "admin:shopnova": "the rest of the ShopNova back office (catalogue, orders, users; approvals are in this UI)",
   "user:atlas": "the Atlas Travel customer pages (bookings, refunds)",
   "admin:atlas": "the Atlas Travel back office",
 };
@@ -20,7 +20,7 @@ export default function Workspace() {
         <Icon name="info" />
         <div className="stack" style={{ gap: "var(--cv-s1)" }}>
           <strong>Logged in as {session ? session.name || session.username : "—"} ({session ? session.role : "—"}{session && session.company ? `, ${session.company}` : ""})</strong>
-          <span className="small">This new UI is being built in steps. So far it has the CallVerse Console (supervisor) and the ShopNova customer pages. {where[0].toUpperCase() + where.slice(1)} come in a later step; until then they stay in the existing Streamlit apps.</span>
+          <span className="small">This new UI is being built in steps. So far it has the CallVerse Console (supervisor), the ShopNova customer pages and the ShopNova refund approvals. {where[0].toUpperCase() + where.slice(1)} come in a later step; until then they stay in the existing Streamlit apps.</span>
         </div>
       </div>
       <p className="small muted">Use the Log out button in the top bar to switch account.</p>

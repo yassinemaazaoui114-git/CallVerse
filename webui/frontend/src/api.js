@@ -66,6 +66,10 @@ export const api = {
   ticket: (id, signal) => request(`/api/console/tickets/${encodeURIComponent(id)}`, { signal }),
   orders: (signal) => request("/api/shop/orders", { signal }),
   order: (id, signal) => request(`/api/shop/orders/${encodeURIComponent(id)}`, { signal }),
+  // admin approvals (step 4)
+  approvals: (status, signal) => request(`/api/admin/approvals${query({ status })}`, { signal }),
+  approval: (id, signal) => request(`/api/admin/approvals/${encodeURIComponent(id)}`, { signal }),
+  decide: (id, body) => request(`/api/admin/approvals/${encodeURIComponent(id)}/decide`, { method: "POST", body: JSON.stringify(body) }),
   // chat (step 3)
   chat: (ticket, signal) => request(`/api/shop/chat${query({ ticket })}`, { signal }),
   chatJob: (signal) => request("/api/shop/chat/job", { signal }),

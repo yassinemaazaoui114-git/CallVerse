@@ -5,6 +5,7 @@ Run: pytest webui/api/tests -q
 
 import hashlib
 import sys
+from pathlib import Path
 
 from conftest import CSRF, login, make_ticket
 
@@ -12,6 +13,8 @@ from callverse.data import db as shopnova_db
 from callverse.tickets import store
 
 from webui.api import settings
+
+ROOT_DIR = str(Path(__file__).resolve().parents[3])
 
 
 # ---------- auth ----------
@@ -192,7 +195,13 @@ def test_reads_write_nothing_and_load_no_model(supervisor, isolated_env):
     assert digest(store.db_path()) == tickets_before          # tickets DB unchanged
     assert digest(shopnova_db.db_path()) == company_before    # company DB unchanged
     assert not (isolated_env / "atlas_never_created.db").exists()   # never created by a read
-    # (callverse.llm itself is imported by conftest.py, to make llm.chat fail; the API never imports it.)
-    for module in ("torch", "transformers", "sentence_transformers", "streamlit",
-                   "callverse.pipeline", "callverse.agents", "callverse.channels.web_chat"):
-        assert module not in sys.modules, module
+    # Checked in a FRESH process: other test modules load the pipeline on purpose (chat / admin fakes), so
+    # sys.modules of this process says nothing about what the API itself imports.
+    import subprocess
+    code = ("import sys, webui.api.app; from webui.api.app import create_app; create_app(); "
+            "print(sorted(m for m in sys.modules if m in ('torch', 'transformers', 'sentence_transformers', "
+            "'streamlit', 'callverse.pipeline', 'callverse.agents', 'callverse.channels.web_chat', "
+            "'callverse.channels.approvals')))")
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=ROOT_DIR, timeout=120)
+    assert out.returncode == 0, out.stderr
+    assert out.stdout.strip() == "[]", out.stdout

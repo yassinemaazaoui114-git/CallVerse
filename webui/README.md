@@ -3,7 +3,8 @@
 The new UI that will replace the three Streamlit apps (brief: `docs/UI_replacement_brief.md`). It is built in
 steps. So far: **step 1** = the API skeleton, login, `GET /company`, the supervisor's Console **Live tickets**
 and **Ticket detail**; **step 2** = the ShopNova customer's **My orders**, **Order detail** and **Ask about this
-order**; **step 3** = the customer's **Help chat** with live progress (SSE) through the existing web chat channel.
+order**; **step 3** = the customer's **Help chat** with live progress (SSE) through the existing web chat channel;
+**step 4** = the ShopNova admin's **Refund approvals** (the Layer 3 queue) through `approvals.decide`.
 The Console and the order pages stay read only and load no model; the chat loads the channel (and so the
 pipeline) on the first message only.
 
@@ -14,6 +15,7 @@ webui/
     auth.py       login + sessions      console_reads.py  wrappers around callverse.console.reads
                                         shop_reads.py     wrappers around callverse.data.shop_reads + read tools
     chat.py       chat jobs (worker thread per message) + SSE stream over callverse.channels.web_chat.send
+    admin.py      the admin approval queue over store.approvals / admin_reads + callverse.channels.approvals.decide
     run.py        start the API         dev_fixture.py    temp accounts + example tickets for a demo
     tests/        pytest (one test per route + security rules)
   frontend/       React 18 + Vite 5 (JavaScript): src/screens, src/components, src/styles (design tokens)
@@ -72,7 +74,9 @@ npm --prefix webui/frontend run dev
 ```
 
 Open <http://127.0.0.1:5173> and log in. `supervisor` lands in the Console; a ShopNova customer (`sara` …
-`leila`) in My orders; any other account on a page saying its screens are not built yet.
+`leila`) in My orders; `admin` in Refund approvals; Atlas accounts on a page saying their screens are not built
+yet. The approval queue is only filled when Layer 3 runs in queue mode (`CALLVERSE_LAYER3_MODE=queue`, see the
+main README); `CALLVERSE_WEBUI_FAKE_CHAT=1` also makes the decision's customer reply a fake, marked one.
 
 Production-style build (static files in `webui/frontend/dist`, served later in front of the API):
 
@@ -116,11 +120,28 @@ model library or Streamlit is imported. The existing Console tests still pass: `
 | `GET /api/shop/chat/job` | ShopNova customer | the customer's running / last job (status, steps so far, result or error) |
 | `GET /api/shop/chat/job/stream` | ShopNova customer | re-attach to the running job's SSE stream (replays its steps) |
 | `POST /api/shop/chat/tickets/{id}/read` | ShopNova customer | the customer opened this ticket's new reply (owned ticket only) |
+| `GET /api/admin/approvals?status=pending\|decided` | ShopNova admin (`approve_refunds`) | the Layer 3 queue: ShopNova rows with the order / proposal facts |
+| `GET /api/admin/approvals/{id}` | ShopNova admin | one ShopNova approval's recorded state (Atlas or missing → 404) |
+| `POST /api/admin/approvals/{id}/decide` | ShopNova admin | `{approve, reason, client_id?}` → `approvals.decide(id, <username from the account>, approve, reason, company="shopnova")` |
 | `GET /api/health` | anyone | `{ok: true}` |
 
 Errors always look like `{"error": "<code>", "message": "<words>"}` (`not_logged_in` 401, `forbidden` 403,
 `csrf` 403, `customer_only` 403, `bad_login` 401, `no_accounts` 503, `not_found` 404, `setup_required` 503,
-`busy_user` 409, `empty_text` / `text_too_long` 400, `no_job` 404).
+`busy_user` 409, `empty_text` / `text_too_long` 400, `no_job` 404, `admin_only` 403, `already_decided` 409,
+`decision_in_progress` 409, `recheck_refused` 409, `reason_required` 400, `write_refused` 409).
+
+## Admin decisions (step 4)
+
+Browser inputs are the approval id, approve / refuse, the reason and a `client_id`; the admin's username and
+the company come from the account. The route re-reads the approval (404 / 409 `already_decided` with who and
+when), applies the reason rule, refuses a concurrent request on the same approval (409 `decision_in_progress`),
+then calls the core's `decide()` in a worker thread: its own pending check under its lock, the Coordinator's
+re-check on fresh data (a failure → 409 `recheck_refused`, nothing written, still pending), the one write
+transaction, the customer reply and the unread notice. The result is kept 15 min under the `client_id`: the same
+request asked again (lost answer) returns the recorded result, never a second run. The screen never retries by
+itself: on a lost answer it reads the recorded state and says whether the approval is decided or still pending.
+Across processes (this API + the Streamlit app) the core decides once: `admin_decide_refund` refuses an already
+decided proposal inside one SQLite transaction and `close_approval` only closes a pending row.
 
 ## Chat transport (step 3)
 

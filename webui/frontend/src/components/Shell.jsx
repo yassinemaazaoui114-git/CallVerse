@@ -16,6 +16,10 @@ export const AREAS = {
     theme: "shopnova", home: "/shop/orders", brand: ["Shop", "Nova"],
     nav: [{ to: "/shop/orders", label: "My orders", icon: "bag" }, { to: "/shop/chat", label: "Help chat", icon: "chat" }],
   },
+  "shopnova-admin": {
+    theme: "shopnova", home: "/admin/approvals", brand: ["Shop", "Nova admin"],
+    nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }],
+  },
   none: { theme: "console", home: "/workspace", brand: ["Call", "Verse"], nav: [] },
 };
 

@@ -19,6 +19,9 @@ Routes (all under /api, JSON):
 - GET  /api/shop/chat/job            the customer's running / last job (recovery after a disconnect)      [shopnova user]
 - GET  /api/shop/chat/job/stream     re-attach to the running job's SSE stream (replays the steps so far) [shopnova user]
 - POST /api/shop/chat/tickets/{id}/read   the customer opened this ticket's new reply (owned ticket only) [shopnova user]
+- GET  /api/admin/approvals?status=pending|decided   the ShopNova Layer 3 queue (step 4)                   [shopnova admin]
+- GET  /api/admin/approvals/{id}     one ShopNova approval with its facts (recorded state)                  [shopnova admin]
+- POST /api/admin/approvals/{id}/decide   {approve, reason, client_id?} -> approvals.decide(...)            [shopnova admin]
 
 Protection: every route except login reads the session cookie; the Console routes need the supervisor role
 (checked on the server through callverse.auth.accounts, never trusted from the browser). POST routes need the
@@ -40,7 +43,7 @@ from callverse.config import PROJECT_ROOT
 from callverse.tickets import store
 from callverse.tools.shopnova_tools import get_company_profile   # the function behind the platform's GET /company
 
-from webui.api import auth, chat, console_reads, settings, shop_reads
+from webui.api import admin, auth, chat, console_reads, settings, shop_reads
 
 ERRORS = {
     "not_logged_in": "Please log in to see this page.",
@@ -51,6 +54,12 @@ ERRORS = {
     "empty_text": "Please type a message.",
     "text_too_long": f"A message may have at most {chat.MAX_TEXT} characters.",
     "no_job": "No message is being processed.",
+    "admin_only": "This page is for the ShopNova admin (permission approve_refunds) only.",
+    "decision_in_progress": "A decision on this approval is already being processed. Check its state in a moment.",
+    "reason_required": "A reason is required to refuse.",
+    "already_decided": "This approval was already decided.",
+    "recheck_refused": "The Coordinator's re-check refused the approval: nothing was written.",
+    "write_refused": "Nothing was written.",
     "setup_required": "ShopNova's data is not set up on this PC yet (shopnova.db is missing). Run the seed "
                       "command from docs/DEMO_RUNBOOK.md, then try again.",
     "bad_login": "Wrong username or password.",
@@ -75,6 +84,12 @@ class LoginIn(BaseModel):
     password: str
 
 
+class DecisionIn(BaseModel):
+    approve: bool
+    reason: str = ""
+    client_id: str | None = None   # the browser's id for this decision: asking again with it returns the result
+
+
 class ChatIn(BaseModel):
     text: str
     ticket_id: str | None = None
@@ -82,13 +97,16 @@ class ChatIn(BaseModel):
     client_id: str | None = None   # the browser's id for this send: a retry with the same id is not run twice
 
 
-def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | None = None) -> FastAPI:
-    """Build the app. The tests give their own SessionStore / job Registry so each test starts clean."""
+def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | None = None,
+               decisions: admin.Decisions | None = None) -> FastAPI:
+    """Build the app. The tests give their own stores so each test starts clean."""
     sessions = sessions or auth.SessionStore()
     jobs = jobs or chat.Registry()
+    decisions = decisions or admin.Decisions()
     app = FastAPI(title="CallVerse web API", docs_url="/api/docs", openapi_url="/api/openapi.json")
     app.state.sessions = sessions
     app.state.jobs = jobs
+    app.state.decisions = decisions
 
     @app.exception_handler(ApiError)
     async def api_error(request: Request, exc: ApiError):
@@ -136,6 +154,19 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
         from callverse.data import db as shopnova_db
         if not shopnova_db.db_path().exists():
             raise ApiError(503, "setup_required")
+
+    def shopnova_admin(request: Request) -> dict:
+        """The logged-in ShopNova ADMIN with the approve_refunds permission, or 401 / 403. The same check as
+        the Streamlit Refund approvals page (accounts.check_permission): an Atlas admin, a customer and the
+        supervisor are refused; the username comes from the accounts file."""
+        username = current_username(request)
+        if username is None:
+            raise ApiError(401, "not_logged_in")
+        found = accounts.check_permission({"authentication_status": True, "username": username}, "approve_refunds",
+                                          companies.DEFAULT)
+        if found is None:
+            raise ApiError(403, "admin_only")
+        return found
 
     def csrf_checked(request: Request) -> None:
         if request.headers.get(settings.CSRF_HEADER) != settings.CSRF_VALUE:
@@ -297,6 +328,67 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
         store.set_unread(ticket_id, False)
         return {"ok": True}
 
+    # ---------- ShopNova admin: the Layer 3 approval queue (step 4) ----------
+
+    @app.get("/api/admin/approvals")
+    def admin_approvals(status: str = "pending", _: dict = Depends(shopnova_admin)):
+        shop_data_ready()
+        if status == "pending":
+            rows = admin.pending()
+        elif status == "decided":
+            rows = admin.decided()
+        else:
+            raise ApiError(400, "bad_status", "status must be pending or decided")
+        return {"status": status, "approvals": rows, "count": len(rows),
+                "server_time": datetime.now().isoformat(timespec="seconds")}
+
+    @app.get("/api/admin/approvals/{approval_id}")
+    def admin_approval(approval_id: int, _: dict = Depends(shopnova_admin)):
+        shop_data_ready()
+        found = admin.one(approval_id)
+        if found is None:
+            raise ApiError(404, "not_found", f"Approval {approval_id} is not one of ShopNova's.")
+        return {"approval": found}
+
+    @app.post("/api/admin/approvals/{approval_id}/decide", dependencies=[Depends(csrf_checked)])
+    def admin_decide(approval_id: int, body: DecisionIn, who: dict = Depends(shopnova_admin)):
+        """The decision. Browser inputs: the approval id, approve / refuse, the reason (and a client_id for
+        recovery). The admin's username and the company come from the account. The approval's CURRENT state is
+        re-read here (and again inside decide(), under its lock) before anything runs. The handler is a plain
+        `def`: FastAPI runs it in a worker thread, so the slow part (re-check + write + the reply writer) never
+        blocks the event loop."""
+        shop_data_ready()
+        reason = body.reason.strip()
+        if len(reason) > 1000:
+            raise ApiError(400, "reason_too_long", "A reason may have at most 1000 characters.")
+        recorded = decisions.recorded(who["username"], approval_id, body.client_id)
+        if recorded is not None:   # the same decision asked again (lost response): its recorded result
+            return {**recorded, "recorded": True}
+        current = admin.one(approval_id)
+        if current is None:
+            raise ApiError(404, "not_found", f"Approval {approval_id} is not one of ShopNova's.")
+        if current["status"] != "pending":
+            raise ApiError(409, "already_decided", f"Approval {approval_id} is already {current['status']} "
+                           f"(by {current.get('decided_by') or '—'} at {current.get('decided_at') or '—'}).")
+        if not body.approve and not reason:
+            raise ApiError(400, "reason_required")
+        if not decisions.begin(approval_id):
+            raise ApiError(409, "decision_in_progress")
+        try:
+            out = admin.run_decision(who["username"], approval_id, body.approve, reason)
+        except Exception as e:   # noqa: BLE001 — report, never leave the guard set
+            out = {"error": f"{type(e).__name__}: {e}"[:300], "exception": True}
+        finally:
+            pass
+        if "error" in out:
+            decisions.end(who["username"], approval_id, None, out)   # an error is not a recorded decision
+            status, code = admin.classify(out)
+            raise ApiError(status, code, str(out["error"]))
+        result = {"approval": out["approval"], "outcome": out["outcome"], "ticket": out["ticket"],
+                  "refund": out.get("refund"), "reply_source": out.get("reply_source")}
+        decisions.end(who["username"], approval_id, body.client_id, result)
+        return result
+
     @app.get("/api/health")
     def health():
         return {"ok": True, "tickets_db": str(store.db_path().relative_to(PROJECT_ROOT))
@@ -315,6 +407,7 @@ def apply_env_overrides() -> None:
         from callverse.data import db as shopnova_db
         shopnova_db.use_db(settings.SHOPNOVA_DB)
     if settings.FAKE_CHAT:
-        from webui.api.dev_fixture import fake_send
+        from webui.api.dev_fixture import fake_send, fake_slm
         chat.use_send_fn(fake_send)
+        admin.use_slm_fn(fake_slm)
         print("CHAT IS FAKE (CALLVERSE_WEBUI_FAKE_CHAT=1): replies are test data, no model runs.")

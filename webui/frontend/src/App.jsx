@@ -9,6 +9,7 @@ import Shell from "./components/Shell.jsx";
 import { ApiErrorView, Loading } from "./components/States.jsx";
 import { homeFor } from "./hooks.js";
 import AskAboutOrder from "./screens/AskAboutOrder.jsx";
+import AdminApprovals from "./screens/AdminApprovals.jsx";
 import Chat from "./screens/Chat.jsx";
 import LiveTickets from "./screens/LiveTickets.jsx";
 import Login from "./screens/Login.jsx";
@@ -48,6 +49,9 @@ export default function App() {
             <Route path="/shop/orders/:orderId" element={<OrderDetail />} />
             <Route path="/shop/orders/:orderId/ask" element={<AskAboutOrder />} />
             <Route path="/shop/chat" element={<Chat />} />
+          </Route>
+          <Route element={<RequireLogin><Shell area="shopnova-admin" /></RequireLogin>}>
+            <Route path="/admin/approvals" element={<AdminApprovals />} />
           </Route>
           <Route element={<RequireLogin><Shell area="none" /></RequireLogin>}>
             <Route path="/workspace" element={<Workspace />} />

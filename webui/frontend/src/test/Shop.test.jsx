@@ -141,7 +141,8 @@ describe("ShopNova customer screens", () => {
   it("sends each role to its own home after login", () => {
     expect(homeFor({ role: "supervisor", company: null })).toBe("/tickets");
     expect(homeFor(SARA)).toBe("/shop/orders");
-    expect(homeFor({ role: "admin", company: "shopnova" })).toBe("/workspace");
+    expect(homeFor({ role: "admin", company: "shopnova" })).toBe("/admin/approvals");
+    expect(homeFor({ role: "admin", company: "atlas" })).toBe("/workspace");
     expect(homeFor({ role: "user", company: "atlas" })).toBe("/workspace");
     expect(homeFor(null)).toBe("/login");
   });
