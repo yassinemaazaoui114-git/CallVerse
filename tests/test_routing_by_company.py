@@ -139,11 +139,13 @@ def sha(text_value: str) -> str:
 
 
 def test_shopnova_prompts_are_byte_identical_to_main():
-    """Fingerprints taken on main (1a1c6ee) before T21 touched any code; B and the fallback: new in T14a (cancel)."""
+    """Fingerprints taken on main (1a1c6ee) before T21 touched any code; B and the fallback: new in T14a (cancel).
+    T14b changed the ShopNova WRITER on purpose (no forced order opener, placeholder example): its fingerprint was renewed;
+    the Atlas writer is checked against the old code's fingerprints in tests/test_t14b.py."""
     assert sha(agent_a.SYSTEM_PROMPT) == "3b102f36fb9db23facab8bd358a10f731f28e454ade59c49e84e66fbda2bc2dc"
     assert sha(agent_b.SYSTEM_PROMPT) == "b871f5ff0999f6d844c14932fd1012cfa651bfba217bc31b97b5a8ca73054a51"
     assert sha(llm_fallback.PROMPT) == "3b889696b6587646aa6741bc4dea655b88cedffff34425521e063bb786b4c251"
-    assert sha(writer.SYSTEM_PROMPT) == "2a468702bf7f0393fb322bfcca84e48529e466067a6e88f432590dd0655448f2"
+    assert sha(writer.SYSTEM_PROMPT) == "a987ef9c9b0117a06fa7808a4a0709f78af5219af0401ef718bbaa6590edd5cd"
 
 
 def test_shopnova_agents_use_those_prompts():
@@ -157,11 +159,12 @@ def test_shopnova_tool_schemas_are_identical_to_main():
 
 
 def test_shopnova_reply_messages_are_identical_to_main():
+    """T14b: renewed on purpose (the "first sentence must contain the order" line is gone, the facts are filtered)."""
     decision = {"outcome": "approve", "action": "refund", "order_id": 4512,
                 "facts": {"amount_tnd": 59.9, "days_late": 7}, "must_say": ["Your refund of 59.90 TND is approved."],
                 "next_step": "Your order 4512 is now refunded.", "style": {"formality": "neutral", "length": "short"}}
     assert sha(json.dumps(writer.build_messages(decision), ensure_ascii=False)) == (
-        "7846ceadc377ec0744813f54a2e33a5f3ff84abff940c7e67f8aade852695468")
+        "9f474b090a56953f4f1522b5fbc83783bfec002e1bfabeb340330bcee5ceac95")
 
 
 def test_shopnova_routes_reasons_and_rules_are_unchanged():

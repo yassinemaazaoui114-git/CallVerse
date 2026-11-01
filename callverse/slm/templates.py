@@ -4,6 +4,7 @@ They only use the decision's own facts, order id and next step, so they always p
 They are plain on purpose (less adapted to the client's style than the SLM): correct comes before nice.
 """
 
+from callverse import companies
 from callverse.config import load_config
 
 # How each known fact is said. Unknown fact keys are left out (safe: saying less is never wrong).
@@ -54,6 +55,20 @@ def calm_opener(style: dict | None) -> str | None:
     return openers.get((style or {}).get("formality"), openers["neutral"])
 
 
+def is_shopnova_redirect(decision: dict) -> bool:
+    """The ShopNova off-topic answer (Atlas's redirect keeps today's reply)."""
+    return decision.get("action") == "redirect" and decision.get("company") in (None, companies.DEFAULT)
+
+
+def decision_opener(decision: dict) -> str | None:
+    """The calm opener for THIS decision. T14b: none for the off-topic redirect: the client is not upset about an order,
+    so "I'm sorry for the trouble." before "I can help with your ShopNova orders" would be odd. The scope sentence stands alone.
+    ShopNova only: Atlas's redirect keeps today's reply."""
+    if is_shopnova_redirect(decision):
+        return None
+    return calm_opener(decision.get("style"))
+
+
 def render(decision: dict) -> str:
     """The template reply for this decision's outcome (falls back to "info" for an unknown outcome)."""
     outcome = decision.get("outcome") if decision.get("outcome") in OPENING else "info"
@@ -61,8 +76,14 @@ def render(decision: dict) -> str:
     style = decision.get("style") or {}
     order = decision.get("order_id")
 
+    if is_shopnova_redirect(decision):
+        # T14b: the off-topic reply is the Coordinator's two sentences after a greeting; the generic "here is the latest
+        # information" opening and the next step BEFORE the sentence read oddly for it.
+        said = [str(x).strip() for x in decision.get("must_say") or []] + [str(decision.get("next_step") or "").strip()]
+        return f"{_greeting(style)}, {' '.join(x for x in said if x)}"
+
     about = f" about your {case_word(decision)} {order}" if order is not None else ""
-    opener = calm_opener(style)
+    opener = decision_opener(decision)
     first = f"{OPENING[outcome].capitalize()}{about}."
     if outcome == "approve" and decision.get("action") == "subscribe":
         first = f"Sure, we can do that{' for your order ' + str(order) if order is not None else ''}."   # T10

@@ -81,6 +81,9 @@ fare) × (distance ÷ the sample's average distance), kept between 0.5× and 2.5
   `tests/data/decline_heldout_messages.json`, and the 10 `cancel_order` Intake examples
   (`callverse/intake/data/cancel_order_examples_twcs.json`, copied into `reason_examples.json`, tweet ids in its note).
   These files are **derived from TWCS and keep the same licence**. Candidates are picked by `scripts/build_twcs_candidates.py`.
+- **Also used (task T14b):** the 12 practice messages `tests/dev/t14b_practice_messages.json` (real TWCS tweets, CC BY-NC-SA 4.0,
+  same licence). `scripts/find_twcs_non_english.py` writes candidate non-English tweets to `data/raw/twcs/lang_candidates.json`
+  (git-ignored, not a test set).
 - **Changes made:** @handles and links removed, `&amp;` -> `&`; in the test messages the other shop's order number is
   replaced by ours or "Order N." is added. Typos, slang and anger are kept.
 - **Use:** non-commercial university use only (CallVerse, a university data-science project).

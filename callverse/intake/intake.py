@@ -8,6 +8,7 @@ Steps (each one is traced):
   5. sentiment - emotion + sentiment (local classifiers M4, sentiment.py)
   6. priority  - from the facts first, emotion second (priority.py, weights in config.yaml)
   7. style     - how the client writes (style.py)
+  8. language  - en / fr / es / it / de / ar, for the reply writer (language.py, T14b)
 
 Why not an agent? Every message must go through the same steps in the same order, cheaply and
 predictably. There is no decision to "reason" about, so an LLM loop would only add cost and risk.
@@ -23,7 +24,7 @@ import uuid
 
 from callverse import companies, trace
 from callverse.data.atlas import reads as atlas_reads
-from callverse.intake import extract, llm_fallback, priority, reasons, sentiment, style
+from callverse.intake import extract, language, llm_fallback, priority, reasons, sentiment, style
 from callverse.tools.registry import run_tool
 
 
@@ -132,6 +133,7 @@ def process(text: str, use_llm: bool = True, chat_fn=None, company: str = compan
                   {"days_late": facts["days_late"], "delivered": facts["delivered"], "paid": facts["paid"]}),
         **prio,
         "style": writing,
+        "language": language.detect(text),
         "needs_llm": matched["needs_llm"],
         "seconds": round(time.perf_counter() - start, 3),
     }

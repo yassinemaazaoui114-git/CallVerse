@@ -249,6 +249,13 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   orders still being processed (rule R-CAN-01, reason `cancel_order`, tool `propose_cancellation`). Tested on real TWCS tweets:
   `python -m scripts.run_decline_check --file tests/dev/decline_practice_messages.json`. Held-out set, run once: 11/12,
   0 crashes, 0 leaks, 0 wrong writes.
+- **T14b** ShopNova reply-writer fixes (words only; decisions, rules and amounts are unchanged): the reply no longer starts
+  with a forced "order N" sentence; the writer sees only the facts it needs (a whitelist, see
+  [docs/decision_format.md](docs/decision_format.md)); Intake says the client's language (`callverse/intake/language.py`) and
+  the writer gets a "write in <language>" line when it is not English; the agents no longer see `source`, `source_id`, `city`
+  and `payment`; the off-topic reply has no apology opener; the Intake LLM fallback accepts `cancel_order` only with the word
+  "cancel". Practice set: `python -m scripts.run_decline_check --file tests/dev/t14b_practice_messages.json` (queue mode like the
+  app). Report: `tasks/T14b_report.md`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

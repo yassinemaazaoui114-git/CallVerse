@@ -40,7 +40,7 @@ def test_good_reply_passes():
 @pytest.mark.parametrize("bad, problem", [
     ("", "empty"),
     ("Hi, order 7001: your refund of 15.00 TND is approved.", "numbers not in the decision: 15"),
-    ("Hi, your refund of 12.50 TND is approved.", "order number 7001 is not mentioned"),
+    ("Hi, order 7002: your refund of 12.50 TND is approved.", "wrong order number: 7002"),   # T14b (not-mentioned: Atlas only)
     ("Hi, order 7001: refund of 12.50 TND approved. We will keep you updated.", "forbidden promise"),
     ("Hi, order 7001: refund approved, we are monitoring the parcel.", "forbidden promise"),
     ("Hi, order 7001: we guarantee the refund.", "forbidden promise"),
