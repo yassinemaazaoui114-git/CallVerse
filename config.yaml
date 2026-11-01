@@ -49,6 +49,10 @@ models:
   agents_local: &agents_local
     - {provider: ollama,     model: "cv-qwen3.5-4b", temperature: 0, seed: 42, options: {reasoning_effort: none}}
     - {provider: ollama,     model: "cv-phi4-mini",  temperature: 0, seed: 42}
+    # M2T (test only, branch test/m2-v3-agent-b): Dali's fine-tuned Qwen3-4B-Instruct-2507 + LoRA (GGUF Q4_K_M),
+    # Ollama copy made from models/m2/Modelfile_v3 (num_ctx 8192). Last in the list, so it is used only when forced
+    # with CALLVERSE_FORCE_AGENT_B_MODEL=callverse-m2-v3. No reasoning_effort: it is a non-thinking model.
+    - {provider: ollama,     model: "callverse-m2-v3", temperature: 0, seed: 42}
   # T16 (option A, approved 2026-10-29): a TEMPORARY test setup, the final one is decided after the M2 benchmark.
   # Agent B (refunds) has its own model list, so it can stay on Groq while Intake + Agent A run locally:
   # the local model reads and routes well but almost never calls propose_refund (T13c/T13f).
