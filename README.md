@@ -108,6 +108,9 @@ unless `PLATFORM_COORDINATOR_TOKEN` is set. Details: [docs/platform_contract.md]
 `python -m scripts.run_scenario S1` (demo stories S0–S4), `python -m scripts.run_notifier` (delivery messages),
 `python -m scripts.quota_check` (one tiny call per model: is the free quota there before a long run?). Demo plan: [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md).
 
+**New web UI (React + FastAPI, in progress, Dali's lane)**: `webui/` — step 1 = login + the Console's Live tickets and
+Ticket detail (read only). Setup, run and test commands: [webui/README.md](webui/README.md). The Streamlit apps stay until it is accepted.
+
 ## Run the tests
 
 ```powershell
