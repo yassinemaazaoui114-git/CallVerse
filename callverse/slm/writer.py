@@ -21,6 +21,10 @@ Every SLM call, check and template use is traced (slm_call, slm_check, slm_templ
 T21: a decision of another company than ShopNova says so (decision["company"]): the writer then gets that company's
 name and one-line description (COMPANY_PROMPT, the same rules) and says "booking" where the company says so.
 ShopNova's prompt text is not touched.
+
+T14b (ShopNova only; Atlas keeps today's behaviour): the writer is no longer forced to open with "order N" (the order
+number is where the Coordinator's sentences have it); it sees only the facts the decision needs (writer_facts); it gets a
+"write in <language>" line for a client who does not write English; and layer3_pending has its own guide.
 """
 
 import json
@@ -30,7 +34,7 @@ import time
 from callverse import companies, llm, trace
 from callverse.slm import templates
 from callverse.slm.check import check_reply
-from callverse.slm.templates import calm_opener, case_word, is_upset
+from callverse.slm.templates import case_word, decision_opener, is_upset
 
 MAX_ATTEMPTS = 2   # first try + one retry
 
@@ -42,17 +46,18 @@ Rules:
   delay, name or promise.
 - Never promise follow-up actions such as "we will keep you updated", "we are monitoring", "we guarantee",
   "within 24 hours", "as soon as possible", compensation or vouchers.
-- Mention the order number in the FIRST sentence, written as "order 1234". Then say the next step.
+- Do not add a sentence only to name the order: the sentences you must copy already say what is needed.
+  Then say the next step.
 - Never write internal codes such as R-REF-03. Never use placeholders such as [Name]: you do not know the name.
 - Amounts are in TND (never $ or EUR).
 - No subject line, no signature, no "Best regards". Plain text only, at most 80 words.
 - Write in English, in the tone asked.
 
 Example (made-up values, do not reuse them):
-Decision: approve, refund, order 7001, facts {"amount_tnd": 12.50, "days_late": 8}, next step "The money goes back to
-your card."  Tone: friendly, client upset.
-Reply: Hi, I'm really sorry about the wait on order 7001. Your refund of 12.50 TND is approved, since the parcel is
-8 days late. The money goes back to your card."""
+Decision: approve, refund, order <ORDER_NUMBER>, facts {"amount_tnd": 12.50, "days_late": 8}, next step "The money goes
+back to your card."  Tone: friendly, client upset.
+Reply: Hi, I'm really sorry about the wait. Your refund of 12.50 TND is approved, since the parcel is 8 days late. The
+money goes back to your card."""
 
 # T21: the same writer for another company. {name} and {description} come from config.yaml companies:.
 COMPANY_PROMPT = """You write the final reply of {name} customer service ({description}) to a client.
@@ -91,32 +96,81 @@ OUTCOME_GUIDE = {
     "layer3_refused": "Tell the client the refund cannot be approved: the finance team did not approve it. "
                       "Do NOT promise a refund, another check or any later action.",
     "notify": "Tell the client the news about their order (the event). Do not promise anything else.",
+    # T14b: a refund above the limit waits for finance. No time, no amount, no rule unless a sentence to copy has it.
+    "layer3_pending": "Tell the client their refund request has been passed to the finance team and that they will be "
+                      "told here when it has been reviewed. Say nothing about when. Do NOT say the refund is approved "
+                      "and do NOT promise it will be paid. Add no amount and no rule: only what the sentences to copy say.",
     # T14a: the Coordinator's answer is no; the reason is in must_say.
     "decline": "Tell the client the request cannot be done, with the exact reason given. Do not offer anything else, "
                "do not promise a refund or a later check.",
 }
 
 
-def style_guide(style: dict | None) -> str:
-    """Turn Intake's style profile into plain instructions for the model."""
+def style_guide(style: dict | None, order_first: bool = True, calm: bool = True) -> str:
+    """Turn Intake's style profile into plain instructions for the model.
+    order_first: the order number leads the reply (Atlas); ShopNova (T14b) no longer forces it.
+    calm: False when no calm opener is added (the off-topic redirect, T14b), so the model writes its own greeting."""
     style = style or {}
     tone = {"formal": "Formal and polite, no slang. Start with exactly: Dear customer,",
             "casual": "Friendly and relaxed, simple words, still respectful. Start with exactly: Hi,"
             }.get(style.get("formality"), "Neutral and polite. Start with exactly: Hello,")
     size = ("Very short: 2 or 3 sentences, at most 45 words." if style.get("length") == "short"
             else "Clear: 3 to 5 sentences, at most 80 words.")
-    if is_upset(style):
+    if is_upset(style) and calm:
         # The calm opener is added by code (write_reply), so the model must not write its own.
         tone = tone.split(" Start with exactly:")[0]
         return (f"Tone: {tone} Length: {size} Do NOT write a greeting or an apology: an apology sentence is "
-                "added before your text automatically. Start directly with the order.")
+                "added before your text automatically. Start directly with the "
+                f"{'order' if order_first else 'content'}.")
     return f"Tone: {tone} Length: {size}"
+
+
+LANGUAGE_NAMES = {"fr": "French", "es": "Spanish", "it": "Italian", "de": "German", "ar": "Arabic"}
+
+
+def is_shopnova(decision: dict) -> bool:
+    """No company on the decision = ShopNova (the first company; its prompt is the base text)."""
+    return decision.get("company") in (None, companies.DEFAULT)
+
+
+def language_name(decision: dict) -> str | None:
+    """T14b: the client's language when it is not English (ShopNova only), else None. From Intake via the style."""
+    return LANGUAGE_NAMES.get((decision.get("style") or {}).get("language")) if is_shopnova(decision) else None
+
+
+# T14b: facts the writer may see. These always stay (amounts and the like); the other facts (order status, dates, carrier,
+# days) are order details that a small model comments on, so they are passed only when a sentence of the decision has them.
+ALWAYS_FACTS = ("amount_tnd", "event", "layer3_decision", "threshold_tnd", "needed")
+
+
+def writer_facts(decision: dict) -> dict:
+    """The facts the ShopNova writer is shown (Atlas: all, as before). The checker still uses the whole decision.
+    days_late only when > 0 and the decision is about lateness (a status answer, or the late-refund rule R-REF-03/R-DEL-02);
+    every other fact only when its value is inside must_say / next_step."""
+    facts = decision.get("facts") or {}
+    if not is_shopnova(decision):
+        return facts
+    said = " ".join([str(decision.get("next_step") or "")] + [str(x) for x in decision.get("must_say") or []]).lower()
+    said = said.replace("_", " ")
+    about_lateness = decision.get("action") == "status" or decision.get("rule_id") in ("R-REF-03", "R-DEL-02")
+    out = {}
+    for key, value in facts.items():
+        if key in ALWAYS_FACTS:
+            out[key] = value
+        elif key == "days_late":
+            if about_lateness and isinstance(value, (int, float)) and value > 0:
+                out[key] = value
+        elif str(value).lower().replace("_", " ") in said:
+            out[key] = value
+    return out
 
 
 def system_prompt(decision: dict) -> str:
     """The rules for this decision's company. No company on the decision = ShopNova's text, unchanged."""
     company = decision.get("company")
-    if company is None or company == companies.DEFAULT:
+    if is_shopnova(decision):
+        if language_name(decision):   # T14b: not English: the "Write in English" rule is replaced by the language line
+            return SYSTEM_PROMPT.replace("- Write in English, in the tone asked.", "- Write in the tone asked.")
         return SYSTEM_PROMPT
     settings = companies.get(company)
     return COMPANY_PROMPT.replace("{name}", settings["name"]).replace("{description}", settings["description"])
@@ -125,14 +179,18 @@ def system_prompt(decision: dict) -> str:
 def build_messages(decision: dict, history: list[dict] | None = None, problems: list[str] | None = None) -> list:
     """Messages for the SLM: rules, the decision's allowed content, the tone, and the last problems if retrying."""
     word = case_word(decision)
-    allowed = {f"{word}_number": decision.get("order_id"), "facts": decision.get("facts") or {},
+    allowed = {f"{word}_number": decision.get("order_id"), "facts": writer_facts(decision),
                "next_step": decision.get("next_step") or "", "must_say": decision.get("must_say") or []}
     guide_key = ("approve_subscribe" if decision.get("outcome") == "approve" and decision.get("action") == "subscribe"
                  else decision.get("outcome"))
     content = [OUTCOME_GUIDE.get(guide_key, OUTCOME_GUIDE["info"]),
                "What you may say (nothing else):\n" + json.dumps(allowed, ensure_ascii=False, indent=1),
-               style_guide(decision.get("style"))]
-    if decision.get("order_id") is not None:
+               style_guide(decision.get("style"), order_first=not is_shopnova(decision),
+                           calm=decision_opener(decision) is not None)]
+    if language_name(decision):
+        content.append(f"The client writes in {language_name(decision)}: write the reply in {language_name(decision)}. "
+                       "Only the sentences you must copy word for word stay exactly as given.")
+    if decision.get("order_id") is not None and not is_shopnova(decision):
         content.append(f'Your first sentence must contain the exact words "{word} {decision["order_id"]}".')
     if decision.get("must_say"):
         content.append("Copy each of these sentences into your reply EXACTLY, word for word, without changing them:\n"
@@ -196,7 +254,7 @@ def add_calm_opener(reply: str, decision: dict) -> str:
     A greeting or an apology sentence the model wrote anyway is removed first, so the apology is not doubled;
     a first sentence carrying the order number or a must_say item is always kept.
     """
-    opener = calm_opener(decision.get("style"))
+    opener = decision_opener(decision)
     if not opener or not reply:
         return reply
     body = GREETING_RE.sub("", reply).strip()
@@ -221,14 +279,15 @@ def drop_repeated_sentences(reply: str) -> str:
 
 
 def ensure_order_reference(reply: str, decision: dict) -> str:
-    """If the model forgot the order number, insert "About your order N:" by code, after the opener/greeting.
+    """Atlas: if the model forgot the booking number, insert "About your booking N:" by code, after the opener/greeting.
+    ShopNova (T14b): nothing is added; the number is where the Coordinator's sentences have it.
 
     The order number is a fact from the decision, so adding it never adds anything that was not approved.
     """
     order = decision.get("order_id")
-    if order is None or not reply or str(order) in reply:
-        return reply
-    opener = calm_opener(decision.get("style")) or ""
+    if is_shopnova(decision) or order is None or not reply or str(order) in reply:
+        return reply   # T14b: ShopNova no longer gets this sentence; Atlas keeps it
+    opener = decision_opener(decision) or ""
     head = opener if opener and reply.startswith(opener) else ""
     rest = reply[len(head):].lstrip()
     greeting = GREETING_RE.match(rest)

@@ -7,6 +7,7 @@ check_reply(reply, decision) -> {"passed": bool, "problems": [str, ...]}
 
 import re
 
+from callverse import companies
 from callverse.config import load_config
 
 MAX_WORDS = 120
@@ -14,6 +15,8 @@ MAX_WORDS = 120
 # A number in text: 59.90, 59,90, 2026, 6, 03 ... (dates "2026-10-03" give 2026, 10 and 03).
 NUMBER_RE = re.compile(r"\d+(?:[.,]\d+)?")
 RULE_ID_RE = re.compile(r"\b(?:R|AT)-[A-Z]{3}-\d{2}\b")
+# "order 4512", "order number 4512", "order #4512": the number the reply gives for the order (T14b)
+ORDER_REF_RE = re.compile(r"\border\s*(?:number|no\.?|#)?\s*(\d+)", re.IGNORECASE)
 PLACEHOLDER_RE = re.compile(r"\[[^\]]{1,40}\]|\{[^}]{1,40}\}|<[^>]{1,40}>|\bX{3,}\b")
 CURRENCY_RE = re.compile(r"[$€£]|\b(?:USD|EUR|dollars?|euros?)\b", re.IGNORECASE)
 # Carrier / company names: a name in the reply that is not in the decision is an invented fact.
@@ -86,7 +89,13 @@ def check_reply(reply: str, decision: dict) -> dict:
         if _squash(item) not in _squash(text):
             problems.append(f'missing exact sentence (must_say): "{item}"')
 
-    if decision.get("order_id") is not None and str(decision["order_id"]) not in text:
+    # T14b: ShopNova no longer has to open with the order number (it is in the sentences to copy), but it must never
+    # give a WRONG one. Atlas still has to mention its booking number.
+    if decision.get("company") in (None, companies.DEFAULT):
+        wrong = sorted({n for n in ORDER_REF_RE.findall(text) if n != str(decision.get("order_id"))})
+        if wrong:
+            problems.append(f"wrong order number: {', '.join(wrong)} (this reply is about order {decision.get('order_id')})")
+    elif decision.get("order_id") is not None and str(decision["order_id"]) not in text:
         problems.append(f"the order number {decision['order_id']} is not mentioned")
 
     approved_text = _decision_text(decision)

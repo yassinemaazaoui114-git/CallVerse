@@ -5,6 +5,8 @@ Usage (from the repo root; Ollama running, Agent B on Groq):
     python -m scripts.run_decline_check --file tests/dev/decline_practice_messages.json
 
 File format: {"messages": [{"id", "user_id", "order_id", "text", "expect": {...}}]}.
+Optional keys (T14b): "review": true (no expect, the Brain reads the reply) and "reply_must_not_contain": [words]
+(whole word, case-insensitive; a phrase such as "0 days" must appear as these words in a row). Optional --out <file>.
 For EACH message: a FRESH ShopNova database and clock, then web_chat.send(user_id, "shopnova", text), as the app does.
 The tickets go in their own file (out/decline_check_tickets.db, deleted at the end), so callverse.db is not touched.
 
@@ -17,10 +19,16 @@ One line per message, a summary, and the full results in out/decline_check_<file
 
 import argparse
 import json
+import os
+import re
 import sys
 import time
 import traceback
 from pathlib import Path
+
+# T14b: like the ShopNova app (apps/shopnova/shopnova_ui.py): refunds above the limit wait in the finance queue
+# (layer3_pending, nothing written) instead of the stub approving them. Set before the callverse modules read it.
+os.environ.setdefault("CALLVERSE_LAYER3_MODE", "queue")
 
 from callverse import llm, trace
 from callverse.channels import web_chat
@@ -41,11 +49,24 @@ def squash(text: str) -> str:
     return " ".join(str(text).lower().split())
 
 
+def forbidden_words(words: list, reply: str) -> list[str]:
+    """Problems for words that must NOT be in the reply (whole word, case-insensitive)."""
+    return [f"forbidden word in reply: {w}" for w in words
+            if re.search(r"(?<!\w)" + re.escape(w) + r"(?!\w)", str(reply or ""), re.IGNORECASE)]
+
+
 def before_run(order_id: int) -> dict:
     """The message's order before the run, in the shape global_checks needs. A refund on another order finds
-    nothing here, so it counts as a wrong write."""
+    nothing here, so it counts as a wrong write. A message without an order (off-topic) has nothing to watch."""
+    if order_id is None:
+        return {"paid": {}, "refunded": {}, "tracking": {}}
     return {"paid": {order_id: get_order(order_id)["paid"]}, "refunded": {order_id: get_refunds(order_id)["refunded_total"]},
             "tracking": {order_id: get_tracking(order_id)}}
+
+
+def order_status(order_id) -> str | None:
+    """The order's status now (None for a message without an order)."""
+    return None if order_id is None else get_order(order_id)["status"]
 
 
 def last_decision(ticket_id: str) -> dict:
@@ -66,7 +87,7 @@ def expect_checks(expect: dict, outcome, decision: dict, order_id: int, new_refu
         problems.append(f"outcome {outcome} != {expect['outcome']}")
     if "rule_id" in expect and decision.get("rule_id") != expect["rule_id"]:
         problems.append(f"rule {decision.get('rule_id')} != {expect['rule_id']}")
-    status = get_order(order_id)["status"]
+    status = order_status(order_id)
     if "order_status" in expect and status != expect["order_status"]:
         problems.append(f"order status {status} != {expect['order_status']}")
     if "refund_rows" in expect and len(new_refunds) != expect["refund_rows"]:
@@ -102,11 +123,12 @@ def run_one(message: dict) -> dict:
     if not error:
         problems += global_checks(message["text"], {"final_reply": reply, "decision": {"outcome": outcome}}, new_refunds, before)
         problems += expect_checks(message.get("expect") or {}, outcome, decision, order_id, new_refunds)
+        problems += forbidden_words(message.get("reply_must_not_contain") or [], reply)
         if decision.get("outcome") == outcome:
             problems += [f"must_say missing: {s}" for s in decision.get("must_say") or [] if squash(s) not in squash(reply)]
     return {"id": message["id"], "case": message.get("case"), "outcome": outcome, "rule_id": decision.get("rule_id"),
-            "order_status": get_order(order_id)["status"], "refunds": [r["amount"] for r in new_refunds], "reply": reply,
-            "reply_source": sent.get("reply_source"), "seconds": seconds,
+            "order_status": order_status(order_id), "refunds": [r["amount"] for r in new_refunds], "reply": reply,
+            "reply_source": sent.get("reply_source"), "review": bool(message.get("review")), "seconds": seconds,
             "groq_tokens": groq_tokens(ticket_id) if ticket_id else 0, "passed": not problems, "problems": problems}
 
 
@@ -114,6 +136,7 @@ def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", required=True)
+    parser.add_argument("--out", help="result file (default out/decline_check_<file>.json)")
     args = parser.parse_args()
     path = Path(args.file)
     messages = json.loads(path.read_text(encoding="utf-8"))["messages"]
@@ -131,6 +154,7 @@ def main() -> None:
     if any(q["status"] == "daily_limit" for q in quota):
         abort(path, f"daily limit before the start: {[q['model'] for q in quota if q['status'] == 'daily_limit']}", 0)
 
+    out_file = Path(args.out) if args.out else OUT_DIR / f"decline_check_{path.stem}.json"
     results = []
     for i, m in enumerate(messages):
         if i > 0:
@@ -140,9 +164,10 @@ def main() -> None:
         if len(llm.DAILY_LIMIT_HITS) > hits_before:
             abort(path, f"daily limit during message {m['id']}: {llm.DAILY_LIMIT_HITS[hits_before:]}", len(results))
         results.append(r)
+        out_file.write_text(json.dumps({"partial": True, "results": results}, indent=1, ensure_ascii=False), encoding="utf-8")
 
     for r in results:   # printed only when the run finished (an aborted run shows no scores)
-        print(f"{r['id']:<4} {str(r['outcome']):<14} {str(r['rule_id']):<9} {r['order_status']:<15} refunds {r['refunds'] or '-'}  "
+        print(f"{r['id']:<4} {str(r['outcome']):<14} {str(r['rule_id']):<9} {str(r['order_status']):<15} refunds {r['refunds'] or '-'}  "
               f"{'PASS' if r['passed'] else 'FAIL'}  {'; '.join(r['problems'])}  ({r['seconds']} s, {r['groq_tokens']} tokens)")
         print(f"     reply [{r['reply_source']}]: {r['reply']}")
 
@@ -156,7 +181,7 @@ def main() -> None:
     print(f"\nSUMMARY: {passed}/{len(results)} passed · crashes {summary['crashes']} · leaks {summary['leaks']} · wrong writes "
           f"{summary['wrong_writes']} · avg {summary['avg_seconds']} s · max {summary['max_seconds']} s · "
           f"Groq tokens {summary['groq_tokens']}")
-    out_path = OUT_DIR / f"decline_check_{path.stem}.json"
+    out_path = out_file
     out_path.write_text(json.dumps({"summary": summary, "results": results}, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"Results: {out_path}   Trace: {trace_path}")
     store.use_db(store.DEFAULT_DB_PATH)

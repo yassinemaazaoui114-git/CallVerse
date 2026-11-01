@@ -1,0 +1,247 @@
+{
+ "_note": "T14b practice set: 12 REAL first tweets from TWCS (CC BY-NC-SA 4.0), chosen by the Brain from candidates.json (none used in the T14a sets). Minimal adaptation: @handles/links removed, &amp; -> &, our order number added or swapped in (p05 already had one). 'expect' = hard checks (runner); 'review' = the Brain reads the reply; 'reply_must_not_contain' = case-insensitive words that must NOT appear in the final reply (hidden fields; '0 days late' comments). Today in the seeded clock = 2026-10-09. Do not edit the texts.",
+ "messages": [
+  {
+   "id": "p01",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "99206",
+   "user_id": 2,
+   "order_id": 4510,
+   "case": "status_shipped_not_late",
+   "text": "looking for an ETA on an overnight package. Status says destination scan but not here. Any help? Order 4510.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "shipped"
+   },
+   "reply_must_not_contain": [
+    "0 days",
+    "card",
+    "cash",
+    "city",
+    "days late",
+    "late by",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p02",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1383038",
+   "user_id": 4,
+   "order_id": 4513,
+   "case": "status_user_says_late_but_not",
+   "text": "parcel supposed to arrive yesterday for birthday party. Now just says 'late'. Where is it?!!! Order 4513.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "shipped"
+   },
+   "reply_must_not_contain": [
+    "0 days",
+    "card",
+    "cash",
+    "city",
+    "days late",
+    "late by",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p03",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2122269",
+   "user_id": 2,
+   "order_id": 4505,
+   "case": "status_delivered_user_says_not",
+   "text": "till now my order is not delivered but i am getting the message that it has been delivered . Is this your service . Order 4505.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "delivered"
+   },
+   "reply_must_not_contain": [
+    "0 days",
+    "card",
+    "cash",
+    "city",
+    "days late",
+    "late by",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p04",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1770952",
+   "user_id": 3,
+   "order_id": 4511,
+   "case": "status_processing",
+   "text": "So disappointed with today! Shopping not delivered and having to continuously phone customer services for an answer! AVOID! Order 4511.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "processing"
+   },
+   "reply_must_not_contain": [
+    "0 days",
+    "card",
+    "cash",
+    "city",
+    "days late",
+    "late by",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p05",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "462483",
+   "user_id": 1,
+   "order_id": 4512,
+   "case": "refund_late_shipping",
+   "text": "My order 4512 did not arrive on time. I paid extra for shipping because I needed it ASAP. I want a refund for shipping.",
+   "review": true,
+   "reply_must_not_contain": [
+    "card",
+    "cash",
+    "city",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p06",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1592470",
+   "user_id": 1,
+   "order_id": 4512,
+   "case": "angry_late_no_request",
+   "text": "I FUCKING HATE YOU THIS IS THE THIRD TIME IN A ROW YOU ARE LATE WITH ONE OF MY PACKAGES Order 4512.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "stuck_at_depot"
+   },
+   "reply_must_not_contain": [
+    "card",
+    "cash",
+    "city",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p07",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2093921",
+   "user_id": 2,
+   "order_id": 4515,
+   "case": "refund_late_over_300_finance",
+   "text": "loses my parcel... They assure 2 day delivery, which is then delayed by further 4 days and then poof! They say it's lost and ask me to initiate a refund... #fail Order 4515.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "stuck_at_depot"
+   },
+   "reply_must_not_contain": [
+    "card",
+    "cash",
+    "city",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p08",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1155151",
+   "user_id": 1,
+   "order_id": 4509,
+   "case": "damaged_delivered",
+   "text": "had order damaged in transit, how do I sort out refunding / redelivery please? Order 4509.",
+   "review": true,
+   "reply_must_not_contain": [
+    "card",
+    "cash",
+    "city",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p09",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1675571",
+   "user_id": 5,
+   "order_id": 4508,
+   "case": "refund_wrong_item_too_late",
+   "text": "I got sent \"Oats & Berries\" instead of \"Roasted Almond\". this is ridiculous. plz refund. Order 4508.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-RET-01",
+    "refund_rows": 0
+   },
+   "reply_must_not_contain": [
+    "card",
+    "cash",
+    "city",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p10",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "835533",
+   "user_id": 3,
+   "order_id": 4506,
+   "case": "refund_already_refunded",
+   "text": "Order 4506. Still haven't received a refund. 45 days !!! Show me the money. Just want it to transferred. I've had enough of this drama. 10k",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-REF-05",
+    "refund_rows": 0
+   },
+   "reply_must_not_contain": [
+    "card",
+    "cash",
+    "city",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p11",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "542237",
+   "user_id": 1,
+   "order_id": null,
+   "case": "off_topic",
+   "text": "The \"Amazon Video Terms of Use\" link is broken. What are the terms of use?",
+   "review": true,
+   "reply_must_not_contain": [
+    "card",
+    "cash",
+    "city",
+    "payment",
+    "source"
+   ]
+  },
+  {
+   "id": "p12",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2240992",
+   "user_id": 3,
+   "order_id": null,
+   "case": "off_topic",
+   "text": "all self service checkouts at watton cash only due to computer problems earlier in the week and still not fixed!!!",
+   "review": true,
+   "reply_must_not_contain": [
+    "card",
+    "cash",
+    "city",
+    "payment",
+    "source"
+   ]
+  }
+ ]
+}

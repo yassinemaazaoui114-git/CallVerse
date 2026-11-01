@@ -6,13 +6,18 @@ So M2 is a backup, not the default path.
 The LLM must answer in JSON with reasons from the company's fixed list. We never trust its answer blindly:
 the JSON is validated, unknown reasons are dropped, and anything invalid becomes reason "other".
 The order_id it returns is only a hint: intake.py still checks it with the get_order tool.
+
+T14b: the same word rule as in reasons.py for cancel_order. The model may say cancel_order only when a sentence of the
+client's message says "cancel" and is not about a subscription or an account; otherwise that reason is dropped and the
+next one of its list is used ("other" when nothing is left). Cancelling is the only action that changes an order,
+so it is never accepted on the model's guess alone.
 """
 
 import json
 import re
 
 from callverse import companies, llm, trace
-from callverse.intake.reasons import REASONS
+from callverse.intake.reasons import CANCEL_WORD_RE, NOT_AN_ORDER_RE, REASONS, split_sentences
 
 PROMPT = """You sort customer messages of ShopNova, an online shop.
 Possible contact reasons (use ONLY these names):
@@ -78,6 +83,18 @@ def parse_answer(text: str | None, allowed: list[str] = REASONS) -> dict:
     return {"reasons": reasons, "order_id": order_id, "valid": True}
 
 
+def cancel_is_justified(text: str) -> bool:
+    """True when a sentence of the message has the cancel word and is not about a subscription / account (reasons.py rules)."""
+    return any(CANCEL_WORD_RE.search(s) and not NOT_AN_ORDER_RE.search(s) for s in split_sentences(text))
+
+
+def drop_unjustified_cancel(result: dict, text: str) -> dict:
+    """T14b: remove cancel_order from a valid answer when the client's words do not justify it."""
+    if "cancel_order" in result["reasons"] and not cancel_is_justified(text):
+        result = {**result, "reasons": [r for r in result["reasons"] if r != "cancel_order"] or ["other"]}
+    return result
+
+
 def classify(text: str, chat_fn=None, company: str = companies.DEFAULT) -> dict:
     """Ask M2 for the reasons of `text`. chat_fn can be replaced by a fake in tests (no API call)."""
     chat_fn = chat_fn or llm.chat
@@ -85,6 +102,8 @@ def classify(text: str, chat_fn=None, company: str = companies.DEFAULT) -> dict:
     try:
         reply = chat_fn("agents", messages)
         result = parse_answer(reply.content, companies.get(company)["reasons"])
+        if company == companies.DEFAULT:   # Atlas has no cancel_order (its "cancellation" is a different reason)
+            result = drop_unjustified_cancel(result, text)
     except llm.AllModelsFailed as e:
         result = {"reasons": ["other"], "order_id": None, "valid": False, "error": str(e)}
     trace.log("intake_llm_fallback", "intake", {"text": text, "result": result})

@@ -22,16 +22,43 @@ It has no tools and never reads the database, so every fact it may write must be
 |---|---|---|
 | `outcome` | str | `approve` · `send_back` · `ask_user` · `ask_proof` · `layer3` · `escalate` · `info` · `decline` (see below) |
 | `action` | str | what the case is about, e.g. `refund`, `subscribe`, `status`, `cancel`, `return` |
-| `order_id` | int or null | the order the reply is about; the reply mentions it |
+| `order_id` | int or null | the order the reply is about. The reply must never give another number; ShopNova no longer forces the reply to name it (T14b): it appears where the Coordinator's sentences (`must_say`, `next_step`) have it. Atlas still has to mention its booking number |
 | `rule_id` | str or null | policy rule behind the decision, for the trace only: **never written in the reply** |
-| `facts` | dict | the **only** facts the reply may contain (amounts, dates, days, statuses, ...) |
+| `facts` | dict | the **only** facts the reply may contain (amounts, dates, days, statuses, ...). The decision carries all of them for the checker and the trace; the ShopNova writer is shown only the whitelist below (T14b) |
 | `next_step` | str | one sentence **written to the client** (never to the agent): what happens next / what the client must do. Written by the Coordinator. The reply ends with it almost word for word, so "Ask the client for a photo" is wrong; "Please send us a photo of the damaged item" is right |
 | `must_say` | list of str, optional | exact sentences or phrases the reply must contain **word for word** (checked case-insensitively). For facts that must not be misstated (e.g. "Refunds above 300 TND need approval from our finance team."). Written by the Coordinator |
-| `style` | dict | from Intake: `formality` (formal · casual · neutral), `length` (short · medium · long), `shouting` (bool), `emotion` (e.g. anger, joy, neutral), `sentiment` (negative · neutral · positive) |
+| `style` | dict | from Intake: `formality` (formal · casual · neutral), `length` (short · medium · long), `shouting` (bool), `emotion` (e.g. anger, joy, neutral), `sentiment` (negative · neutral · positive), `language` (T14b: `en` · `fr` · `es` · `it` · `de` · `ar`; missing = `en`) |
 
 Known `facts` keys (others are allowed; the writer passes them as they are):
 `amount_tnd`, `days_late`, `order_status`, `promised_date` (YYYY-MM-DD), `carrier`, `event` (notification event),
 `needed` (what proof is needed), `threshold_tnd` (Layer 3 limit), `days_since_delivery` (T14a).
+
+## What the ShopNova writer is shown (T14b: facts whitelist)
+A small model comments on raw order details ("0 days late", the carrier, a promised date, the status code). So the writer's
+prompt (`writer.writer_facts`) contains only these facts; Atlas decisions are passed unchanged.
+
+| Fact | Shown to the writer when |
+|---|---|
+| `amount_tnd`, `event`, `layer3_decision`, `threshold_tnd`, `needed` | always (amounts and the like) |
+| `days_late` | only when > 0 **and** the decision is about lateness: a status answer (`action` = `status`) or rule R-REF-03 / R-DEL-02 |
+| `order_status`, `promised_date`, `carrier`, `days_since_delivery`, any other fact | only when its value is inside `must_say` / `next_step` (the sentence says it already) |
+
+What each decision type carries today (before the whitelist) and what the writer now sees:
+
+| Decision | Facts in the decision | Shown to the writer |
+|---|---|---|
+| `info` / status (`info_decision`) | `order_status`, `days_late`, `promised_date`, `carrier` | `days_late` if > 0; the rest only if in the sentence |
+| `info` / redirect (off topic) | none | none (and no calm opener: the scope sentence stands alone) |
+| `decline` R-REF-03 (not late) | `order_status`, `days_late` (0), `promised_date` | `promised_date` (it is in `must_say`) |
+| `decline` R-REF-05 | `order_status`, `amount_tnd` | `amount_tnd` |
+| `decline` R-RET-01 / R-CAN-01 | `order_status`, `days_since_delivery` | `days_since_delivery` (in `must_say`) |
+| `ask_user` (cancel) / `ask_proof` | `order_status` | nothing (the sentence says it) |
+| `approve` refund / cancel (`slm_facts`) | `order_status`, `days_late`, `amount_tnd`, `days_since_delivery` (cancel), `layer3_decision`, `threshold_tnd` | `amount_tnd`, `layer3_decision`, `threshold_tnd`; `days_late` for R-REF-03 when > 0 |
+| `approve` subscribe | `order_status`, `days_late`, `event` | `event` (`days_late` for R-DEL-02 when > 0) |
+| `layer3_pending` / `layer3_refused` / `escalate` | `order_status`, `days_late`, `amount_tnd`, `layer3_decision`, `threshold_tnd` | `amount_tnd`, `layer3_decision`, `threshold_tnd` |
+
+The agents also no longer see `source`, `source_id`, `city` and `payment` in their read-tool results
+(`registry.hide_fields`); the Coordinator and the platform still read the full rows.
 
 ## Outcomes, as the client sees them
 | Outcome | The reply says | The reply must not |
@@ -41,6 +68,7 @@ Known `facts` keys (others are allowed; the writer passes them as they are):
 | `ask_user` | a question to the client (in `next_step`) | decide anything |
 | `ask_proof` | what proof is needed (`facts.needed`) + next step | promise a refund or replacement |
 | `layer3` | the refund needs approval from the finance team + next step | promise the refund |
+| `layer3_pending` (T14b guide) | the request was passed to the finance team and the client will be told here | give a time, an amount or a rule that is not in `must_say`, or promise payment |
 | `escalate` | a colleague takes over + next step | promise a result |
 | `info` | the facts (status, delay, ...) + next step | promise follow-up actions |
 | `decline` | no, with the rule's reason (`must_say`, copied word for word) + next step, if any | offer anything else, or promise a refund or a later check |
@@ -70,7 +98,8 @@ After the SLM writes, a rule check (plain code) verifies the reply:
   unless the same idea is in `facts` / `next_step`; no refund promise unless `outcome` is `approve` for a refund or a
   cancellation;
 - no rule id (R-XXX-00), no placeholder such as `[Name]`;
-- the order number is mentioned; the reply is not empty and has at most 120 words.
+- ShopNova (T14b): no WRONG order number ("order 4511" in a reply about 4510); Atlas: its booking number is mentioned;
+  the reply is not empty and has at most 120 words.
 - every `must_say` item is present word for word (case-insensitive, spaces ignored);
 - the forbidden list lives in `config.yaml` (`slm.forbidden`), so it can grow without code changes.
 If the check fails: one retry with the problems listed; if it fails again, a fixed template is used
@@ -80,6 +109,10 @@ If the check fails: one retry with the problems listed; if it fails again, a fix
 - **Calm opener**: if `style.shouting` or `style.sentiment == "negative"`, the reply starts with a fixed sentence
   from `config.yaml` (`slm.calm_openers`, by formality), e.g. "I'm really sorry for the trouble."; a greeting or
   apology the model wrote is removed so the apology is not doubled.
-- **Order reference**: if the model forgot the order number, "About your order N:" is inserted.
+- **Order reference** (Atlas only since T14b): if the model forgot the booking number, "About your booking N:" is inserted.
+  ShopNova adds no such sentence.
+- **Language** (T14b, ShopNova): `style.language` comes from Intake (`callverse/intake/language.py`, stop-words). When it is not
+  `en` the prompt says "write the reply in <language>"; the `must_say` sentences stay as given (English). The off-topic
+  reply (`action` = `redirect`) gets no calm opener.
 - **Repeated sentences** are removed.
 The model runs at temperature 0 with a fixed seed: the same decision gives the same reply.

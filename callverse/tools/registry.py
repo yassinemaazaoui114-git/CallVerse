@@ -10,6 +10,11 @@ Four kinds of tools:
 - proposal tools (proposal_tools.py): only write a PROPOSAL for the Coordinator, never act;
 - ask_agent (agents/ask.py): ask another agent (Agent A) a question.
 
+T14b: what an agent (or Intake) READS at ShopNova is cleaned first: the database labels `source` / `source_id` and the
+fields `city` / `payment` are removed from the tool result (hide_fields), because the agents do not need them and a small
+model comments on them. The database, the Coordinator and writes.py still read the full rows (they call the tool functions
+directly, not through run_tool). Atlas has its own HIDDEN list in data/atlas/reads.py.
+
 T21: the allow-lists are per COMPANY and agent. Each company has its own table of tools, so a tool of one company simply
 does not exist for an agent working on a ticket of the other. run_tool() gets the company from the agent (which got it
 from the ticket); the model can never choose it.
@@ -37,6 +42,19 @@ TOOL_SCHEMAS = {
     "propose_cancellation": proposal_tools.CANCELLATION_SCHEMA,
     "ask_agent": ask.SCHEMA,
 }
+
+# T14b: fields the ShopNova read tools do not show to agents (anywhere inside the result, rows of lists included).
+HIDDEN_FIELDS = ("source", "source_id", "city", "payment")
+
+
+def hide_fields(value):
+    """A copy of a tool result without HIDDEN_FIELDS, at every depth."""
+    if isinstance(value, dict):
+        return {k: hide_fields(v) for k, v in value.items() if k not in HIDDEN_FIELDS}
+    if isinstance(value, list):
+        return [hide_fields(v) for v in value]
+    return value
+
 
 # Tools that run another agent: they get the caller's LLM function (so tests can use a fake LLM).
 RUNS_AN_AGENT = {"ask_agent"}
@@ -105,6 +123,8 @@ def run_tool(agent: str, name: str, args: dict, chat_fn=None, company: str = "sh
         call_args["company"] = company   # the same: the agent asked works for the same company
     try:
         result = functions[name](**call_args)
+        if company == "shopnova" and name in shopnova_tools.FUNCTIONS:
+            result = hide_fields(result)   # T14b
     except Exception as e:  # bad arguments from the model, etc.: report it instead of crashing
         result = {"error": f"{type(e).__name__}: {e}"}
 

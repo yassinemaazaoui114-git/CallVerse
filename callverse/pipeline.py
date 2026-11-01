@@ -88,7 +88,8 @@ def reply_style(ticket: dict) -> dict:
     return {"formality": style.get("formality", "neutral"), "length": style.get("length", "short"),
             "shouting": bool(style.get("shouting")),
             "emotion": (ticket.get("emotion") or {}).get("label", "neutral"),
-            "sentiment": (ticket.get("sentiment") or {}).get("label", "neutral")}
+            "sentiment": (ticket.get("sentiment") or {}).get("label", "neutral"),
+            "language": ticket.get("language", "en")}   # T14b: hand-made test tickets have none = English
 
 
 def final_reply(ticket: dict, decision: dict | None, slm_chat_fn=None) -> tuple[dict, str, str]:
