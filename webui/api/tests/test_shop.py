@@ -112,3 +112,31 @@ def test_reads_write_nothing(client, shop_db):
         client.get(path)
     assert hashlib.sha256(shop_db.read_bytes()).hexdigest() == before
     assert not (shop_db.parent / "atlas_never_created.db").exists()
+
+
+def test_missing_shop_database_gives_503_and_creates_nothing(client, isolated_env):
+    """No shop_db fixture here: the configured shopnova.db does not exist. Both routes answer 503
+    setup_required BEFORE any read function runs, and the file is still absent afterwards."""
+    from callverse.data import db as shopnova_db
+    path = shopnova_db.db_path()
+    assert not path.exists()
+    login(client, "sara")
+    for route in ROUTES:
+        r = client.get(route)
+        assert r.status_code == 503 and r.json()["error"] == "setup_required", route
+        assert "shopnova.db" in r.json()["message"]
+    assert not path.exists()
+    # the guard comes after the role check: a non-customer still gets 403, not a hint about the file
+    client.post("/api/auth/logout", headers=CSRF)
+    login(client, "supervisor")
+    assert client.get("/api/shop/orders").status_code == 403
+
+
+def test_console_stays_usable_without_shop_data(supervisor, isolated_env):
+    from callverse.data import db as shopnova_db
+    path = shopnova_db.db_path()
+    assert not path.exists()
+    for route in ("/api/console/tickets", "/api/console/tickets/filters", "/api/company"):
+        assert supervisor.get(route).status_code == 200, route
+    assert supervisor.get("/api/console/tickets/T-0001").status_code == 404
+    assert not path.exists()   # read-only connections never create the company file

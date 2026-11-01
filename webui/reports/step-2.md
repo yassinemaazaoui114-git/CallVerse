@@ -62,10 +62,13 @@ and buttons, coral accent) with the same components, spacing and focus behaviour
 
 ## 4. Problems
 
-- **A missing shopnova.db would be seeded by a read.** `callverse.data.db.connect()` creates and seeds the
-  file when it does not exist, so the first customer request on a PC without `shopnova.db` would create it.
-  Existing behaviour of the core, not of the API; the tests seed the temp file themselves so the "no write"
-  check is honest. Noted here as the brief asks ("do not create missing data during requests").
+- **A missing shopnova.db would have been seeded by a read** (`callverse.data.db.connect()` creates and seeds
+  a missing file). **Closed in the correction commit**: both order routes now check that the configured
+  `shopnova.db` exists (after the role check, before any read function runs) and answer 503
+  `setup_required` with the seed instruction; the screens show "ShopNova's data is not set up on this PC"
+  with Retry. Tests: both routes with a missing file → 503 and the file is still absent; a non-customer still
+  gets 403 (no hint about files); the Console routes answer 200 / 404 without the shop file and never create
+  it. API tests: **25 passed**.
 - **Order detail reads the whole list** to check ownership (`user_orders(user_id)` then filter by id): one
   extra read per detail, fine for a demo (a customer has a handful of orders). A `user_order(user_id,
   order_id)` function in `shop_reads.py` would be cleaner; listed below for Yassine.
@@ -82,8 +85,7 @@ and buttons, coral accent) with the same components, spacing and focus behaviour
 
 1. Should Yassine add `shop_reads.user_order(user_id, order_id)` (one owned order or None) so the API does
    not list all orders to check one? Until then the list-then-filter stays.
-2. The seed-on-first-read behaviour of `db.connect()`: acceptable for the demo PC (the file always exists
-   after the first run), or should the API refuse to start when `shopnova.db` is missing?
+2. (closed) The API now refuses the shop routes with 503 `setup_required` while `shopnova.db` is missing.
 3. Step 3 chat: the Streamlit page passes the order as `about_order` to `web_chat.send` and keeps the ticket id
    in the browser session. For the React chat I plan: `POST /api/shop/chat` (one at a time, worker thread) +
    SSE for `on_step` texts, ticket id in the URL. OK, or do you prefer WebSocket?

@@ -34,6 +34,10 @@ export function ApiErrorView({ error, onRetry, note }) {
     icon = "lock"; title = "Not available for your account";
     text = (error && error.message) || "Your account does not have the role this page needs.";
     kind = "alert-warn";
+  } else if (code === "setup_required") {
+    icon = "alert"; title = "ShopNova's data is not set up on this PC";
+    text = (error && error.message) || "The shop database is missing. Seed it, then retry.";
+    kind = "alert-warn";
   } else if (code === "not_logged_in") {
     icon = "lock"; title = "Please log in"; kind = "alert-warn";
   } else if (code === "not_found") {

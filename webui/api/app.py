@@ -37,6 +37,8 @@ ERRORS = {
     "not_logged_in": "Please log in to see this page.",
     "forbidden": "This page is for the CallVerse supervisor only.",
     "customer_only": "This page is for ShopNova customers only.",
+    "setup_required": "ShopNova's data is not set up on this PC yet (shopnova.db is missing). Run the seed "
+                      "command from docs/DEMO_RUNBOOK.md, then try again.",
     "bad_login": "Wrong username or password.",
     "no_accounts": accounts.NO_ACCOUNTS_MESSAGE,
     "csrf": f"Missing {settings.CSRF_HEADER} header.",
@@ -103,6 +105,14 @@ def create_app(sessions: auth.SessionStore | None = None) -> FastAPI:
         if found is None:
             raise ApiError(403, "customer_only")
         return found
+
+    def shop_data_ready() -> None:
+        """503 when ShopNova's database file is missing. Checked BEFORE any read function runs, because
+        callverse.data.db.connect() would create and seed a missing file: a read must never create data.
+        The Console does not need this: its reads open files read-only and never create them."""
+        from callverse.data import db as shopnova_db
+        if not shopnova_db.db_path().exists():
+            raise ApiError(503, "setup_required")
 
     def csrf_checked(request: Request) -> None:
         if request.headers.get(settings.CSRF_HEADER) != settings.CSRF_VALUE:
@@ -177,10 +187,12 @@ def create_app(sessions: auth.SessionStore | None = None) -> FastAPI:
 
     @app.get("/api/shop/orders")
     def shop_orders(customer: dict = Depends(shopnova_customer)):
+        shop_data_ready()   # after the role check (a non-customer learns nothing about the files)
         return shop_reads.orders(customer["user_id"])
 
     @app.get("/api/shop/orders/{order_id}")
     def shop_order(order_id: int, customer: dict = Depends(shopnova_customer)):
+        shop_data_ready()
         found = shop_reads.order(customer["user_id"], order_id)
         if found is None:   # missing or not this customer's: the same answer on purpose
             raise ApiError(404, "not_found", f"Order {order_id} is not one of your orders.")
