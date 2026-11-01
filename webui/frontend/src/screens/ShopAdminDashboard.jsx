@@ -3,16 +3,18 @@
 // a missing review average shows "—".
 import { api } from "../api.js";
 import { BarChart, ColumnChart, Stat, fmt } from "../components/Chart.jsx";
-import PeriodPicker, { usePeriod } from "../components/Period.jsx";
+import PeriodPicker, { StalePeriodNote, labelOf, usePeriod } from "../components/Period.jsx";
 import Icon from "../components/Icon.jsx";
 import { ApiErrorView, Empty, Loading } from "../components/States.jsx";
 import { tnd, useGuardedLoad, words } from "../hooks.js";
 
 export default function ShopAdminDashboard() {
   const [days, setDays] = usePeriod("30");
-  const { data, error, loading, reload } = useGuardedLoad((signal) => api.shopDashboard(days, signal), [days], { keep: true });
+  const { data, error, loading, reload, isCurrent } = useGuardedLoad((signal) => api.shopDashboard(days, signal), [days], { keep: true });
   const d = data && data.dashboard;
   const options = ((data && data.periods) || [7, 30, 90]).map((n) => ({ value: String(n), label: `Last ${n} days` }));
+  const names = (data && data.category_names) || {};
+  const categoryName = (c) => names[c] || words(c);
 
   return (
     <>
@@ -24,10 +26,11 @@ export default function ShopAdminDashboard() {
         <button type="button" className="btn btn-sm" onClick={reload} disabled={loading}><Icon name="refresh" size={14} />Refresh</button>
       </div>
       <PeriodPicker options={options} value={days} onChange={setDays} clock={d ? `from ${d.start} to ${d.today} (simulation clock)` : null} />
-      {error && <ApiErrorView error={error} onRetry={reload} />}
+      {data && !isCurrent && <StalePeriodNote loading={loading} error={error} shownLabel={labelOf(options, String(data.days))} selectedLabel={labelOf(options, days)} onRetry={reload} />}
+      {error && !data && <ApiErrorView error={error} onRetry={reload} />}
       {!error && loading && !data && <Loading text="Loading the dashboard…" />}
       {d && (
-        <div className={`stack ${loading ? "is-stale" : ""}`} aria-busy={loading}>
+        <div className={`stack ${isCurrent ? "" : "is-stale"}`} aria-busy={loading}>
           <div className="stats">
             <Stat label="Sales" value={d.sales_tnd === null || d.sales_tnd === undefined ? null : tnd(d.sales_tnd)} />
             <Stat label="Orders" value={d.orders} />
@@ -41,14 +44,14 @@ export default function ShopAdminDashboard() {
             <div className="panel"><BarChart title="Orders by status" rows={(d.orders_by_status || []).map((s) => ({ label: words(s.status), value: s.orders }))} labelHeader="status" valueHeader="orders" /></div>
             <div className="panel"><BarChart title="Review scores" rows={(d.review_scores || []).map((s) => ({ label: `${s.score} / 5`, value: s.count }))} labelHeader="score" valueHeader="reviews" color="var(--cv-accent)" /></div>
             <div className="panel"><BarChart title="Top 10 products (quantity sold)" rows={(d.top_products || []).map((p) => ({ label: p.name, value: p.qty }))} labelHeader="product" valueHeader="qty" /></div>
-            <div className="panel"><BarChart title="Top categories (quantity sold)" rows={(d.top_categories || []).map((c) => ({ label: words(c.category), value: c.qty }))} labelHeader="category" valueHeader="qty" /></div>
+            <div className="panel"><BarChart title="Top categories (quantity sold)" rows={(d.top_categories || []).map((c) => ({ label: categoryName(c.category), value: c.qty }))} labelHeader="category" valueHeader="qty" /></div>
           </div>
           <div className="charts">
             <section className="panel stack" aria-label="Low stock">
               <h2>Low stock (≤ {fmt(data.low_stock_limit)})</h2>
               {(d.low_stock || []).length === 0 ? <p className="small muted">No active product is low on stock.</p> : (
                 <div className="table-wrap"><table className="tickets records"><thead><tr><th scope="col">id</th><th scope="col">name</th><th scope="col">category</th><th scope="col" className="num">stock</th></tr></thead>
-                  <tbody>{d.low_stock.map((p) => <tr key={p.id}><td>{p.id}</td><td>{p.name}</td><td>{words(p.category)}</td><td className="num tabular">{fmt(p.stock)}</td></tr>)}</tbody></table></div>
+                  <tbody>{d.low_stock.map((p) => <tr key={p.id}><td>{p.id}</td><td>{p.name}</td><td>{categoryName(p.category)}</td><td className="num tabular">{fmt(p.stock)}</td></tr>)}</tbody></table></div>
               )}
             </section>
             <section className="panel stack" aria-label="Late deliveries">

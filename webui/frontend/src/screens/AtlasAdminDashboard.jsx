@@ -3,14 +3,14 @@
 // booked date, flights by departure date (the core's rule); the upcoming lists look 14 days ahead.
 import { api } from "../api.js";
 import { BarChart, Stat, fmt } from "../components/Chart.jsx";
-import PeriodPicker, { usePeriod } from "../components/Period.jsx";
+import PeriodPicker, { StalePeriodNote, labelOf, usePeriod } from "../components/Period.jsx";
 import Icon from "../components/Icon.jsx";
 import { ApiErrorView, Loading } from "../components/States.jsx";
 import { tnd, useGuardedLoad, words } from "../hooks.js";
 
 export default function AtlasAdminDashboard() {
   const [days, setDays] = usePeriod("all");
-  const { data, error, loading, reload } = useGuardedLoad((signal) => api.atlasDashboard(days, signal), [days], { keep: true });
+  const { data, error, loading, reload, isCurrent } = useGuardedLoad((signal) => api.atlasDashboard(days, signal), [days], { keep: true });
   const d = data && data.dashboard;
   const options = Object.entries((data && data.periods) || { All: null }).map(([label, v]) => ({ label, value: v === null ? "all" : String(v) }));
 
@@ -24,10 +24,11 @@ export default function AtlasAdminDashboard() {
         <button type="button" className="btn btn-sm" onClick={reload} disabled={loading}><Icon name="refresh" size={14} />Refresh</button>
       </div>
       <PeriodPicker options={options} value={days} onChange={setDays} clock={d ? `${d.start ? `from ${d.start}` : "all dates"} to ${d.today} (simulation clock)` : null} />
-      {error && <ApiErrorView error={error} onRetry={reload} />}
+      {data && !isCurrent && <StalePeriodNote loading={loading} error={error} shownLabel={labelOf(options, data.days === null ? "all" : String(data.days))} selectedLabel={labelOf(options, days)} onRetry={reload} />}
+      {error && !data && <ApiErrorView error={error} onRetry={reload} />}
       {!error && loading && !data && <Loading text="Loading the dashboard…" />}
       {d && (
-        <div className={`stack ${loading ? "is-stale" : ""}`} aria-busy={loading}>
+        <div className={`stack ${isCurrent ? "" : "is-stale"}`} aria-busy={loading}>
           <div className="stats">
             <Stat label="Hotel cancellation rate" value={d.hotel_cancellation_rate} unit="%" note={`${fmt(d.hotel_bookings)} hotel bookings`} />
             <Stat label="Flight delay rate" value={d.flight_delay_rate} unit="%" note={`${fmt(d.flights)} flights flown`} />

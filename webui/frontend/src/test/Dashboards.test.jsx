@@ -59,8 +59,8 @@ describe("Dashboards", () => {
     (await net.waitFor("/api/auth/session")).respond(200, { session: SUP });
     const all = await net.waitFor("/api/console/dashboard");
     await act(async () => { all.respond(200, dash(2, { review_avg: null, reviews: 0, avg_reply_s: null, replies_timed: 0 })); });
-    expect(screen.getByText("Satisfaction (reviews)").closest(".stat")).toHaveTextContent("—");
-    expect(screen.getByText("Satisfaction (reviews)").closest(".stat")).toHaveTextContent("no review score available");
+    expect(screen.getByText("Satisfaction (ShopNova reviews)").closest(".stat")).toHaveTextContent("—");
+    expect(screen.getByText("Satisfaction (ShopNova reviews)").closest(".stat")).toHaveTextContent("no review score on file");
     expect(screen.getByText("Average reply time").closest(".stat")).toHaveTextContent("—");
     const chart = screen.getByRole("figure", { name: "Per company" });
     expect(within(chart).getByRole("img")).toHaveAccessibleName("Per company: shopnova 2");
@@ -73,6 +73,29 @@ describe("Dashboards", () => {
     const empty = await net.waitFor("/api/console/dashboard", { index: 1 });
     await act(async () => { empty.respond(200, { ...dash(0), has_tickets: false, dashboard: null }); });
     expect(screen.getByText("No tickets yet")).toBeInTheDocument();
+  });
+
+  it("a failed period refresh never shows the old period as current; satisfaction says its scope", async () => {
+    const net = installFakeFetch();
+    renderAt("/dashboard", <Route path="/dashboard" element={<ConsoleDashboard />} />);
+    (await net.waitFor("/api/auth/session")).respond(200, { session: SUP });
+    const all = await net.waitFor("/api/console/dashboard");
+    await act(async () => { all.respond(200, dash(2)); });
+    expect(screen.getByText("Satisfaction (ShopNova reviews)").closest(".stat")).toHaveTextContent("average of all 10 ShopNova review scores on file (any date, not this period; not per ticket yet)");
+    await act(async () => { screen.getByRole("button", { name: "Last 7 days" }).click(); });
+    const seven = await net.waitFor("days=7");
+    expect(screen.getByRole("status")).toHaveTextContent("Loading Last 7 days… the numbers below are still those of All.");
+    await act(async () => { seven.respond(500, { error: "boom", message: "Server error." }); });
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("Last 7 days could not be loaded");
+    expect(alert).toHaveTextContent("The numbers below are those of All, not of the selected period.");
+    expect(screen.getByText("Tickets").closest(".stat")).toHaveTextContent("2");          // still visible, but labelled
+    expect(screen.getByRole("button", { name: "Last 7 days" })).toHaveAttribute("aria-pressed", "true");
+    await act(async () => { within(alert).getByRole("button", { name: /retry/i }).click(); });
+    const again = await net.waitFor("days=7", { index: 1 });
+    await act(async () => { again.respond(200, { ...dash(7), days: 7 }); });
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByText("Tickets").closest(".stat")).toHaveTextContent("7");
   });
 
   it("Agents cards show the core's numbers and '—' for a missing average", async () => {
@@ -95,10 +118,10 @@ describe("Dashboards", () => {
     (await net.waitFor("/api/auth/session")).respond(200, { session: { role: "admin", company: "shopnova", username: "admin", name: "ShopNova Admin" } });
     const req = await net.waitFor("/api/admin/dashboard?days=30");
     await act(async () => {
-      req.respond(200, { days: 30, periods: [7, 30, 90], default_days: 30, clock: "simulation clock", low_stock_limit: 5, read_at: "t",
+      req.respond(200, { days: 30, periods: [7, 30, 90], default_days: 30, clock: "simulation clock", low_stock_limit: 5, read_at: "t", category_names: { audio: "Audio", computers_accessories: "Computer accessories" },
         dashboard: { days: 30, start: "2026-09-10", today: "2026-10-09", orders: 12, sales_tnd: 1234.5, sales_per_day: [{ day: "2026-10-08", sales_tnd: 100 }, { day: "2026-10-09", sales_tnd: 0 }],
           orders_by_status: [{ status: "delivered", orders: 10 }], late: 1, late_orders: [{ id: 4512, status: "stuck_at_depot", promised_date: "2026-10-03", delivered_date: null }], stuck: 1,
-          refunds_paid: { count: 1, tnd: 59.9 }, top_products: [{ product_id: 1, name: "USB hub", qty: 3 }], top_categories: [{ category: "audio", qty: 3 }],
+          refunds_paid: { count: 1, tnd: 59.9 }, top_products: [{ product_id: 1, name: "USB hub", qty: 3 }], top_categories: [{ category: "computers_accessories", qty: 3 }],
           review_scores: [{ score: 5, count: 0 }], review_average: null, review_count: 0, low_stock: [] } });
     });
     expect(screen.getByText(/from 2026-09-10 to 2026-10-09 \(simulation clock\)/)).toBeInTheDocument();
@@ -108,6 +131,7 @@ describe("Dashboards", () => {
     expect(screen.getByRole("button", { name: "Last 90 days" })).toBeInTheDocument();
     expect(screen.getByText("No active product is low on stock.")).toBeInTheDocument();
     expect(screen.getByRole("region", { name: /late deliveries/i })).toHaveTextContent("4512");
+    expect(screen.getByRole("figure", { name: /top categories/i })).toHaveTextContent("Computer accessories");   // the core's readable name
   });
 
   it("Atlas admin dashboard: rates as given, and a denied account sees the API's words", async () => {

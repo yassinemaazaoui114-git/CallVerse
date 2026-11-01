@@ -54,10 +54,15 @@ export default function AdminApprovals({ company = "shopnova" }) {
   const inflightRef = useRef(null);                     // the same, readable synchronously (a double click)
   const [notice, setNotice] = useState(null);           // {kind: ok | refused | error | uncertain, approvalId, text, detail}
   const confirmRef = useRef(null);
+  const openerRef = useRef(null);   // the Approve / Refuse button that opened the dialog: focus goes back to it
 
-  useEffect(() => { if (confirm && confirmRef.current) confirmRef.current.focus(); }, [confirm]);
+  useEffect(() => {
+    if (confirm && confirmRef.current) confirmRef.current.focus();
+    else if (!confirm && openerRef.current) { openerRef.current.focus(); openerRef.current = null; }
+  }, [confirm]);
 
-  function ask(approval, approve) {
+  function ask(approval, approve, opener) {
+    openerRef.current = opener || null;
     const reason = (reasons[approval.id] || "").trim();
     if (!approve && !reason) {
       setNotice({ kind: "error", approvalId: approval.id, text: "A reason is required to refuse." });
@@ -250,8 +255,8 @@ export default function AdminApprovals({ company = "shopnova" }) {
                       onChange={(e) => setReasons((r) => ({ ...r, [a.id]: e.target.value }))} disabled={!!inflight} />
                   </div>
                   <div className="row">
-                    <button type="button" className="btn btn-primary" onClick={() => ask(a, true)} disabled={!!inflight}>{mine ? "Deciding…" : "Approve"}</button>
-                    <button type="button" className="btn" onClick={() => ask(a, false)} disabled={!!inflight}>Refuse</button>
+                    <button type="button" className="btn btn-primary" onClick={(e) => ask(a, true, e.currentTarget)} disabled={!!inflight}>{mine ? "Deciding…" : "Approve"}</button>
+                    <button type="button" className="btn" onClick={(e) => ask(a, false, e.currentTarget)} disabled={!!inflight}>Refuse</button>
                   </div>
                 </form>
               )}

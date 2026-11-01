@@ -302,8 +302,10 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
         from callverse.data import admin_reads
         if days not in admin_reads.PERIODS:
             raise ApiError(400, "bad_period", f"days must be one of {', '.join(str(d) for d in admin_reads.PERIODS)}")
+        from callverse.data import shop_reads as core_shop_reads   # the readable category names of the shop
         return {"days": days, "periods": list(admin_reads.PERIODS), "default_days": admin_reads.DEFAULT_PERIOD,
                 "clock": "simulation clock", "low_stock_limit": admin_reads.LOW_STOCK,
+                "category_names": dict(core_shop_reads.CATEGORY_NAMES),
                 "dashboard": admin_reads.dashboard(days), "read_at": datetime.now().isoformat(timespec="seconds")}
 
     @app.get("/api/atlas/admin/dashboard")

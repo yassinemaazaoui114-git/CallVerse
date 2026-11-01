@@ -15,6 +15,27 @@ export function usePeriod(fallback = "") {
   return [days, setDays];
 }
 
+// Shown above numbers that belong to ANOTHER period than the selected one: while the new period loads, or when
+// its load failed. The numbers stay visible (nothing blanks) but are never presented as the current period's.
+export function StalePeriodNote({ loading, error, shownLabel, selectedLabel, onRetry }) {
+  if (loading) return <p className="alert" role="status"><span className="spinner" aria-hidden="true" /><span className="small">Loading {selectedLabel}… the numbers below are still those of {shownLabel}.</span></p>;
+  if (error) return (
+    <div className="alert alert-danger" role="alert">
+      <div className="stack" style={{ gap: "var(--cv-s1)" }}>
+        <strong>{selectedLabel} could not be loaded</strong>
+        <span className="small">{error.message} The numbers below are those of {shownLabel}, not of the selected period.</span>
+      </div>
+      {onRetry && <div className="actions"><button type="button" className="btn btn-sm" onClick={onRetry}>Retry</button></div>}
+    </div>
+  );
+  return null;
+}
+
+export function labelOf(options, value) {
+  const found = options.find((o) => String(o.value) === String(value));
+  return found ? found.label : String(value);
+}
+
 // options: [{value, label}] — value is what the API takes ("all", "7", "30", "90").
 export default function PeriodPicker({ options, value, onChange, clock }) {
   return (

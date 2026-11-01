@@ -94,6 +94,7 @@ def test_shop_dashboard_roles_periods_and_shape(client, shop_db):
     assert d["today"] == "2026-10-09" and d["days"] == 30 and len(d["sales_per_day"]) == 30
     assert set(d) >= {"orders", "sales_tnd", "orders_by_status", "late", "late_orders", "stuck", "refunds_paid",
                       "top_products", "top_categories", "review_scores", "review_average", "review_count", "low_stock"}
+    assert body["category_names"]["computers_accessories"] == "Computer accessories"   # the shop's own names
     assert client.get("/api/admin/dashboard", params={"days": 7}).json()["dashboard"]["days"] == 7
     assert len(client.get("/api/admin/dashboard", params={"days": 90}).json()["dashboard"]["sales_per_day"]) == 90
     r = client.get("/api/admin/dashboard", params={"days": 14})

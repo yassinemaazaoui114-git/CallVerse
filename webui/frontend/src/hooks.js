@@ -13,10 +13,12 @@ import { useAuth } from "./auth.jsx";
 export function useGuardedLoad(fetcher, deps, { keep = false } = {}) {
   const { expired } = useAuth();
   const [data, setData] = useState(null);
+  const [dataDeps, setDataDeps] = useState(null);   // the deps the shown `data` was loaded for (JSON)
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const requestNo = useRef(0);
   const controller = useRef(null);
+  const depsKey = JSON.stringify(deps);
 
   const load = useCallback(async () => {
     if (controller.current) controller.current.abort();
@@ -29,6 +31,7 @@ export function useGuardedLoad(fetcher, deps, { keep = false } = {}) {
       const body = await fetcher(ctrl.signal);
       if (mine !== requestNo.current) return;
       setData(body);
+      setDataDeps(depsKey);
     } catch (e) {
       if (mine !== requestNo.current || (e && e.name === "AbortError")) return;
       if (e instanceof ApiError && e.code === "not_logged_in") { expired(); return; }
@@ -45,7 +48,8 @@ export function useGuardedLoad(fetcher, deps, { keep = false } = {}) {
     return () => { if (controller.current) controller.current.abort(); };
   }, [load, keep]);
 
-  return { data, error, loading, reload: load };
+  // isCurrent: the shown data belongs to the CURRENT deps (false while another period / id loads or failed).
+  return { data, error, loading, reload: load, isCurrent: data !== null && dataDeps === depsKey };
 }
 
 // Where an account lands after login: the supervisor in the Console, a ShopNova customer in My orders, every

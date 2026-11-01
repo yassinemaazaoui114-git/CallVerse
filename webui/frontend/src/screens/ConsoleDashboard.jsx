@@ -4,7 +4,7 @@
 // configured daily quota; nothing is computed here.
 import { api } from "../api.js";
 import { BarChart, ColumnChart, Stat, fmt } from "../components/Chart.jsx";
-import PeriodPicker, { usePeriod } from "../components/Period.jsx";
+import PeriodPicker, { StalePeriodNote, labelOf, usePeriod } from "../components/Period.jsx";
 import Icon from "../components/Icon.jsx";
 import { ApiErrorView, Empty, Loading } from "../components/States.jsx";
 import { tnd, useGuardedLoad } from "../hooks.js";
@@ -15,8 +15,10 @@ export function consoleOptions(periods) {
 
 export default function ConsoleDashboard() {
   const [days, setDays] = usePeriod("all");
-  const { data, error, loading, reload } = useGuardedLoad((signal) => api.consoleDashboard(days, signal), [days], { keep: true });
+  const { data, error, loading, reload, isCurrent } = useGuardedLoad((signal) => api.consoleDashboard(days, signal), [days], { keep: true });
   const d = data && data.dashboard;
+  const options = consoleOptions(data && data.periods);
+  const shownLabel = data ? labelOf(options, data.days === null ? "all" : String(data.days)) : "";
 
   return (
     <>
@@ -27,15 +29,16 @@ export default function ConsoleDashboard() {
         </div>
         <button type="button" className="btn btn-sm" onClick={reload} disabled={loading}><Icon name="refresh" size={14} />Refresh</button>
       </div>
-      <PeriodPicker options={consoleOptions(data && data.periods)} value={days} onChange={setDays} clock={data ? `${data.clock} · read ${data.read_at}` : null} />
+      <PeriodPicker options={options} value={days} onChange={setDays} clock={data ? `${data.clock} · read ${data.read_at}` : null} />
 
-      {error && <ApiErrorView error={error} onRetry={reload} />}
+      {data && !isCurrent && <StalePeriodNote loading={loading} error={error} shownLabel={shownLabel} selectedLabel={labelOf(options, days)} onRetry={reload} />}
+      {error && !data && <ApiErrorView error={error} onRetry={reload} />}
       {!error && loading && !data && <Loading text="Loading the dashboard…" />}
       {data && !data.has_tickets && <div className="panel"><Empty icon="inbox" title="No tickets yet" text={data.no_tickets_message} /></div>}
       {d && d.tickets === 0 && <div className="panel"><Empty icon="search" title="No tickets in this period" /></div>}
 
       {d && d.tickets > 0 && (
-        <div className={`stack ${loading ? "is-stale" : ""}`} aria-busy={loading}>
+        <div className={`stack ${isCurrent ? "" : "is-stale"}`} aria-busy={loading}>
           <div className="stats">
             <Stat label="Tickets" value={d.tickets} />
             <Stat label="Solved by the AI alone" value={d.solved_ai_pct} unit="%" note={`${fmt(d.solved_ai)} ticket(s): Solved, never escalated, no finance approval`} />
@@ -46,7 +49,7 @@ export default function ConsoleDashboard() {
             <Stat label="Finance: approved / refused" value={`${fmt(d.finance_approved)} / ${fmt(d.finance_refused)}`} note={`${fmt(d.finance_pending)} still waiting`} />
             <Stat label="Refunds paid" value={d.refunds_tnd === null || d.refunds_tnd === undefined ? null : tnd(d.refunds_tnd)} note={`${fmt(d.refunds_paid)} refund(s); ${d.finance_tnd === null || d.finance_tnd === undefined ? "—" : tnd(d.finance_tnd)} after a finance approval`} />
             <Stat label="Compensation paid" value={d.compensations_tnd === null || d.compensations_tnd === undefined ? null : tnd(d.compensations_tnd)} note={`${fmt(d.compensations_paid)} compensation(s)`} />
-            <Stat label="Satisfaction (reviews)" value={d.review_avg === null || d.review_avg === undefined ? null : `${d.review_avg} / 5`} note={d.reviews ? `average of ${fmt(d.reviews)} ShopNova review scores (not per ticket yet)` : "no review score available"} />
+            <Stat label="Satisfaction (ShopNova reviews)" value={d.review_avg === null || d.review_avg === undefined ? null : `${d.review_avg} / 5`} note={d.reviews ? `average of all ${fmt(d.reviews)} ShopNova review scores on file (any date, not this period; not per ticket yet)` : "no review score on file"} />
             <Stat label="Tokens per ticket (avg / max)" value={`${fmt(d.tokens_avg)} / ${fmt(d.tokens_max)}`} note={`${fmt(d.tokens_total)} in total`} />
             <Stat label="System tokens (apart)" value={d.system_tokens} note="quota-check pings: tokens spent for no ticket" />
           </div>

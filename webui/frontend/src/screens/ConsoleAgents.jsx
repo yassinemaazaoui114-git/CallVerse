@@ -3,7 +3,7 @@
 // value (e.g. no timed step); never 0 for unknown.
 import { api } from "../api.js";
 import { fmt } from "../components/Chart.jsx";
-import PeriodPicker, { usePeriod } from "../components/Period.jsx";
+import PeriodPicker, { StalePeriodNote, labelOf, usePeriod } from "../components/Period.jsx";
 import Icon from "../components/Icon.jsx";
 import { ApiErrorView, Empty, Loading } from "../components/States.jsx";
 import { useGuardedLoad } from "../hooks.js";
@@ -21,8 +21,9 @@ const SECONDS = { intake: "avg seconds per message", A: "avg model seconds per m
 
 export default function ConsoleAgents() {
   const [days, setDays] = usePeriod("all");
-  const { data, error, loading, reload } = useGuardedLoad((signal) => api.consoleAgents(days, signal), [days], { keep: true });
+  const { data, error, loading, reload, isCurrent } = useGuardedLoad((signal) => api.consoleAgents(days, signal), [days], { keep: true });
   const cards = (data && data.agents) || [];
+  const options = consoleOptions(data && data.periods);
   const anyWork = cards.some((c) => c.tickets);
 
   return (
@@ -34,13 +35,14 @@ export default function ConsoleAgents() {
         </div>
         <button type="button" className="btn btn-sm" onClick={reload} disabled={loading}><Icon name="refresh" size={14} />Refresh</button>
       </div>
-      <PeriodPicker options={consoleOptions(data && data.periods)} value={days} onChange={setDays} clock={data ? `${data.clock} · read ${data.read_at}` : null} />
-      {error && <ApiErrorView error={error} onRetry={reload} />}
+      <PeriodPicker options={options} value={days} onChange={setDays} clock={data ? `${data.clock} · read ${data.read_at}` : null} />
+      {data && !isCurrent && <StalePeriodNote loading={loading} error={error} shownLabel={labelOf(options, data.days === null ? "all" : String(data.days))} selectedLabel={labelOf(options, days)} onRetry={reload} />}
+      {error && !data && <ApiErrorView error={error} onRetry={reload} />}
       {!error && loading && !data && <Loading text="Loading the agents…" />}
       {data && !data.has_tickets && <div className="panel"><Empty icon="inbox" title="No tickets yet" text={data.no_tickets_message} /></div>}
       {data && data.has_tickets && !anyWork && <div className="panel"><Empty icon="search" title="No tickets in this period" /></div>}
       {data && data.has_tickets && (
-        <div className={`agents ${loading ? "is-stale" : ""}`} aria-busy={loading}>
+        <div className={`agents ${isCurrent ? "" : "is-stale"}`} aria-busy={loading}>
           {cards.map((c) => {
             const rows = [["Messages", fmt(c.messages)], ["Proposals", c.agent === "intake" ? "—" : fmt(c.proposals)]];
             if (["A", "B", "coordinator"].includes(c.agent)) rows.push(["Approved", fmt(c.approved)], ["Sent back", fmt(c.sent_back)], ["Escalated", fmt(c.escalated)], ["To finance", fmt(c.to_finance)]);
