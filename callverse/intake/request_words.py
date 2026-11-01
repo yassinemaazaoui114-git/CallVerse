@@ -20,6 +20,12 @@ cancels_order(sentence, message) - ShopNova: the "cancel" of this sentence is ab
 asks_for_expenses(sentence) - Atlas: the client asks to be paid back for costs AROUND the trip (hotel costs after a
   cancelled flight, meals, a taxi, "reimbursement of my expenses"): that is a compensation question, not a ticket refund.
   "reimburse my ticket / my booking" is still a refund.
+
+asks_for_money_back(text) - Atlas (T14e): the client's own words ask for money back: "refund", "money back", "my money",
+  "pay me back", "reimburse my ticket", "chargeback". Why? In T14d's held-out t02 ("cancelled flight ... no confirmation
+  from BA to hotel. Help") Intake found refund_request BY MEANING, and a 690 TND refund nobody asked for was paid.
+  The meaning says what the message is about; only the client's words say they want the money. Without them the
+  Coordinator asks first.
 """
 
 import re
@@ -81,3 +87,23 @@ def asks_for_expenses(sentence: str) -> bool:
     """True when the sentence asks for costs around the trip (hotel costs, meals, taxi, expenses), see the top."""
     text = (sentence or "").replace("’", "'")
     return EXPENSE_RE.search(text) is not None and REIMBURSE_TICKET_RE.search(text) is None
+
+
+# T14e: money-back words, whole words only. "refund" with its endings, but not "refundable" ("a non-refundable
+# booking" describes the booking, it asks for nothing). "pay back" also with "me / us" in between.
+MONEY_BACK_RE = re.compile(
+    r"\brefund(?:s|ed|ing)?\b"
+    r"|\bmoney\s+back\b|\b(?:my|our)\s+money\b"
+    # "I want something back" (atlas practice a08: a different room was given): some of the money back.
+    r"|\b(?:something|anything)\s+back\b"
+    r"|\b(?:pay|pays|paid|paying|give|gave|send|sent)\s+(?:(?:me|us|it|that|this)\s+)?back\b"
+    r"|\bcharge\s*backs?\b",
+    re.IGNORECASE)
+
+
+def asks_for_money_back(text: str) -> bool:
+    """True when the words of `text` ask for money back (see the top): a refund word, "money back", "my money",
+    "pay me back", "chargeback", or "reimburse" + the ticket / booking / flight itself. Negative sentences ("I do not
+    want a refund") are the Coordinator's job (negation.py), not this word check."""
+    text = (text or "").replace("’", "'")
+    return MONEY_BACK_RE.search(text) is not None or REIMBURSE_TICKET_RE.search(text) is not None

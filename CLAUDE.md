@@ -26,8 +26,10 @@ CallVerse Console on 8502, Atlas on 8503. The teacher grades **architectural rea
 - Scope: agent E is dropped. Agent F and RL are Semah's lane. Agents C and D are planned and are built only in their
   own tasks. Fine-tuning and benchmarks only when a task asks for them. Training runs on Colab / Kaggle, not on the PC.
 - Models: `config.yaml` is the source of truth (switch models there only). Today:
-  M2 Agent B = Groq `openai/gpt-oss-120b` → backup `openai/gpt-oss-20b`; Agent A + Intake fallback = local
-  `cv-qwen3.5-4b` (`CALLVERSE_AGENTS_SET=local`);
+  M2 Agents A and B = local `callverse-m2-v3` (Dali's fine-tuned Qwen3-4B, GGUF in git-ignored `models/m2/`, load with
+  `ollama create callverse-m2-v3 -f models/m2/Modelfile_v3`); backups: A → `cv-qwen3.5-4b` → `cv-phi4-mini`;
+  B → Groq `openai/gpt-oss-120b` → `openai/gpt-oss-20b` → Gemini. Intake LLM fallback = `cv-qwen3.5-4b`
+  (`CALLVERSE_AGENTS_SET=local`);
   M3 embeddings = `BAAI/bge-small-en-v1.5`, pinned revision, top-k 5, thresholds 0.69 (ShopNova) / 0.54 (Atlas),
   BGE query prompt in rule search;
   M4 = `j-hartmann` emotion + `cardiffnlp` sentiment;

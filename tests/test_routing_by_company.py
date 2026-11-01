@@ -121,7 +121,8 @@ def proposal(action, booking_type, booking_id, rule_id, confirmed=True):
 
 def case_for(booking_type, booking_id):
     return {**new_case("T-1"), "order_id": booking_id, "booking_type": booking_type, "main_reason": "refund_request",
-            "user_message": f"Please: {CLIENT_QUOTE}."}
+            # T14e: a refund also needs the client's own money-back words, so the message has them.
+            "user_message": f"Please: {CLIENT_QUOTE}. I want my money back."}
 
 
 def review(action, booking_type, booking_id, rule_id, confirmed=True):

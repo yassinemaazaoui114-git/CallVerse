@@ -287,6 +287,11 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   0 wrong writes (our `cv-qwen3.5-4b`: 46/56), so Agent A (`models.agent_a`, new list, all local) and Agent B
   (`models.agent_b`: callverse-m2-v3 → Groq 120b → 20b → Gemini) now start with it; the Intake fallback is unchanged.
   `scripts/quota_check.py` stops at a local first model that answers (no Groq ping). Compare: `python -m scripts.compare_m2t --t14d`.
+- **T14e** An Atlas refund needs the client's own money-back words (`request_words.asks_for_money_back`: refund,
+  money back, my money, pay me back, reimburse my ticket, chargeback; in a sentence that is not negative). Without them
+  the Coordinator asks first ("Please confirm that you want a refund of X TND for booking N.") and writes nothing.
+  A hotel cancellation of a confirmed booking and a compensation keep their own path. Tests: `tests/test_t14e.py`.
+  Report: `tasks/T14e_report.md`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 
