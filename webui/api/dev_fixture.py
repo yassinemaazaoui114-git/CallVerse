@@ -27,6 +27,33 @@ from callverse.tickets import store  # noqa: E402
 
 PASSWORD = "demo-only"
 
+TEST_DATA = "[TEST DATA] "   # every fake reply starts with this, so a screenshot can never pass for a real one
+
+
+def fake_send(user_id, company, text, ticket_id=None, on_step=None, about_order=None, **kwargs):
+    """A FAKE channel for looking at the chat screen without Ollama / Groq (CALLVERSE_WEBUI_FAKE_CHAT=1).
+    It behaves like web_chat.send from the outside (ticket rule, saved messages, live steps, result dict) but
+    calls no model and decides nothing: the reply is a fixed sentence marked as test data. The word "busy" in
+    the message gives the channel's busy outcome, "slow" waits 20 s (to try a disconnect), "fail" raises."""
+    import time
+    from callverse.tickets import store as tickets
+    if "fail" in text.lower():
+        raise RuntimeError("fake channel failure (test data)")
+    t = tickets.ticket_for_message(company, user_id, ticket_id)
+    shown = f"{text} (order {about_order})" if about_order and "order" not in text.lower() else text
+    tickets.add_message(t["id"], "user", shown)
+    for i, said in enumerate(["Reading your message…", "Checking your order…", "Checking the rules…", "Writing the reply…"]):
+        on_step(said)
+        time.sleep(5 if "slow" in text.lower() else 0.8)
+    if "busy" in text.lower():
+        reply, status, outcome = "Our assistant is busy, please try again later.", "Open", "busy"
+    else:
+        reply, status, outcome = TEST_DATA + "This is a fake reply: no model ran and nothing was decided.", "Solved", "approve"
+    tickets.add_message(t["id"], "assistant", reply, seconds=3.2)
+    tickets.update_ticket(t["id"], status=status)
+    return {"ticket_id": t["id"], "status": status, "reply": reply, "outcome": outcome, "reply_source": "fake",
+            "steps": 4, "seconds": 3.2}
+
 
 def write_accounts(folder: Path) -> Path:
     hashed = bcrypt.hashpw(PASSWORD.encode(), bcrypt.gensalt(rounds=10)).decode()

@@ -61,3 +61,25 @@
 
 .ask-box { border: 2px dashed var(--cv-border); border-radius: var(--cv-radius-panel); padding: var(--cv-s4); display: grid; gap: var(--cv-s3); }
 .ask-box textarea { min-height: 96px; resize: vertical; padding: var(--cv-s2) var(--cv-s3); }
+
+/* ---------- Help chat ---------- */
+.chat { display: grid; gap: var(--cv-s3); grid-template-columns: 1fr; }
+@media (min-width: 1024px) { .chat { grid-template-columns: minmax(0, 7fr) minmax(280px, 4fr); align-items: start; } }
+.chat-head { display: flex; align-items: center; justify-content: space-between; gap: var(--cv-s2); flex-wrap: wrap; }
+.messages { display: flex; flex-direction: column; gap: var(--cv-s2); min-height: 200px; }
+.msg { max-width: 85%; padding: var(--cv-s2) var(--cv-s3); border-radius: var(--cv-radius-panel); font-size: var(--cv-text-md); white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.user { align-self: flex-end; background: var(--cv-primary); color: var(--cv-on-primary); border-bottom-right-radius: var(--cv-s1); }
+.msg.assistant { align-self: flex-start; background: var(--cv-panel-2); color: var(--cv-text); border-bottom-left-radius: var(--cv-s1); }
+.msg.system { align-self: center; background: transparent; color: var(--cv-muted); font-size: var(--cv-text-sm); }
+.msg .stamp { display: block; margin-top: var(--cv-s1); font-size: var(--cv-text-xs); opacity: 0.8; }
+.msg.user .stamp { color: var(--cv-on-primary); }
+.msg.assistant .stamp { color: var(--cv-muted); }
+.chat-form { display: grid; gap: var(--cv-s2); }
+.chat-form textarea { min-height: 72px; resize: vertical; padding: var(--cv-s2) var(--cv-s3); }
+.chat-form .actions { display: flex; align-items: center; gap: var(--cv-s2); flex-wrap: wrap; }
+.steps-live { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--cv-s1); font-size: var(--cv-text-sm); }
+.steps-live li { display: flex; align-items: center; gap: var(--cv-s2); color: var(--cv-muted); }
+.steps-live li.now { color: var(--cv-text); font-weight: 600; }
+.notice-list { display: grid; gap: var(--cv-s2); }
+.context-chip { display: inline-flex; align-items: center; gap: var(--cv-s1); padding: var(--cv-s1) var(--cv-s2); border-radius: 999px; background: var(--cv-primary-soft); color: var(--cv-primary-text); font-size: var(--cv-text-sm); font-weight: 600; }
+.context-chip .btn { min-height: 24px; padding: 0 var(--cv-s1); }

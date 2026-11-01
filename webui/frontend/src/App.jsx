@@ -9,6 +9,7 @@ import Shell from "./components/Shell.jsx";
 import { ApiErrorView, Loading } from "./components/States.jsx";
 import { homeFor } from "./hooks.js";
 import AskAboutOrder from "./screens/AskAboutOrder.jsx";
+import Chat from "./screens/Chat.jsx";
 import LiveTickets from "./screens/LiveTickets.jsx";
 import Login from "./screens/Login.jsx";
 import MyOrders from "./screens/MyOrders.jsx";
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="/shop/orders" element={<MyOrders />} />
             <Route path="/shop/orders/:orderId" element={<OrderDetail />} />
             <Route path="/shop/orders/:orderId/ask" element={<AskAboutOrder />} />
+            <Route path="/shop/chat" element={<Chat />} />
           </Route>
           <Route element={<RequireLogin><Shell area="none" /></RequireLogin>}>
             <Route path="/workspace" element={<Workspace />} />

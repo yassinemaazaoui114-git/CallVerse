@@ -66,4 +66,33 @@ export const api = {
   ticket: (id, signal) => request(`/api/console/tickets/${encodeURIComponent(id)}`, { signal }),
   orders: (signal) => request("/api/shop/orders", { signal }),
   order: (id, signal) => request(`/api/shop/orders/${encodeURIComponent(id)}`, { signal }),
+  // chat (step 3)
+  chat: (ticket, signal) => request(`/api/shop/chat${query({ ticket })}`, { signal }),
+  chatJob: (signal) => request("/api/shop/chat/job", { signal }),
+  markRead: (ticketId) => request(`/api/shop/chat/tickets/${encodeURIComponent(ticketId)}/read`, { method: "POST" }),
+  // The two streaming calls return the raw fetch Response (read with sse.js); a non-2xx answer throws ApiError.
+  chatSend: (body, signal) => streamRequest("/api/shop/chat/send", { method: "POST", body: JSON.stringify(body), signal }),
+  chatJobStream: (signal) => streamRequest("/api/shop/chat/job/stream", { signal }),
 };
+
+async function streamRequest(path, options = {}) {
+  const headers = { Accept: "text/event-stream" };
+  if (options.method && options.method !== "GET") {
+    headers["X-Requested-With"] = "CallVerse";
+    headers["Content-Type"] = "application/json";
+  }
+  let response;
+  try {
+    response = await fetch(path, { ...options, headers, credentials: "same-origin" });
+  } catch (e) {
+    if (e && e.name === "AbortError") throw e;
+    throw new ApiError("unavailable", "The CallVerse API cannot be reached.", 0);
+  }
+  if (!response.ok) {
+    let body = null;
+    try { body = await response.json(); } catch (e) { body = null; }
+    if (body === null && response.status >= 500) throw new ApiError("unavailable", "The CallVerse API cannot be reached.", response.status);
+    throw new ApiError((body && body.error) || `http_${response.status}`, (body && body.message) || `The API answered ${response.status}.`, response.status);
+  }
+  return response;
+}

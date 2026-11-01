@@ -21,6 +21,33 @@ export function installFakeFetch() {
       url: String(url), options, done: false,
       respond(status, body) { if (!call.done) { call.done = true; resolve(jsonResponse(status, body)); } },
       fail() { if (!call.done) { call.done = true; reject(new TypeError("Failed to fetch")); } },
+      // An SSE answer: `chunks` are raw text pieces delivered one by one (frames may be split across them).
+      // `cut: true` drops the connection after the chunks (the reader rejects, like a lost network).
+      // An SSE answer kept OPEN: the test pushes chunks later, then closes or cuts the connection.
+      respondStreamOpen() {
+        if (call.done) return null;
+        call.done = true;
+        const encoder = new TextEncoder();
+        let ctrl;
+        const body = new ReadableStream({ start(controller) { ctrl = controller; } });
+        resolve({ ok: true, status: 200, headers: new Map([["content-type", "text/event-stream"]]), body,
+                  json: async () => { throw new Error("stream"); } });
+        return { push: (c) => ctrl.enqueue(encoder.encode(c)), close: () => ctrl.close(), cut: () => ctrl.error(new TypeError("network error")) };
+      },
+      respondStream(chunks, { cut = false } = {}) {
+        if (call.done) return;
+        call.done = true;
+        const encoder = new TextEncoder();
+        const body = new ReadableStream({
+          start(controller) {
+            for (const c of chunks) controller.enqueue(encoder.encode(c));
+            // the chunks are delivered first, then the stream ends or drops
+            setTimeout(() => { if (cut) controller.error(new TypeError("network error")); else controller.close(); }, 0);
+          },
+        });
+        resolve({ ok: true, status: 200, headers: new Map([["content-type", "text/event-stream"]]), body,
+                  json: async () => { throw new Error("stream"); } });
+      },
     };
     // Honour cancellation like a browser would: an aborted request rejects with an AbortError.
     if (options.signal) {

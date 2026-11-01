@@ -122,3 +122,32 @@ def make_ticket(company: str, user_id: int, text: str, outcome: str = "approve",
     store.add_message(t["id"], "assistant", f"Reply for outcome {outcome}.", seconds=3.2)
     store.update_ticket(t["id"], status=status, main_reason=reason, priority=priority, lead_agent=agent)
     return store.get_ticket(t["id"])
+
+
+@pytest.fixture
+def live_server():
+    """A real uvicorn server on 127.0.0.1 (random free port) for the tests that READ A STREAM WHILE IT RUNS:
+    Starlette's TestClient delivers a streaming response only once it is complete. Same temp accounts and
+    databases as the other tests (module-level `use_*` calls are process-wide). Yields the base URL."""
+    import socket
+    import threading
+    import time
+
+    import uvicorn
+
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+    app = create_app(auth.SessionStore())
+    config = uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning")
+    server = uvicorn.Server(config)
+    thread = threading.Thread(target=server.run, daemon=True)
+    thread.start()
+    for _ in range(100):
+        if server.started:
+            break
+        time.sleep(0.05)
+    assert server.started
+    yield f"http://127.0.0.1:{port}"
+    server.should_exit = True
+    thread.join(5)

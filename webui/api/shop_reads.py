@@ -36,6 +36,11 @@ def orders(user_id: int) -> dict:
                       "payment_methods": list(PAYMENT_METHODS)}}
 
 
+def order_summary(user_id: int, order_id: int) -> dict | None:
+    """One OWNED order's row (no tracking / refunds read), or None: the ownership check of the chat."""
+    return next((o for o in shop_reads.user_orders(user_id) if o["id"] == int(order_id)), None)
+
+
 def order(user_id: int, order_id: int) -> dict | None:
     """One OWNED order with its tracking and refunds, or None (missing or another user's: same answer)."""
     owned = next((o for o in shop_reads.user_orders(user_id) if o["id"] == int(order_id)), None)

@@ -3,7 +3,9 @@
 The new UI that will replace the three Streamlit apps (brief: `docs/UI_replacement_brief.md`). It is built in
 steps. So far: **step 1** = the API skeleton, login, `GET /company`, the supervisor's Console **Live tickets**
 and **Ticket detail**; **step 2** = the ShopNova customer's **My orders**, **Order detail** and **Ask about this
-order** (chat context only; the chat itself is step 3). Read only, no model, no chat.
+order**; **step 3** = the customer's **Help chat** with live progress (SSE) through the existing web chat channel.
+The Console and the order pages stay read only and load no model; the chat loads the channel (and so the
+pipeline) on the first message only.
 
 ```
 webui/
@@ -11,6 +13,7 @@ webui/
     app.py        the routes            settings.py   ports, cookie, env overrides
     auth.py       login + sessions      console_reads.py  wrappers around callverse.console.reads
                                         shop_reads.py     wrappers around callverse.data.shop_reads + read tools
+    chat.py       chat jobs (worker thread per message) + SSE stream over callverse.channels.web_chat.send
     run.py        start the API         dev_fixture.py    temp accounts + example tickets for a demo
     tests/        pytest (one test per route + security rules)
   frontend/       React 18 + Vite 5 (JavaScript): src/screens, src/components, src/styles (design tokens)
@@ -46,6 +49,11 @@ python -m webui.api.dev_fixture C:\path\to\a\temp\folder
 
 It prints the three variables to set before starting the API (`CALLVERSE_WEBUI_ACCOUNTS`,
 `CALLVERSE_WEBUI_TICKETS_DB`, `CALLVERSE_WEBUI_SHOPNOVA_DB`). Delete the folder when done.
+
+To look at the **chat screen without Ollama / Groq**, add `CALLVERSE_WEBUI_FAKE_CHAT=1`: the chat then uses the
+fake channel of `webui/api/dev_fixture.py` (no model, every reply starts with `[TEST DATA]`; the words "busy",
+"slow" and "fail" in a message trigger the busy outcome, a 20 s run and a worker failure). Never set it for a
+real demo: the real chat needs Ollama running and the Groq key in `.env`, exactly like the Streamlit app.
 
 ## Run
 
@@ -103,10 +111,43 @@ model library or Streamlit is imported. The existing Console tests still pass: `
 | `GET /api/console/tickets/{id}` | supervisor | one ticket: conversation, per-message steps (plain words + raw data), decision, approvals |
 | `GET /api/shop/orders` | ShopNova customer | the customer's own orders (summaries, newest first) + `sim_today` |
 | `GET /api/shop/orders/{id}` | ShopNova customer | one OWNED order: `order` (lines, refunds), `tracking`, `refunds`; missing or someone else's → the same 404 |
+| `GET /api/shop/chat?ticket=` | ShopNova customer | the conversation: the named owned ticket (or the current one), its messages, the unread-reply notices, the running / last job |
+| `POST /api/shop/chat/send` | ShopNova customer | `{text, ticket_id?, about_order?, client_id?}` → an **SSE stream** (below) |
+| `GET /api/shop/chat/job` | ShopNova customer | the customer's running / last job (status, steps so far, result or error) |
+| `GET /api/shop/chat/job/stream` | ShopNova customer | re-attach to the running job's SSE stream (replays its steps) |
+| `POST /api/shop/chat/tickets/{id}/read` | ShopNova customer | the customer opened this ticket's new reply (owned ticket only) |
 | `GET /api/health` | anyone | `{ok: true}` |
 
 Errors always look like `{"error": "<code>", "message": "<words>"}` (`not_logged_in` 401, `forbidden` 403,
-`csrf` 403, `customer_only` 403, `bad_login` 401, `no_accounts` 503, `not_found` 404).
+`csrf` 403, `customer_only` 403, `bad_login` 401, `no_accounts` 503, `not_found` 404, `setup_required` 503,
+`busy_user` 409, `empty_text` / `text_too_long` 400, `no_job` 404).
+
+## Chat transport (step 3)
+
+One message = one **job**: the API validates everything first (login, ShopNova customer role, shop data present,
+text, the ticket and the order must be this customer's), then runs `web_chat.send(...)` in a **worker thread**
+(the channel keeps its own lock and rules; the API's event loop stays free, so the Console keeps answering) and
+answers the POST with a `text/event-stream` body. The browser reads it with `fetch` + a small SSE reader
+(`src/sse.js`; a native EventSource cannot POST). Frames: `event: job` (job id), `event: step` (one live text
+from the channel's `on_step`), `event: done` (the channel's saved result: ticket id, status, reply, outcome),
+`event: error` (the worker failed), and `: ping` comments every 15 s on an idle connection. The reader buffers
+partial chunks and splits on blank lines, so a frame cut by the network is reassembled.
+
+Duplicates: each send carries a fresh `client_id`. A second send while the customer's job runs is refused
+(409 `busy_user`) unless it carries the same `client_id` (double click / retry): then the same job is returned.
+A finished job with the same `client_id` is answered from memory, never run twice.
+
+Disconnects: dropping the stream does **not** stop the worker; the channel finishes and saves its reply in the
+tickets store. The screen says so ("Connection lost… NOT sent again") and offers **Check status**:
+`GET /api/shop/chat/job` tells whether the job is still running (then the screen re-attaches to
+`GET /api/shop/chat/job/stream`, which replays the steps so far) or finished (then the saved conversation is
+reloaded). On page load a running job is shown as "CallVerse is still working on your last message" with Send
+disabled. Jobs live in memory for 15 min after they finish; restarting the API forgets them (the conversation
+itself is always read back from `callverse.db`).
+
+Transport state (sending / disconnected / failed) is separate from the business outcome (`approve`, `busy`,
+`not_your_order`, an outcome the UI has never seen…), which only comes from the saved result and is shown as
+text; the channel's "busy" reply (Agent B's quota) is a normal outcome with its own note.
 
 Security: the session is a random token kept in memory on the server; the browser only holds it in an
 `HttpOnly; SameSite=Strict` cookie scoped to `/api`. Every `POST` must send `X-Requested-With: CallVerse` (no

@@ -9,6 +9,12 @@ import AskAboutOrder from "../screens/AskAboutOrder.jsx";
 import MyOrders from "../screens/MyOrders.jsx";
 import OrderDetail from "../screens/OrderDetail.jsx";
 import { installFakeFetch } from "./fakeApi.js";
+import { useLocation } from "react-router-dom";
+
+function ChatLocation() {
+  const loc = useLocation();
+  return <p>chat at {loc.pathname + loc.search}</p>;
+}
 
 const SARA = { username: "sara", name: "Sara Ben Ali", role: "user", company: "shopnova" };
 
@@ -100,24 +106,19 @@ describe("ShopNova customer screens", () => {
     expect(within(view.container).getByText("Order 4600 is not one of your orders")).toBeInTheDocument();
   });
 
-  it("Ask about this order keeps the order context and calls no chat", async () => {
-    const net = installFakeFetch();
-    renderAt("/shop/orders/4505/ask");
-    (await net.waitFor("/api/auth/session")).respond(200, { session: SARA });
-    const req = await net.waitFor("/api/shop/orders/4505");
-    await act(async () => { req.respond(200, { order: order(4505), tracking: null, refunds: null, sim_today: "2026-10-09" }); });
-    const box = screen.getByRole("region", { name: /order context/i });
-    expect(box).toHaveAttribute("data-chat-order", "4505");
-    expect(within(box).getByText("About order 4505")).toBeInTheDocument();
-    expect(screen.getByText("Chat is coming in the next step")).toBeInTheDocument();
-    const send = screen.getByRole("button", { name: /send/i });
-    expect(send).toBeDisabled();
-    const draft = screen.getByLabelText(/your message/i);
-    await act(async () => { draft.value = "Where is it?"; draft.dispatchEvent(new Event("input", { bubbles: true })); });
-    await act(async () => { send.click(); });
-    // only GETs happened: the session and the order; no POST, no chat route
-    expect(net.calls.map((c) => c.url).sort()).toEqual(["/api/auth/session", "/api/shop/orders/4505"]);
-    expect(net.calls.every((c) => !c.options.method || c.options.method === "GET")).toBe(true);
+  it("Ask about this order opens the Help chat with the order as context", async () => {
+    installFakeFetch();
+    render(
+      <MemoryRouter initialEntries={["/shop/orders/4505/ask"]}>
+        <AuthProvider>
+          <Routes>
+            <Route path="/shop/orders/:orderId/ask" element={<AskAboutOrder />} />
+            <Route path="/shop/chat" element={<ChatLocation />} />
+          </Routes>
+        </AuthProvider>
+      </MemoryRouter>
+    );
+    expect(await screen.findByText("chat at /shop/chat?order=4505")).toBeInTheDocument();
   });
 
   it("drops a late answer of the previous order (guarded load)", async () => {

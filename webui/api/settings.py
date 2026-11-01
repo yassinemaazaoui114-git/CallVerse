@@ -29,3 +29,6 @@ CSRF_VALUE = "CallVerse"
 ACCOUNTS_FILE = os.getenv("CALLVERSE_WEBUI_ACCOUNTS")
 TICKETS_DB = os.getenv("CALLVERSE_WEBUI_TICKETS_DB")
 SHOPNOVA_DB = os.getenv("CALLVERSE_WEBUI_SHOPNOVA_DB")
+# - CALLVERSE_WEBUI_FAKE_CHAT=1: the chat uses the fake channel of dev_fixture.py (no model, replies marked as
+#   test data). For looking at the chat screen only; never set it for a real demo.
+FAKE_CHAT = os.getenv("CALLVERSE_WEBUI_FAKE_CHAT", "") == "1"
