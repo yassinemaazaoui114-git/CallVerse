@@ -275,9 +275,53 @@ def test_a_warm_reply_without_an_empathy_sentence_fails():
 
 def test_empathy_check_accepts_a_plain_sentence_about_the_problem():
     decision = decision_for(("shopnova", "approve"))
-    assert reply_styles.empathy_problems("Waiting for a parcel that does not come is stressful.", decision) == []
+    assert reply_styles.empathy_problems("Waiting for a parcel that never shows up is stressful.", decision) == []
     assert reply_styles.empathy_problems("Not getting your money back yet is frustrating.", decision) == []
     assert reply_styles.empathy_problems("", decision)
+
+
+# ---------- RL1c: no leftover "team," after the greeting; no copy of the prompt's example ----------
+
+
+@pytest.mark.parametrize("leftover", ["team,", "guys,", "sir,", "Hello team,", "Dear team,", "ShopNova team,",
+                                      "Dear customer, team,"])
+@pytest.mark.parametrize("name", ALL_STYLES)
+def test_a_leftover_vocative_after_the_greeting_is_removed(leftover, name):
+    decision = decision_for(("shopnova", "ask_proof"), name, style={**NEUTRAL, "formality": "formal"})
+    text = warm_body_for(decision) if REPLY_STYLES[name]["empathy"] else body_for(decision)
+    reply = writer.finish_styled(f"{leftover} {text}", decision, name)
+    assert reply.startswith("Dear customer, ")
+    after = reply[len("Dear customer, "):]
+    assert after.split()[0].rstrip(",").lower() not in {"team", "guys", "sir", "hello", "dear", "shopnova"}
+    assert "team," not in reply and "guys," not in reply and "sir," not in reply
+
+
+@pytest.mark.parametrize("name", ALL_STYLES)
+def test_a_normal_first_sentence_is_untouched_by_the_vocative_rule(name):
+    decision = decision_for(("shopnova", "decline"), name)
+    for start in ("Unfortunately, ", "Sure, ", "There is a rule: ", "All "):
+        assert writer.drop_leftover_vocative(start + "returns are possible.") == start + "returns are possible."
+    text = warm_body_for(decision) if REPLY_STYLES[name]["empathy"] else body_for(decision)
+    assert writer.finish_styled(text, decision, name) == writer.finish_styled(f"Hello, {text}", decision, name)
+
+
+def test_s02_shape_is_fixed():
+    """RL1b s02: "Dear customer, team, I'm sorry for the delay. Please send us a photo of the damage."."""
+    decision = decision_for(("shopnova", "ask_proof"), "warm", style={**NEUTRAL, "formality": "formal"})
+    reply = writer.finish_styled("team, I'm sorry about the damaged item. Please send us a photo of the damage.",
+                                 decision, "warm")
+    assert reply == "Dear customer, I'm sorry about the damaged item. Please send us a photo of the damage."
+
+
+@pytest.mark.parametrize("name", ["warm", "warm_next_step"])
+def test_copying_the_prompt_example_fails_then_the_template_answers(name):
+    decision = decision_for(("shopnova", "ask_proof"), name)
+    assert reply_styles.empathy_problems(reply_styles.EMPATHY_EXAMPLE, decision)
+    assert reply_styles.empathy_problems("team, " + reply_styles.EMPATHY_EXAMPLE.lower(), decision)
+    out = write_reply(decision, chat_fn=fake_slm(f"team, {reply_styles.EMPATHY_EXAMPLE} {body_for(decision)}"))
+    assert out["used_template"] and out["attempts"] == writer.MAX_ATTEMPTS
+    assert out["check"]["passed"]
+    assert reply_styles.EMPATHY_EXAMPLE not in out["reply"]
 
 
 # ---------- warm_next_step: the closing line by outcome (approved table) ----------
@@ -458,3 +502,15 @@ def test_situation_does_not_change_its_inputs():
     ticket, decision = json.loads(json.dumps(TICKET)), json.loads(json.dumps(DECISIONS[("shopnova", "approve")]))
     situation(ticket, decision)
     assert ticket == TICKET and decision == DECISIONS[("shopnova", "approve")]
+
+
+# ---------- RL1c: the rating sheet shows only distinct replies ----------
+
+
+def test_rating_sheet_letters_group_identical_replies():
+    from scripts.make_rl1_rating_sheet import HOW_MANY, SITUATION_IDS, letters_for
+    assert len(SITUATION_IDS) == HOW_MANY == 27 and not {"h08", "a07", "p08"} & set(SITUATION_IDS)
+    two = letters_for(["warm", "short", "warm_next_step"], {"warm": "x", "short": "y", "warm_next_step": "x"})
+    assert two == {"A": ["warm", "warm_next_step"], "B": ["short"]}
+    three = letters_for(["short", "warm", "warm_next_step"], {"short": "a", "warm": "b", "warm_next_step": "c"})
+    assert three == {"A": ["short"], "B": ["warm"], "C": ["warm_next_step"]}

@@ -39,10 +39,13 @@ REPLY_STYLES = {
     },
 }
 
+# The example sentence of the warm prompt. RL1c: a reply that copies it word for word fails the empathy check (s02 had it
+# for a damaged parcel: it was not about the client's own problem).
+EMPATHY_EXAMPLE = "Waiting for a parcel that does not come is stressful."
 EMPATHY_PROMPT = (
     "Length: at most 80 words. Do NOT write a greeting: it is added automatically.\n"
     "First write ONE short sentence that shows you understand the client's own problem, in plain words, taken from the "
-    "client's messages (for example: \"Waiting for a parcel that does not come is stressful.\"). That sentence must have "
+    f"client's messages (for example: \"{EMPATHY_EXAMPLE}\"). That sentence must have "
     "no number, no date, no name, no promise and no decision: only the feeling about the problem.\n"
     "Then write the decision: the sentences to copy and the next step. Write no other apology and no closing sentence.")
 # The last line of a warm prompt (instead of "Write the reply now."): qwen2.5:1.5b skipped the empathy sentence in most
@@ -127,6 +130,8 @@ def empathy_problems(sentence: str, decision: dict) -> list[str]:
         problems.append("the first sentence must be one sentence about the client's feelings, before the sentences to copy")
     if re.search(r"\b(?:the|this|our) (?:client|customer)\b|^thank", low):
         problems.append("the first sentence must speak to the client about their problem (not 'the client', not a thank-you)")
+    if _key(EMPATHY_EXAMPLE) in _key(s):
+        problems.append("the first sentence copies the example of the instructions: write about this client's own problem")
     if len(s.split()) > EMPATHY_MAX_WORDS:
         problems.append(f"the first sentence is too long ({len(s.split())} words, max {EMPATHY_MAX_WORDS})")
     return problems

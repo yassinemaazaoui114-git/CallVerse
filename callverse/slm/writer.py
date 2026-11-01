@@ -466,6 +466,22 @@ def _is_feeling_sentence(sentence: str, decision: dict) -> bool:
 # The model's own greeting, also "Hello there," (styled replies only; the default path keeps GREETING_RE as it was).
 STYLED_GREETING_RE = re.compile(
     r"^\s*(?:(?:hi|hello|hey|dear (?:customer|client|sir|madam|valued customer))(?:\s+there)?\b[,!.]?\s*)+", re.IGNORECASE)
+# RL1c: a word that speaks to someone, left at the start after the greeting ("Dear customer, team, ...",
+# "Hello, guys, ...", "Hello team, ..."). The greeting is by code, so the model's text must start with a real sentence.
+# Only these words followed by a comma (or ! . :) are removed: "Unfortunately, ..." or "Sure, ..." stay.
+LEFTOVER_VOCATIVE_RE = re.compile(
+    r"^\s*(?:(?:dear|hi|hello|hey)\s+)?(?:(?:the|our|shopnova|atlas|atlas travel|support|customer service)\s+)?"
+    r"(?:team|guys|folks|all|everyone|everybody|sir|madam|ma'am|friend|friends|there|mate|customer|client|"
+    r"valued customer|support)\s*[,!.:]\s*", re.IGNORECASE)
+
+
+def drop_leftover_vocative(text: str) -> str:
+    """Remove words like "team," / "guys," / "sir," at the start of the text (several in a row too)."""
+    while (m := LEFTOVER_VOCATIVE_RE.match(text)) and m.end() < len(text):
+        text = text[m.end():]
+    return text
+
+
 CONTENT_WORD_RE = re.compile(r"[a-z]{4,}")
 
 
@@ -514,10 +530,10 @@ def finish_styled(raw: str | None, decision: dict, name: str) -> str:
     spec = reply_styles.REPLY_STYLES[name]
     reply = drop_repeated_sentences(clean(raw))
     reply = must_say_once(fix_punctuation(reply), decision) if reply else reply
-    body = STYLED_GREETING_RE.sub("", reply).strip()
+    body = drop_leftover_vocative(STYLED_GREETING_RE.sub("", reply).strip())   # RL1c: no "team," after the greeting
     if not spec["empathy"]:
         body = SORRY_PREFIX_RE.sub("", body).strip() or body   # short: "Sorry, order 4512 ..." -> "order 4512 ..."
-    sentences = [s for s in SENTENCE_SPLIT_RE.split(body) if s]
+    sentences = [drop_leftover_vocative(s) for s in SENTENCE_SPLIT_RE.split(body) if s]
     empathy = ""
     if spec["empathy"]:
         feelings = [s for s in sentences if _is_feeling_sentence(s, decision)]

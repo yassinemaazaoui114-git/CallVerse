@@ -1,4 +1,4 @@
-"""RL1 / RL1b: the rating sheet for the team. 30 real situations x 3 reply styles, written by the local SLM (0 Groq / API calls).
+"""RL1 / RL1b / RL1c: the rating sheet for the team. 27 real situations x 3 reply styles, written by the local SLM (0 Groq / API calls).
 
 Usage (repo root; Ollama running):
     python -m scripts.make_rl1_rating_sheet
@@ -9,16 +9,18 @@ Their decisions are NOT re-made by agents: the earlier runs (out/t14b_after.json
 out/t14c_heldout.json) left a trace file each, with Intake's ticket and the Coordinator's decision (made by rules, from the seeded
 orders and bookings). This script reads those two events per message. The off-topic redirect is left out (fixed text, no style).
 RL1b: the 30 situations are a fixed list (SITUATION_IDS): RL1's 30 minus h03 and h12 (their decisions are wrong, T14d bugs),
-plus p04 and p06.
+plus p04 and p06. RL1c: h08, a07 and p08 removed (27 rows; the Brain's reading of the 90 RL1b replies).
 
 For each situation the decision is written 3 times with the real local SLM: reply_style short / warm / warm_next_step.
 The client's message is passed as the history (for tone only), so the warm styles can write their empathy sentence about it.
 
 Writes (all in out/, git-ignored):
-    rl1_rating_sheet.csv  situation_id, company, user message, decision summary, reply A, reply B, reply C
-                          (the letters are shuffled per row, seed 2026)
-    rl1_rating_key.json   which letter is which style, per situation. NOT in the sheet: the raters must not see it.
-    rl1_samples.json      all 90 replies with style, check result, SLM or template, word count, seconds
+    rl1_rating_sheet.csv  situation_id, company, user message, decision summary, n_replies, reply A, reply B, reply C
+                          (the letters are shuffled per row, seed 2026). RL1c: when two styles wrote the same text, the row
+                          shows only the distinct replies (A, B; reply_C empty) and n_replies = 2.
+    rl1_rating_key.json   which letter is which style(s), per situation, e.g. {"A": ["short"], "B": ["warm", "warm_next_step"]}.
+                          NOT in the sheet: the raters must not see it.
+    rl1_samples.json      all 81 replies with style, check result, SLM or template, word count, seconds
     rl1_stats.json        per style: pass 1st try / after retry / template, average words, share with an SLM empathy
                           sentence, seconds per reply, template fallback ids; plus the rows where two styles are identical
 """
@@ -41,12 +43,14 @@ from callverse.slm.reply_styles import REPLY_STYLES  # noqa: E402
 
 OUT = ROOT / "out"
 SEED = 2026
-HOW_MANY = 30
+HOW_MANY = 27
 # RL1b (Q4): RL1's 30 situations without h03 and h12, plus p04 and p06.
-SITUATION_IDS = ["p01", "p02", "p03", "p04", "p05", "p06", "p08", "p09", "p10",
-                 "a01", "a02", "a03", "a04", "a05", "a06", "a07",
+# RL1c: minus h08 (the empathy contradicts the decision), a07 (a decision inside the empathy sentence) and p08 (its decision
+# comes from the run before T14c: outdated).
+SITUATION_IDS = ["p01", "p02", "p03", "p04", "p05", "p06", "p09", "p10",
+                 "a01", "a02", "a03", "a04", "a05", "a06",
                  "s01", "s02", "s03", "s04", "s05",
-                 "h01", "h02", "h04", "h05", "h06", "h07", "h08", "h09", "h11"]
+                 "h01", "h02", "h04", "h05", "h06", "h07", "h09", "h11"]
 # (messages file, earlier run result file). The run file's summary names the trace of that run.
 SOURCES = [("tests/dev/t14b_practice_messages.json", "out/t14b_after.json"),
            ("tests/dev/t14c_practice_messages.json", "out/t14c_practice_run1.json"),
@@ -150,6 +154,19 @@ def stats(samples: list[dict]) -> dict:
     return out
 
 
+def letters_for(order: list[str], reply: dict[str, str]) -> dict[str, list[str]]:
+    """RL1c: one letter per DISTINCT reply text, in the shuffled style order. Styles with the same text share a letter:
+    order ["warm", "short", "warm_next_step"] with warm = warm_next_step -> {"A": ["warm", "warm_next_step"], "B": ["short"]}."""
+    letters: dict[str, list[str]] = {}
+    for name in order:
+        same = [letter for letter, names in letters.items() if reply[names[0]] == reply[name]]
+        if same:
+            letters[same[0]].append(name)
+        else:
+            letters["ABC"[len(letters)]] = [name]
+    return letters
+
+
 def main() -> None:
     OUT.mkdir(exist_ok=True)
     trace.start_run("rl1_rating_sheet")
@@ -163,17 +180,22 @@ def main() -> None:
     for item in items:
         order = list(REPLY_STYLES)
         rng.shuffle(order)   # which style gets letter A, B, C in this row
-        key[item["id"]] = dict(zip("ABC", order))
         reply = {s["reply_style"]: s["reply"] for s in samples if s["situation_id"] == item["id"]}
-        rows.append([item["id"], item["company"], item["text"], summary(item)] + [reply[key[item["id"]][c]] for c in "ABC"])
+        letters = letters_for(order, reply)   # RL1c: the same text -> one letter
+        key[item["id"]] = letters
+        texts = [reply[letters[c][0]] if c in letters else "" for c in "ABC"]
+        rows.append([item["id"], item["company"], item["text"], summary(item), len(letters)] + texts)
 
     with open(OUT / "rl1_rating_sheet.csv", "w", encoding="utf-8-sig", newline="") as f:
         writer_csv = csv.writer(f)
-        writer_csv.writerow(["situation_id", "company", "user_message", "decision", "reply_A", "reply_B", "reply_C"])
+        writer_csv.writerow(["situation_id", "company", "user_message", "decision", "n_replies",
+                             "reply_A", "reply_B", "reply_C"])
         writer_csv.writerows(rows)
     (OUT / "rl1_rating_key.json").write_text(json.dumps(key, indent=1), encoding="utf-8")
     (OUT / "rl1_samples.json").write_text(json.dumps(samples, indent=1, ensure_ascii=False), encoding="utf-8")
     result = stats(samples)
+    result["rows"] = len(rows)
+    result["rows_with_2_replies"] = {"count": sum(r[4] == 2 for r in rows), "ids": [r[0] for r in rows if r[4] == 2]}
     (OUT / "rl1_stats.json").write_text(json.dumps(result, indent=1), encoding="utf-8")
     print(json.dumps(result, indent=1))
 
