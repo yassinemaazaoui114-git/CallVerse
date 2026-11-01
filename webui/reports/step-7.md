@@ -26,10 +26,13 @@ updated the README and ran everything.
 | Atlas customer (`hedi`) | My bookings, Booking detail (flight + hotel), Help chat with booking context | chat `?booking=7005`, hotel detail 7001: 375 wide | fact list stacks label / value under 480 px (fix below) |
 | `atlas_admin` | Approvals (refund + compensation), Records (5 tables + log, search, paging), Dashboard all / 7 / 30 | dashboard (step 6), records tables scroll inside their panel | period buttons `aria-pressed` |
 
-Screenshots: `webui/reports/screenshots/step-7/` (19 files): `01`–`09` from this pass (supervisor desktop
-tickets and detail; supervisor, ShopNova admin and Atlas customer on the phone, the dialog with the keyboard,
-the Atlas booking detail **before** the fact-list fix), `desktop_*` = the final desktop state of the chat,
-approvals, bookings and the four dashboards (unchanged since steps 3–6, copied here for one index).
+Screenshots: `webui/reports/screenshots/step-7/` (20 files). **Final state** = every file without the `before_`
+prefix: `01`–`08` from this pass (supervisor desktop tickets and detail; supervisor, ShopNova admin and Atlas
+customer on the phone; the dialog with the keyboard), `10_atlas_booking_detail_phone_final.jpg` (the fact list
+after the fix: label above value, page 375 px wide), `desktop_*` = the final desktop state of the chat, approvals,
+bookings and the four dashboards (unchanged since steps 3–6, copied here for one index). **Historical** =
+`before_09_atlas_booking_detail_phone.jpg`, the same page before the fix (kept to show the defect; not the
+current UI).
 
 ## 3. Bugs fixed in this step
 
@@ -53,6 +56,13 @@ In this step's commit (browser / accessibility pass):
   handler is now on the document while the dialog is open: Tab / Shift+Tab wrap inside, a focus that left is
   pulled back, Escape closes (not while a decision is in flight), the opener button gets the focus back. Test:
   "the confirmation dialog keeps Tab inside, closes on Escape and returns the focus to the opener".
+- **Dialog while a decision runs** (acceptance pass): both buttons are disabled, so nothing inside was focusable
+  and Tab left the dialog. Now Tab / Shift+Tab keep the focus on the dialog itself; Escape still does not close
+  it mid-decision; Enter sends nothing. Test: "while a decision runs, Tab and Shift+Tab stay on the dialog,
+  Escape does not close it, nothing is sent twice" (fails without the fix).
+- `webui/reports/acceptance.md`: the walkthrough sheet for Yassine (startup, accounts, expected results per
+  flow, dashboard comparison on identical data and periods, fake-model vs real checks, open core blockers,
+  pass / fail / not-run fields).
 - **Fact lists on a phone** (`dl.kv`: booking detail, order detail, approval dialog): a long label left the value
   a few characters wide. Under 480 px the label sits above the value.
 
@@ -74,7 +84,7 @@ Supervisor-only numbers (Groq today, tokens per agent) are on supervisor routes 
 | Check | Result |
 |---|---|
 | `python -m pytest webui/api/tests -q` | **79 passed** |
-| `npm --prefix webui/frontend test` | **50 passed** (10 files) |
+| `npm --prefix webui/frontend test` | **51 passed** (10 files; rerun after the in-flight dialog fix) |
 | `npm --prefix webui/frontend run build` | OK, JS 272.3 kB (81.4 kB gzip), CSS 23.6 kB |
 | `git diff main --stat -- . ':!webui'` | nothing outside `webui/` (`.agents/`, `.claude/` untracked, not committed) |
 | Real model / real money / `.env` | none, never read |
@@ -85,8 +95,11 @@ Supervisor-only numbers (Groq today, tokens per agent) are on supervisor routes 
    committed, approval row still pending or the customer reply not sent), the UI shows the evidence stage
    (`company_written_approval_pending`, `approval_closed_notification_unconfirmed`) and refuses to replay. Closing
    such a case needs `approvals.finish(approval_id)` in `callverse/` (open since step 4): mark the row decided
-   and send the reply without writing the money again. Until then the admin finishes it in the Streamlit app or
-   by hand.
+   and send the reply without writing the money again. **The Streamlit app cannot finish it either**: it calls
+   the same `approvals.decide`, which refuses a proposal that is already decided ("proposal … is already
+   decided"), and a second attempt could pay twice. Until the core has a supported recovery: the operator keeps
+   the evidence the screen shows (approval id, stage, the words of the error, the time) and escalates to
+   Yassine; no manual database edit, no second payment attempt.
 2. **Serving `frontend/dist` from the API** is not done: a demo runs two processes (API + Vite, or any static
    server for `dist/`). A few lines in `app.py` if you want one process; not added without your OK.
 3. **Screenshot location**: `webui/reports/screenshots/` (brief: `docs/screenshots/`). Copy or move after review.

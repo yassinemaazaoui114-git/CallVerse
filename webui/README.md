@@ -267,7 +267,9 @@ How the chat behaves when the assistant is not available (verified with the fake
 - **Worker failure** ("fail" with the fake channel): an `error` event, shown with its words, no invented reply.
 
 Not done, by design or waiting for a decision (details in `reports/step-7.md`): a decision that stops halfway
-(money written, approval row or customer reply not finished) needs `approvals.finish(approval_id)` in the core; the
+(money written, approval row or customer reply not finished) needs `approvals.finish(approval_id)` in the core
+(the Streamlit app cannot finish it: the same `decide` refuses an already decided proposal; keep the evidence
+shown on screen and escalate to Yassine, no manual database edit, no second attempt); the
 built `frontend/dist` is not served by the API yet (two processes in a demo); screenshots live under
 `webui/reports/screenshots/` (the brief says `docs/screenshots/`); the Console's satisfaction number is still the
 ShopNova review average, not per ticket; the Streamlit apps are untouched and still the reference.
