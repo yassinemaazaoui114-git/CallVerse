@@ -29,9 +29,13 @@
   .topbar .logo { font-size: var(--cv-text-md); }
 }
 @media (max-width: 479px) {
-  /* the phone top bar: the logo, the icon of the current page (its name stays for screen readers), Log out */
+  /* the phone top bar: the logo, one icon per page and the logout icon (names stay for screen readers) */
+  .topbar-inner { gap: var(--cv-s2); }
+  .nav { gap: 0; margin-left: 0; }
   .nav a { padding: var(--cv-s2); min-width: 40px; justify-content: center; }
   .nav a .label { display: none; }
+  .topbar .who .btn { min-width: 40px; padding: 0 var(--cv-s2); }
+  .topbar .who .btn .label { display: none; }
 }
 
 .content { flex: 1; width: 100%; max-width: var(--cv-content-max); margin: 0 auto; padding: var(--cv-s4) var(--cv-gutter) var(--cv-s7); }

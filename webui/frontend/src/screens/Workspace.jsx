@@ -4,8 +4,8 @@ import { useAuth } from "../auth.jsx";
 import Icon from "../components/Icon.jsx";
 
 const WHERE = {
-  "admin:shopnova": "the rest of the ShopNova back office (catalogue, orders, users; approvals are in this UI)",
-  "admin:atlas": "the Atlas admin dashboard (approvals and records are in this UI)",
+  "admin:shopnova": "the rest of the ShopNova back office (catalogue, orders, users; approvals and the dashboard are in this UI)",
+  "admin:atlas": "nothing else: approvals, the dashboard and records are in this UI",
 };
 
 export default function Workspace() {

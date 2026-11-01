@@ -8,7 +8,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError } from "./api.js";
 import { useAuth } from "./auth.jsx";
 
-export function useGuardedLoad(fetcher, deps) {
+// `keep: true` leaves the previous answer on screen (dimmed by the caller) while the next one loads: the
+// dashboards use it so a period change never blanks the numbers; a late answer of the old period is still dropped.
+export function useGuardedLoad(fetcher, deps, { keep = false } = {}) {
   const { expired } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -38,10 +40,10 @@ export function useGuardedLoad(fetcher, deps) {
   }, [...deps, expired]);
 
   useEffect(() => {
-    setData(null);
+    if (!keep) setData(null);
     load();
     return () => { if (controller.current) controller.current.abort(); };
-  }, [load]);
+  }, [load, keep]);
 
   return { data, error, loading, reload: load };
 }

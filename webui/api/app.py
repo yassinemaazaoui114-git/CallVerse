@@ -7,6 +7,8 @@ Routes (all under /api, JSON):
 - GET  /api/auth/session    the logged-in account, or 401
 - GET  /api/company         the company profile (shopnova by default, ?company=atlas)
 - GET  /api/console/tickets, /tickets/filters, /tickets/{id}                                    [supervisor]
+- GET  /api/console/dashboard?days=, /api/console/agents?days=, /api/console/groq          (step 6) [supervisor]
+- GET  /api/admin/dashboard?days=7|30|90  (ShopNova, view_dashboard), /api/atlas/admin/dashboard?days=7|30|all
 - ShopNova customer (role user, company shopnova):
   GET  /api/shop/orders, /api/shop/orders/{id}                                                  (step 2)
   GET  /api/shop/chat?ticket=, POST /api/shop/chat/send (SSE), GET /api/shop/chat/job,
@@ -254,6 +256,71 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
         if detail is None:
             raise ApiError(404, "not_found", f"Ticket {ticket_id} does not exist.")
         return detail
+
+    # ---------- Console dashboards (supervisor only, read only; step 6) ----------
+    # The numbers are the core's (callverse.console.reads): the API adds only the period list, whether any
+    # ticket exists at all, and the computer time the numbers were read at. Nothing is computed here.
+
+    def console_days(days: str | None) -> int | None:
+        """The period as the Console defines it: None (all), 7 or 30 days of COMPUTER time (reads.PERIODS)."""
+        allowed = {str(v): v for v in console_reads.reads.PERIODS.values() if v is not None}
+        if days in (None, "", "all"):
+            return None
+        if days not in allowed:
+            raise ApiError(400, "bad_period", f"days must be one of all, {', '.join(allowed)}")
+        return allowed[days]
+
+    @app.get("/api/console/dashboard")
+    def console_dashboard(days: str | None = None, _: dict = Depends(supervisor)):
+        period = console_days(days)
+        has_tickets = bool(console_reads.reads.ticket_ids())
+        return {"days": period, "periods": console_reads.reads.PERIODS, "has_tickets": has_tickets,
+                "no_tickets_message": console_reads.reads.NO_TICKETS, "clock": "computer time",
+                "dashboard": console_reads.reads.dashboard(period) if has_tickets else None,
+                "read_at": datetime.now().isoformat(timespec="seconds")}
+
+    @app.get("/api/console/agents")
+    def console_agents(days: str | None = None, _: dict = Depends(supervisor)):
+        period = console_days(days)
+        has_tickets = bool(console_reads.reads.ticket_ids())
+        return {"days": period, "periods": console_reads.reads.PERIODS, "has_tickets": has_tickets,
+                "no_tickets_message": console_reads.reads.NO_TICKETS, "clock": "computer time",
+                "agents": console_reads.reads.agents(period) if has_tickets else [],
+                "read_at": datetime.now().isoformat(timespec="seconds")}
+
+    @app.get("/api/console/groq")
+    def console_groq(_: dict = Depends(supervisor)):
+        """Groq tokens used today (computer date) out of the configured daily quota, as the core counts them."""
+        return {"groq_today": console_reads.reads.groq_today(), "read_at": datetime.now().isoformat(timespec="seconds")}
+
+    # ---------- the two company admin dashboards (view_dashboard; step 6) ----------
+
+    @app.get("/api/admin/dashboard")
+    def shop_dashboard(days: int = 30, _: dict = Depends(admin_of(companies.DEFAULT, "view_dashboard"))):
+        """admin_reads.dashboard for the last 7 / 30 / 90 days of the SIMULATION clock (its own periods)."""
+        data_ready(companies.DEFAULT)
+        from callverse.data import admin_reads
+        if days not in admin_reads.PERIODS:
+            raise ApiError(400, "bad_period", f"days must be one of {', '.join(str(d) for d in admin_reads.PERIODS)}")
+        return {"days": days, "periods": list(admin_reads.PERIODS), "default_days": admin_reads.DEFAULT_PERIOD,
+                "clock": "simulation clock", "low_stock_limit": admin_reads.LOW_STOCK,
+                "dashboard": admin_reads.dashboard(days), "read_at": datetime.now().isoformat(timespec="seconds")}
+
+    @app.get("/api/atlas/admin/dashboard")
+    def atlas_dashboard(days: str | None = None, _: dict = Depends(admin_of(ATLAS, "view_dashboard"))):
+        """atlas_app_reads.dashboard for the last 7 / 30 days or all (its own periods, simulation clock)."""
+        data_ready(ATLAS)
+        from callverse.data.atlas import atlas_app_reads
+        allowed = {str(v): v for v in atlas_app_reads.PERIODS.values() if v is not None}
+        if days in (None, "", "all"):
+            period = None
+        elif days in allowed:
+            period = allowed[days]
+        else:
+            raise ApiError(400, "bad_period", f"days must be one of all, {', '.join(allowed)}")
+        return {"days": period, "periods": atlas_app_reads.PERIODS, "default": atlas_app_reads.DEFAULT_PERIOD,
+                "clock": "simulation clock", "upcoming_days": atlas_app_reads.UPCOMING_DAYS,
+                "dashboard": atlas_app_reads.dashboard(period), "read_at": datetime.now().isoformat(timespec="seconds")}
 
     # ---------- ShopNova customer (own orders only, read only) ----------
 

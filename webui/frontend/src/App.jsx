@@ -10,6 +10,10 @@ import { ApiErrorView, Loading } from "./components/States.jsx";
 import { homeFor } from "./hooks.js";
 import AskAboutOrder from "./screens/AskAboutOrder.jsx";
 import AdminApprovals from "./screens/AdminApprovals.jsx";
+import AtlasAdminDashboard from "./screens/AtlasAdminDashboard.jsx";
+import ConsoleAgents from "./screens/ConsoleAgents.jsx";
+import ConsoleDashboard from "./screens/ConsoleDashboard.jsx";
+import ShopAdminDashboard from "./screens/ShopAdminDashboard.jsx";
 import BookingDetail from "./screens/BookingDetail.jsx";
 import MyBookings from "./screens/MyBookings.jsx";
 import Records from "./screens/Records.jsx";
@@ -46,6 +50,8 @@ export default function App() {
           <Route element={<RequireLogin><Shell area="console" /></RequireLogin>}>
             <Route path="/tickets" element={<LiveTickets />} />
             <Route path="/tickets/:ticketId" element={<TicketDetail />} />
+            <Route path="/agents" element={<ConsoleAgents />} />
+            <Route path="/dashboard" element={<ConsoleDashboard />} />
           </Route>
           <Route element={<RequireLogin><Shell area="shopnova" /></RequireLogin>}>
             <Route path="/shop/orders" element={<MyOrders />} />
@@ -55,6 +61,7 @@ export default function App() {
           </Route>
           <Route element={<RequireLogin><Shell area="shopnova-admin" /></RequireLogin>}>
             <Route path="/admin/approvals" element={<AdminApprovals />} />
+            <Route path="/admin/dashboard" element={<ShopAdminDashboard />} />
           </Route>
           <Route element={<RequireLogin><Shell area="atlas" /></RequireLogin>}>
             <Route path="/atlas/bookings" element={<MyBookings />} />
@@ -64,6 +71,7 @@ export default function App() {
           <Route element={<RequireLogin><Shell area="atlas-admin" /></RequireLogin>}>
             <Route path="/atlas/admin/approvals" element={<AdminApprovals company="atlas" />} />
             <Route path="/atlas/admin/records" element={<Records />} />
+            <Route path="/atlas/admin/dashboard" element={<AtlasAdminDashboard />} />
           </Route>
           <Route element={<RequireLogin><Shell area="none" /></RequireLogin>}>
             <Route path="/workspace" element={<Workspace />} />

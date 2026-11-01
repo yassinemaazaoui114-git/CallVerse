@@ -68,6 +68,12 @@ export const api = {
   ticket: (id, signal) => request(`/api/console/tickets/${encodeURIComponent(id)}`, { signal }),
   orders: (signal) => request("/api/shop/orders", { signal }),
   order: (id, signal) => request(`/api/shop/orders/${encodeURIComponent(id)}`, { signal }),
+  // dashboards (step 6): the period is the core's own (the API refuses another one)
+  consoleDashboard: (days, signal) => request(`/api/console/dashboard${query({ days })}`, { signal }),
+  consoleAgents: (days, signal) => request(`/api/console/agents${query({ days })}`, { signal }),
+  consoleGroq: (signal) => request("/api/console/groq", { signal }),
+  shopDashboard: (days, signal) => request(`/api/admin/dashboard${query({ days })}`, { signal }),
+  atlasDashboard: (days, signal) => request(`/api/atlas/admin/dashboard${query({ days })}`, { signal }),
   // Atlas customer (step 5)
   bookings: (signal) => request("/api/atlas/bookings", { signal }),
   booking: (kind, id, signal) => request(`/api/atlas/bookings/${encodeURIComponent(kind)}/${encodeURIComponent(id)}`, { signal }),

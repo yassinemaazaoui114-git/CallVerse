@@ -7,7 +7,9 @@ order**; **step 3** = the customer's **Help chat** with live progress (SSE) thro
 **step 4** = the ShopNova admin's **Refund approvals** (the Layer 3 queue) through `approvals.decide`;
 **step 5** = Atlas Travel: the customer's **My bookings** (flights and hotel stays), **Booking detail** and
 **Help chat**, the admin's **Approvals** (refunds AND compensations) and read-only **Records**. The same screens
-and routes as ShopNova's, under `/api/atlas`, with the company taken from the account.
+and routes as ShopNova's, under `/api/atlas`, with the company taken from the account;
+**step 6** = the dashboards: the Console's **Dashboard** and **Agents** (plus Groq today) for the supervisor, and
+the two admin dashboards (ShopNova, Atlas), all read-only wrappers of the core's own functions.
 The Console and the order pages stay read only and load no model; the chat loads the channel (and so the
 pipeline) on the first message only.
 
@@ -134,12 +136,29 @@ model library or Streamlit is imported. The existing Console tests still pass: `
 | `/api/atlas/chat…` | Atlas customer | the same five chat routes as `/api/shop/chat…`, with `about_booking` as the context; jobs and tickets are the company's own |
 | `/api/atlas/admin/approvals…` | Atlas admin (`approve_refunds`) | the same three approval routes as `/api/admin/approvals…`; an approval's `action` is refund, compensation or cancel, never assumed |
 | `GET /api/atlas/admin/records/{hotels\|flights\|users\|refunds\|compensations\|log}?search=&page=` | Atlas admin (`view_dashboard`) | one page of 50 rows (`atlas_app_reads.*_page`) or the last 50 admin actions |
+| `GET /api/console/dashboard?days=all\|7\|30` | supervisor | `reads.dashboard(days)` (computer time; satisfaction and Groq today inside), the periods, `has_tickets` |
+| `GET /api/console/agents?days=` | supervisor | `reads.agents(days)`: one card per agent |
+| `GET /api/console/groq` | supervisor | `reads.groq_today()`: tokens used today out of the configured quota, as the core counts them |
+| `GET /api/admin/dashboard?days=7\|30\|90` | ShopNova admin (`view_dashboard`) | `admin_reads.dashboard(days)` (simulation clock) |
+| `GET /api/atlas/admin/dashboard?days=7\|30\|all` | Atlas admin (`view_dashboard`) | `atlas_app_reads.dashboard(days)` (simulation clock) |
 | `GET /api/health` | anyone | `{ok: true}` |
 
 Errors always look like `{"error": "<code>", "message": "<words>"}` (`not_logged_in` 401, `forbidden` 403,
 `csrf` 403, `customer_only` 403, `bad_login` 401, `no_accounts` 503, `not_found` 404, `setup_required` 503,
 `busy_user` 409, `empty_text` / `text_too_long` 400, `no_job` 404, `admin_only` 403, `already_decided` 409,
 `decision_in_progress` 409, `recheck_refused` 409, `reason_required` 400, `write_refused` 409).
+
+## Dashboards (step 6)
+
+Thin wrappers: every number is the core's (`callverse.console.reads.dashboard` / `agents` / `groq_today`,
+`callverse.data.admin_reads.dashboard`, `callverse.data.atlas.atlas_app_reads.dashboard`); the API adds the
+period list of each read, whether any ticket exists, the clock the read uses and the time it was read. Each read
+keeps its own periods (Console: all / 7 / 30 days of COMPUTER time, since the simulation clock does not move;
+ShopNova: 7 / 30 / 90 days of the SIMULATION clock; Atlas: 7 / 30 / all, simulation clock); any other value is
+400 `bad_period`. The screens label the clock, keep the period in the URL (`?days=`), keep the previous numbers
+dimmed while a new period loads and drop a late answer of an older period, draw plain SVG bars with the values
+written next to them and a "Show as table" alternative, and show a missing value as "—" (never 0). Groq today is
+the core's count out of the configured daily quota; no remaining-quota maths is done in the browser.
 
 ## Two companies, one API (step 5)
 

@@ -10,7 +10,7 @@ import Icon from "./Icon.jsx";
 export const AREAS = {
   console: {
     theme: "console", home: "/tickets", brand: ["CallVerse ", "Console"],
-    nav: [{ to: "/tickets", label: "Live tickets", icon: "radio" }],
+    nav: [{ to: "/tickets", label: "Live tickets", icon: "radio" }, { to: "/agents", label: "Agents", icon: "brain" }, { to: "/dashboard", label: "Dashboard", icon: "chart" }],
   },
   shopnova: {
     theme: "shopnova", home: "/shop/orders", brand: ["Shop", "Nova"],
@@ -18,7 +18,7 @@ export const AREAS = {
   },
   "shopnova-admin": {
     theme: "shopnova", home: "/admin/approvals", brand: ["Shop", "Nova admin"],
-    nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }],
+    nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }, { to: "/admin/dashboard", label: "Dashboard", icon: "chart" }],
   },
   atlas: {
     theme: "atlas", home: "/atlas/bookings", brand: ["Atlas ", "Travel"],
@@ -26,7 +26,7 @@ export const AREAS = {
   },
   "atlas-admin": {
     theme: "atlas", home: "/atlas/admin/approvals", brand: ["Atlas ", "Travel admin"],
-    nav: [{ to: "/atlas/admin/approvals", label: "Approvals", icon: "bank" }, { to: "/atlas/admin/records", label: "Records", icon: "file" }],
+    nav: [{ to: "/atlas/admin/approvals", label: "Approvals", icon: "bank" }, { to: "/atlas/admin/dashboard", label: "Dashboard", icon: "chart" }, { to: "/atlas/admin/records", label: "Records", icon: "file" }],
   },
   none: { theme: "console", home: "/workspace", brand: ["Call", "Verse"], nav: [] },
 };
@@ -78,8 +78,8 @@ export default function Shell({ area = "console" }) {
                 <strong>{session.name || session.username}</strong> · {session.role}
               </span>
             )}
-            <button type="button" className="btn btn-ghost btn-sm" onClick={onLogout} disabled={loggingOut}>
-              <Icon name="logout" size={14} />{loggingOut ? "Logging out…" : "Log out"}
+            <button type="button" className="btn btn-ghost btn-sm" onClick={onLogout} disabled={loggingOut} aria-label={loggingOut ? "Logging out" : "Log out"}>
+              <Icon name="logout" size={14} /><span className="label">{loggingOut ? "Logging out…" : "Log out"}</span>
             </button>
           </div>
         </div>
