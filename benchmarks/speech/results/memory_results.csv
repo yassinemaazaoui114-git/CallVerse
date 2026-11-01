@@ -1,0 +1,4 @@
+model,baseline_ram_mb,ram_after_load_mb,ram_after_inference_mb,load_time_seconds
+tiny,50.6,150.2,165.6,0.96
+base,92.5,214.6,220.3,0.49
+small,101.5,410.5,416.3,1.13

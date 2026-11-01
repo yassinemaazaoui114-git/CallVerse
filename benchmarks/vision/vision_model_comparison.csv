@@ -1,0 +1,4 @@
+model,images,accuracy,precision,recall,specificity,f1,valid_json,tp,tn,fp,fn,invalid,avg_latency_s,median_latency_s
+Qwen3-VL 2B,30,80.0,82.35,93.33,76.92,87.5,28,14,10,3,1,2,9.61,4.7
+Moondream 1.8B,30,83.33,91.67,73.33,93.33,81.48,30,11,14,1,4,0,1.02,1.02
+Granite Vision 2B,30,66.67,100.0,33.33,100.0,50.0,30,5,15,0,10,0,68.71,67.84

@@ -12,3 +12,9 @@ __pycache__/
 
 # Downloaded speech models (voice channel): rebuilt by scripts/download_voice_models.py
 models/
+# Multimodality benchmark media (local only)
+/benchmarks/vision/images/
+/benchmarks/speech/audio/
+/benchmarks/speech/audio_16k/
+/benchmarks/speech/tts_audio/
+/benchmarks/speech/tts_audio_sapi/

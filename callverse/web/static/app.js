@@ -7,6 +7,8 @@ const chat = $("chat");
 const input = $("input");
 const langSelect = $("lang");
 const micBtn = $("mic");
+const imageInput = $("image-input");
+const imageUploadBtn = document.querySelector(".image-upload");
 const sendBtn = $("send");
 const recorderBar = $("recorder");
 const composer = $("composer");
@@ -226,6 +228,10 @@ function setBusy(on) {
   state.busy = on;
   sendBtn.disabled = on;
   micBtn.disabled = on || !navigator.mediaDevices || !window.MediaRecorder;
+  imageInput.disabled = on;
+
+  imageUploadBtn.style.pointerEvents = on ? "none" : "";
+  imageUploadBtn.setAttribute("aria-disabled", String(on));
 }
 
 async function withSession(call) {
@@ -286,6 +292,70 @@ async function sendAudio(blob, seconds) {
     setMeta(userNode, [el("span", "tag", "Voice"), `${fmtTime(seconds)} · not transcribed`]);
     setText(userNode, "Voice message");
     addError(e.message, () => { userNode.remove(); sendAudio(blob, seconds); });
+  } finally {
+    setBusy(false);
+  }
+}
+
+// ---------- image upload & vision analysis ----------
+async function sendImage(file) {
+  if (!file || state.busy) return;
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  const maxBytes = 5 * 1024 * 1024;
+
+  if (!allowedTypes.includes(file.type)) {
+    addError("Please select a JPEG, PNG or WebP image.");
+    return;
+  }
+
+  if (file.size === 0 || file.size > maxBytes) {
+    addError("The image must be non-empty and no larger than 5 MB.");
+    return;
+  }
+
+  addMessage("user", {
+    text: `Product image: ${file.name}`,
+    meta: ["You", "Image"]
+  });
+
+  const pending = addMessage("bot", {
+    pending: "Analyzing product image",
+    meta: ["CallVerse · Vision"]
+  });
+
+  setBusy(true);
+
+  try {
+    const result = await withSession(() => {
+      const form = new FormData();
+      form.append("session_id", state.sessionId);
+      form.append("image", file, file.name);
+
+      return api("/api/turn/image", {
+        method: "POST",
+        body: form
+      });
+    });
+
+    const assessment = result.damaged
+      ? "Visible product damage detected."
+      : "No clear product damage detected.";
+
+    setText(
+      pending,
+      `${assessment}\n\nThis is an automated visual assessment and requires human review.`
+    );
+
+    setMeta(pending, [
+      "CallVerse · Vision",
+      result.model,
+      `${result.latency_seconds} s`
+    ]);
+
+  } catch (e) {
+    pending.remove();
+    addError(e.message, () => sendImage(file));
   } finally {
     setBusy(false);
   }
@@ -387,6 +457,16 @@ composer.addEventListener("submit", (ev) => { ev.preventDefault(); sendText(inpu
 input.addEventListener("input", autoGrow);
 input.addEventListener("keydown", (ev) => {
   if (ev.key === "Enter" && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); sendText(input.value); }
+});
+
+imageInput.addEventListener("change", () => {
+  const file = imageInput.files?.[0];
+
+  if (file && !state.busy) {
+    sendImage(file);
+  }
+
+  imageInput.value = "";
 });
 micBtn.addEventListener("click", startRecording);
 $("rec-stop").addEventListener("click", () => stopRecording(false));

@@ -25,6 +25,7 @@ class Session:
     created: float = field(default_factory=time.time)
     last_seen: float = field(default_factory=time.time)
     history: list[dict] = field(default_factory=list)     # [{"role": "user"|"assistant", "content": str}]
+    vision_assessment: dict | None = None  # Latest unverified product-image assessment
     verified_user_id: int | None = None                    # set after an identity check (pipeline.py)
     verified_orders: set[int] = field(default_factory=set)
     pending_text: str | None = None                         # question waiting for the identity check

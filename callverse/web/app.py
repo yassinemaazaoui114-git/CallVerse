@@ -25,7 +25,7 @@ from pydantic import BaseModel
 from callverse import trace
 from callverse.config import load_config
 from callverse.web import audio as audio_check
-from callverse.web import pipeline, stt, tts
+from callverse.web import pipeline, stt, tts, vision
 from callverse.web.sessions import AudioStore, RateLimiter, SessionStore
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -56,9 +56,14 @@ SECURITY_HEADERS = {
 
 @app.middleware("http")
 async def guard(request: Request, call_next):
-    # Refuse oversized bodies before reading them (the audio limit + room for the form fields).
+    # Refuse oversized bodies before reading them.
+    # Allow the larger of the audio and image upload limits,
+    # plus room for multipart form fields.
     length = request.headers.get("content-length")
-    if length and length.isdigit() and int(length) > LIMITS["max_audio_bytes"] + 100_000:
+    if length and length.isdigit() and int(length) > max(
+        LIMITS["max_audio_bytes"],
+        vision.MAX_IMAGE_BYTES,
+    ) + 100_000:
         return _error(413, "request_too_large", "The request is too large.")
     response = await call_next(request)
     response.headers.update(SECURITY_HEADERS)
@@ -194,3 +199,54 @@ def get_audio(clip_id: str):
     if data is None:
         return _error(404, "audio_expired", "This audio is no longer available.")
     return Response(data, media_type="audio/wav", headers={"Cache-Control": "private, max-age=900"})
+
+
+@app.post("/api/turn/image")
+def image_turn(
+    request: Request,
+    session_id: str = Form(...),
+    image: UploadFile = File(...),
+):
+    """Analyze a product image within an existing session."""
+
+    session, error = _start_turn(request, session_id)
+
+    if error is not None:
+        return error
+
+    # Reject oversized files before running inference.
+    data = image.file.read(vision.MAX_IMAGE_BYTES + 1)
+
+    if len(data) > vision.MAX_IMAGE_BYTES:
+        return _error(
+            413,
+            "image_too_large",
+            "The uploaded image exceeds the 5 MB limit.",
+        )
+
+    try:
+        result = vision.analyze_image(data)
+
+    except vision.VisionError as exc:
+        status_code = (
+            400
+            if exc.code in (
+                "empty_image",
+                "image_too_large",
+                "unsupported_image",
+                "invalid_image",
+            )
+            else 503
+        )
+
+        return _error(status_code, exc.code, exc.message)
+    
+    # Store the latest Vision assessment as unverified session evidence.
+    # Do not store the image or modify identity-verification state.
+    session.vision_assessment = {
+        "damaged": result["damaged"],
+        "model": result["model"],
+        "requires_review": result["requires_review"],
+    }
+
+    return JSONResponse(content=result)
