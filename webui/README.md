@@ -9,7 +9,9 @@ order**; **step 3** = the customer's **Help chat** with live progress (SSE) thro
 **Help chat**, the admin's **Approvals** (refunds AND compensations) and read-only **Records**. The same screens
 and routes as ShopNova's, under `/api/atlas`, with the company taken from the account;
 **step 6** = the dashboards: the Console's **Dashboard** and **Agents** (plus Groq today) for the supervisor, and
-the two admin dashboards (ShopNova, Atlas), all read-only wrappers of the core's own functions.
+the two admin dashboards (ShopNova, Atlas), all read-only wrappers of the core's own functions;
+**step 7** = the review pass: every account and flow checked in the browser on desktop and on a 375 px phone,
+keyboard and screen-reader fixes, the final screenshot set and the handoff report (`reports/step-7.md`).
 The Console and the order pages stay read only and load no model; the chat loads the channel (and so the
 pipeline) on the first message only.
 
@@ -82,8 +84,8 @@ npm --prefix webui/frontend run dev
 ```
 
 Open <http://127.0.0.1:5173> and log in. `supervisor` lands in the Console; a ShopNova customer (`sara` …
-`leila`) in My orders; `admin` in Refund approvals; Atlas accounts on a page saying their screens are not built
-yet. The approval queue is only filled when Layer 3 runs in queue mode (`CALLVERSE_LAYER3_MODE=queue`, see the
+`leila`) in My orders; `admin` in Refund approvals; `hedi` … (Atlas customers) in My bookings; `atlas_admin` in
+the Atlas approvals. The approval queue is only filled when Layer 3 runs in queue mode (`CALLVERSE_LAYER3_MODE=queue`, see the
 main README); `CALLVERSE_WEBUI_FAKE_CHAT=1` also makes the decision's customer reply a fake, marked one.
 
 Production-style build (static files in `webui/frontend/dist`, served later in front of the API):
@@ -241,6 +243,34 @@ Security: the session is a random token kept in memory on the server; the browse
 CORS is enabled, so another site cannot add that header). The role is read from the accounts file on every
 request through `callverse.auth.accounts.check_role`, never from the browser. The session lasts
 `CALLVERSE_WEBUI_SESSION_HOURS` (default 8); restarting the API logs everyone out.
+
+## Review pass (step 7) and known limits
+
+Checked with the demo fixture (`dev_fixture.py`, fake chat), on desktop and on a 375 × 812 phone: the supervisor
+(tickets, detail, dashboard, agents), the ShopNova customer and admin, the Atlas customer and admin. Fixed on the
+way: the confirmation dialog of the admin queue keeps Tab / Shift+Tab inside, closes on Escape (not while a
+decision runs) and gives the focus back to the button that opened it; on a phone the fact lists (`dl.kv`) put the
+label above the value instead of squeezing the value into a narrow column.
+
+How the chat behaves when the assistant is not available (verified with the fake channel and the tests):
+
+- **Busy / quota.** The only signal is the channel's own `busy` outcome (`web_chat.BUSY_REPLY`, given when Agent
+  B's models answer a daily-quota 429 or the check itself fails). The UI shows it as a normal result ("Our
+  assistant is busy right now … your message is saved"), never as an error; the message is kept in the
+  conversation. The browser never infers "busy" from the Console's Groq counter, and customers are never shown
+  that counter (it is a supervisor read).
+- **A message of the same customer already running** → 409 `busy_user`: the draft is kept, the screen says a
+  previous message is still being processed and offers "Check status".
+- **Connection lost** mid-stream: the job keeps running on the server; "Check status" re-attaches to the same job
+  (same `client_id`, no second run); "Resend the same message" sends the same payload and id, which the server
+  answers with the recorded result if the job already finished.
+- **Worker failure** ("fail" with the fake channel): an `error` event, shown with its words, no invented reply.
+
+Not done, by design or waiting for a decision (details in `reports/step-7.md`): a decision that stops halfway
+(money written, approval row or customer reply not finished) needs `approvals.finish(approval_id)` in the core; the
+built `frontend/dist` is not served by the API yet (two processes in a demo); screenshots live under
+`webui/reports/screenshots/` (the brief says `docs/screenshots/`); the Console's satisfaction number is still the
+ShopNova review average, not per ticket; the Streamlit apps are untouched and still the reference.
 
 ## Design
 
