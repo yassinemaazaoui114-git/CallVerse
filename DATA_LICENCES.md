@@ -87,3 +87,25 @@ fare) × (distance ÷ the sample's average distance), kept between 0.5× and 2.5
 - **Changes made:** @handles and links removed, `&amp;` -> `&`; in the test messages the other shop's order number is
   replaced by ours or "Order N." is added. Typos, slang and anger are kept.
 - **Use:** non-commercial university use only (CallVerse, a university data-science project).
+
+## Amazon Reviews (Multilingual Amazon Reviews Corpus, English part) — Agent F only (task F1)
+- **Source:** Keung, Lu, Szarvas, Smith (2020), "The Multilingual Amazon Reviews Corpus", *EMNLP 2020*; original
+  page https://registry.opendata.aws/amazon-reviews-ml/ ; the copy F downloads is the Hugging Face mirror
+  `SetFit/amazon_reviews_multi_en` — https://huggingface.co/datasets/SetFit/amazon_reviews_multi_en
+- **Licence:** Amazon's own agreement, **non-commercial research use only**
+  (https://docs.opendata.aws/amazon-reviews-ml/license.txt). The SetFit mirror is tagged "apache-2.0", but it is a copy
+  of Amazon's data, so Amazon's terms apply. **Flag:** Amazon has withdrawn the corpus (the original Hugging Face
+  dataset is marked "defunct ... due to the decision of data providers"). Using a mirror after the withdrawal is unclear:
+  decision for the Brain (see `tasks/F1_report.md`).
+- **What we use it for:** training Agent F's text model (TF-IDF + logistic regression, real 1-5 stars):
+  60,000 sampled train reviews (seed 0), validation 5,000 for the model choice, test 5,000 read once.
+  `benchmarks/agent_f/common.py` downloads it.
+- **Stored where:** `data/raw/amazon_reviews_multi_en/` (git-ignored); the trained model `models/agent_f/satisfaction.pkl`
+  (git-ignored). No review text is in this repository.
+- **Use:** non-commercial university use only (CallVerse, a university data-science project).
+
+## Olist (again) — Agent F's delay table (task F1)
+- The table `DELAY_TABLE` in `callverse/quality/satisfaction.py` (mean real review score per days late) is computed from
+  the committed Olist sample (CC BY-NC-SA 4.0, see the Olist section above) by `python -m benchmarks.agent_f.olist_delay`.
+- **Pretrained models:** Agent F uses none (its text model is trained from zero). The optional MiniLM line in
+  `benchmarks/agent_f/benchmark.py` (`sentence-transformers/all-MiniLM-L6-v2`, Apache 2.0) was not run.

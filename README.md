@@ -111,7 +111,7 @@ unless `PLATFORM_COORDINATOR_TOKEN` is set. Details: [docs/platform_contract.md]
 ## Run the tests
 
 ```powershell
-python -m pytest -q --ignore=tests/data   # 1122 tests, about 4 minutes
+python -m pytest -q --ignore=tests/data   # 1297 tests, about 3 minutes
 ```
 No API key, no API call and no Ollama needed: the tests use fake LLMs and a fresh copy of the database.
 `tests/data/` holds the held-out test sets: they are only for final evaluations, never for building or tuning.
@@ -134,6 +134,11 @@ Measured comparisons of models and methods, kept apart from the running system (
   python -m benchmarks.m3.benchmark             # scores on validation + the choice (benchmarks/m3/results/)
   python -m benchmarks.m3.locked_test           # the winners on the locked test sets, ONCE (already done)
   ```
+- **Agent F (F1, Semah's lane)**: the satisfaction predictor (`callverse/quality/satisfaction.py`:
+  `predict_satisfaction(record) -> {"score": 1..5}`) and its correctness check (`callverse/quality/reward.py`:
+  `evaluate_response(record)` -> satisfaction, PASS / FAIL / UNKNOWN, reward +1 / -1 / None). A separate module: nothing in
+  the pipeline calls it yet. Its model file `models/agent_f/satisfaction.pkl` (git-ignored) is built by
+  `python -m benchmarks.agent_f.train` (Amazon reviews, see DATA_LICENCES.md); the tests need no model file.
 
 ## Folders
 
@@ -154,6 +159,7 @@ callverse/          the code
   data/               ShopNova data: seed, read views, the ONLY write functions (writes.py), clock, Layer 3
     atlas/            Atlas Travel data: schema, seed, database access, read functions, its write functions,
                       the Atlas app's read views (atlas_app_reads.py)
+  quality/            Agent F: satisfaction predictor and correctness check (not called by the pipeline yet)
   tickets/ channels/  CallVerse's tickets database, the web chat channel, refund approvals
   console/            the Console's read-only queries (reads.py: all its SQL)
   auth/               demo logins, roles and permissions
@@ -166,6 +172,7 @@ apps/atlas/         the Atlas Travel Streamlit app (app.py, Home.py, pages/: My 
 config/             accounts.example.yaml (the real accounts.yaml is not in git)
 scripts/            runnable entry points
 benchmarks/m3/      the M3 embeddings benchmark (T23): code, validation data, results
+benchmarks/agent_f/  Agent F: model choice, training, rated-conversation check, Olist delay table (F1)
 tests/              pytest tests (tests/data: held-out sets)
 tasks/              NEXT.md, task files, reports
 docs/               design and contract documents

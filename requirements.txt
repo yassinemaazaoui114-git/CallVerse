@@ -22,3 +22,7 @@ httpx>=0.27
 streamlit==1.66.1
 streamlit-authenticator==0.4.2
 bcrypt==5.0.0
+
+# Agent F satisfaction predictor (Semah, accepted in F1): TF-IDF + logistic regression, CPU only.
+# scikit-learn also brings scipy, which F's metrics use (Spearman).
+scikit-learn>=1.5
