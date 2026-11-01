@@ -312,3 +312,22 @@ voice:
     sessions_per_ip_per_hour: 30
     session_ttl_minutes: 60
     max_history_turns: 10         # user+assistant pairs kept as conversation context
+
+# Photo check (callverse/vision). Qwen3-VL-2B + the CallVerse QLoRA adapter, trained on Kaggle (2026-11-01) on 103 real
+# photos, chosen on validation, held-out test: accuracy 0.84 vs 0.64 for the base model with the same prompt (paired
+# +0.20 [0.08, 0.36]); benchmark files: evaluation/ in the adapter repo and benchmarks/vision_qlora/.
+# The answer is VISUAL EVIDENCE only (never intent, never a decision). Backends are tried in order: "qlora" = base +
+# adapter, "base" = base model alone with the same prompt (fallback when the adapter cannot load).
+# adapter_path: a local adapter folder instead of the Hugging Face repo (e.g. models/vision/qlora, git-ignored).
+vision:
+  enabled: true
+  backends: [qlora, base]
+  base_model: "Qwen/Qwen3-VL-2B-Instruct"
+  base_revision: "89644892e4d85e24eaac8bacfd4f463576704203"
+  adapter_repo: "Ayachi7/CallVerse-Qwen3VL-2B-Vision-QLoRA"
+  adapter_revision: "40b84e5694112d4afba8407d45a023160ce90a2e"
+  adapter_path: null
+  max_pixels: 262144        # 512 x 512 = at most 256 image tokens, as in training
+  min_pixels: 16384
+  max_side: 1024            # uploads are shrunk to this before the processor
+  max_new_tokens: 160

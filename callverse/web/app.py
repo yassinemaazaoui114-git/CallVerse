@@ -245,6 +245,7 @@ def image_turn(
     # Do not store the image or modify identity-verification state.
     session.vision_assessment = {
         "damaged": result["damaged"],
+        "assessment": result["assessment"],
         "model": result["model"],
         "requires_review": result["requires_review"],
     }

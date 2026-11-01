@@ -134,7 +134,7 @@ Measured comparisons of models and methods, kept apart from the running system (
   python -m benchmarks.m3.benchmark             # scores on validation + the choice (benchmarks/m3/results/)
   python -m benchmarks.m3.locked_test           # the winners on the locked test sets, ONCE (already done)
   ```
-- **Vision (Qwen3-VL-2B QLoRA, prepared 2026-11-01, not integrated yet)**: 150 real photos (ShopNova + Atlas) labelled
+- **Vision (Qwen3-VL-2B QLoRA, integrated 2026-11-01: [docs/vision_integration.md](docs/vision_integration.md))**: 150 real photos (ShopNova + Atlas) labelled
   with *visual evidence only* (never customer intent), and a self-contained Kaggle notebook (baseline, QLoRA training,
   validation-only selection, held-out test comparison). Everything is in
   [benchmarks/vision_qlora/README.md](benchmarks/vision_qlora/README.md); sources and licences in
@@ -164,7 +164,7 @@ callverse/          the code
   auth/               demo logins, roles and permissions
   server/             the platform server (FastAPI)
   web/                customer website: text + voice chat + photo check (Molka), see below
-  vision/             photo check: Qwen3-VL-2B + QLoRA adapter, base-model fallback, late fusion
+  vision/             photo check: Qwen3-VL-2B + QLoRA adapter (Hugging Face), base-model fallback, late fusion
   simulator/          Client Simulator (planned)
 apps/shopnova/      the ShopNova Streamlit app (app.py, Home.py, pages/)
 apps/console/       the CallVerse Console Streamlit app (app.py, pages/: Live tickets, Ticket detail, Agents, Dashboard)

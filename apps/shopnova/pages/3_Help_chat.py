@@ -50,23 +50,32 @@ if ticket:
         store.set_unread(ticket["id"], False)   # T18: the user has now seen the new reply
 
 
-def answer(text: str) -> None:
-    """Send one message through the channel, showing the live steps while waiting."""
+def answer(text: str, image: bytes | None = None) -> None:
+    """Send one message (text and / or one photo) through the channel, showing the live steps while waiting."""
     sender = accounts.check_role(st.session_state, "user")   # checked again just before CallVerse acts
     if sender is None:
         st.error(accounts.LOGIN_MESSAGE)
         return
     with st.chat_message("user"):
-        st.write(text)
+        if text:
+            st.write(text)
+        if image is not None:
+            st.image(image, width=220)   # shown now only; the channel never stores the photo
     with st.chat_message("assistant"):
         with st.status("Reading your message…", expanded=False) as status:
             out = web_chat.send(sender["user_id"], ui.COMPANY, text, ticket_id=st.session_state["chat_ticket_id"],
-                                on_step=lambda said: status.update(label=said), about_order=about)
+                                on_step=lambda said: status.update(label=said), about_order=about,
+                                **({"image": image} if image is not None else {}))
             status.update(label="Done", state="complete")
     st.session_state["chat_ticket_id"] = out["ticket_id"]
     st.rerun()   # show the conversation from the tickets store (the reply included)
 
 
-typed = st.chat_input("Type your message…")
-if typed and typed.strip():
-    answer(typed.strip())
+# Vision: the customer can attach ONE photo (damaged item, suitcase, room...). It is checked by the photo model and
+# joined with the text by late fusion (callverse/vision); the text still says what the customer wants.
+typed = st.chat_input("Type your message or attach a photo…", accept_file=True,
+                      file_type=["jpg", "jpeg", "png", "webp"])
+if typed:
+    photo = typed.files[0].getvalue() if typed.files else None
+    if (typed.text and typed.text.strip()) or photo is not None:
+        answer((typed.text or "").strip(), photo)

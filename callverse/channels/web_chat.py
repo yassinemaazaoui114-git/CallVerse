@@ -42,8 +42,12 @@ from callverse.data.atlas import reads as atlas_reads
 from callverse.intake import extract, intake
 from callverse.tickets import store
 from callverse.tools.shopnova_tools import get_order
+from callverse.vision import fusion
+from callverse.vision import model as vision_model
 
 BUSY_REPLY = "Our assistant is busy, please try again later."
+# Vision: the uploaded file is not a photo we can read (fixed text of the channel, not an agent answer).
+PHOTO_ERROR_REPLY = "We could not read this photo. Please send a JPEG, PNG or WebP image under 5 MB."
 NOT_YOUR_ORDER_REPLY = "This order is not on your account."
 ALREADY_PENDING_REPLY = ("Your refund request for order {order_id} is already with our finance team. "
                          "We will reply here as soon as it has been reviewed.")
@@ -157,22 +161,46 @@ def with_order(text: str, about_order: int | None, company: str = companies.DEFA
 
 
 def send(user_id: int, company: str, text: str, ticket_id: str | None = None, on_step=None,
-         chat_fn=None, slm_chat_fn=None, about_order: int | None = None) -> dict:
+         chat_fn=None, slm_chat_fn=None, about_order: int | None = None, image: bytes | None = None) -> dict:
     """Handle one user message. Returns {ticket_id, status, reply, outcome, reply_source, steps, seconds}.
 
     on_step(text): called with each live text while the pipeline runs (the page shows it), each text once.
     about_order: the order of "Ask about this order" (F1), added to the text if it names no order number.
     chat_fn / slm_chat_fn: fake LLMs for the tests (as in pipeline.handle_ticket); None = the real models.
+    image: an optional photo (JPEG / PNG / WebP bytes). It is checked by the photo model (callverse/vision) and joined
+    with Intake's result by late fusion; the photo itself is never stored.
     """
     with _lock:
-        return _send(user_id, company, with_order(text, about_order, company), ticket_id, on_step, chat_fn, slm_chat_fn)
+        text = text or ""
+        if text.strip() or about_order is not None:
+            text = with_order(text, about_order, company)
+        return _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn, image)
 
 
-def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> dict:
+def check_photo(image: bytes | None) -> tuple[dict | None, str | None]:
+    """(photo block for the ticket, file error code). A bad FILE -> (None, code). A model that cannot run ->
+    a photo block marked "not checked" (a colleague will look). No photo -> (None, None)."""
+    if image is None:
+        return None, None
+    if not vision_model.cfg().get("enabled", True):
+        return fusion.photo_block(None, "vision_disabled"), None
+    try:
+        return fusion.photo_block(vision_model.analyze(image)), None
+    except vision_model.VisionError as e:
+        if e.code == "model_unavailable":
+            return fusion.photo_block(None, e.code), None
+        return None, e.code
+
+
+def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn, image=None) -> dict:
     start = time.perf_counter()
     ticket = store.ticket_for_message(company, user_id, ticket_id)
     tid = ticket["id"]
-    message_id = store.add_message(tid, "user", text)
+    has_text = bool(text.strip())
+    shown_text = text if has_text else ""
+    if image is not None:
+        shown_text = (text + "\n" if has_text else "") + "[Photo attached]"
+    message_id = store.add_message(tid, "user", shown_text)
     records, shown = [], []
 
     def listen(record):
@@ -238,9 +266,23 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
     trace.add_listener(listen)
     try:
         intake_ticket = None
+        # 2b. Vision: the photo is checked on its own (visual evidence only), before and apart from the text.
+        photo, file_error = check_photo(image)
+        if image is not None:
+            channel_step("photo_check", {"file_error": file_error,
+                                         **({k: photo[k] for k in ("checked", "error", "assessment", "backend")}
+                                            if photo else {})})
+        if file_error and not has_text:
+            return finish(PHOTO_ERROR_REPLY, "Waiting for user", "photo_invalid", "channel")
         try:
-            # 3. Identity check: Intake first (it reads the message, no agent yet).
-            intake_ticket = {**intake.process(text, chat_fn=chat_fn, **companies.extra_args(company)), "ticket_id": tid}
+            # 3. Identity check: Intake first (it reads the message, no agent yet). A photo alone has no text to read.
+            if has_text:
+                intake_ticket = {**intake.process(text, chat_fn=chat_fn, **companies.extra_args(company)),
+                                 "ticket_id": tid}
+            else:
+                intake_ticket = fusion.image_only_ticket(tid, company)
+            # 3b. Late fusion: text reason first, the photo as unverified evidence (callverse/vision/fusion.py).
+            intake_ticket = fusion.fuse(intake_ticket, photo)
             if _not_users_order(intake_ticket["order_id"], user_id, company):
                 channel_step("identity", {"order_id": intake_ticket["order_id"], "result": "not this user's order"})
                 return finish(NOT_YOUR_BOOKING_REPLY if company == "atlas" else NOT_YOUR_ORDER_REPLY,

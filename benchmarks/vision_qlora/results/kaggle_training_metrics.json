@@ -1,0 +1,1039 @@
+{
+ "runs": {
+  "r16_lr1e-4": {
+   "config": {
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "lr": 0.0001,
+    "epochs": 3,
+    "grad_accum": 8,
+    "batch_size": 1,
+    "seed": 42,
+    "patience": 2,
+    "max_pixels": 262144,
+    "quantisation": "nf4",
+    "compute_dtype": "torch.float16",
+    "gradient_checkpointing": true,
+    "target_modules": ".*language_model.*\\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)$"
+   },
+   "history": [
+    {
+     "epoch": 1,
+     "train_loss": 0.8051029993492422,
+     "val_loss": 0.5618945936577739,
+     "last_grad_norm": 0.7955856919288635,
+     "lr": 8.213938048432697e-05,
+     "seconds": 100.6,
+     "max_gpu_mem_gb": 4.88,
+     "val_accuracy": 0.8181818181818182,
+     "val_macro_f1": 0.7083333333333334,
+     "val_damage_recall": 1.0,
+     "val_json_validity": 1.0,
+     "adapter_dir": "/kaggle/working/ckpt/r16_lr1e-4/epoch_1"
+    },
+    {
+     "epoch": 2,
+     "train_loss": 0.45660234871998573,
+     "val_loss": 0.4642051950131765,
+     "last_grad_norm": 0.8888933658599854,
+     "lr": 2.886908691296504e-05,
+     "seconds": 101.0,
+     "max_gpu_mem_gb": 4.88,
+     "val_accuracy": 0.8181818181818182,
+     "val_macro_f1": 0.7083333333333334,
+     "val_damage_recall": 1.0,
+     "val_json_validity": 1.0,
+     "adapter_dir": "/kaggle/working/ckpt/r16_lr1e-4/epoch_2"
+    },
+    {
+     "epoch": 3,
+     "train_loss": 0.3715462906340372,
+     "val_loss": 0.44981523956366526,
+     "last_grad_norm": 0.7572504878044128,
+     "lr": 0.0,
+     "seconds": 100.6,
+     "max_gpu_mem_gb": 4.88,
+     "val_accuracy": 0.8181818181818182,
+     "val_macro_f1": 0.7083333333333334,
+     "val_damage_recall": 1.0,
+     "val_json_validity": 1.0,
+     "adapter_dir": "/kaggle/working/ckpt/r16_lr1e-4/epoch_3"
+    }
+   ],
+   "best_epoch": 3,
+   "best": {
+    "epoch": 3,
+    "train_loss": 0.3715462906340372,
+    "val_loss": 0.44981523956366526,
+    "last_grad_norm": 0.7572504878044128,
+    "lr": 0.0,
+    "seconds": 100.6,
+    "max_gpu_mem_gb": 4.88,
+    "val_accuracy": 0.8181818181818182,
+    "val_macro_f1": 0.7083333333333334,
+    "val_damage_recall": 1.0,
+    "val_json_validity": 1.0,
+    "adapter_dir": "/kaggle/working/ckpt/r16_lr1e-4/epoch_3"
+   },
+   "minutes": 12.6
+  },
+  "r8_lr1e-4": {
+   "config": {
+    "r": 8,
+    "alpha": 16,
+    "dropout": 0.05,
+    "lr": 0.0001,
+    "epochs": 3,
+    "grad_accum": 8,
+    "batch_size": 1,
+    "seed": 42,
+    "patience": 2,
+    "max_pixels": 262144,
+    "quantisation": "nf4",
+    "compute_dtype": "torch.float16",
+    "gradient_checkpointing": true,
+    "target_modules": ".*language_model.*\\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)$"
+   },
+   "history": [
+    {
+     "epoch": 1,
+     "train_loss": 0.8778963641634265,
+     "val_loss": 0.641734391127195,
+     "last_grad_norm": 0.802246630191803,
+     "lr": 8.213938048432697e-05,
+     "seconds": 100.8,
+     "max_gpu_mem_gb": 4.88,
+     "val_accuracy": 0.6363636363636364,
+     "val_macro_f1": 0.46170634920634923,
+     "val_damage_recall": 0.9090909090909091,
+     "val_json_validity": 0.9545454545454546,
+     "adapter_dir": "/kaggle/working/ckpt/r8_lr1e-4/epoch_1"
+    },
+    {
+     "epoch": 2,
+     "train_loss": 0.5287932926445331,
+     "val_loss": 0.5284979742936519,
+     "last_grad_norm": 0.8236300945281982,
+     "lr": 2.886908691296504e-05,
+     "seconds": 100.5,
+     "max_gpu_mem_gb": 4.88,
+     "val_accuracy": 0.8181818181818182,
+     "val_macro_f1": 0.7083333333333334,
+     "val_damage_recall": 1.0,
+     "val_json_validity": 1.0,
+     "adapter_dir": "/kaggle/working/ckpt/r8_lr1e-4/epoch_2"
+    },
+    {
+     "epoch": 3,
+     "train_loss": 0.45674571170679573,
+     "val_loss": 0.5126412945999667,
+     "last_grad_norm": 0.7350097298622131,
+     "lr": 0.0,
+     "seconds": 101.1,
+     "max_gpu_mem_gb": 4.88,
+     "val_accuracy": 0.8181818181818182,
+     "val_macro_f1": 0.7083333333333334,
+     "val_damage_recall": 1.0,
+     "val_json_validity": 1.0,
+     "adapter_dir": "/kaggle/working/ckpt/r8_lr1e-4/epoch_3"
+    }
+   ],
+   "best_epoch": 3,
+   "best": {
+    "epoch": 3,
+    "train_loss": 0.45674571170679573,
+    "val_loss": 0.5126412945999667,
+    "last_grad_norm": 0.7350097298622131,
+    "lr": 0.0,
+    "seconds": 101.1,
+    "max_gpu_mem_gb": 4.88,
+    "val_accuracy": 0.8181818181818182,
+    "val_macro_f1": 0.7083333333333334,
+    "val_damage_recall": 1.0,
+    "val_json_validity": 1.0,
+    "adapter_dir": "/kaggle/working/ckpt/r8_lr1e-4/epoch_3"
+   },
+   "minutes": 12.7
+  },
+  "r16_lr5e-5": {
+   "config": {
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "lr": 5e-05,
+    "epochs": 3,
+    "grad_accum": 8,
+    "batch_size": 1,
+    "seed": 42,
+    "patience": 2,
+    "max_pixels": 262144,
+    "quantisation": "nf4",
+    "compute_dtype": "torch.float16",
+    "gradient_checkpointing": true,
+    "target_modules": ".*language_model.*\\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)$"
+   },
+   "history": [
+    {
+     "epoch": 1,
+     "train_loss": 0.8847285969164765,
+     "val_loss": 0.6556767931596728,
+     "last_grad_norm": 1.0335938930511475,
+     "lr": 4.1069690242163484e-05,
+     "seconds": 101.0,
+     "max_gpu_mem_gb": 5.62,
+     "val_accuracy": 0.6818181818181818,
+     "val_macro_f1": 0.46901629072681705,
+     "val_damage_recall": 0.9090909090909091,
+     "val_json_validity": 1.0,
+     "adapter_dir": "/kaggle/working/ckpt/r16_lr5e-5/epoch_1"
+    },
+    {
+     "epoch": 2,
+     "train_loss": 0.5458664049222631,
+     "val_loss": 0.5470819533148692,
+     "last_grad_norm": 0.9968789219856262,
+     "lr": 1.443454345648252e-05,
+     "seconds": 100.7,
+     "max_gpu_mem_gb": 5.62,
+     "val_accuracy": 0.7727272727272727,
+     "val_macro_f1": 0.5666666666666667,
+     "val_damage_recall": 1.0,
+     "val_json_validity": 1.0,
+     "adapter_dir": "/kaggle/working/ckpt/r16_lr5e-5/epoch_2"
+    },
+    {
+     "epoch": 3,
+     "train_loss": 0.4777856914019122,
+     "val_loss": 0.5336082182113656,
+     "last_grad_norm": 0.9078982472419739,
+     "lr": 0.0,
+     "seconds": 100.7,
+     "max_gpu_mem_gb": 5.62,
+     "val_accuracy": 0.7727272727272727,
+     "val_macro_f1": 0.5583333333333333,
+     "val_damage_recall": 1.0,
+     "val_json_validity": 1.0,
+     "adapter_dir": "/kaggle/working/ckpt/r16_lr5e-5/epoch_3"
+    }
+   ],
+   "best_epoch": 2,
+   "best": {
+    "epoch": 2,
+    "train_loss": 0.5458664049222631,
+    "val_loss": 0.5470819533148692,
+    "last_grad_norm": 0.9968789219856262,
+    "lr": 1.443454345648252e-05,
+    "seconds": 100.7,
+    "max_gpu_mem_gb": 5.62,
+    "val_accuracy": 0.7727272727272727,
+    "val_macro_f1": 0.5666666666666667,
+    "val_damage_recall": 1.0,
+    "val_json_validity": 1.0,
+    "adapter_dir": "/kaggle/working/ckpt/r16_lr5e-5/epoch_2"
+   },
+   "minutes": 12.6
+  }
+ },
+ "selected_run": "r16_lr1e-4",
+ "image_conditioning_check": {
+  "image_tokens_example": 100,
+  "answer_tokens_example": 60,
+  "first_loss": 1.3012701272964478,
+  "grad_abs_sum": 7741.508518218994,
+  "val8_loss_true_images_before": 1.33911564180197,
+  "val8_loss_swapped_images_before": 1.715391311995669,
+  "val8_loss_true_images_after": 0.5013039135907176,
+  "val8_loss_swapped_images_after": 1.0722906854703669
+ },
+ "paired_bootstrap_test": {
+  "finetuned_vs_improved_prompt": {
+   "mean_diff": 0.2,
+   "ci95": [
+    0.08,
+    0.36
+   ],
+   "p_b_better": 0.997
+  },
+  "finetuned_vs_original": {
+   "mean_diff": 0.84,
+   "ci95": [
+    0.68,
+    0.96
+   ],
+   "p_b_better": 1.0
+  }
+ },
+ "metrics": {
+  "base_original_prompt|val": {
+   "n": 22,
+   "accuracy": 0.0,
+   "macro_precision": 0.0,
+   "macro_recall": 0.0,
+   "macro_f1": 0.0,
+   "damage_recall": 0.0,
+   "damage_precision": 0.0,
+   "damage_f1": 0.0,
+   "false_alarm_rate": 0.0,
+   "json_validity": 0.0,
+   "per_class": {
+    "cracked_screen": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "damaged_luggage": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 3
+    },
+    "damaged_packaging": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 1
+    },
+    "damaged_room_fixture": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "dirty_or_messy_room": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "no_visible_issue": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 9
+    },
+    "screen_display_defect": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 1
+    },
+    "unclear": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    }
+   },
+   "damage_confusion": {
+    "tp": 0,
+    "fn": 11,
+    "fp": 0,
+    "tn": 9
+   },
+   "damage_recall_lenient": 1.0,
+   "ci95": {
+    "accuracy": [
+     0.0,
+     0.0
+    ],
+    "macro_f1": [
+     0.0,
+     0.0
+    ],
+    "damage_recall": [
+     0.0,
+     0.0
+    ],
+    "json_validity": [
+     0.0,
+     0.0
+    ],
+    "false_alarm_rate": [
+     0.0,
+     0.0
+    ]
+   },
+   "latency_s": {
+    "mean": 5.822136363636363,
+    "median": 5.548,
+    "p95": 7.945
+   }
+  },
+  "base_original_prompt|test": {
+   "n": 25,
+   "accuracy": 0.0,
+   "macro_precision": 0.0,
+   "macro_recall": 0.0,
+   "macro_f1": 0.0,
+   "damage_recall": 0.0,
+   "damage_precision": 0.0,
+   "damage_f1": 0.0,
+   "false_alarm_rate": 0.0,
+   "json_validity": 0.0,
+   "per_class": {
+    "cracked_screen": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "damaged_luggage": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 3
+    },
+    "damaged_packaging": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "damaged_room_fixture": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 4
+    },
+    "dirty_or_messy_room": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "no_visible_issue": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 9
+    },
+    "screen_display_defect": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 1
+    },
+    "unclear": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    }
+   },
+   "damage_confusion": {
+    "tp": 0,
+    "fn": 14,
+    "fp": 0,
+    "tn": 9
+   },
+   "damage_recall_lenient": 1.0,
+   "ci95": {
+    "accuracy": [
+     0.0,
+     0.0
+    ],
+    "macro_f1": [
+     0.0,
+     0.0
+    ],
+    "damage_recall": [
+     0.0,
+     0.0
+    ],
+    "json_validity": [
+     0.0,
+     0.0
+    ],
+    "false_alarm_rate": [
+     0.0,
+     0.0
+    ]
+   },
+   "latency_s": {
+    "mean": 5.66556,
+    "median": 5.563,
+    "p95": 6.567
+   }
+  },
+  "base_improved_prompt|val": {
+   "n": 22,
+   "accuracy": 0.36363636363636365,
+   "macro_precision": 0.33125,
+   "macro_recall": 0.4444444444444444,
+   "macro_f1": 0.3150974025974026,
+   "damage_recall": 1.0,
+   "damage_precision": 0.8461538461538461,
+   "damage_f1": 0.9166666666666666,
+   "false_alarm_rate": 0.2222222222222222,
+   "json_validity": 1.0,
+   "per_class": {
+    "cracked_screen": {
+     "precision": 0.6666666666666666,
+     "recall": 1.0,
+     "f1": 0.8,
+     "support": 2
+    },
+    "damaged_luggage": {
+     "precision": 0.25,
+     "recall": 0.3333333333333333,
+     "f1": 0.28571428571428575,
+     "support": 3
+    },
+    "damaged_packaging": {
+     "precision": 0.3333333333333333,
+     "recall": 1.0,
+     "f1": 0.5,
+     "support": 1
+    },
+    "damaged_room_fixture": {
+     "precision": 0.4,
+     "recall": 1.0,
+     "f1": 0.5714285714285715,
+     "support": 2
+    },
+    "dirty_or_messy_room": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "no_visible_issue": {
+     "precision": 1.0,
+     "recall": 0.2222222222222222,
+     "f1": 0.3636363636363636,
+     "support": 9
+    },
+    "screen_display_defect": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 1
+    },
+    "unclear": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    }
+   },
+   "damage_confusion": {
+    "tp": 11,
+    "fn": 0,
+    "fp": 2,
+    "tn": 7
+   },
+   "damage_recall_lenient": 1.0,
+   "ci95": {
+    "accuracy": [
+     0.18181818181818182,
+     0.5909090909090909
+    ],
+    "macro_f1": [
+     0.16541950113378684,
+     0.5311355311355311
+    ],
+    "damage_recall": [
+     1.0,
+     1.0
+    ],
+    "json_validity": [
+     1.0,
+     1.0
+    ],
+    "false_alarm_rate": [
+     0.0,
+     0.5
+    ]
+   },
+   "latency_s": {
+    "mean": 3.912227272727273,
+    "median": 4.105,
+    "p95": 4.498
+   }
+  },
+  "base_improved_prompt|test": {
+   "n": 25,
+   "accuracy": 0.64,
+   "macro_precision": 0.5916666666666667,
+   "macro_recall": 0.75,
+   "macro_f1": 0.6136904761904762,
+   "damage_recall": 1.0,
+   "damage_precision": 0.875,
+   "damage_f1": 0.9333333333333333,
+   "false_alarm_rate": 0.2222222222222222,
+   "json_validity": 1.0,
+   "per_class": {
+    "cracked_screen": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 2
+    },
+    "damaged_luggage": {
+     "precision": 0.5,
+     "recall": 0.6666666666666666,
+     "f1": 0.5714285714285715,
+     "support": 3
+    },
+    "damaged_packaging": {
+     "precision": 0.4,
+     "recall": 1.0,
+     "f1": 0.5714285714285715,
+     "support": 2
+    },
+    "damaged_room_fixture": {
+     "precision": 0.6666666666666666,
+     "recall": 1.0,
+     "f1": 0.8,
+     "support": 4
+    },
+    "dirty_or_messy_room": {
+     "precision": 0.6666666666666666,
+     "recall": 1.0,
+     "f1": 0.8,
+     "support": 2
+    },
+    "no_visible_issue": {
+     "precision": 1.0,
+     "recall": 0.3333333333333333,
+     "f1": 0.5,
+     "support": 9
+    },
+    "screen_display_defect": {
+     "precision": 0.5,
+     "recall": 1.0,
+     "f1": 0.6666666666666666,
+     "support": 1
+    },
+    "unclear": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    }
+   },
+   "damage_confusion": {
+    "tp": 14,
+    "fn": 0,
+    "fp": 2,
+    "tn": 7
+   },
+   "damage_recall_lenient": 1.0,
+   "ci95": {
+    "accuracy": [
+     0.44,
+     0.8
+    ],
+    "macro_f1": [
+     0.4603174603174603,
+     0.8071690214547357
+    ],
+    "damage_recall": [
+     1.0,
+     1.0
+    ],
+    "json_validity": [
+     1.0,
+     1.0
+    ],
+    "false_alarm_rate": [
+     0.0,
+     0.5
+    ]
+   },
+   "latency_s": {
+    "mean": 3.79596,
+    "median": 3.671,
+    "p95": 4.925
+   }
+  },
+  "finetuned_qlora|val": {
+   "n": 22,
+   "accuracy": 0.8181818181818182,
+   "macro_precision": 0.6666666666666666,
+   "macro_recall": 0.7916666666666666,
+   "macro_f1": 0.7083333333333334,
+   "damage_recall": 1.0,
+   "damage_precision": 1.0,
+   "damage_f1": 1.0,
+   "false_alarm_rate": 0.0,
+   "json_validity": 1.0,
+   "per_class": {
+    "cracked_screen": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 2
+    },
+    "damaged_luggage": {
+     "precision": 0.5,
+     "recall": 0.3333333333333333,
+     "f1": 0.4,
+     "support": 3
+    },
+    "damaged_packaging": {
+     "precision": 0.5,
+     "recall": 1.0,
+     "f1": 0.6666666666666666,
+     "support": 1
+    },
+    "damaged_room_fixture": {
+     "precision": 0.6666666666666666,
+     "recall": 1.0,
+     "f1": 0.8,
+     "support": 2
+    },
+    "dirty_or_messy_room": {
+     "precision": 0.6666666666666666,
+     "recall": 1.0,
+     "f1": 0.8,
+     "support": 2
+    },
+    "no_visible_issue": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 9
+    },
+    "screen_display_defect": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 1
+    },
+    "unclear": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    }
+   },
+   "damage_confusion": {
+    "tp": 11,
+    "fn": 0,
+    "fp": 0,
+    "tn": 9
+   },
+   "damage_recall_lenient": 1.0,
+   "ci95": {
+    "accuracy": [
+     0.6363636363636364,
+     0.9545454545454546
+    ],
+    "macro_f1": [
+     0.5454545454545455,
+     0.9277777777777778
+    ],
+    "damage_recall": [
+     1.0,
+     1.0
+    ],
+    "json_validity": [
+     1.0,
+     1.0
+    ],
+    "false_alarm_rate": [
+     0.0,
+     0.0
+    ]
+   },
+   "latency_s": {
+    "mean": 6.461636363636364,
+    "median": 6.339,
+    "p95": 7.275
+   }
+  },
+  "finetuned_qlora|test": {
+   "n": 25,
+   "accuracy": 0.84,
+   "macro_precision": 0.7604166666666666,
+   "macro_recall": 0.8472222222222222,
+   "macro_f1": 0.7915178571428572,
+   "damage_recall": 1.0,
+   "damage_precision": 0.875,
+   "damage_f1": 0.9333333333333333,
+   "false_alarm_rate": 0.2222222222222222,
+   "json_validity": 1.0,
+   "per_class": {
+    "cracked_screen": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 2
+    },
+    "damaged_luggage": {
+     "precision": 0.75,
+     "recall": 1.0,
+     "f1": 0.8571428571428571,
+     "support": 3
+    },
+    "damaged_packaging": {
+     "precision": 0.6666666666666666,
+     "recall": 1.0,
+     "f1": 0.8,
+     "support": 2
+    },
+    "damaged_room_fixture": {
+     "precision": 0.6666666666666666,
+     "recall": 1.0,
+     "f1": 0.8,
+     "support": 4
+    },
+    "dirty_or_messy_room": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 2
+    },
+    "no_visible_issue": {
+     "precision": 1.0,
+     "recall": 0.7777777777777778,
+     "f1": 0.8750000000000001,
+     "support": 9
+    },
+    "screen_display_defect": {
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0,
+     "support": 1
+    },
+    "unclear": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    }
+   },
+   "damage_confusion": {
+    "tp": 14,
+    "fn": 0,
+    "fp": 2,
+    "tn": 7
+   },
+   "damage_recall_lenient": 1.0,
+   "ci95": {
+    "accuracy": [
+     0.68,
+     0.96
+    ],
+    "macro_f1": [
+     0.6545454545454545,
+     0.9703703703703703
+    ],
+    "damage_recall": [
+     1.0,
+     1.0
+    ],
+    "json_validity": [
+     1.0,
+     1.0
+    ],
+    "false_alarm_rate": [
+     0.0,
+     0.5
+    ]
+   },
+   "latency_s": {
+    "mean": 6.4046,
+    "median": 6.339,
+    "p95": 7.411
+   }
+  }
+ },
+ "baseline_val": {
+  "base_original_prompt": {
+   "n": 22,
+   "accuracy": 0.0,
+   "macro_precision": 0.0,
+   "macro_recall": 0.0,
+   "macro_f1": 0.0,
+   "damage_recall": 0.0,
+   "damage_precision": 0.0,
+   "damage_f1": 0.0,
+   "false_alarm_rate": 0.0,
+   "json_validity": 0.0,
+   "per_class": {
+    "cracked_screen": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "damaged_luggage": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 3
+    },
+    "damaged_packaging": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 1
+    },
+    "damaged_room_fixture": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "dirty_or_messy_room": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "no_visible_issue": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 9
+    },
+    "screen_display_defect": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 1
+    },
+    "unclear": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    }
+   },
+   "damage_confusion": {
+    "tp": 0,
+    "fn": 11,
+    "fp": 0,
+    "tn": 9
+   },
+   "damage_recall_lenient": 1.0,
+   "ci95": {
+    "accuracy": [
+     0.0,
+     0.0
+    ],
+    "macro_f1": [
+     0.0,
+     0.0
+    ],
+    "damage_recall": [
+     0.0,
+     0.0
+    ],
+    "json_validity": [
+     0.0,
+     0.0
+    ],
+    "false_alarm_rate": [
+     0.0,
+     0.0
+    ]
+   },
+   "latency_s": {
+    "mean": 5.822136363636363,
+    "median": 5.548,
+    "p95": 7.945
+   }
+  },
+  "base_improved_prompt": {
+   "n": 22,
+   "accuracy": 0.36363636363636365,
+   "macro_precision": 0.33125,
+   "macro_recall": 0.4444444444444444,
+   "macro_f1": 0.3150974025974026,
+   "damage_recall": 1.0,
+   "damage_precision": 0.8461538461538461,
+   "damage_f1": 0.9166666666666666,
+   "false_alarm_rate": 0.2222222222222222,
+   "json_validity": 1.0,
+   "per_class": {
+    "cracked_screen": {
+     "precision": 0.6666666666666666,
+     "recall": 1.0,
+     "f1": 0.8,
+     "support": 2
+    },
+    "damaged_luggage": {
+     "precision": 0.25,
+     "recall": 0.3333333333333333,
+     "f1": 0.28571428571428575,
+     "support": 3
+    },
+    "damaged_packaging": {
+     "precision": 0.3333333333333333,
+     "recall": 1.0,
+     "f1": 0.5,
+     "support": 1
+    },
+    "damaged_room_fixture": {
+     "precision": 0.4,
+     "recall": 1.0,
+     "f1": 0.5714285714285715,
+     "support": 2
+    },
+    "dirty_or_messy_room": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    },
+    "no_visible_issue": {
+     "precision": 1.0,
+     "recall": 0.2222222222222222,
+     "f1": 0.3636363636363636,
+     "support": 9
+    },
+    "screen_display_defect": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 1
+    },
+    "unclear": {
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0,
+     "support": 2
+    }
+   },
+   "damage_confusion": {
+    "tp": 11,
+    "fn": 0,
+    "fp": 2,
+    "tn": 7
+   },
+   "damage_recall_lenient": 1.0,
+   "ci95": {
+    "accuracy": [
+     0.18181818181818182,
+     0.5909090909090909
+    ],
+    "macro_f1": [
+     0.16541950113378684,
+     0.5311355311355311
+    ],
+    "damage_recall": [
+     1.0,
+     1.0
+    ],
+    "json_validity": [
+     1.0,
+     1.0
+    ],
+    "false_alarm_rate": [
+     0.0,
+     0.5
+    ]
+   },
+   "latency_s": {
+    "mean": 3.912227272727273,
+    "median": 4.105,
+    "p95": 4.498
+   }
+  }
+ }
+}

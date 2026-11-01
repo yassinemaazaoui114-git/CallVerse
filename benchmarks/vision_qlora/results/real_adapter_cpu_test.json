@@ -1,0 +1,291 @@
+{
+ "summary": {
+  "split": "test",
+  "n": 25,
+  "backends": [
+   "qlora"
+  ],
+  "accuracy": 0.8,
+  "damage_recall": 1.0,
+  "valid_json": 1.0,
+  "latency_median_s": 21.87,
+  "wall_minutes": 17.2
+ },
+ "rows": [
+  {
+   "id": "cv004",
+   "gold": "cracked_screen",
+   "pred": "cracked_screen",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 146.553,
+   "description": "A silver smartphone held in a hand has a large crack across the screen."
+  },
+  {
+   "id": "cv007",
+   "gold": "cracked_screen",
+   "pred": "cracked_screen",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 21.786,
+   "description": "A white smartphone on a concrete floor has a large, dark crack across its screen."
+  },
+  {
+   "id": "cv021",
+   "gold": "screen_display_defect",
+   "pred": "cracked_screen",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 36.281,
+   "description": "A Dell laptop screen shows a vertical crack running from the top left to the bottom right."
+  },
+  {
+   "id": "cv028",
+   "gold": "no_visible_issue",
+   "pred": "no_visible_issue",
+   "valid": true,
+   "gold_damage": false,
+   "pred_damage": false,
+   "backend": "qlora",
+   "latency_s": 47.524,
+   "description": "An open suitcase shows its interior; no damage is visible."
+  },
+  {
+   "id": "cv031",
+   "gold": "no_visible_issue",
+   "pred": "no_visible_issue",
+   "valid": true,
+   "gold_damage": false,
+   "pred_damage": false,
+   "backend": "qlora",
+   "latency_s": 48.727,
+   "description": "A blue and white plaid recliner with rolled arms and a high back; no damage is visible."
+  },
+  {
+   "id": "cv033",
+   "gold": "no_visible_issue",
+   "pred": "no_visible_issue",
+   "valid": true,
+   "gold_damage": false,
+   "pred_damage": false,
+   "backend": "qlora",
+   "latency_s": 66.541,
+   "description": "A silver and black plier with a black handle; no damage is visible."
+  },
+  {
+   "id": "cv037",
+   "gold": "no_visible_issue",
+   "pred": "no_visible_issue",
+   "valid": true,
+   "gold_damage": false,
+   "pred_damage": false,
+   "backend": "qlora",
+   "latency_s": 33.752,
+   "description": "A black paper shredder with a stack of paper sheets next to it; no damage is visible."
+  },
+  {
+   "id": "cv044",
+   "gold": "no_visible_issue",
+   "pred": "damaged_packaging",
+   "valid": true,
+   "gold_damage": false,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 62.491,
+   "description": "A flattened cardboard box on a concrete floor has a large dark stain on the floor behind it."
+  },
+  {
+   "id": "cv052",
+   "gold": "damaged_packaging",
+   "pred": "damaged_packaging",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 29.534,
+   "description": "A cardboard box on a conveyor belt has a large, jagged hole in its top corner."
+  },
+  {
+   "id": "cv055",
+   "gold": "damaged_packaging",
+   "pred": "damaged_packaging",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 85.15,
+   "description": "A cardboard box on a conveyor belt has a large hole in its top corner."
+  },
+  {
+   "id": "cv064",
+   "gold": "damaged_luggage",
+   "pred": "damaged_luggage",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 66.128,
+   "description": "A black suitcase has a torn opening in its shell, showing the inner lining."
+  },
+  {
+   "id": "cv072",
+   "gold": "damaged_luggage",
+   "pred": "damaged_luggage",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 77.741,
+   "description": "A pink suitcase has a large crack on its side."
+  },
+  {
+   "id": "cv078",
+   "gold": "damaged_luggage",
+   "pred": "damaged_luggage",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 62.44,
+   "description": "A yellow suitcase has a deep crack across its side."
+  },
+  {
+   "id": "cv090",
+   "gold": "no_visible_issue",
+   "pred": "damaged_luggage",
+   "valid": true,
+   "gold_damage": false,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 21.265,
+   "description": "A gold suitcase has a red sticker on the corner that is torn and the corner is bent."
+  },
+  {
+   "id": "cv091",
+   "gold": "no_visible_issue",
+   "pred": "no_visible_issue",
+   "valid": true,
+   "gold_damage": false,
+   "pred_damage": false,
+   "backend": "qlora",
+   "latency_s": 20.936,
+   "description": "A blue and pink suitcase lying on a dark surface; no damage is visible."
+  },
+  {
+   "id": "cv098",
+   "gold": "no_visible_issue",
+   "pred": "no_visible_issue",
+   "valid": true,
+   "gold_damage": false,
+   "pred_damage": false,
+   "backend": "qlora",
+   "latency_s": 20.433,
+   "description": "A hotel room with a TV, a desk, a bed and a window; no damage is visible."
+  },
+  {
+   "id": "cv110",
+   "gold": "no_visible_issue",
+   "pred": "no_visible_issue",
+   "valid": true,
+   "gold_damage": false,
+   "pred_damage": false,
+   "backend": "qlora",
+   "latency_s": 20.98,
+   "description": "A hotel room with a bed, a chair, a window and a desk; no damage is visible."
+  },
+  {
+   "id": "cv126",
+   "gold": "dirty_or_messy_room",
+   "pred": "dirty_or_messy_room",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 21.42,
+   "description": "A room with a wooden floor, a chair and a table; the floor has a metal grate and a plastic bag on the floor."
+  },
+  {
+   "id": "cv127",
+   "gold": "dirty_or_messy_room",
+   "pred": "dirty_or_messy_room",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 21.87,
+   "description": "A room with a wooden floor and a rug; a white t-shirt is on a couch and a small pile of clothes is on the floor."
+  },
+  {
+   "id": "cv128",
+   "gold": "damaged_room_fixture",
+   "pred": "damaged_room_fixture",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 19.216,
+   "description": "A white ceiling has a large hole and a long crack running across it."
+  },
+  {
+   "id": "cv129",
+   "gold": "damaged_room_fixture",
+   "pred": "damaged_room_fixture",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 19.653,
+   "description": "A white ceiling shows a long crack and water stains; a smoke detector is in the damaged area."
+  },
+  {
+   "id": "cv130",
+   "gold": "damaged_room_fixture",
+   "pred": "damaged_room_fixture",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 19.164,
+   "description": "A white ceiling shows a long crack and a wet stain near a smoke detector."
+  },
+  {
+   "id": "cv131",
+   "gold": "damaged_room_fixture",
+   "pred": "damaged_room_fixture",
+   "valid": true,
+   "gold_damage": true,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 18.277,
+   "description": "A ceiling light fixture is cracked and broken."
+  },
+  {
+   "id": "cv132",
+   "gold": "unclear",
+   "pred": "damaged_room_fixture",
+   "valid": true,
+   "gold_damage": null,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 21.288,
+   "description": "A wall above a wooden floor has a large, wet-looking stain near the baseboard."
+  },
+  {
+   "id": "cv133",
+   "gold": "unclear",
+   "pred": "damaged_room_fixture",
+   "valid": true,
+   "gold_damage": null,
+   "pred_damage": true,
+   "backend": "qlora",
+   "latency_s": 21.458,
+   "description": "A wall and ceiling corner shows a thin, dark line across the ceiling; the wall is dark wood."
+  }
+ ]
+}

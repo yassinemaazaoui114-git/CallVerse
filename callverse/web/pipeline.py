@@ -20,6 +20,7 @@ import re
 import time
 
 from callverse import trace
+from callverse.vision import fusion
 from callverse.config import load_config
 from callverse.web.sessions import Session
 
@@ -231,7 +232,11 @@ def real_reply(session: Session, text: str, lang: str, chat_fn=None) -> dict:
 
     # 3. The agent answers, with the conversation so far as context.
     try:
-        result = AgentA(chat_fn=chat_fn).run(text, history=session.history)
+        # Vision: the last photo's check goes with the question as an unverified note (late fusion: the text still
+        # decides what the customer wants; callverse/vision/fusion.py).
+        photo = (session.vision_assessment or {}).get("assessment")
+        message = f"{text}\n\n{fusion.describe(photo, proof=None)}" if photo else text
+        result = AgentA(chat_fn=chat_fn).run(message, history=session.history)
     except (AllModelsFailed, APIError) as e:
         # AllModelsFailed: every model of the chain is down. APIError: e.g. a wrong key (401), which
         # llm.py does not treat as "try the next model". Either way the customer gets a clear message.
