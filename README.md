@@ -205,8 +205,8 @@ What works for Atlas (T21): 8 reasons of its own, booking status and delay quest
 and hotel cancellation (Agent B). The company comes from the channel, never from the text. Agents propose without any
 amount: the Coordinator computes it from the rules, and it decides by code whether the client asked (T22: that decision
 and its reason are stored on the proposal, next to the agent's own flag, and shown in the Console and in Approvals). A
-refund above 1,500 TND and every compensation wait for finance (Approvals page, `approvals.decide`); rebooking and
-special assistance go straight to a colleague until agent C exists.
+refund above 1,500 TND and every compensation wait for finance (Approvals page, `approvals.decide`). P20 (branch
+`m2-finetuned`, not merged): rebooking and special assistance now go to Agent C, which asks the client first.
 
 **ABCD** (ASAPP, MIT) is used only by the M3 benchmark (T23), never by the running system; credit in DATA_LICENCES.md.
 
@@ -246,6 +246,10 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   locked test once: winner bge-base-en-v1.5 for both jobs (not switched yet; [docs/benchmarks/M3.md](docs/benchmarks/M3.md)).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
+- **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,
+  hold, colleague; Atlas: new flight, wheelchair; asks A and D, urgent refunds to B, Layer 2, low-confidence tickets);
+  D = Availability & Supply (stock vs 30-day sales, warns A, promotions / hotel deals the owner approves). Test bench
+  `scripts/eval_agents.py`. Report: [tasks/P20_report.md](tasks/P20_report.md).
 
 ## Docs
 
