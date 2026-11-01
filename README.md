@@ -156,7 +156,8 @@ callverse/          the code
   tools/              read tools, proposal tools, per-agent allow-lists (registry.py)
   kb/                 ShopNova's policies and the policy search (RAG); Atlas Travel's rules (policies_atlas.json)
   coordinator/        the Coordinator (rules); Atlas Travel's gate (atlas_coordinator.py: amounts by code)
-  slm/                the reply writer, its rule check and templates
+  slm/                the reply writer, its rule check, templates and reply styles (reply_styles.py)
+  learning/           RL pieces: the situation features of a reply (situation.py)
   notifier/           delivery notifications (story S3)
   data/               ShopNova data: seed, read views, the ONLY write functions (writes.py), clock, Layer 3
     atlas/            Atlas Travel data: schema, seed, database access, read functions, its write functions,
@@ -272,6 +273,13 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   (damaged, broken, ...) in Intake; the off-topic reply is a fixed text (no SLM call) for both companies; the agents no
   longer see `ai_generated` / `scripted`. Check both companies: `python -m scripts.run_t14c --file tests/dev/t14c_practice_messages.json`.
   Report: `tasks/T14c_report.md`.
+- **RL1** Reply styles for the writer (`callverse/slm/reply_styles.py`: `short`, `apology_first`, `apology_next_step`; default
+  none = unchanged). A style changes wording only: the apology opener and the closing sentence are written by code, the
+  decision, `must_say` and the rule check stay the same; each style has its own template fallback. Set it with
+  `decision["reply_style"]`, the env var `CALLVERSE_REPLY_STYLE` or `slm.reply_style` in `config.yaml`. New
+  `callverse/learning/situation.py` (`situation(ticket, decision)`, the RL spec fields). Rating sheet for the team (30 real
+  situations x 3 styles, local SLM only): `python -m scripts.make_rl1_rating_sheet` -> `out/rl1_rating_sheet.csv` (+ key, samples).
+  Report: `tasks/RL1_report.md`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

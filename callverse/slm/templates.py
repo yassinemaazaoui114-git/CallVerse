@@ -6,6 +6,7 @@ They are plain on purpose (less adapted to the client's style than the SLM): cor
 
 from callverse import companies
 from callverse.config import load_config
+from callverse.slm import reply_styles
 
 # How each known fact is said. Unknown fact keys are left out (safe: saying less is never wrong).
 FACT_PHRASES = {
@@ -47,12 +48,17 @@ def is_upset(style: dict | None) -> bool:
     return bool(style.get("shouting")) or style.get("sentiment") == "negative"
 
 
+def apology_text(style: dict | None) -> str:
+    """The fixed apology sentence for this formality (config.yaml slm.calm_openers), upset client or not."""
+    openers = load_config()["slm"]["calm_openers"]
+    return openers.get((style or {}).get("formality"), openers["neutral"])
+
+
 def calm_opener(style: dict | None) -> str | None:
     """The fixed calm first sentence for an upset client (config.yaml slm.calm_openers), else None."""
     if not is_upset(style):
         return None
-    openers = load_config()["slm"]["calm_openers"]
-    return openers.get((style or {}).get("formality"), openers["neutral"])
+    return apology_text(style)
 
 
 def is_redirect(decision: dict) -> bool:
@@ -63,13 +69,47 @@ def is_redirect(decision: dict) -> bool:
 def decision_opener(decision: dict) -> str | None:
     """The calm opener for THIS decision. T14b: none for the off-topic redirect: the client is not upset about an order,
     so "I'm sorry for the trouble." before "I can help with your ShopNova orders" would be odd. The scope sentence stands alone.
-    T14c: the same for Atlas's redirect."""
+    T14c: the same for Atlas's redirect.
+    RL1: a reply style decides instead of the client's mood: "short" never apologises, the two apology styles always do."""
     if is_redirect(decision):
         return None
-    return calm_opener(decision.get("style"))
+    name = reply_styles.of(decision)
+    if name is None:
+        return calm_opener(decision.get("style"))   # today's rule, unchanged
+    if reply_styles.REPLY_STYLES[name]["apology"] == "never":
+        return None
+    return apology_text(decision.get("style"))
 
 
 def render(decision: dict) -> str:
+    """The template reply for this decision, in the decision's reply style (RL1; none = today's template).
+    The off-topic redirect is a fixed text and ignores the style (T14c)."""
+    name = None if is_redirect(decision) else reply_styles.of(decision)
+    if name == "short":
+        return _render_short(decision)
+    text = _render_plain(decision)
+    if name and reply_styles.REPLY_STYLES[name]["closing"]:
+        text = reply_styles.put_last(text, reply_styles.closing_for(decision))   # next step by code, as the last sentence
+    return text
+
+
+def _render_short(decision: dict) -> str:
+    """Style "short": a greeting, the sentences the Coordinator requires (must_say), then the next step. Nothing else."""
+    said = []
+    for item in list(decision.get("must_say") or []) + [decision.get("next_step") or ""]:
+        item = str(item).strip()
+        if item and item not in said:
+            said.append(item)
+    if not said:
+        return _render_plain(decision)   # nothing to copy: the plain template (it has no opener in this style)
+    text = " ".join(said)
+    order = decision.get("order_id")
+    if order is not None and str(order) not in text:
+        text = f"Regarding {case_word(decision)} {order}. {text}"   # Atlas must always name its booking
+    return f"{_greeting(decision.get('style'))}, {text}"
+
+
+def _render_plain(decision: dict) -> str:
     """The template reply for this decision's outcome (falls back to "info" for an unknown outcome)."""
     outcome = decision.get("outcome") if decision.get("outcome") in OPENING else "info"
     facts = decision.get("facts") or {}

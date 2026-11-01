@@ -34,7 +34,7 @@ import re
 import time
 
 from callverse import companies, llm, trace
-from callverse.slm import templates
+from callverse.slm import reply_styles, templates
 from callverse.slm.check import check_reply
 from callverse.slm.templates import case_word, decision_opener, is_upset
 
@@ -112,17 +112,24 @@ OUTCOME_GUIDE = {
 }
 
 
-def style_guide(style: dict | None, order_first: bool = True, calm: bool = True) -> str:
+def style_guide(style: dict | None, order_first: bool = True, calm: bool = True, reply_style: str | None = None) -> str:
     """Turn Intake's style profile into plain instructions for the model.
     order_first: the order number leads the reply (Atlas); ShopNova (T14b) no longer forces it.
-    calm: False when no calm opener is added (the off-topic redirect, T14b), so the model writes its own greeting."""
+    calm: False when no calm opener is added (the off-topic redirect, T14b), so the model writes its own greeting.
+    reply_style (RL1): a reply style from reply_styles.py sets the length and whether an apology opener is added by code;
+    None = Intake's length and the opener only for an upset client, exactly as before."""
     style = style or {}
     tone = {"formal": "Formal and polite, no slang. Start with exactly: Dear customer,",
             "casual": "Friendly and relaxed, simple words, still respectful. Start with exactly: Hi,"
             }.get(style.get("formality"), "Neutral and polite. Start with exactly: Hello,")
     size = ("Very short: 2 or 3 sentences, at most 45 words." if style.get("length") == "short"
             else "Clear: 3 to 5 sentences, at most 80 words.")
-    if is_upset(style) and calm:
+    with_opener = is_upset(style) and calm
+    if reply_style:
+        spec = reply_styles.REPLY_STYLES[reply_style]
+        size = spec["length"]
+        with_opener = calm and spec["apology"] == "always"
+    if with_opener:
         # The calm opener is added by code (write_reply), so the model must not write its own.
         tone = tone.split(" Start with exactly:")[0]
         return (f"Tone: {tone} Length: {size} Do NOT write a greeting or an apology: an apology sentence is "
@@ -185,8 +192,12 @@ def system_prompt(decision: dict) -> str:
 def build_messages(decision: dict, history: list[dict] | None = None, problems: list[str] | None = None) -> list:
     """Messages for the SLM: rules, the decision's allowed content, the tone, and the last problems if retrying."""
     word = case_word(decision)
+    name = reply_styles.of(decision)
+    closing_by_code = bool(name) and reply_styles.REPLY_STYLES[name]["closing"] and not templates.is_redirect(decision)
     allowed = {f"{word}_number": decision.get("order_id"), "facts": writer_facts(decision),
-               "next_step": decision.get("next_step") or "", "must_say": decision.get("must_say") or []}
+               # RL1: with a closing style the next step is added by code, so the model is not shown it
+               "next_step": "" if closing_by_code else decision.get("next_step") or "",
+               "must_say": decision.get("must_say") or []}
     guide_key = ("approve_subscribe" if decision.get("outcome") == "approve" and decision.get("action") == "subscribe"
                  else decision.get("outcome"))
     if guide_key == "decline" and not is_shopnova(decision):
@@ -194,7 +205,7 @@ def build_messages(decision: dict, history: list[dict] | None = None, problems: 
     content = [OUTCOME_GUIDE.get(guide_key, OUTCOME_GUIDE["info"]),
                "What you may say (nothing else):\n" + json.dumps(allowed, ensure_ascii=False, indent=1),
                style_guide(decision.get("style"), order_first=not is_shopnova(decision),
-                           calm=decision_opener(decision) is not None)]
+                           calm=decision_opener(decision) is not None, reply_style=name)]
     if language_name(decision):
         content.append(f"The client writes in {language_name(decision)}: write the reply in {language_name(decision)}. "
                        "Only the sentences you must copy word for word stay exactly as given.")
@@ -203,7 +214,7 @@ def build_messages(decision: dict, history: list[dict] | None = None, problems: 
     if decision.get("must_say"):
         content.append("Copy each of these sentences into your reply EXACTLY, word for word, without changing them:\n"
                        + "\n".join(f'- "{item}"' for item in decision["must_say"]))
-    if decision.get("next_step"):
+    if decision.get("next_step") and not closing_by_code:
         content.append(f'End with the next step, almost word for word: "{decision["next_step"]}"')
     recent = [m.get("content", "") for m in (history or []) if m.get("role") == "user"][-3:]
     if recent:
@@ -272,6 +283,15 @@ def add_calm_opener(reply: str, decision: dict) -> str:
         body = rest.strip()
     body = SORRY_PREFIX_RE.sub("", body).strip() or body   # "Sorry, order 4512 ..." -> "order 4512 ..."
     return f"{opener} {body[:1].upper()}{body[1:]}"
+
+
+def add_closing(reply: str, decision: dict) -> str:
+    """RL1, style apology_next_step: the reply ends with the closing sentence, written by code (reply_styles.closing_for).
+    An empty reply stays empty (the check must still reject it); the off-topic redirect never gets one."""
+    name = reply_styles.of(decision)
+    if not reply or not name or not reply_styles.REPLY_STYLES[name]["closing"] or templates.is_redirect(decision):
+        return reply
+    return reply_styles.put_last(reply, reply_styles.closing_for(decision))
 
 
 def drop_repeated_sentences(reply: str) -> str:
@@ -423,6 +443,7 @@ def finish(raw: str | None, decision: dict) -> str:
     T08 fixes: punctuation, must_say once, formal greeting)."""
     reply = drop_repeated_sentences(clean(raw))
     reply = must_say_once(fix_punctuation(reply), decision) if reply else reply
+    reply = add_closing(reply, decision)
     reply = ensure_order_reference(add_calm_opener(reply, decision), decision)
     return add_formal_greeting(reply, decision)
 
