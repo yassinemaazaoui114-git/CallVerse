@@ -42,6 +42,7 @@ from callverse import companies, trace
 from callverse.config import load_config, sim_today
 from callverse.coordinator.coordinator import INTERNAL_OUTCOMES, RECORDED_AS, _check
 from callverse.coordinator.negation import negated_request
+from callverse.intake.request_words import asks_for_expenses
 from callverse.data.atlas import reads, writes
 from callverse.data.atlas.schema import BOOKING_TYPES
 from callverse.data.layer3 import atlas_layer3_decide, layer3_mode
@@ -69,6 +70,12 @@ FLIGHT_WORDS = {"scheduled": "is scheduled", "on_time": "was on time", "delayed"
 ESCALATE_SENTENCE = "Your request has been passed on to a colleague who will help you with it."
 
 CONFIRMING_REASONS = ("refund_request", "compensation_request", "cancellation")   # Intake reasons that ask for an action
+# T14d: the action must match what the client asked (held-out h03: hotel costs were asked, a ticket refund was paid).
+# Action -> the Intake reasons that ask for it. A ticket refund or a hotel cancellation needs a money-back request
+# (refund / cancellation), never a compensation question (hotel costs, meals, taxi). A compensation may also answer a
+# "money back" request after a delay (as before T14d): every compensation waits for finance anyway (AT-ESC-01).
+ACTION_REASONS = {"refund": ("refund_request", "cancellation"), "cancel_hotel": ("cancellation", "refund_request"),
+                  "compensation": ("compensation_request", "refund_request")}
 # A quoted sentence that says the client does NOT want the action is not a request: the client is asked first.
 # T14c: the shared check of callverse/coordinator/negation.py (before: ANY negative word in the sentence blocked it,
 # even "my flight was not on time, I want compensation").
@@ -379,6 +386,11 @@ def confirmation(proposal: dict, case: dict) -> tuple[bool, str]:
         return False, "quote not in the message"
     if negated_request(sentence):
         return False, "negative sentence"
+    action = proposal.get("action")
+    if action in ACTION_REASONS and reason not in ACTION_REASONS[action]:
+        return False, f"the client asked for a {reason.replace('_', ' ')}, not {ACTION_WORDS.get(action, action)}"
+    if action in ("refund", "cancel_hotel") and asks_for_expenses(sentence):
+        return False, "the client asks for costs around the trip, not money back for the booking"
     return True, f"{reason.replace('_', ' ')} + quote found"
 
 
@@ -564,10 +576,13 @@ def review(proposal: dict, case: dict) -> dict:
     # not a send-back the agent would try to correct. Only when the proposal is about that request (a compensation
     # for a compensation request; a refund or hotel cancellation for money back); another action goes on as before.
     # A cancellation of a still-confirmed hotel booking is a real cancellation (T21): it goes on (it may pay nothing).
+    # T14d: also when the proposal does NOT match the request (a ticket refund proposed for a compensation request,
+    # h03): the rule's no is about what the client asked, so the client gets that no, not a write they did not ask for.
     asked = DECLINE_ACTIONS.get(case.get("main_reason"))
     real_cancellation = action == "cancel_hotel" and facts.get("status") == "confirmed"
+    mismatch = action in ACTION_REASONS and case.get("main_reason") not in ACTION_REASONS[action]
     refusing = (decline_rule(case.get("main_reason"), facts)
-                if money_action(action) == asked and not real_cancellation else None)
+                if (money_action(action) == asked or mismatch) and not real_cancellation else None)
     if not _check("no_rule_says_no", refusing is None, refusing, {"main_reason": case.get("main_reason")},
                   "decline cases of the T14c table"):
         return _finish("decline", case, proposal_id, DECLINE_ACTIONS[case["main_reason"]], booking_id, booking_type,

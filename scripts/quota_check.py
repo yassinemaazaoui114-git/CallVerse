@@ -12,6 +12,9 @@ if CALLVERSE_FORCE_AGENTS_MODEL is also set, only that local model (the one the 
 
 T17: the script checks the agents list AND Agent B's own list (agent_b, T16). The check itself is in
 callverse/quota.py (T17 follow-up, Q6), also used by the ShopNova chat (callverse/channels/web_chat.py).
+
+T14d finish: Agent A's own list (agent_a) is checked too. When a role's FIRST model is local (Ollama) and answers,
+the check stops there: the run will use that model, so Groq / Gemini are not pinged at start (no quota used).
 """
 
 import os  # noqa: F401  (kept: the tests check os.environ through this module)
@@ -19,6 +22,7 @@ import sys
 
 from callverse import llm, trace  # noqa: F401  (kept: the tests replace llm.chat / trace.log through this module)
 # T17 follow-up (Q6): the logic lives in callverse/quota.py; this script only prints its results.
+from callverse.config import load_config
 from callverse.quota import check_models, force_env, models_to_check  # noqa: F401
 
 FORCE_ENV = "CALLVERSE_FORCE_AGENTS_MODEL"
@@ -28,9 +32,11 @@ def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     trace.start_run()
     results = []
-    for role_key in ("agents", "agent_b"):
+    cfg = load_config()
+    for role_key in ("agents", "agent_a", "agent_b"):
         print(f"[{role_key}]")
-        role_results = check_models(role_key)
+        first_is_local = models_to_check(cfg, role_key)[0]["provider"] == "ollama"
+        role_results = check_models(role_key, stop_at_first_ok=first_is_local)
         results += role_results
         for r in role_results:
             print(f"{r['model']:<24} {r['status'].upper():<12} {r['detail']}")

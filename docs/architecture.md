@@ -22,7 +22,7 @@ Client Simulator ──► Intake ──► Queues ──► Agent A / Agent B �
 | Id | Role | Starting model | Where it runs |
 |---|---|---|---|
 | M1 | Client Simulator | Gemini Flash (a **different family** than M2, so the test client is not the same model as the agents) | API |
-| M2 | Shared LLM of all agents | `openai/gpt-oss-120b` on Groq, backup `openai/gpt-oss-20b` | API (OpenAI-compatible) |
+| M2 | LLM of Agents A and B | `callverse-m2-v3` (Dali's fine-tuned Qwen3-4B-Instruct-2507 + LoRA, chosen in T14d finish: 56/56, 0 wrong writes on the 60 real messages). Backups: A → `cv-qwen3.5-4b` (local); B → `openai/gpt-oss-120b` → `gpt-oss-20b` on Groq → Gemini Flash. The Intake LLM fallback keeps its own list (`agents`) | local via Ollama (backups of B: API) |
 | M3 | Embeddings (policy search, intake) | `BAAI/bge-small-en-v1.5` | local, CPU |
 | M4 | Emotion / sentiment classifiers | ready-made models, chosen later | local, CPU |
 | M5 | Reply writer (SLM) | small 1–4B model via Ollama, chosen later | local (max 6 GB VRAM) |

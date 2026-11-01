@@ -190,7 +190,8 @@ def test_quota_check_counts_the_tokens_of_its_ping(monkeypatch):
 
     monkeypatch.setattr(llm, "chat", fake_chat)
     results = quota.check_models("agent_b", stop_at_first_ok=True)
-    assert [(r["model"], r["status"], r["tokens"]) for r in results] == [("openai/gpt-oss-120b", "ok", 42)]
+    # T14d finish: Dali's local model is first in agent_b; it answers, so Groq is not pinged.
+    assert [(r["model"], r["status"], r["tokens"]) for r in results] == [("callverse-m2-v3", "ok", 42)]
 
 
 def test_live_texts_are_shown_once_per_message():

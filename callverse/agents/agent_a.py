@@ -61,6 +61,9 @@ PROMPTS = {"shopnova": SYSTEM_PROMPT, "atlas": ATLAS_PROMPT}
 class AgentA(BaseAgent):
     agent_id = "A"
     name = "Agent A - Status & Tracking"
+    # T14d finish: its own model list in config.yaml (models.agent_a: callverse-m2-v3 first, all local), so the
+    # Intake LLM fallback keeps the "agents" lists.
+    role_key = "agent_a"
 
     def system_prompt(self) -> str:
         return PROMPTS[self.company].format(today=sim_today().isoformat())

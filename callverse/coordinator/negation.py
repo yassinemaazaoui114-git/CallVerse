@@ -11,7 +11,8 @@ Why this file? Before T14c each Coordinator had its own check, and both were too
 The rule now, in two steps:
 1. Phrases that say the client TRIED, CANNOT do it themselves, or is still WAITING for it are a request, not a
    negation. They are removed first: "can't / cannot / unable to / not able to cancel", "not getting the cancel
-   option", "how do I cancel", "tried to cancel", "problems cancelling", "I was not refunded", "I didn't get my refund".
+   option", "how do I cancel", "tried to cancel", "problems cancelling", "I was not refunded", "I didn't get my refund",
+   T14d: "amount not refunded till date", "not credited for 10 days" (a time word after it = still waiting).
 2. What is left is negative only when a negative word is close before the action word, with only "filler" words in
    between (want, to, a, my, the, order, ...): "do not want to return", "don't cancel", "never asked for a refund",
    "no longer want a refund", "should be rerouted NOT refunded". Other words in between break the link, so
@@ -37,6 +38,15 @@ TRIED_OR_CANNOT = (r"(?:can't|cant|cannot|can\s+not|couldn't|couldnt|could\s+not
 # Step 1b: "I was not refunded", "it has not been cancelled": a complaint that it did not happen yet.
 STILL_WAITING = r"(?:was|were|is|are|am|has|have|still)\s+not\s+(?:yet\s+)?(?:been\s+)?"
 REQUEST_RE = re.compile(rf"\b(?:{TRIED_OR_CANNOT}(?:\s+\w+){{0,3}}?\s+|{STILL_WAITING}){ACTION}", re.IGNORECASE)
+# Step 1c (T14d, held-out h04): "amount not refunded till date", "money not returned yet", "not credited for 10 days",
+# "not yet refunded": a thing that did not come back, with a time word after it (yet / till / until / still / since /
+# for N days / ... ago), or with "not yet" before it. A complaint that it did not happen = a request, even without
+# "was / is / has" (step 1b). Without a time word it stays a negation: "should be rerouted NOT refunded".
+DONE = r"(?:refunded|returned|credited|reimbursed)"
+TIME_WORD = (r"(?:yet|till|until|still|since|ago|for\s+(?:\d+|a|an|one|two|three|four|five|six|several|many|few|"
+             r"over|more\s+than|almost|nearly)\b|\d+\s+\w+\s+ago)")
+COMPLAINT_RE = re.compile(rf"\bnot\s+(?:{DONE}(?:\s+\w+){{0,3}}?\s+{TIME_WORD}\b|yet\s+(?:been\s+)?{DONE})",
+                          re.IGNORECASE)
 
 # Step 2: a negative word, then at most 4 filler words, then the action.
 NEGATIVE = r"(?:not|don't|dont|do\s+not|never|no\s+longer|didn't|didnt|doesn't|doesnt)"
@@ -49,4 +59,5 @@ def negated_request(sentence: str | None) -> bool:
     """True when the sentence says the client does NOT want the action (see the two steps above)."""
     text = (sentence or "").replace("’", "'").replace("/", " ")   # "return/refund" -> two words
     text = REQUEST_RE.sub(" ", text)                                    # step 1: requests are not negations
+    text = COMPLAINT_RE.sub(" ", text)                                  # step 1c (T14d): "not refunded till date"
     return NEGATED_RE.search(text) is not None                          # step 2

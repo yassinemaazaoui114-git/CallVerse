@@ -98,3 +98,22 @@ def test_quota_guard_default_set_is_unchanged(monkeypatch):
     results = quota_check.check_models()
     assert [r["model"] for r in results] == ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "gemini-3.5-flash"]
     assert "CALLVERSE_FORCE_AGENTS_MODEL" not in quota_check.os.environ
+
+
+def test_quota_script_stops_at_the_local_first_model(monkeypatch, capsys):
+    """T14d finish: agent_a and agent_b start with a local model; when it answers, the script does not ping
+    Groq / Gemini for that role. The Intake fallback list ("agents", Groq first) is still checked model by model."""
+    pinged = []
+
+    def fake_chat(role_key, messages, **kwargs):
+        pinged.append((role_key, llm.models_for(role_key, load_config())[0]["model"]))
+
+    monkeypatch.setattr(quota_check.llm, "chat", fake_chat)
+    monkeypatch.setattr(quota_check.trace, "log", lambda *a, **k: None)
+    monkeypatch.setattr(quota_check.trace, "start_run", lambda *a, **k: None)
+    with pytest.raises(SystemExit) as done:
+        quota_check.main()
+    assert done.value.code == 0
+    assert [m for r, m in pinged if r == "agent_a"] == ["callverse-m2-v3"]
+    assert [m for r, m in pinged if r == "agent_b"] == ["callverse-m2-v3"]
+    assert [m for r, m in pinged if r == "agents"] == ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "gemini-3.5-flash"]

@@ -1,9 +1,10 @@
 """T16: Agent B has its own model list (models.agent_b, Groq), so it can stay on the API while Intake + Agent A
 run locally. All offline: a fake LLM records which role each call asks for; no API, no Ollama.
 
-- Agent B's turns ask role "agent_b"; its "ask Agent A" sub-call too; Agent A's own turns keep "agents".
+- Agent B's turns ask role "agent_b"; its "ask Agent A" sub-call too; Agent A's own turns ask "agent_a" (T14d finish).
 - Switches: none / CALLVERSE_AGENTS_SET=local / + CALLVERSE_AGENT_B_SET=local / CALLVERSE_FORCE_AGENT_B_MODEL.
-- B's list never has a Gemini entry; agent_b_local is the same list as agents_local.
+- T14d finish (on purpose): agent_a and agent_b start with Dali's local callverse-m2-v3; B's backups are Groq, then
+  Gemini; the Intake fallback ("agents") is unchanged. agent_b_local is the same list as agents_local.
 - Live check pause: 5 s while any agent role is on the API, 0 s only when both are local.
 """
 
@@ -75,11 +76,11 @@ def test_ask_agent_alone_uses_the_asker_role():
     assert roles == ["agent_b"]
 
 
-def test_agent_a_own_turn_keeps_role_agents():
+def test_agent_a_own_turn_asks_role_agent_a():
     chat, roles = recording_chat([text_reply("Your order is on its way.")])
     AgentA(chat_fn=chat).run("Where is order 4510?")
-    assert roles == ["agents"]
-    assert AgentA.role_key == "agents"     # the sub-call changed only its own instance
+    assert roles == ["agent_a"]
+    assert AgentA.role_key == "agent_a"    # the sub-call changed only its own instance
 
 
 # ---------- which list each switch combination picks ----------
@@ -88,14 +89,23 @@ def test_no_switch_is_todays_behaviour():
     cfg = load_config()
     assert names(llm.models_for("agents", cfg)) == [
         ("groq", "openai/gpt-oss-120b"), ("groq", "openai/gpt-oss-20b"), ("google", "gemini-3.5-flash")]
-    assert names(llm.models_for("agent_b", cfg)) == [("groq", "openai/gpt-oss-120b"), ("groq", "openai/gpt-oss-20b")]
+    assert names(llm.models_for("agent_b", cfg)) == B_CHAIN
+    assert names(llm.models_for("agent_a", cfg)) == A_CHAIN
 
 
-def test_agents_local_moves_a_but_not_b(monkeypatch):
+# T14d finish (WIN RULE true): Dali's model first for A and B; B falls back to Groq, then Gemini; A stays local.
+B_CHAIN = [("ollama", "callverse-m2-v3"), ("groq", "openai/gpt-oss-120b"), ("groq", "openai/gpt-oss-20b"),
+           ("google", "gemini-3.5-flash")]
+A_CHAIN = [("ollama", "callverse-m2-v3"), ("ollama", "cv-qwen3.5-4b"), ("ollama", "cv-phi4-mini")]
+
+
+def test_agents_local_moves_intake_fallback_but_not_a_or_b(monkeypatch):
     monkeypatch.setenv("CALLVERSE_AGENTS_SET", "local")
     cfg = load_config()
     assert all(e["provider"] == "ollama" for e in llm.models_for("agents", cfg))
-    assert names(llm.models_for("agent_b", cfg)) == [("groq", "openai/gpt-oss-120b"), ("groq", "openai/gpt-oss-20b")]
+    assert llm.models_for("agents", cfg)[0]["model"] == "cv-qwen3.5-4b"   # Intake fallback unchanged
+    assert names(llm.models_for("agent_b", cfg)) == B_CHAIN
+    assert names(llm.models_for("agent_a", cfg)) == A_CHAIN
 
 
 def test_both_local(monkeypatch):
@@ -114,13 +124,11 @@ def test_force_b_model_and_force_agents_does_not_touch_b(monkeypatch):
     monkeypatch.delenv("CALLVERSE_FORCE_AGENT_B_MODEL")
     monkeypatch.setenv("CALLVERSE_FORCE_AGENTS_MODEL", "gemini-3.5-flash")
     assert names(llm.models_for("agents", cfg)) == [("google", "gemini-3.5-flash")]
-    assert len(llm.models_for("agent_b", cfg)) == 2                   # B not affected
+    assert len(llm.models_for("agent_b", cfg)) == 4                   # B not affected
 
 
-def test_agent_b_lists_never_have_gemini():
-    models = load_config()["models"]
-    for key in ("agent_b", "agent_b_local"):
-        assert all(e["provider"] != "google" for e in models[key]), key
+def test_agent_a_list_is_local_only():
+    assert all(e["provider"] == "ollama" for e in load_config()["models"]["agent_a"])
 
 
 def test_agent_b_local_is_the_same_list_as_agents_local():

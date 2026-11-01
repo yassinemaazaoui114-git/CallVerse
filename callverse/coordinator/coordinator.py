@@ -45,6 +45,7 @@ reason, not only the status.
 from callverse import trace
 from callverse.config import load_config
 from callverse.coordinator.negation import negated_request
+from callverse.intake.request_words import cancels_order
 from callverse.data.layer3 import layer3_decide, layer3_mode
 from callverse.data.writes import (cancel_order_by_user, create_refund, create_subscription, is_valid_amount,
                                    record_decision, record_proposal, set_order_status)
@@ -339,6 +340,9 @@ def cancel_confirmed(proposal: dict, case: dict) -> tuple[bool, str]:
         return False, "quote not in the message"
     if negated_request(sentence):
         return False, "negative sentence"
+    if not cancels_order(sentence, case.get("user_message") or ""):
+        # T14d: "please cancel this payment", "I pressed cancel by accident": the cancel is not about the order.
+        return False, "the cancel is not about the order"
     return True, "cancel request + quote found"
 
 

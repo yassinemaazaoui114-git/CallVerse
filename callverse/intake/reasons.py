@@ -36,6 +36,7 @@ import numpy as np
 
 from callverse import companies
 from callverse.config import load_config
+from callverse.intake.request_words import CANCEL_WORD_RE, NOT_AN_ORDER_RE, asks_for_expenses, cancels_order  # noqa: F401
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
@@ -44,9 +45,9 @@ DATA_DIR = Path(__file__).resolve().parent / "data"
 # So cancel_order is decided by this word, in both directions: a sentence that says cancel is a cancellation, and
 # cancel_order never wins by meaning alone. The threshold still applies (a rule, not tuning: same threshold and top-k).
 # Not "cancelled": "I cancelled it, where is my money?" is about what already happened. "cancle": a typo in real tweets.
-CANCEL_WORD_RE = re.compile(r"\b(?:cancel|cancle|cancell?ing)\b", re.IGNORECASE)
 # Cancelling a subscription or an account is not cancelling an order: the rule stays out of those sentences.
-NOT_AN_ORDER_RE = re.compile(r"\b(?:subscriptions?|memberships?|prime|accounts?|plans?)\b", re.IGNORECASE)
+# T14d: both word lists (CANCEL_WORD_RE, NOT_AN_ORDER_RE) now live in request_words.py, with two more checks: "the
+# cancel is about money, not the order" and "a cancel button was pressed" (cancels_order). Imported below, same names.
 
 # T14c: a damaged item, by the word (as cancel above). By meaning alone the damage sentences of real tweets went to
 # refund_request / return_item ("had order damaged in transit, how do I sort out refunding" -> refund), so the client got
@@ -149,10 +150,15 @@ def match_reasons(text: str, threshold: float | None = None, company: str = comp
         sentence_scores.append({"sentence": sentence, "scores": {r: round(s, 3) for r, s in scores.items()}})
         # This sentence's best reason. T14a (see above; Atlas has no cancel_order): by the word, never by meaning.
         by_word = False
-        if "cancel_order" in scores and CANCEL_WORD_RE.search(sentence) and not NOT_AN_ORDER_RE.search(sentence):
+        # T14d: cancels_order also reads the whole message ("please cancel this payment" is not an order).
+        if "cancel_order" in scores and cancels_order(sentence, text):
             reason = "cancel_order"
         elif "damaged_item" in scores and says_damaged(sentence):   # T14c (Atlas has no damaged_item)
             reason, by_word = "damaged_item", True
+        elif "compensation_request" in scores and asks_for_expenses(sentence):
+            # T14d (Atlas): hotel costs / meals / taxi / "reimbursement" around the trip are a compensation question,
+            # not a ticket refund (held-out h03). By the word, like the damage word.
+            reason, by_word = "compensation_request", True
         else:
             reason = max((r for r in scores if r != "cancel_order"), key=scores.get)
         score = scores[reason]

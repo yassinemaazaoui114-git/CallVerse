@@ -29,7 +29,7 @@ def ask_agent(agent: str, question: str, chat_fn=None, company: str = companies.
 
     from callverse.agents.agent_a import AgentA   # imported here: agent_a -> registry -> this file
     agent_a = AgentA(chat_fn=chat_fn, company=company)
-    agent_a.role_key = ASKER_ROLE_KEY            # this instance only; Agent A's own turns keep "agents"
+    agent_a.role_key = ASKER_ROLE_KEY            # this instance only; Agent A's own turns keep "agent_a"
     result = agent_a.run(question)
     facts = atlas_facts(result["tool_calls"]) if company == "atlas" else compact_facts(result["tool_calls"])
     out = {"agent": agent, "answer": result["answer"], "facts": facts}
