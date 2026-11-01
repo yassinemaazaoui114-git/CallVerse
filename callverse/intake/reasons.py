@@ -48,6 +48,25 @@ CANCEL_WORD_RE = re.compile(r"\b(?:cancel|cancle|cancell?ing)\b", re.IGNORECASE)
 # Cancelling a subscription or an account is not cancelling an order: the rule stays out of those sentences.
 NOT_AN_ORDER_RE = re.compile(r"\b(?:subscriptions?|memberships?|prime|accounts?|plans?)\b", re.IGNORECASE)
 
+# T14c: a damaged item, by the word (as cancel above). By meaning alone the damage sentences of real tweets went to
+# refund_request / return_item ("had order damaged in transit, how do I sort out refunding" -> refund), so the client got
+# a return decline (R-RET-01) instead of the photo request of R-DMG-01. A sentence with one of these whole words is a
+# damaged item, also under the threshold (the word is the evidence; the threshold value is not changed), unless:
+# - the word is negated ("not damaged", "wasn't broken", "no damaged items");
+# - the broken thing is not a delivered item ("the link is broken", "the app is broken").
+DAMAGED_WORD_RE = re.compile(r"\b(?:damaged|broken|cracked|smashed|defective|destroyed)\b", re.IGNORECASE)
+NOT_DAMAGED_RE = re.compile(r"(?:\b(?:not|never|no)|n't)\s+(?:\w+\s+)?(?:damaged|broken|cracked|smashed|defective|destroyed)\b",
+                            re.IGNORECASE)
+NOT_AN_ITEM_RE = re.compile(r"\b(?:links?|apps?|website|site|pages?|checkouts?|promises?|heart|english)\b",
+                            re.IGNORECASE)
+
+
+def says_damaged(sentence: str) -> bool:
+    """T14c: the sentence says a delivered item is damaged (by the word; see DAMAGED_WORD_RE above)."""
+    text = sentence.replace("’", "'")
+    return (DAMAGED_WORD_RE.search(text) is not None and NOT_DAMAGED_RE.search(text) is None
+            and NOT_AN_ITEM_RE.search(text) is None)
+
 REASONS = ["order_status", "late_delivery", "refund_request", "cancel_order", "return_item", "damaged_item", "other"]
 
 
@@ -129,12 +148,15 @@ def match_reasons(text: str, threshold: float | None = None, company: str = comp
         scores = reason_scores(vector, vectors, cfg["top_k"])
         sentence_scores.append({"sentence": sentence, "scores": {r: round(s, 3) for r, s in scores.items()}})
         # This sentence's best reason. T14a (see above; Atlas has no cancel_order): by the word, never by meaning.
+        by_word = False
         if "cancel_order" in scores and CANCEL_WORD_RE.search(sentence) and not NOT_AN_ORDER_RE.search(sentence):
             reason = "cancel_order"
+        elif "damaged_item" in scores and says_damaged(sentence):   # T14c (Atlas has no damaged_item)
+            reason, by_word = "damaged_item", True
         else:
             reason = max((r for r in scores if r != "cancel_order"), key=scores.get)
         score = scores[reason]
-        if score >= threshold and score > best_per_reason.get(reason, {}).get("score", -1):
+        if (score >= threshold or by_word) and score > best_per_reason.get(reason, {}).get("score", -1):
             best_per_reason[reason] = {"reason": reason, "score": round(score, 3), "sentence": sentence}
 
     if len(best_per_reason) > 1:

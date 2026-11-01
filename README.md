@@ -256,6 +256,13 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   and `payment`; the off-topic reply has no apology opener; the Intake LLM fallback accepts `cancel_order` only with the word
   "cancel". Practice set: `python -m scripts.run_decline_check --file tests/dev/t14b_practice_messages.json` (queue mode like the
   app). Report: `tasks/T14b_report.md`.
+- **T14c** Atlas says no with the reason too (`decline` by code: AT-FLT-03/06/02/04, AT-HOT-03/02/05/01, AT-REF-01, in
+  `atlas_coordinator.decline_rule`); one shared negation check for both companies (`callverse/coordinator/negation.py`:
+  "I'm not able to cancel" is a request, "do not want a refund" is not); the R-DMG-01 photo proof is stored with the
+  proposal (`proposals.proof_received`, default 0) and re-used at finance approval; a damaged item is found by the word
+  (damaged, broken, ...) in Intake; the off-topic reply is a fixed text (no SLM call) for both companies; the agents no
+  longer see `ai_generated` / `scripted`. Check both companies: `python -m scripts.run_t14c --file tests/dev/t14c_practice_messages.json`.
+  Report: `tasks/T14c_report.md`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

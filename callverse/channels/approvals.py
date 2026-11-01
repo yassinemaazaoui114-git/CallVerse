@@ -59,7 +59,10 @@ def recheck(proposal: dict) -> tuple[dict, str | None]:
         return {}, f"proposal {proposal.get('id')} is not a refund"
     if not isinstance(order_id, int) or "error" in get_order(order_id):
         return {}, f"order {order_id} does not exist any more"
-    facts = {**_read_facts(order_id, {"proof_received": False}), "amount": params.get("amount")}
+    # T14c: the photo proof stored with the proposal (R-DMG-01); before, it was always False here, so an approved
+    # damaged-item refund above 300 TND could never pass this re-check.
+    facts = {**_read_facts(order_id, {"proof_received": bool(proposal.get("proof_received"))}),
+             "amount": params.get("amount")}
     if action == "cancel":   # T14a: no amount in the proposal: what is left to refund, on fresh data
         facts["amount"] = cancel_refund(facts)
     rule = get_policy(rule_id) if isinstance(rule_id, str) else None

@@ -69,6 +69,7 @@ def _proposal_row(row) -> dict:
     p = dict(row)
     p["params"], p["facts_used"] = json.loads(p["params"]), json.loads(p["facts_used"])
     p["user_confirmed"] = bool(p["user_confirmed"])
+    p["proof_received"] = bool(p.get("proof_received"))   # T14c
     return p
 
 
@@ -79,6 +80,8 @@ def record_proposal(proposal: dict) -> dict:
                 "rule_id": "R-REF-03", "facts_used": {...}, "user_confirmed": true}
     Other keys (e.g. "user_quote") are ignored. Returns {"error": ...} if a required field is wrong.
     Always a dict, never a bare string.
+    T14c: "proof_received" (R-DMG-01, a photo of the damage was seen) is stored with it, set by the Coordinator from
+    its case (never by an agent), so finance's later approval re-checks the same fact. Missing = False.
     """
     args = {"proposal": proposal}
     if not isinstance(proposal, dict):
@@ -99,10 +102,11 @@ def record_proposal(proposal: dict) -> dict:
         count = con.execute("SELECT COUNT(*) FROM proposals").fetchone()[0]
         proposal_id = f"P-{count + 1:04d}"   # rows are never deleted, so the count gives the next number
         con.execute(
-            "INSERT INTO proposals (id, agent, action, params, rule_id, facts_used, user_confirmed, created_at)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO proposals (id, agent, action, params, rule_id, facts_used, user_confirmed, created_at,"
+            " proof_received) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (proposal_id, proposal["agent"], proposal["action"], params, proposal.get("rule_id"), facts,
-             1 if proposal.get("user_confirmed") is True else 0, sim_today().isoformat()),
+             1 if proposal.get("user_confirmed") is True else 0, sim_today().isoformat(),
+             1 if proposal.get("proof_received") is True else 0),
         )
         con.commit()
     return _done("record_proposal", args, {"id": proposal_id})

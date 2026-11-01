@@ -11,7 +11,7 @@ Why this file? Before T14c each Coordinator had its own check, and both were too
 The rule now, in two steps:
 1. Phrases that say the client TRIED, CANNOT do it themselves, or is still WAITING for it are a request, not a
    negation. They are removed first: "can't / cannot / unable to / not able to cancel", "not getting the cancel
-   option", "how do I cancel", "tried to cancel", "problems cancelling", "I was not refunded".
+   option", "how do I cancel", "tried to cancel", "problems cancelling", "I was not refunded", "I didn't get my refund".
 2. What is left is negative only when a negative word is close before the action word, with only "filler" words in
    between (want, to, a, my, the, order, ...): "do not want to return", "don't cancel", "never asked for a refund",
    "no longer want a refund", "should be rerouted NOT refunded". Other words in between break the link, so
@@ -30,13 +30,16 @@ ACTION = r"(?:cancel\w*|cancle\w*|refund\w*|return\w*|compensat\w*|money\s+back)
 TRIED_OR_CANNOT = (r"(?:can't|cant|cannot|can\s+not|couldn't|couldnt|could\s+not|unable\s+to|not\s+able\s+to|"
                    r"not\s+getting|not\s+given|tried\s+to|try\s+to|trying\s+to|how\s+(?:do|can|could)\s+i|how\s+to|"
                    r"problems?|trouble|issues?|difficult\w*|(?:don't|dont|do\s+not|doesn't|does\s+not)\s+"
-                   r"(?:have|see|show|let\s+me|work)|won't\s+let\s+me|will\s+not\s+let\s+me)")
+                   r"(?:have|see|show|let\s+me|work)|won't\s+let\s+me|will\s+not\s+let\s+me|"
+                   # "I didn't get my refund", "never received the refund": still waiting for it
+                   r"(?:didn't|didnt|did\s+not|haven't|havent|have\s+not|hasn't|has\s+not|never|not)\s+(?:yet\s+)?"
+                   r"(?:get|got|gotten|receive|received|see|seen))")
 # Step 1b: "I was not refunded", "it has not been cancelled": a complaint that it did not happen yet.
 STILL_WAITING = r"(?:was|were|is|are|am|has|have|still)\s+not\s+(?:yet\s+)?(?:been\s+)?"
 REQUEST_RE = re.compile(rf"\b(?:{TRIED_OR_CANNOT}(?:\s+\w+){{0,3}}?\s+|{STILL_WAITING}){ACTION}", re.IGNORECASE)
 
 # Step 2: a negative word, then at most 4 filler words, then the action.
-NEGATIVE = r"(?:not|don't|dont|do\s+not|never|no\s+longer)"
+NEGATIVE = r"(?:not|don't|dont|do\s+not|never|no\s+longer|didn't|didnt|doesn't|doesnt)"
 FILLER = (r"(?:want|wanna|wish|need|like|would|to|get|getting|a|an|any|my|the|it|this|that|"
           r"order|booking|flight|ticket|for|me|ask|asked|asking|request|requested|requesting|looking|going)")
 NEGATED_RE = re.compile(rf"\b{NEGATIVE}(?:\s+{FILLER}){{0,4}}\s+{ACTION}", re.IGNORECASE)

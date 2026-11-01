@@ -44,6 +44,8 @@ for a in pending:
     with st.container(border=True):
         st.markdown(f"#### {ui.tnd(a['amount'])} · order {a['order_id']} · {f['user_name'] or 'unknown client'}")
         st.caption(f"Ticket {a['ticket_id']} · proposal {a['proposal_id']} · rule {f['rule_id']}: {f['rule_title']}")
+        if f["proof_received"]:   # T14c: R-DMG-01, stored with the proposal
+            st.markdown("📷 **photo proof received**")
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Order status", f["order_status"] or "—")
         c2.metric("Paid", ui.tnd(f["paid"] or 0))

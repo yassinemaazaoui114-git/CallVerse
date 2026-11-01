@@ -205,7 +205,8 @@ def proposal(proposal_id: str | None) -> dict | None:
         row = con.execute("SELECT * FROM proposals WHERE id = ?", (str(proposal_id),)).fetchone()
     if row is None:
         return None
-    return {**dict(row), "params": json.loads(row["params"]), "facts_used": json.loads(row["facts_used"])}
+    return {**dict(row), "params": json.loads(row["params"]), "facts_used": json.loads(row["facts_used"]),
+            "proof_received": bool(row["proof_received"])}   # T14c: R-DMG-01 photo stored with the proposal
 
 
 def approval_facts(order_id: int, proposal_id: str | None) -> dict:
@@ -224,4 +225,5 @@ def approval_facts(order_id: int, proposal_id: str | None) -> dict:
             "user_name": user["name"] if user else None, "rule_id": rule_id,
             "rule_title": rule["title"] if rule else None,
             "facts_used": json.loads(proposal["facts_used"]) if proposal else {},
-            "proposal_decision": proposal["decision"] if proposal else None}
+            "proposal_decision": proposal["decision"] if proposal else None,
+            "proof_received": bool(proposal["proof_received"]) if proposal else False}   # T14c

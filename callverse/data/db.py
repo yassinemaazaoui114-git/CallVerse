@@ -33,4 +33,10 @@ def connect() -> sqlite3.Connection:
         seed()
     con = sqlite3.connect(_db_path)
     con.row_factory = sqlite3.Row  # rows behave like dicts: row["name"]
+    # T14c: a shopnova.db made before T14c has no proposals.proof_received: add it with the safe default 0 (= no photo),
+    # so an old file keeps working and its old proposals read as "no proof".
+    columns = {r["name"] for r in con.execute("PRAGMA table_info(proposals)")}   # empty: no table yet
+    if columns and "proof_received" not in columns:
+        con.execute("ALTER TABLE proposals ADD COLUMN proof_received INTEGER NOT NULL DEFAULT 0")
+        con.commit()
     return con

@@ -42,10 +42,9 @@ T14a: before that, no_proposal_decision re-reads the order: if a rule says no, t
 reason, not only the status.
 """
 
-import re
-
 from callverse import trace
 from callverse.config import load_config
+from callverse.coordinator.negation import negated_request
 from callverse.data.layer3 import layer3_decide, layer3_mode
 from callverse.data.writes import (cancel_order_by_user, create_refund, create_subscription, is_valid_amount,
                                    record_decision, record_proposal, set_order_status)
@@ -71,8 +70,8 @@ STATUS_WORDS = {
 
 
 # T14a: a cancel request said in the negative ("do not cancel", "I don't want to cancel"): the client is asked first.
-# Only around the word "cancel": real messages often have "didn't arrive so please cancel", which IS a request.
-NOT_CANCEL_RE = re.compile(r"\b(?:not|don't|dont|never|no longer)\b(?:\s+\w+){0,3}?\s+cancel", re.IGNORECASE)
+# T14c: the check is now shared with Atlas (callverse/coordinator/negation.py): "I'm not able to cancel" is a request,
+# not a negation, and real messages such as "didn't arrive so please cancel" stay requests too.
 SENTENCE_ENDS = ".!?\n"
 # Main reason -> the action a decline is about (T14a).
 DECLINE_ACTIONS = {"return_item": "return", "refund_request": "refund", "cancel_order": "cancel"}
@@ -338,7 +337,7 @@ def cancel_confirmed(proposal: dict, case: dict) -> tuple[bool, str]:
     sentence = _sentence_around(quote.strip().lower(), (case.get("user_message") or "").lower())
     if sentence is None:
         return False, "quote not in the message"
-    if NOT_CANCEL_RE.search(sentence.replace("\u2019", "'")):
+    if negated_request(sentence):
         return False, "negative sentence"
     return True, "cancel request + quote found"
 
@@ -357,6 +356,10 @@ def review(proposal: dict, case: dict) -> dict:
     confirmation = cancel_confirmed(proposal, case) if action == "cancel" else None
     if confirmation:
         proposal = {**proposal, "user_confirmed": confirmation[0]}
+    if isinstance(proposal, dict):
+        # T14c: the photo proof (R-DMG-01) is stored WITH the proposal, from the case (an agent cannot set it), so
+        # finance's later approval of a refund above 300 TND re-checks the same fact (callverse/channels/approvals.py).
+        proposal = {**proposal, "proof_received": bool(case.get("proof_received"))}
 
     # 0. Record the proposal first (audit trail), unless it was already recorded.
     proposal_id = proposal.get("proposal_id") if isinstance(proposal, dict) else None

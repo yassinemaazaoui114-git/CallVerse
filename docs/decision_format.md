@@ -91,6 +91,32 @@ days."; delivered at most 14 days ago: "You can still return it within 14 days o
 A `cancel_order` case on a `processing` order without a proposal is not a decline: `ask_user` ("Please confirm that you want
 to cancel order N."). Any other case without a proposal keeps today's `info` reply.
 
+## The `decline` outcome at Atlas (T14c)
+Same idea (`atlas_coordinator.decline_rule`, fresh data + Intake's main reason, first match wins). It runs for a case
+without a proposal AND inside `review()` right after the facts are read, when the proposal is about the client's request
+(a compensation for `compensation_request`; a refund or a hotel cancellation for `refund_request` / `cancellation`); a
+cancellation of a still-confirmed hotel booking is never declined (it is a real cancellation, T21).
+
+| Main reason | Condition (fresh data) | `rule_id` |
+|---|---|---|
+| `compensation_request` (flight) | the flight left and arrived < 3 h late, or on time | AT-FLT-03 |
+| `compensation_request` (flight) | recorded cause weather / air system / security | AT-FLT-06 |
+| `compensation_request` (flight) | cancelled with `notice_days` >= 14 | AT-FLT-02 |
+| `refund_request` (flight) | the flight left < 5 h late (not cancelled) | AT-FLT-04 |
+| `refund_request` (flight) | already fully refunded | AT-REF-01 |
+| `refund_request`, or `cancellation` of a booking no longer confirmed (hotel) | non-refundable (cancelled or confirmed) | AT-HOT-03 |
+| same | refundable, cancelled < 2 days before arrival | AT-HOT-02 |
+| same | no-show | AT-HOT-05 |
+| same | already fully refunded | AT-REF-01 |
+| same | no deposit | AT-HOT-01 |
+
+Facts in the decision: `booking_status`, `flight_status` (+ `refunded_tnd` for AT-REF-01); the numbers are inside
+`must_say`. Writer guide `decline_atlas`: the next step may say what is still possible ("You can still choose a full refund
+or a new flight."). The template gives the reason first, then the next step.
+
+## Off-topic (T14c)
+The redirect (`action` = `redirect`, both companies) is a fixed text: greeting + the Coordinator's two sentences, no SLM call.
+
 ## Rule check (callverse/slm/check.py)
 After the SLM writes, a rule check (plain code) verifies the reply:
 - every number in the reply appears in `facts`, `order_id` or `next_step`;

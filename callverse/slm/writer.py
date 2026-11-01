@@ -25,6 +25,8 @@ ShopNova's prompt text is not touched.
 T14b (ShopNova only; Atlas keeps today's behaviour): the writer is no longer forced to open with "order N" (the order
 number is where the Coordinator's sentences have it); it sees only the facts the decision needs (writer_facts); it gets a
 "write in <language>" line for a client who does not write English; and layer3_pending has its own guide.
+
+T14c: the off-topic redirect (both companies) is a fixed text, with no SLM call; Atlas declines get their own guide.
 """
 
 import json
@@ -103,6 +105,10 @@ OUTCOME_GUIDE = {
     # T14a: the Coordinator's answer is no; the reason is in must_say.
     "decline": "Tell the client the request cannot be done, with the exact reason given. Do not offer anything else, "
                "do not promise a refund or a later check.",
+    # T14c, Atlas: the same idea; the next step may say what is still possible (e.g. "a full refund or a new flight").
+    "decline_atlas": "Tell the client the request cannot be done, with the exact reason given. Offer nothing beyond "
+                     "the next step: do not promise compensation, a refund or a later check unless the next step "
+                     "says it.",
 }
 
 
@@ -183,6 +189,8 @@ def build_messages(decision: dict, history: list[dict] | None = None, problems: 
                "next_step": decision.get("next_step") or "", "must_say": decision.get("must_say") or []}
     guide_key = ("approve_subscribe" if decision.get("outcome") == "approve" and decision.get("action") == "subscribe"
                  else decision.get("outcome"))
+    if guide_key == "decline" and not is_shopnova(decision):
+        guide_key = "decline_atlas"   # T14c
     content = [OUTCOME_GUIDE.get(guide_key, OUTCOME_GUIDE["info"]),
                "What you may say (nothing else):\n" + json.dumps(allowed, ensure_ascii=False, indent=1),
                style_guide(decision.get("style"), order_first=not is_shopnova(decision),
@@ -445,6 +453,15 @@ def write_reply(decision: dict, history: list[dict] | None = None, chat_fn=None)
     chat = chat_fn or llm.chat
     start = time.perf_counter()
     problems = None
+
+    if templates.is_redirect(decision):
+        # T14c: the off-topic answer is a fixed text (the Coordinator's two sentences after a greeting), for both
+        # companies. No SLM call: the small model only changed its punctuation and then failed the check (T14b, ~11 s).
+        reply = polish(templates.render(decision), decision)
+        check = check_reply(reply, decision)
+        trace.log("slm_template", "slm", {"outcome": decision.get("outcome"), "reply": reply, "fixed_text": True, **check})
+        return {"reply": reply, "check": check, "attempts": 0, "used_template": True,
+                "seconds": round(time.perf_counter() - start, 3)}
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
         call_start = time.perf_counter()

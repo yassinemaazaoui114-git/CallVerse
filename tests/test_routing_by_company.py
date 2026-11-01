@@ -564,7 +564,10 @@ def test_a_rule_that_cannot_justify_the_action_is_sent_back():
 
 
 def test_a_rule_whose_condition_is_false_is_sent_back():
-    assert review("refund", "flight", 7007, "AT-FLT-01")["outcome"] == "send_back"
+    # T14c: under a refund request, 7007 (1 h late) is now DECLINED by code (AT-FLT-04), see tests/test_t14c.py.
+    # The send-back stays for a proposal that is not about the client's request.
+    case = {**case_for("flight", 7007), "main_reason": "compensation_request"}
+    assert gate.review(proposal("refund", "flight", 7007, "AT-FLT-01"), case)["outcome"] == "send_back"
 
 
 @pytest.mark.parametrize("rule_id", ["AT-FLT-05", "AT-FLT-06", "AT-REF-01", "AT-ESC-01", "AT-AST-01", "AT-HOT-05"])
@@ -645,9 +648,11 @@ def test_a_negative_word_inside_another_word_does_not_count(message):
 
 
 def test_only_the_quoted_sentence_counts():
-    case = {"main_reason": "refund_request", "user_message": "I do not like this hotel. Please refund me!"}
+    # T14c: the shared negation check (negation.py) only stops a NEGATED REQUEST, so the negative sentence of this
+    # test now says "do not want a refund" (before: "I do not like this hotel", any negative word stopped it).
+    case = {"main_reason": "refund_request", "user_message": "I do not want a refund for the hotel. Please refund me!"}
     assert gate.client_confirmed({"user_quote": "Please refund me"}, case)
-    assert not gate.client_confirmed({"user_quote": "I do not like this hotel"}, case)
+    assert not gate.client_confirmed({"user_quote": "I do not want a refund for the hotel"}, case)
 
 
 def test_a_quote_with_its_full_stop_stops_at_that_sentence():
@@ -656,8 +661,11 @@ def test_a_quote_with_its_full_stop_stops_at_that_sentence():
 
 
 def test_a_quote_over_two_sentences_keeps_both():
-    case = {"main_reason": "refund_request", "user_message": "Do not wait. Refund me now."}
-    assert not gate.client_confirmed({"user_quote": "wait. Refund me"}, case)
+    # T14c: "Do not wait. Refund me now." is a request (no negated action), so the test uses a negated refund.
+    case = {"main_reason": "cancellation", "user_message": "Do not refund me. Cancel my booking."}
+    assert not gate.client_confirmed({"user_quote": "me. Cancel my booking"}, case)
+    assert gate.client_confirmed({"user_quote": "wait. Refund me"},
+                                 {"main_reason": "refund_request", "user_message": "Do not wait. Refund me now."})
 
 
 @pytest.mark.parametrize("message_id, quote", [("a04", "My flight 7008 was cancelled, please refund me."),
@@ -720,7 +728,8 @@ def test_the_hint_only_names_real_actions_and_tools():
 
 
 def test_three_send_backs_become_escalate():
-    case = case_for("flight", 7007)
+    # T14c: a refund request on 7007 is now declined at once; a refund proposal under another request is sent back.
+    case = {**case_for("flight", 7007), "main_reason": "compensation_request"}
     outcomes = [gate.review(proposal("refund", "flight", 7007, "AT-FLT-01"), case)["outcome"] for _ in range(3)]
     assert outcomes == ["send_back", "send_back", "escalate"]
 
@@ -734,7 +743,8 @@ def test_a_proposal_is_decided_once():
 
 def test_a_fully_refunded_booking_gets_nothing_more():
     assert review("refund", "flight", 7008, "AT-FLT-01")["outcome"] == "approve"
-    assert review("refund", "flight", 7008, "AT-FLT-01")["outcome"] == "send_back"
+    again = review("refund", "flight", 7008, "AT-FLT-01")   # T14c: a decline by code (AT-REF-01), was a send-back
+    assert (again["outcome"], again["rule_id"]) == ("decline", "AT-REF-01")
     assert len(rows_for("refunds", 7008)) == 1
 
 
@@ -1172,7 +1182,11 @@ def test_channel_a02_compensation(queue):
 def test_channel_no_compensation_paths(queue, message_id, tool):
     booking = {"a05": 7008, "a06": 7007, "a07": 7006}[message_id]
     out, expect = run_flow(message_id, read_then_answer(tool, booking))
-    assert out["outcome"] == "info" and not rows_for("compensations", booking)
+    # T14c: the "no" now comes with its rule (decline by code); before T14c these were status ("info") answers.
+    rule = {"a05": "AT-FLT-06", "a06": "AT-FLT-03", "a07": "AT-FLT-06"}[message_id]
+    decision = next(s["data"] for s in reversed(store.steps(out["ticket_id"]))
+                    if s["data"].get("trace_step") == "coordinator_decision")
+    assert (out["outcome"], decision["rule_id"]) == ("decline", rule) and not rows_for("compensations", booking)
     assert not store.approvals("pending")
     assert not any(n in out["reply"] for n in ("839", "1,343", "2,014", "1343", "2014"))
 

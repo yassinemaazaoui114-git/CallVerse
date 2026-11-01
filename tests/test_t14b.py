@@ -321,10 +321,11 @@ def test_an_upset_status_reply_still_gets_its_calm_opener():
     assert render({**INFO, "style": UPSET}).startswith("I'm sorry for the trouble.")
 
 
-def test_atlas_off_topic_keeps_its_opener():
+def test_atlas_off_topic_has_no_opener_since_t14c():
+    # T14c (item 6): Atlas's redirect is the same fixed text as ShopNova's (no calm opener, no SLM call).
     from callverse.coordinator import atlas_coordinator
     decision = {**atlas_coordinator.off_topic_decision(), "style": UPSET, "company": "atlas"}
-    assert render(decision).startswith("I'm sorry for the trouble.")
+    assert render(decision).startswith("Hello, I can help with your Atlas Travel bookings")
 
 
 def test_shopnova_off_topic_template_reads_naturally():

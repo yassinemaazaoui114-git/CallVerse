@@ -55,16 +55,16 @@ def calm_opener(style: dict | None) -> str | None:
     return openers.get((style or {}).get("formality"), openers["neutral"])
 
 
-def is_shopnova_redirect(decision: dict) -> bool:
-    """The ShopNova off-topic answer (Atlas's redirect keeps today's reply)."""
-    return decision.get("action") == "redirect" and decision.get("company") in (None, companies.DEFAULT)
+def is_redirect(decision: dict) -> bool:
+    """The off-topic answer ("I can help with your ... orders / bookings"). T14b: ShopNova; T14c: Atlas too."""
+    return decision.get("action") == "redirect"
 
 
 def decision_opener(decision: dict) -> str | None:
     """The calm opener for THIS decision. T14b: none for the off-topic redirect: the client is not upset about an order,
     so "I'm sorry for the trouble." before "I can help with your ShopNova orders" would be odd. The scope sentence stands alone.
-    ShopNova only: Atlas's redirect keeps today's reply."""
-    if is_shopnova_redirect(decision):
+    T14c: the same for Atlas's redirect."""
+    if is_redirect(decision):
         return None
     return calm_opener(decision.get("style"))
 
@@ -76,11 +76,18 @@ def render(decision: dict) -> str:
     style = decision.get("style") or {}
     order = decision.get("order_id")
 
-    if is_shopnova_redirect(decision):
+    if is_redirect(decision):
         # T14b: the off-topic reply is the Coordinator's two sentences after a greeting; the generic "here is the latest
-        # information" opening and the next step BEFORE the sentence read oddly for it.
+        # information" opening and the next step BEFORE the sentence read oddly for it. T14c: both companies, and it is
+        # the reply itself (no SLM call, see writer.write_reply).
         said = [str(x).strip() for x in decision.get("must_say") or []] + [str(decision.get("next_step") or "").strip()]
         return f"{_greeting(style)}, {' '.join(x for x in said if x)}"
+    if outcome == "decline" and decision.get("company") not in (None, companies.DEFAULT):
+        # T14c, Atlas: the reason (must_say) first, then the next step ("You can still choose a full refund ...").
+        opener = decision_opener(decision)
+        first = f"{OPENING[outcome].capitalize()}{f' about your {case_word(decision)} {order}' if order is not None else ''}."
+        said = [str(x).strip() for x in decision.get("must_say") or []] + [str(decision.get("next_step") or "").strip()]
+        return " ".join([f"{opener} {first}" if opener else f"{_greeting(style)}, {first}"] + [x for x in said if x])
 
     about = f" about your {case_word(decision)} {order}" if order is not None else ""
     opener = decision_opener(decision)

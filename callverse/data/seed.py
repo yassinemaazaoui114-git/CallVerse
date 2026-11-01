@@ -144,7 +144,8 @@ CREATE TABLE proposals (               -- audit: every agent proposal and the Co
     decision        TEXT CHECK (decision IS NULL OR decision IN {_in(DECISIONS)}),  -- NULL = not decided yet
     decision_reason TEXT,
     created_at      TEXT NOT NULL,
-    decided_at      TEXT,{LABELS}
+    decided_at      TEXT,
+    proof_received  INTEGER NOT NULL DEFAULT 0 CHECK (proof_received IN (0, 1)),  -- T14c: R-DMG-01 photo seen{LABELS}
 );
 CREATE TABLE admin_actions (           -- T18: every change made by the ShopNova admin, with who, when, before / after
     id           INTEGER PRIMARY KEY,

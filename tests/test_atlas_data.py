@@ -73,7 +73,8 @@ def test_proposals_have_shopnova_columns_plus_the_code_confirmation():
     con = sqlite3.connect(":memory:")
     from callverse.data.seed import SCHEMA as SHOPNOVA_SCHEMA
     con.executescript(SHOPNOVA_SCHEMA)
-    shopnova = [r[1] for r in con.execute("PRAGMA table_info(proposals)")]
+    # T14c: proof_received (R-DMG-01, a damaged item's photo) is ShopNova's only: Atlas has no such rule.
+    shopnova = [r[1] for r in con.execute("PRAGMA table_info(proposals)") if r[1] != "proof_received"]
     con.close()
     added = [name for name, _ in schema.CONFIRMATION_COLUMNS]
     assert [r[1] for r in _q("PRAGMA table_info(proposals)")] == shopnova + added

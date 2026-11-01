@@ -28,14 +28,20 @@ Amounts by code, because an LLM can misread a number and a wrong amount is real 
 
 The outcomes are ShopNova's, and so is what the pipeline does with them. AT-FLT-05 (meals) and AT-FLT-06 are
 information only: they justify no action.
+
+T14c, declines by code (as ShopNova in T14a): decline_rule() reads Intake's main reason and the re-read booking and
+names the rule that says NO (AT-FLT-03/06/02/04, AT-HOT-03/02/05/01, AT-REF-01; first match wins, see its docstring).
+It runs in review() right after the facts are read (a proposal for a refused request gets "decline", not send-backs),
+and for a case without a proposal (decline_decision). The client gets the rule's reason in fixed sentences written
+here (decline_words); the reply writer only phrases them. An agent cannot invent a decline: it has no tool for it.
 """
 
-import re
 from datetime import date
 
 from callverse import companies, trace
 from callverse.config import load_config, sim_today
 from callverse.coordinator.coordinator import INTERNAL_OUTCOMES, RECORDED_AS, _check
+from callverse.coordinator.negation import negated_request
 from callverse.data.atlas import reads, writes
 from callverse.data.atlas.schema import BOOKING_TYPES
 from callverse.data.layer3 import atlas_layer3_decide, layer3_mode
@@ -63,12 +69,22 @@ FLIGHT_WORDS = {"scheduled": "is scheduled", "on_time": "was on time", "delayed"
 ESCALATE_SENTENCE = "Your request has been passed on to a colleague who will help you with it."
 
 CONFIRMING_REASONS = ("refund_request", "compensation_request", "cancellation")   # Intake reasons that ask for an action
-# A quoted sentence with one of these whole words is not a request: the client is asked first.
-NEGATIVE_WORDS = re.compile(r"\b(?:not|don't|dont|do not|never|no longer|doesn't|didn't)\b", re.IGNORECASE)
+# A quoted sentence that says the client does NOT want the action is not a request: the client is asked first.
+# T14c: the shared check of callverse/coordinator/negation.py (before: ANY negative word in the sentence blocked it,
+# even "my flight was not on time, I want compensation").
 SENTENCE_ENDS = ".!?\n"
 ACTION_WORDS = {"refund": "a refund", "compensation": "a compensation", "cancel_hotel": "a hotel cancellation"}
 ACTION_TOOLS = {"refund": "propose_refund", "compensation": "propose_compensation",
                 "cancel_hotel": "propose_hotel_cancellation"}
+
+# T14c declines: the limits written in the rules' texts (a test checks each one against policies_atlas.json).
+COMPENSATION_DELAY_MIN = 180   # AT-FLT-03: "arrives 3 hours or more late"
+REFUND_DELAY_MIN = 300         # AT-FLT-04: "leaves 5 hours or more late"
+EARLY_NOTICE_DAYS = 14         # AT-FLT-02: "told 14 days or more before departure"
+FLOWN = ("on_time", "delayed")   # flight statuses of a flight that has left (AT-FLT-03 / 04 talk about those)
+EXTRAORDINARY_CAUSES = {"weather": "the weather", "air_system": "air traffic control", "security": "a security problem"}
+# Main reason -> the action a decline is about. A cancellation of a booking that is no longer confirmed asks for money.
+DECLINE_ACTIONS = {"compensation_request": "compensation", "refund_request": "refund", "cancellation": "refund"}
 
 
 def _rule(rule_id) -> dict | None:
@@ -125,6 +141,158 @@ def read_facts(booking_type: str, booking_id: int) -> dict | None:
     return {**booking, "booking_type": booking_type, "booking_id": booking_id,
             "rules_paid": [r["rule_id"] for r in refunds if r["status"] in ("approved", "completed")],
             "compensated": reads.get_compensations(booking_type, booking_id)["compensated_total"] > 0}
+
+
+# ---------- T14c: declines by code ----------
+
+def fully_refunded(facts: dict) -> bool:
+    """Something was paid and all of it was already given back (AT-REF-01 leaves nothing to refund)."""
+    return facts["paid_tnd"] > 0 and facts["refunded_total"] >= facts["paid_tnd"]
+
+
+def _flight_decline(main_reason, facts: dict) -> str | None:
+    """The rule that says no to this flight request, or None. Each case is the rule's own text (policies_atlas.json)."""
+    cancelled = facts.get("cancelled") == 1
+    has_left = facts.get("flight_status") in FLOWN and not cancelled
+    if main_reason == "compensation_request":
+        # AT-FLT-03 pays from 3 hours late AT ARRIVAL (its text and its condition read arrival_delay_min).
+        if has_left and (facts["flight_status"] == "on_time"
+                         or (facts.get("arrival_delay_min") or 0) < COMPENSATION_DELAY_MIN):
+            return "AT-FLT-03"
+        if check_condition(_rule("AT-FLT-06")["condition"], facts):            # weather, air system, security
+            return "AT-FLT-06"
+        if cancelled and (facts.get("notice_days") or 0) >= EARLY_NOTICE_DAYS:  # told 14 days or more before
+            return "AT-FLT-02"
+    if main_reason == "refund_request":
+        if has_left and (facts.get("departure_delay_min") or 0) < REFUND_DELAY_MIN:   # AT-FLT-04: 5 h at departure
+            return "AT-FLT-04"
+        if fully_refunded(facts):
+            return "AT-REF-01"
+    return None
+
+
+def _hotel_decline(main_reason, facts: dict) -> str | None:
+    """The rule that says no to money back on this hotel booking, or None. A cancellation of a booking that is still
+    confirmed is a real cancellation (propose_hotel_cancellation, T21), never declined here."""
+    asks_money = main_reason == "refund_request" or (main_reason == "cancellation" and facts["status"] != "confirmed")
+    if not asks_money:
+        return None
+    deposit, status = facts["deposit_type"], facts["status"]
+    if deposit == "non_refundable" and status in ("cancelled", "confirmed"):   # "not refunded after cancelling"
+        return "AT-HOT-03"
+    if deposit == "refundable" and status == "cancelled" and (facts.get("days_before_arrival") or 0) < FREE_CANCEL_DAYS:
+        return "AT-HOT-02"
+    if status == "no_show":
+        return "AT-HOT-05"
+    if fully_refunded(facts):
+        return "AT-REF-01"
+    if deposit == "no_deposit":                                                # paid at the hotel: nothing to refund
+        return "AT-HOT-01"
+    return None
+
+
+def decline_rule(main_reason, facts: dict | None) -> str | None:
+    """T14c: the rule that says NO to the client's request, from Intake's main reason and the facts read here (never
+    from the agent). First match wins, in the order of the T14c table:
+      flight, compensation: arrived < 3 h late or on time -> AT-FLT-03; extraordinary cause -> AT-FLT-06;
+                            cancelled with >= 14 days notice -> AT-FLT-02
+      flight, refund:       left < 5 h late (not cancelled) -> AT-FLT-04; already fully refunded -> AT-REF-01
+      hotel, money back:    non-refundable -> AT-HOT-03; refundable cancelled < 2 days before arrival -> AT-HOT-02;
+                            no-show -> AT-HOT-05; already fully refunded -> AT-REF-01; no deposit -> AT-HOT-01
+    None = no rule says no (the request goes on as before)."""
+    if not facts or main_reason not in DECLINE_ACTIONS:
+        return None
+    if facts["booking_type"] == "flight":
+        return _flight_decline(main_reason, facts)
+    return _hotel_decline(main_reason, facts)
+
+
+def _duration(minutes) -> str:
+    """60 -> "1 hour", 150 -> "2 hours 30 minutes", 45 -> "45 minutes"."""
+    hours, mins = divmod(int(minutes), 60)
+    parts = ([f"{hours} hour{'s' if hours != 1 else ''}"] if hours else []) + ([f"{mins} minutes"] if mins else [])
+    return " ".join(parts)
+
+
+def _when_cancelled(days) -> str:
+    """How long before arrival a hotel booking was cancelled, said without "0 days"."""
+    if days is None or days < 0:
+        return "after the arrival date"
+    return {0: "on the day of arrival", 1: "1 day before arrival"}.get(days, f"{days} days before arrival")
+
+
+def decline_words(rule_id, facts: dict, booking_id) -> tuple[list[str], str]:
+    """(must_say, next_step) of an Atlas decline: the rule and the reason, from the facts read here. One item per
+    sentence (the reply writer removes a sentence that only repeats a part of a longer must_say item)."""
+    flight = f"The flight of booking {booking_id}"
+    if rule_id == "AT-FLT-03":
+        delay = facts.get("arrival_delay_min") or 0
+        how = "arrived on time" if facts.get("flight_status") == "on_time" or delay <= 0 else \
+            f"arrived {_duration(delay)} late"
+        return ["Compensation is paid when a flight arrives 3 hours or more late.",
+                f"{flight} {how}, so no compensation is due."], ""
+    if rule_id == "AT-FLT-06":
+        cancelled = facts.get("cancelled") == 1
+        cause = facts.get("cancellation_reason") if cancelled else facts.get("main_delay_cause")
+        must = [f"{flight} was {'cancelled' if cancelled else 'delayed'} because of "
+                f"{EXTRAORDINARY_CAUSES.get(cause, 'an extraordinary cause')}.",
+                "This is an extraordinary cause, so no compensation is paid."]
+        if cancelled:
+            return must, "You can still choose a full refund or a new flight."
+        if (facts.get("departure_delay_min") or 0) >= REFUND_DELAY_MIN:
+            return must, "You can still cancel the trip and get a full refund."
+        return must, ""
+    if rule_id == "AT-FLT-02":
+        return [f"The cancellation of the flight of booking {booking_id} was announced {facts.get('notice_days')} days "
+                "before departure.",
+                "Compensation is not paid when a cancellation is announced 14 days or more before departure."], \
+            "You can still choose a full refund or a new flight."
+    if rule_id == "AT-FLT-04":
+        delay = facts.get("departure_delay_min") or 0
+        how = "left on time" if facts.get("flight_status") == "on_time" or delay <= 0 else \
+            f"left {_duration(delay)} late"
+        return ["A full refund is possible when a flight leaves 5 hours or more late.",
+                f"{flight} {how}, so it cannot be refunded."], ""
+    if rule_id == "AT-HOT-03":
+        return [f"Hotel booking {booking_id} is non-refundable, so it is not refunded after cancelling."], ""
+    if rule_id == "AT-HOT-02":
+        return ["With a refundable deposit, a full refund is possible when the booking is cancelled at least "
+                f"{FREE_CANCEL_DAYS} days before arrival.",
+                f"Hotel booking {booking_id} was cancelled {_when_cancelled(facts.get('days_before_arrival'))}, "
+                "so there is no refund."], ""
+    if rule_id == "AT-HOT-05":
+        return [f"Hotel booking {booking_id} is marked as a no-show.",
+                "A client who does not arrive at the hotel gets no refund."], ""
+    if rule_id == "AT-REF-01":
+        return [f"Booking {booking_id} has already been fully refunded ({facts['refunded_total']:.2f} TND), "
+                "so no further refund is possible."], ""
+    # AT-HOT-01
+    return [f"Hotel booking {booking_id} had no deposit: nothing was paid in advance, so there is nothing to refund."], ""
+
+
+def decline_facts(rule_id, facts: dict) -> dict:
+    """The facts a decline reply may use: the status words, and the one number its sentences say."""
+    out = {"booking_status": facts.get("status"), "flight_status": facts.get("flight_status")}
+    if rule_id == "AT-REF-01":
+        out["refunded_tnd"] = round(float(facts["refunded_total"]), 2)
+    return {k: v for k, v in out.items() if v is not None}
+
+
+def decline_decision(booking_id, main_reason) -> dict | None:
+    """T14c: a case WITHOUT a proposal whose request a rule refuses -> a "decline" decision with the reason. None =
+    no rule says no (the caller gives the status, as before)."""
+    booking = reads.find_booking(booking_id) if booking_id is not None else None
+    if not booking or "error" in booking:
+        return None
+    facts = read_facts(booking["booking_type"], booking_id)
+    rule_id = decline_rule(main_reason, facts)
+    if rule_id is None:
+        return None
+    must_say, next_step = decline_words(rule_id, facts, booking_id)
+    decision = _decision("decline", DECLINE_ACTIONS[main_reason], booking_id, booking["booking_type"], rule_id,
+                         decline_facts(rule_id, facts), must_say, next_step, f"no proposal: {rule_id} says no", None)
+    trace.log("coordinator_decision", "coordinator", {**decision, "checked_facts": facts})
+    return decision
 
 
 def _cancel_problem(rule_id: str, facts: dict) -> str | None:
@@ -209,7 +377,7 @@ def confirmation(proposal: dict, case: dict) -> tuple[bool, str]:
     sentence = quoted_sentence(quote.strip().lower(), (case.get("user_message") or "").lower())
     if sentence is None:
         return False, "quote not in the message"
-    if NEGATIVE_WORDS.search(sentence.replace("’", "'")):
+    if negated_request(sentence):
         return False, "negative sentence"
     return True, f"{reason.replace('_', ' ')} + quote found"
 
@@ -348,7 +516,9 @@ def said_to_user(ticket: dict, decision: dict | None) -> dict:
         return for_user(decision)
     if ticket.get("main_reason") == "other" and ticket.get("order_id") is None:
         return off_topic_decision()
-    return info_decision(ticket.get("order_id"), ticket.get("main_reason"))
+    # T14c: a rule may say no (decline, with the reason); otherwise the status, as before.
+    return (decline_decision(ticket.get("order_id"), ticket.get("main_reason"))
+            or info_decision(ticket.get("order_id"), ticket.get("main_reason")))
 
 
 def review(proposal: dict, case: dict) -> dict:
@@ -389,6 +559,19 @@ def review(proposal: dict, case: dict) -> dict:
     # 2. Facts re-read from the data.
     facts = read
     _check("facts_from_data", True, None, facts, f"agent claimed: {proposal.get('facts_used')}")
+
+    # 2b. T14c: a rule refuses the client's request (Intake's reason + these facts): a final no with the reason,
+    # not a send-back the agent would try to correct. Only when the proposal is about that request (a compensation
+    # for a compensation request; a refund or hotel cancellation for money back); another action goes on as before.
+    # A cancellation of a still-confirmed hotel booking is a real cancellation (T21): it goes on (it may pay nothing).
+    asked = DECLINE_ACTIONS.get(case.get("main_reason"))
+    real_cancellation = action == "cancel_hotel" and facts.get("status") == "confirmed"
+    refusing = (decline_rule(case.get("main_reason"), facts)
+                if money_action(action) == asked and not real_cancellation else None)
+    if not _check("no_rule_says_no", refusing is None, refusing, {"main_reason": case.get("main_reason")},
+                  "decline cases of the T14c table"):
+        return _finish("decline", case, proposal_id, DECLINE_ACTIONS[case["main_reason"]], booking_id, booking_type,
+                       refusing, facts, f"{refusing}: the rule says no to this {case['main_reason'].replace('_', ' ')}")
 
     # 3. The cited rule: exists, may justify this action, its condition holds.
     rule = _rule(rule_id)
@@ -487,8 +670,12 @@ def _finish(outcome, case, proposal_id, action, booking_id, booking_type, rule_i
         elif action == "cancel_hotel":
             facts["status"] = "cancelled"
 
-    said = reply_facts(facts, action)
-    must_say, next_step = user_words(outcome, action, rule_id, said, booking_id)
+    if outcome == "decline":   # T14c: the reason's sentences need the full facts (delays, notice, cause)
+        said = decline_facts(rule_id, facts)
+        must_say, next_step = decline_words(rule_id, facts, booking_id)
+    else:
+        said = reply_facts(facts, action)
+        must_say, next_step = user_words(outcome, action, rule_id, said, booking_id)
     decision = _decision(outcome, action, booking_id, booking_type, rule_id, said, must_say, next_step, reason,
                          proposal_id)
     trace.log("coordinator_decision", "coordinator", {**decision, "checked_facts": facts, "case": _plain(case)})
