@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Status | READY |
-| Task file | tasks/RL1_style_aware_writer.md (writer obeys a reply style: short / apology_first / apology_next_step; default unchanged; local SLM only, no Groq; builds the team rating sheet: 30 real situations × 3 styles) |
-| Approved by | Yassine — 2026-11-01 16:21 (A1 + B3) |
-| Paused | T14d (tasks/T14d_request_action_match.md, branch feat/t14d-request-match): items 0–4 done, items 5–6 (live) on Monday. RL1's last step puts NEXT.md back to T14d IN PROGRESS. |
-| Last done | F1c — agent F merged into main (review/agent-f, scikit-learn pinned) |
+| Status | IN PROGRESS |
+| Task file | tasks/T14d_request_action_match.md (a write must match what the user asked: money words are not an order cancellation, Atlas ticket refund needs a money-back request, wrong-write check counts order status, "not refunded yet" = complaint; 12 new held-out real tweets) |
+| Approved by | Yassine — 2026-11-01 13:33 (B1 + C1–C3) |
+| Progress | items 0–4 done (tasks/T14d_progress.md); items 5–6 (live) on Monday |
+| Last done | RL1 — reply styles + rating sheet on feature/rl1-styles (tasks/RL1_report.md), WAITING FOR REVIEW by the Brain; no merge |
 
 Next after T14d: RL1 review → step 09 → agent C → agent D.
 
