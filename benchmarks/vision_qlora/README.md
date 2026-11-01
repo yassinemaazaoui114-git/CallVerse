@@ -18,7 +18,7 @@ notebook that measures the original Qwen3-VL-2B and fine-tunes it (QLoRA) to ans
 | `cv_vision_lib.py` | prompts, JSON parser, label masking, metrics (bootstrap 95 % intervals), training loop |
 | `make_notebook.py` | writes the notebook from the 3 files above (keeps them in sync; a test checks it) |
 | `CallVerse_Qwen3VL_QLoRA_Training.ipynb` | **the Kaggle notebook** (self-contained) |
-| `local_smoke_test.py` | CPU check of the training code with the real model weights (no GPU) |
+| `cpu_smoke_check.py` | CPU check of the training code with the real model weights (no GPU) |
 | `DATASET_PROVENANCE.md` | sources, licences, real/synthetic counts, what was rejected and why |
 
 ## Run on Kaggle (the only manual step)
@@ -63,7 +63,7 @@ duplicates, 0 near-duplicate pairs at dHash ≤ 6 (closest cross-split pair: dis
 doubt. No intent, emotion, order, booking, payment or decision field exists, so the model cannot output one.
 
 ## What was checked here, and what was not
-- Checked on CPU with the real Qwen3-VL-2B weights (`local_smoke_test.py`): LoRA only on the language model
+- Checked on CPU with the real Qwen3-VL-2B weights (`cpu_smoke_check.py`): LoRA only on the language model
   (17.4 M parameters, 0 in the vision encoder); only the answer tokens carry loss; LoRA gets gradients; loss
   drops on a repeated example; loss is higher with swapped photos (the image is really used); generation + parser.
 - Checked on CPU: the whole notebook (all 10 cells) in a dry run with fp32, no 4-bit, tiny subsets.

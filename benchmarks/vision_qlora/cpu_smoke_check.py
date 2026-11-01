@@ -1,6 +1,6 @@
 """Manual CPU check of the training code with the REAL Qwen3-VL-2B weights (no GPU, no 4-bit).
 
-Run:  python local_smoke_test.py --model <folder or Qwen/Qwen3-VL-2B-Instruct> --data <built dataset folder>
+Run:  python cpu_smoke_check.py --model <folder or Qwen/Qwen3-VL-2B-Instruct> --data <built dataset folder>
 It proves on 3 photos that: LoRA sits only on the language model, only answer tokens carry loss, the LoRA
 weights get non-zero gradients, the loss falls after a few steps, the loss rises when the photos are swapped
 (the model really reads the image), and generation + JSON parsing run. It is NOT a GPU or 4-bit test.

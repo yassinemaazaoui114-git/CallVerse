@@ -283,7 +283,7 @@ gsum = sum(float(p.grad.abs().sum()) for n, p in model.named_parameters() if p.r
 model.zero_grad(set_to_none=True)
 assert np.isfinite(gsum) and gsum > 0, "no gradient reached the LoRA weights"
 probe_rows = split["val"][:8]
-CHECK = {"image_tokens_example": n_img, "answer_tokens_example": n_ans, "first_loss": float(loss0), "grad_abs_sum": gsum,
+CHECK = {"image_tokens_example": n_img, "answer_tokens_example": n_ans, "first_loss": loss0.item(), "grad_abs_sum": gsum,
          "val8_loss_true_images_before": L.eval_loss(model, processor, probe_rows, L.PROMPT_IMPROVED),
          "val8_loss_swapped_images_before": L.eval_loss(model, processor, probe_rows, L.PROMPT_IMPROVED, shuffle_images=True)}
 print(json.dumps(CHECK, indent=1))
