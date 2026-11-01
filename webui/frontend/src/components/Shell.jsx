@@ -1,14 +1,37 @@
-// The app shell: skip link, top bar (logo, compact navigation, who is logged in, log out) and the content area.
-import { useState } from "react";
+// The app shell: skip link, top bar (brand, compact navigation, who is logged in, log out) and the content
+// area. One shell for every area; `area` picks the brand, the menu and the theme (data-theme on <html>):
+//   console  = the CallVerse Console (dark control room, supervisor)
+//   shopnova = the ShopNova customer site (light, coral accent)
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth.jsx";
 import Icon from "./Icon.jsx";
 
-export default function Shell() {
+export const AREAS = {
+  console: {
+    theme: "console", home: "/tickets", brand: ["CallVerse ", "Console"],
+    nav: [{ to: "/tickets", label: "Live tickets", icon: "radio" }],
+  },
+  shopnova: {
+    theme: "shopnova", home: "/shop/orders", brand: ["Shop", "Nova"],
+    nav: [{ to: "/shop/orders", label: "My orders", icon: "bag" }],
+  },
+  none: { theme: "console", home: "/workspace", brand: ["Call", "Verse"], nav: [] },
+};
+
+export default function Shell({ area = "console" }) {
   const { session, logout } = useAuth();
   const navigate = useNavigate();
   const [logoutError, setLogoutError] = useState(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const cfg = AREAS[area] || AREAS.console;   // a fixed object per area, so the effect below runs once per area
+
+  // The theme lives on <html> so the page background and the scrollbars follow it too.
+  useEffect(() => {
+    document.documentElement.dataset.theme = cfg.theme;
+    document.title = cfg.brand.join("");
+    return () => { delete document.documentElement.dataset.theme; };
+  }, [cfg.theme, cfg.brand]);
 
   // Logout: the user stays logged in (and on this page) until the server confirmed the session is gone.
   async function onLogout() {
@@ -29,10 +52,14 @@ export default function Shell() {
       <a href="#main" className="skip-link">Skip to content</a>
       <header className="topbar">
         <div className="topbar-inner">
-          <NavLink to="/tickets" className="logo">CallVerse <span>Console</span></NavLink>
-          <nav className="nav" aria-label="Console">
-            <NavLink to="/tickets" aria-label="Live tickets"><Icon name="radio" size={16} /><span className="label">Live tickets</span></NavLink>
-          </nav>
+          <NavLink to={cfg.home} className="logo">{cfg.brand[0]}<span>{cfg.brand[1]}</span></NavLink>
+          {cfg.nav.length > 0 && (
+            <nav className="nav" aria-label={cfg.brand.join("")}>
+              {cfg.nav.map((n) => (
+                <NavLink key={n.to} to={n.to} aria-label={n.label}><Icon name={n.icon} size={16} /><span className="label">{n.label}</span></NavLink>
+              ))}
+            </nav>
+          )}
           <div className="who">
             {session && (
               <span className="name">

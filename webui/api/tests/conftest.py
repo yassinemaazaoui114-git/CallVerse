@@ -63,6 +63,17 @@ def isolated_env(tmp_path, monkeypatch):
 
 
 @pytest.fixture
+def shop_db(isolated_env):
+    """A seeded TEMPORARY shopnova.db (the sample orders, scripted orders 4505-4515) for the customer routes.
+    Seeded here on purpose: callverse.data.db.connect() would otherwise seed a missing file on the first read."""
+    from callverse.data.seed import seed
+    path = isolated_env / "shopnova_test.db"
+    seed(path)
+    shopnova_db.use_db(path)
+    return path
+
+
+@pytest.fixture
 def client():
     """A fresh app and session store per test (everyone starts logged out)."""
     app = create_app(auth.SessionStore())

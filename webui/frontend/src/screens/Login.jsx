@@ -6,6 +6,7 @@ import { useAuth } from "../auth.jsx";
 import { ApiError } from "../api.js";
 import Icon from "../components/Icon.jsx";
 import { Loading } from "../components/States.jsx";
+import { homeFor } from "../hooks.js";
 
 export default function Login() {
   const { session, status, notice, login, setNotice, refresh } = useAuth();
@@ -21,15 +22,15 @@ export default function Login() {
   useEffect(() => { if (error && errorRef.current) errorRef.current.focus(); }, [error]);
 
   if (status === "loading") return <Loading text="Checking your session…" />;
-  if (session) return <Navigate to={(location.state && location.state.from) || "/tickets"} replace />;
+  if (session) return <Navigate to={(location.state && location.state.from) || homeFor(session)} replace />;
 
   async function onSubmit(e) {
     e.preventDefault();
     setBusy(true);
     setError(null);
     try {
-      await login(username.trim(), password);
-      navigate((location.state && location.state.from) || "/tickets", { replace: true });
+      const who = await login(username.trim(), password);
+      navigate((location.state && location.state.from) || homeFor(who), { replace: true });
     } catch (err) {
       if (err instanceof ApiError && err.code === "bad_login") setError("Wrong username or password.");
       else if (err instanceof ApiError && err.code === "unavailable") setError("The CallVerse API is not reachable. Start it, then try again.");
@@ -45,7 +46,7 @@ export default function Login() {
       <div className="panel login-card">
         <div>
           <div className="logo">CallVerse <span>Console</span></div>
-          <p className="muted small">The center's control room · read only · supervisor login</p>
+          <p className="muted small">Log in with your CallVerse account: ShopNova customers see their orders, the supervisor the Console.</p>
         </div>
         {status === "unavailable" && (
           <div className="alert alert-danger" role="alert">

@@ -1,14 +1,16 @@
 # CallVerse web UI (React + FastAPI) — `webui/`
 
 The new UI that will replace the three Streamlit apps (brief: `docs/UI_replacement_brief.md`). It is built in
-steps; this folder holds **step 1**: the API skeleton, login, `GET /company`, and the supervisor's Console
-**Live tickets** and **Ticket detail** screens (read only, no model, no chat).
+steps. So far: **step 1** = the API skeleton, login, `GET /company`, the supervisor's Console **Live tickets**
+and **Ticket detail**; **step 2** = the ShopNova customer's **My orders**, **Order detail** and **Ask about this
+order** (chat context only; the chat itself is step 3). Read only, no model, no chat.
 
 ```
 webui/
   api/            FastAPI: a thin layer over callverse/ functions (no business logic here)
     app.py        the routes            settings.py   ports, cookie, env overrides
     auth.py       login + sessions      console_reads.py  wrappers around callverse.console.reads
+                                        shop_reads.py     wrappers around callverse.data.shop_reads + read tools
     run.py        start the API         dev_fixture.py    temp accounts + example tickets for a demo
     tests/        pytest (one test per route + security rules)
   frontend/       React 18 + Vite 5 (JavaScript): src/screens, src/components, src/styles (design tokens)
@@ -61,7 +63,8 @@ Frontend dev server (127.0.0.1:5173; it proxies `/api` to the API, so the browse
 npm --prefix webui/frontend run dev
 ```
 
-Open <http://127.0.0.1:5173> and log in as `supervisor`. Any other role can log in but sees "Supervisor only".
+Open <http://127.0.0.1:5173> and log in. `supervisor` lands in the Console; a ShopNova customer (`sara` …
+`leila`) in My orders; any other account on a page saying its screens are not built yet.
 
 Production-style build (static files in `webui/frontend/dist`, served later in front of the API):
 
@@ -98,10 +101,12 @@ model library or Streamlit is imported. The existing Console tests still pass: `
 | `GET /api/console/tickets?company=&status=&priority=&agent=` | supervisor | the Live tickets rows (`reads.live_tickets`) + `has_tickets` |
 | `GET /api/console/tickets/filters` | supervisor | the values of the four filters (`reads.filter_values`) |
 | `GET /api/console/tickets/{id}` | supervisor | one ticket: conversation, per-message steps (plain words + raw data), decision, approvals |
+| `GET /api/shop/orders` | ShopNova customer | the customer's own orders (summaries, newest first) + `sim_today` |
+| `GET /api/shop/orders/{id}` | ShopNova customer | one OWNED order: `order` (lines, refunds), `tracking`, `refunds`; missing or someone else's → the same 404 |
 | `GET /api/health` | anyone | `{ok: true}` |
 
 Errors always look like `{"error": "<code>", "message": "<words>"}` (`not_logged_in` 401, `forbidden` 403,
-`csrf` 403, `bad_login` 401, `no_accounts` 503, `not_found` 404).
+`csrf` 403, `customer_only` 403, `bad_login` 401, `no_accounts` 503, `not_found` 404).
 
 Security: the session is a random token kept in memory on the server; the browser only holds it in an
 `HttpOnly; SameSite=Strict` cookie scoped to `/api`. Every `POST` must send `X-Requested-With: CallVerse` (no
@@ -111,7 +116,9 @@ request through `callverse.auth.accounts.check_role`, never from the browser. Th
 
 ## Design
 
-Tokens in `frontend/src/styles/tokens.css` (background `#0B1220`, panels `#152033`, text `#E2E8F0`, muted
+Two themes on the same components: the Console (dark, `tokens.css`) and ShopNova (light, paper `#FBF7F2`,
+navy `#1F2A44` text and primary buttons, coral `#FF6B4A` accent; `styles/themes.css`, switched by
+`data-theme` on `<html>` per area). Tokens in `frontend/src/styles/tokens.css` (background `#0B1220`, panels `#152033`, text `#E2E8F0`, muted
 `#94A3B8`, primary `#2DD4BF` with `#0B1220` text; Open Sans body 16 px, Poppins 600 headings 24–28 px, tables
 14 px; 4/8 px spacing; 8 px controls, 12 px panels). Components use only these variables. SVG icons in
 `components/Icon.jsx`, visible focus rings, `prefers-reduced-motion` honoured, phone layout from 375 px.

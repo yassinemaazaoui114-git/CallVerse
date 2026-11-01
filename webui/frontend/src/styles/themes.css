@@ -1,0 +1,63 @@
+/* Area themes. tokens.css holds the Console (dark) values as the default; the ShopNova customer site redefines
+   the COLOUR tokens only (type, spacing, radii and motion are shared), so every component looks right in both. */
+:root[data-theme="shopnova"] {
+  color-scheme: light;
+  --cv-bg: #fbf7f2;            /* warm paper */
+  --cv-panel: #ffffff;
+  --cv-panel-2: #f3eee7;
+  --cv-border: #e6ded3;
+  --cv-text: #1f2a44;          /* navy: text and primary buttons */
+  --cv-muted: #5b6478;         /* 5.9:1 on white */
+  --cv-primary: #1f2a44;       /* primary action: navy with white text */
+  --cv-on-primary: #ffffff;
+  --cv-primary-soft: #fde4dd;  /* badge: coral tint */
+  --cv-primary-text: #9a2e14;  /* badge text on the tint (5.5:1) */
+  --cv-accent: #ff6b4a;        /* coral: brand accent (logo, active nav, highlights) */
+  --cv-ok: #15803d;
+  --cv-warn: #a16207;
+  --cv-danger: #b42318;
+  --cv-danger-soft: #fde8e6;
+  --cv-info-soft: #eef2f8;
+  --cv-ok-soft: #dcfce7;
+  --cv-warn-soft: #fef3c7;
+}
+:root[data-theme="shopnova"] html, :root[data-theme="shopnova"] body { background: var(--cv-bg); }
+:root[data-theme="shopnova"] .logo span { color: var(--cv-accent); }
+:root[data-theme="shopnova"] .nav a[aria-current="page"] { background: var(--cv-primary-soft); color: var(--cv-primary-text); }
+:root[data-theme="shopnova"] :focus-visible { outline-color: var(--cv-accent); }
+:root[data-theme="shopnova"] a:not(.btn) { color: var(--cv-text); }
+:root[data-theme="shopnova"] .badge-ok { background: var(--cv-ok-soft); color: var(--cv-ok); }
+:root[data-theme="shopnova"] .badge-warn { background: var(--cv-warn-soft); color: var(--cv-warn); }
+:root[data-theme="shopnova"] .badge-danger { background: var(--cv-danger-soft); color: var(--cv-danger); }
+:root[data-theme="shopnova"] .badge-neutral { background: var(--cv-info-soft); color: var(--cv-text); }
+:root[data-theme="shopnova"] .btn-primary:hover { filter: brightness(1.15); }
+:root[data-theme="shopnova"] .accent { color: var(--cv-accent); }
+
+/* ---------- ShopNova screens ---------- */
+.orders { display: grid; gap: var(--cv-s3); grid-template-columns: 1fr; }
+@media (min-width: 768px) { .orders { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1200px) { .orders { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.order-card { display: flex; flex-direction: column; gap: var(--cv-s2); }
+.order-card .head { display: flex; align-items: center; justify-content: space-between; gap: var(--cv-s2); flex-wrap: wrap; }
+.order-card .head a { font-family: var(--cv-font-heading); font-weight: 600; font-size: var(--cv-text-lg); text-decoration: none; display: inline-flex; align-items: center; gap: var(--cv-s1); }
+.order-card .head a:hover { text-decoration: underline; }
+.order-card .items { color: var(--cv-muted); font-size: var(--cv-text-sm); overflow-wrap: anywhere; }
+.order-card .foot { display: flex; justify-content: space-between; align-items: center; gap: var(--cv-s2); flex-wrap: wrap; margin-top: auto; }
+.order-card .amount { font-family: var(--cv-font-heading); font-weight: 600; }
+
+.progress { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--cv-s2); }
+.progress li { display: grid; grid-template-columns: 28px 1fr; gap: var(--cv-s2); align-items: start; font-size: var(--cv-text-sm); }
+.progress .mark { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--cv-border); color: var(--cv-muted); background: var(--cv-panel); }
+.progress li.done .mark { border-color: var(--cv-ok); color: var(--cv-ok); }
+.progress li.now .mark { border-color: var(--cv-accent, var(--cv-primary)); color: var(--cv-accent, var(--cv-primary)); }
+.progress li.now .t { font-weight: 600; }
+.progress .d { color: var(--cv-muted); }
+
+.lines { width: 100%; border-collapse: collapse; font-size: var(--cv-text-sm); }
+.lines th, .lines td { text-align: left; padding: var(--cv-s2) var(--cv-s2); border-bottom: 1px solid var(--cv-border); vertical-align: top; }
+.lines th { color: var(--cv-muted); font-size: var(--cv-text-xs); text-transform: uppercase; letter-spacing: 0.04em; }
+.lines td.num, .lines th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lines tfoot td { font-weight: 600; border-bottom: 0; }
+
+.ask-box { border: 2px dashed var(--cv-border); border-radius: var(--cv-radius-panel); padding: var(--cv-s4); display: grid; gap: var(--cv-s3); }
+.ask-box textarea { min-height: 96px; resize: vertical; padding: var(--cv-s2) var(--cv-s3); }

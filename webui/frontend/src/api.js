@@ -64,4 +64,6 @@ export const api = {
   tickets: (filters, signal) => request(`/api/console/tickets${query(filters)}`, { signal }),
   ticketFilters: (signal) => request("/api/console/tickets/filters", { signal }),
   ticket: (id, signal) => request(`/api/console/tickets/${encodeURIComponent(id)}`, { signal }),
+  orders: (signal) => request("/api/shop/orders", { signal }),
+  order: (id, signal) => request(`/api/shop/orders/${encodeURIComponent(id)}`, { signal }),
 };

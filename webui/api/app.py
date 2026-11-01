@@ -9,6 +9,9 @@ Routes (all under /api, JSON):
 - GET  /api/console/tickets          the Live tickets table (filters: company, status, priority, agent)  [supervisor]
 - GET  /api/console/tickets/filters  the values of the four filters                                       [supervisor]
 - GET  /api/console/tickets/{id}     one ticket with its conversation and the steps per message          [supervisor]
+- GET  /api/shop/orders              the logged-in ShopNova customer's own orders (step 2)                 [shopnova user]
+- GET  /api/shop/orders/{id}         one owned order with tracking and refunds; missing or another user's
+                                     order: the same 404                                                   [shopnova user]
 
 Protection: every route except login reads the session cookie; the Console routes need the supervisor role
 (checked on the server through callverse.auth.accounts, never trusted from the browser). POST routes need the
@@ -28,11 +31,12 @@ from callverse.config import PROJECT_ROOT
 from callverse.tickets import store
 from callverse.tools.shopnova_tools import get_company_profile   # the function behind the platform's GET /company
 
-from webui.api import auth, console_reads, settings
+from webui.api import auth, console_reads, settings, shop_reads
 
 ERRORS = {
     "not_logged_in": "Please log in to see this page.",
     "forbidden": "This page is for the CallVerse supervisor only.",
+    "customer_only": "This page is for ShopNova customers only.",
     "bad_login": "Wrong username or password.",
     "no_accounts": accounts.NO_ACCOUNTS_MESSAGE,
     "csrf": f"Missing {settings.CSRF_HEADER} header.",
@@ -85,6 +89,19 @@ def create_app(sessions: auth.SessionStore | None = None) -> FastAPI:
         found = auth.has_role(username, "supervisor")
         if found is None:
             raise ApiError(403, "forbidden")
+        return found
+
+    def shopnova_customer(request: Request) -> dict:
+        """The logged-in ShopNova CUSTOMER (role user, company shopnova, linked to a user id), or 401 / 403.
+        accounts.check_role refuses an Atlas account even with the same numeric user id, and any admin or
+        supervisor. The user id then comes from the accounts file, never from the request."""
+        username = current_username(request)
+        if username is None:
+            raise ApiError(401, "not_logged_in")
+        found = accounts.check_role({"authentication_status": True, "username": username}, "user",
+                                    companies.DEFAULT)
+        if found is None:
+            raise ApiError(403, "customer_only")
         return found
 
     def csrf_checked(request: Request) -> None:
@@ -155,6 +172,19 @@ def create_app(sessions: auth.SessionStore | None = None) -> FastAPI:
         if detail is None:
             raise ApiError(404, "not_found", f"Ticket {ticket_id} does not exist.")
         return detail
+
+    # ---------- ShopNova customer (own orders only, read only) ----------
+
+    @app.get("/api/shop/orders")
+    def shop_orders(customer: dict = Depends(shopnova_customer)):
+        return shop_reads.orders(customer["user_id"])
+
+    @app.get("/api/shop/orders/{order_id}")
+    def shop_order(order_id: int, customer: dict = Depends(shopnova_customer)):
+        found = shop_reads.order(customer["user_id"], order_id)
+        if found is None:   # missing or not this customer's: the same answer on purpose
+            raise ApiError(404, "not_found", f"Order {order_id} is not one of your orders.")
+        return found
 
     @app.get("/api/health")
     def health():
