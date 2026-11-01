@@ -1,0 +1,194 @@
+{
+ "_note": "T14c HELD-OUT set: run ONCE at the very end, never used to fix anything (CLAUDE.md rule 9). Same format and sources as the practice set; h06 and h07 are BRAIN-WRITTEN hotel messages. Do not open this file before the held-out step.",
+ "messages": [
+  {
+   "id": "h01",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2472636",
+   "company": "atlas",
+   "user_id": 3,
+   "booking_id": 7007,
+   "case": "comp_delay_under_3h",
+   "text": "how do i make a compensation claim for 3hr delays? Causing me to miss trains etc massive inconvenience Booking 7007.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-FLT-03",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "h02",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1050999",
+   "company": "atlas",
+   "user_id": 2,
+   "booking_id": 7006,
+   "case": "comp_air_system_delay",
+   "text": "all I can get is reservation phone line; trying to get 600 euro I am owed under EU law for delay/compensation for alt travel! Booking 7006.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-FLT-06",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "h03",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2126425",
+   "company": "atlas",
+   "user_id": 4,
+   "booking_id": 7008,
+   "case": "comp_weather_cancel",
+   "text": "Hey I've emailed a couple times about reimbursement (hotel stay) for the cancelled VS20 flight last week, not heard back just yet, easier to call? Booking 7008.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-FLT-06",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "h04",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2403301",
+   "company": "atlas",
+   "user_id": 4,
+   "booking_id": 7008,
+   "case": "refund_cancelled_positive_control",
+   "text": "tickets cancelled 15 days back, amount not refunded till date, tried reaching support team through chat, chat is not working Booking 7008.",
+   "expect": {
+    "outcome": "approve",
+    "refund_rows": 1,
+    "refund_amount": 690.0
+   }
+  },
+  {
+   "id": "h05",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "974224",
+   "company": "atlas",
+   "user_id": 3,
+   "booking_id": 7007,
+   "case": "refund_not_5h_late",
+   "text": "Hit by two cat 5 hurricanes in Caribbean. British Airways is not giving me a full refund when they said they would! Booking 7007.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-FLT-04",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "h06",
+   "source": "BRAIN-WRITTEN (no real hotel tweet in our candidates); to be replaced by a real one if step 1 finds one",
+   "tweet_id": null,
+   "company": "atlas",
+   "user_id": 1,
+   "booking_id": 7001,
+   "case": "hotel_no_deposit",
+   "text": "I cancelled booking 7001 before arrival and I want my deposit back.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-HOT-01",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   },
+   "brain_written": true
+  },
+  {
+   "id": "h07",
+   "source": "BRAIN-WRITTEN (no real hotel tweet in our candidates); to be replaced by a real one if step 1 finds one",
+   "tweet_id": null,
+   "company": "atlas",
+   "user_id": 2,
+   "booking_id": 7012,
+   "case": "hotel_cancel_non_refundable",
+   "text": "Please cancel my booking 7012. I know it is non-refundable.",
+   "expect": {
+    "outcome": "approve",
+    "booking_status_after": "cancelled",
+    "refund_rows": 0
+   },
+   "brain_written": true
+  },
+  {
+   "id": "h08",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1862630",
+   "company": "shopnova",
+   "user_id": 3,
+   "order_id": 4511,
+   "case": "cancel_option_not_showing",
+   "text": "im not able to cancel the order which i have placed on amazon app ..the 'cancel order 'option is not showing .. Order 4511.",
+   "expect": {
+    "outcome": "approve",
+    "rule_id": "R-CAN-01",
+    "order_status": "cancelled",
+    "refund_rows": 1,
+    "refund_amount": 54.4
+   }
+  },
+  {
+   "id": "h09",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2318184",
+   "company": "shopnova",
+   "user_id": 1,
+   "order_id": 4509,
+   "case": "damaged_repeated",
+   "text": "I purchased Two product in amazon in past last month and 4 TIMES the product is damaged in TRAINSIT.WIll AMAZON deliver my package this year or not? FED UP Order 4509.",
+   "expect": {
+    "outcome": "ask_proof",
+    "rule_id": "R-DMG-01",
+    "refund_rows": 0,
+    "order_status": "delivered"
+   }
+  },
+  {
+   "id": "h10",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "879150",
+   "company": "shopnova",
+   "user_id": 4,
+   "order_id": 4507,
+   "case": "broken_how_to_return",
+   "text": "I bought a mop from Tesco Direct a few weeks ago and it's broken how can I return it? Have recruit but not the box. Order 4507.",
+   "expect": {
+    "outcome": "ask_proof",
+    "rule_id": "R-DMG-01",
+    "refund_rows": 0,
+    "order_status": "delivered"
+   }
+  },
+  {
+   "id": "h11",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2612916",
+   "company": "shopnova",
+   "user_id": 2,
+   "order_id": 4510,
+   "case": "already_cancelled_says_user",
+   "text": "I cancelled my order this morning as you failed to deliver it twice yesterday. Why are you still trying to deliver it? Order 4510.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "shipped"
+   }
+  },
+  {
+   "id": "h12",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1126698",
+   "company": "shopnova",
+   "user_id": 5,
+   "order_id": 4514,
+   "case": "cancel_payment_not_order",
+   "text": "amount of $11 for Prime membership is appearing at my Visa statement. Since I didn't purchase from Amazon please cancel this payment Order 4514.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "processing"
+   }
+  }
+ ]
+}

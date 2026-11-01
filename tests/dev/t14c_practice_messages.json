@@ -1,0 +1,197 @@
+{
+ "_note": "T14c practice set: 12 messages, 10 REAL first tweets from TWCS (CC BY-NC-SA 4.0) chosen by the Brain from candidates.json (none used in earlier sets) + 1 BRAIN-WRITTEN hotel message (a07; no real hotel tweet in the candidates). Minimal adaptation: @handles/links removed, &amp; -> &, our booking/order number added or swapped in. 'expect' keys are read by the runner (company decides ShopNova or Atlas checks). Seeded clock 'today' = 2026-10-09. Do not edit the texts.",
+ "messages": [
+  {
+   "id": "a01",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2041812",
+   "company": "atlas",
+   "user_id": 3,
+   "booking_id": 7007,
+   "case": "comp_delay_under_3h",
+   "text": "Yet another delayed flight. Please can you send me the link or email for delay compensation. Booking 7007.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-FLT-03",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "a02",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1792579",
+   "company": "atlas",
+   "user_id": 4,
+   "booking_id": 7008,
+   "case": "comp_weather_cancel",
+   "text": "any compensation due to short notice ? (Less 24 hours) Booking 7008.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-FLT-06",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "a03",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1947667",
+   "company": "atlas",
+   "user_id": 2,
+   "booking_id": 7006,
+   "case": "comp_air_system_delay",
+   "text": "Apparently being delayed 3 & half hours doesn't entitle me to compensation - this is outrageous! Booking 7006.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-FLT-06",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "a04",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1629629",
+   "company": "atlas",
+   "user_id": 3,
+   "booking_id": 7007,
+   "case": "refund_not_5h_late",
+   "text": "hi I have booked flight to Penang on 9 Nov 2017, return trip 12 Nov 2017. Since there is serious flooding in Penang currently will appreciate full refund for the flights Booking 7007.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-FLT-04",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "a05",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "911170",
+   "company": "atlas",
+   "user_id": 4,
+   "booking_id": 7008,
+   "case": "negated_refund",
+   "text": "cxld confirmed May 2018 flights to Kos for my WEDDING. I should be rerouted NOT refunded. #customerservicesfail Booking 7008.",
+   "expect": {
+    "refund_rows": 0,
+    "compensation_rows": 0,
+    "approvals_pending": 0
+   }
+  },
+  {
+   "id": "a06",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "387295",
+   "company": "atlas",
+   "user_id": 5,
+   "booking_id": 7004,
+   "case": "comp_positive_control",
+   "text": "What's the compensation for 4 hour delay BOS-JFK last night? Booking 7004.",
+   "expect": {
+    "outcome": "layer3_pending",
+    "approvals_pending": 1,
+    "approval_amount": 839.5,
+    "compensation_rows": 0,
+    "refund_rows": 0
+   }
+  },
+  {
+   "id": "a07",
+   "source": "BRAIN-WRITTEN (no real hotel tweet in our candidates); to be replaced by a real one if step 1 finds one",
+   "tweet_id": null,
+   "company": "atlas",
+   "user_id": 2,
+   "booking_id": 7002,
+   "case": "hotel_non_refundable",
+   "text": "I cancelled booking 7002 and I want my money back.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "AT-HOT-03",
+    "refund_rows": 0,
+    "compensation_rows": 0
+   },
+   "brain_written": true
+  },
+  {
+   "id": "s01",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2949511",
+   "company": "shopnova",
+   "user_id": 4,
+   "order_id": 4507,
+   "case": "damaged_delivered_old",
+   "text": "Everything in the box was destroyed by a broken bottle of laundry detergent. I cannot return any of it, I just need a complete replacement of the entire shipment. How do I do this? Order 4507.",
+   "expect": {
+    "outcome": "ask_proof",
+    "rule_id": "R-DMG-01",
+    "refund_rows": 0,
+    "order_status": "delivered"
+   }
+  },
+  {
+   "id": "s02",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "311887",
+   "company": "shopnova",
+   "user_id": 2,
+   "order_id": 4505,
+   "case": "damaged_return_waiting",
+   "text": "Team waiting for return of damaged order since 5 days no response yet .kindly help Order 4505.",
+   "expect": {
+    "outcome": "ask_proof",
+    "rule_id": "R-DMG-01",
+    "refund_rows": 0,
+    "order_status": "delivered"
+   }
+  },
+  {
+   "id": "s03",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "588716",
+   "company": "shopnova",
+   "user_id": 3,
+   "order_id": 4511,
+   "case": "cancel_trouble_paid",
+   "text": "I am having problems canceling an order on the app, I tap on cancel and nothing happens I just get a blank screen with Amazon at the top. Is there an known issue Order 4511.",
+   "expect": {
+    "outcome": "approve",
+    "rule_id": "R-CAN-01",
+    "order_status": "cancelled",
+    "refund_rows": 1,
+    "refund_amount": 54.4
+   }
+  },
+  {
+   "id": "s04",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1731546",
+   "company": "shopnova",
+   "user_id": 1,
+   "order_id": 4509,
+   "case": "negated_return_refund",
+   "text": "got incomplete guitar kit, please suggest do not want to return/refund Order 4509.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "delivered"
+   }
+  },
+  {
+   "id": "s05",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2588681",
+   "company": "shopnova",
+   "user_id": 5,
+   "order_id": 4514,
+   "case": "cancel_trouble_cod",
+   "text": "Need to cancel an order. Unable to do so. Please assist. Order 4514.",
+   "expect": {
+    "outcome": "approve",
+    "rule_id": "R-CAN-01",
+    "order_status": "cancelled",
+    "refund_rows": 0
+   }
+  }
+ ]
+}
