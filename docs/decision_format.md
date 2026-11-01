@@ -20,8 +20,8 @@ It has no tools and never reads the database, so every fact it may write must be
 
 | Field | Type | Meaning |
 |---|---|---|
-| `outcome` | str | `approve` · `send_back` · `ask_user` · `ask_proof` · `layer3` · `escalate` · `info` (see below) |
-| `action` | str | what the case is about, e.g. `refund`, `subscribe`, `status` |
+| `outcome` | str | `approve` · `send_back` · `ask_user` · `ask_proof` · `layer3` · `escalate` · `info` · `decline` (see below) |
+| `action` | str | what the case is about, e.g. `refund`, `subscribe`, `status`, `cancel`, `return` |
 | `order_id` | int or null | the order the reply is about; the reply mentions it |
 | `rule_id` | str or null | policy rule behind the decision, for the trace only: **never written in the reply** |
 | `facts` | dict | the **only** facts the reply may contain (amounts, dates, days, statuses, ...) |
@@ -31,7 +31,7 @@ It has no tools and never reads the database, so every fact it may write must be
 
 Known `facts` keys (others are allowed; the writer passes them as they are):
 `amount_tnd`, `days_late`, `order_status`, `promised_date` (YYYY-MM-DD), `carrier`, `event` (notification event),
-`needed` (what proof is needed), `threshold_tnd` (Layer 3 limit).
+`needed` (what proof is needed), `threshold_tnd` (Layer 3 limit), `days_since_delivery` (T14a).
 
 ## Outcomes, as the client sees them
 | Outcome | The reply says | The reply must not |
@@ -43,12 +43,32 @@ Known `facts` keys (others are allowed; the writer passes them as they are):
 | `layer3` | the refund needs approval from the finance team + next step | promise the refund |
 | `escalate` | a colleague takes over + next step | promise a result |
 | `info` | the facts (status, delay, ...) + next step | promise follow-up actions |
+| `decline` | no, with the rule's reason (`must_say`, copied word for word) + next step, if any | offer anything else, or promise a refund or a later check |
+
+## The `decline` outcome (T14a, ShopNova)
+The Coordinator says no **by code**, from fresh data and the rules; no LLM decides or words the reason. Each sentence is one
+`must_say` item (the reply writer removes a sentence that is only a part of a longer item). `rule_id` is the rule behind the
+no, shown in the ticket's timeline and never in the reply. The ticket becomes Solved.
+
+| Main reason | Condition (fresh data) | `rule_id` | Reason |
+|---|---|---|---|
+| `return_item` | delivered more than 14 days ago | R-RET-01 | too late to return |
+| `refund_request` | `refunded_total` >= `paid`, and `paid` > 0 | R-REF-05 | already fully refunded |
+| `refund_request` | delivered more than 14 days ago | R-RET-01 | money back on a delivered order only comes from a return |
+| `refund_request` | not delivered, not late, not refunded or cancelled | R-REF-03 | not late |
+| `cancel_order` | status is not `processing` | R-CAN-01 | already left; also for a cancel proposal, not a send-back |
+
+R-CAN-01's `next_step`: shipped, out for delivery or stuck at the depot: "Once it is delivered, you can return it within 14
+days."; delivered at most 14 days ago: "You can still return it within 14 days of delivery."; otherwise empty.
+A `cancel_order` case on a `processing` order without a proposal is not a decline: `ask_user` ("Please confirm that you want
+to cancel order N."). Any other case without a proposal keeps today's `info` reply.
 
 ## Rule check (callverse/slm/check.py)
 After the SLM writes, a rule check (plain code) verifies the reply:
 - every number in the reply appears in `facts`, `order_id` or `next_step`;
 - no forbidden promise ("we will keep you updated", "we are monitoring", "guarantee", "within X hours/days", ...)
-  unless the same idea is in `facts` / `next_step`; no refund promise unless `outcome` is `approve` for a refund;
+  unless the same idea is in `facts` / `next_step`; no refund promise unless `outcome` is `approve` for a refund or a
+  cancellation;
 - no rule id (R-XXX-00), no placeholder such as `[Name]`;
 - the order number is mentioned; the reply is not empty and has at most 120 words.
 - every `must_say` item is present word for word (case-insensitive, spaces ignored);

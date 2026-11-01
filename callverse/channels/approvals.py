@@ -38,7 +38,7 @@ from callverse import pipeline, trace
 from callverse.channels.web_chat import step_row
 # The Coordinator's own fact reader and reply sentences: the re-check and the message use exactly its rules.
 from callverse.coordinator import atlas_coordinator
-from callverse.coordinator.coordinator import _read_facts, slm_facts, user_words
+from callverse.coordinator.coordinator import _read_facts, cancel_refund, slm_facts, user_words
 from callverse.config import load_config
 from callverse.data import admin_reads, writes
 from callverse.data.atlas import writes as atlas_writes
@@ -54,14 +54,17 @@ def recheck(proposal: dict) -> tuple[dict, str | None]:
     all pass, or (facts, reason in plain words) for the first one that fails."""
     params = proposal.get("params") or {}
     order_id, rule_id = params.get("order_id"), proposal.get("rule_id")
-    if proposal.get("action") != "refund":
+    action = proposal.get("action")
+    if action not in ("refund", "cancel"):
         return {}, f"proposal {proposal.get('id')} is not a refund"
     if not isinstance(order_id, int) or "error" in get_order(order_id):
         return {}, f"order {order_id} does not exist any more"
     facts = {**_read_facts(order_id, {"proof_received": False}), "amount": params.get("amount")}
+    if action == "cancel":   # T14a: no amount in the proposal: what is left to refund, on fresh data
+        facts["amount"] = cancel_refund(facts)
     rule = get_policy(rule_id) if isinstance(rule_id, str) else None
-    if rule is None or rule_id not in load_config()["coordinator"]["allowed_rules"]["refund"]:
-        return facts, f"rule {rule_id} cannot justify a refund"
+    if rule is None or rule_id not in load_config()["coordinator"]["allowed_rules"][action]:
+        return facts, f"rule {rule_id} cannot justify a {action}"
     try:
         holds = check_condition(rule["condition"], facts)
     except ValueError:
@@ -70,6 +73,8 @@ def recheck(proposal: dict) -> tuple[dict, str | None]:
         return facts, (f"rule {rule_id} does not apply any more: its condition '{rule['condition']}' is false now "
                        f"(order status {facts['status']}, days late {facts['days_late']}, "
                        f"delivered {facts['delivered']})")
+    if action == "cancel":
+        return facts, None
     if not writes.is_valid_amount(facts["amount"]) or not check_condition(get_policy("R-REF-05")["condition"], facts):
         left = round(facts["paid"] - facts["refunded_total"], 2)
         return facts, (f"R-REF-05: the amount {facts['amount']} TND is more than paid {facts['paid']} - already "
@@ -154,7 +159,7 @@ def _decide_atlas(approval: dict, proposal: dict, admin: str, approve: bool, rea
 
 def _decide(approval: dict, proposal: dict, admin: str, approve: bool, reason: str, slm_chat_fn) -> dict:
     start = time.perf_counter()   # T19: the reply's seconds (re-check + write + reply writer)
-    order_id, rule_id, pid = approval["order_id"], proposal["rule_id"], proposal["id"]
+    order_id, rule_id, pid, action = approval["order_id"], proposal["rule_id"], proposal["id"], proposal["action"]
     if approve:
         facts, problem = recheck(proposal)
         if problem:
@@ -164,7 +169,8 @@ def _decide(approval: dict, proposal: dict, admin: str, approve: bool, reason: s
         facts = _read_facts(order_id, {"proof_received": False}) if "error" not in get_order(order_id) else {}
         facts["amount"] = approval["amount"]
     # One transaction in ShopNova's data: decision + (refund + order status) + admin_actions row, or nothing.
-    written = writes.admin_decide_refund(admin, pid, approve, reason, approval_id=approval["id"])
+    written = writes.admin_decide_refund(admin, pid, approve, reason, approval_id=approval["id"],
+                                         cancel_amount=facts["amount"] if action == "cancel" else None)
     if "error" in written:
         return {"error": written["error"]}   # nothing written; the approval stays pending
     refund = written["refund"]
@@ -176,9 +182,9 @@ def _decide(approval: dict, proposal: dict, admin: str, approve: bool, reason: s
 
     # The new assistant message: the decision's own sentences (user_words), written by the reply writer.
     # decision["reason"] is a fixed text: the admin's reason never reaches the SLM or the user.
-    reply_facts = slm_facts(facts, "refund")
-    must_say, next_step = user_words(outcome, "refund", rule_id, reply_facts, order_id)
-    decision = {"outcome": outcome, "action": "refund", "order_id": order_id, "rule_id": rule_id,
+    reply_facts = slm_facts(facts, action)
+    must_say, next_step = user_words(outcome, action, rule_id, reply_facts, order_id)
+    decision = {"outcome": outcome, "action": action, "order_id": order_id, "rule_id": rule_id,
                 "facts": reply_facts, "must_say": must_say, "next_step": next_step,
                 "reason": "decided by the ShopNova admin (Layer 3)", "proposal_id": pid}
     trace.log("layer3_decision", "layer3", {**decision, "approval_id": approval["id"], "admin": admin,

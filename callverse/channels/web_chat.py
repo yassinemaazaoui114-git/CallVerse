@@ -55,7 +55,7 @@ QUOTA_CACHE_SECONDS = 300   # B's quota is checked at most once per 5 minutes (o
 
 # Decision outcome -> ticket status (item 11). Final decisions solve the ticket; a question waits for the user.
 # escalate: a human colleague must look, so the ticket is "Escalated" (T19; it was Open before).
-STATUS_BY_OUTCOME = {"approve": "Solved", "info": "Solved", "layer3_refused": "Solved",
+STATUS_BY_OUTCOME = {"approve": "Solved", "info": "Solved", "layer3_refused": "Solved", "decline": "Solved",   # T14a
                      "ask_user": "Waiting for user", "ask_proof": "Waiting for user", "escalate": "Escalated",
                      "layer3_pending": "Waiting for finance"}   # T18
 

@@ -1,0 +1,27 @@
+{
+ "_note": "cancel_order Intake examples for T14a: REAL tweets from TWCS (CC BY-NC-SA 4.0), @handles/links removed, &amp; -> &. To be ADDED to callverse/intake/data/reason_examples.json under 'cancel_order'. Not in any test set.",
+ "tweet_ids": [
+  "996689",
+  "1336154",
+  "2392725",
+  "2986484",
+  "1284540",
+  "2252842",
+  "2612916",
+  "994301",
+  "1197144",
+  "2804276"
+ ],
+ "cancel_order": [
+  "I just ordered a book, but it appears I accidentally ordered the Kindle version by mistake. How do I cancel & order hard copy?",
+  "My iPhone X order was placed at 8:02 and it states delivery is Jan 1. Is that true or a mistake? If true I need to cancel.",
+  "please can you help me? I placed an order on 26.10.17 but it hasn't arrived and now it is past the date I needed it for. I can't cancel the order from my account.",
+  "used my prime account for next day delivery, now had email to say will be delivered by 4th December. Not good enough 😡😡 would like to cancel order and cancel prime account not worth the money",
+  "At this point, I'm just disappointed. Cancelling the order & buying the book from my local bookshop. Thanks for your help! (NAH)",
+  "hi, have tried to cancel an order which hasn't been delivered but return hasn't been confirmed? What can I do?",
+  "I cancelled my order this morning as you failed to deliver it twice yesterday. Why are you still trying to deliver it?",
+  "paid 100extra for urgent delivery but after 6 days still undelivered. Had to cancel order. Hope get the refund timely.",
+  "Hey i've ordered Mario Odyssey in April but it still says delivery date pending should cancel and order again ? I'm confused the game comes out in 3 days lmao",
+  "I've been locked out of my account due to something with my card and I want to make sure my order was cancelled so I won't be charge for the PSN Card I tried to buy"
+ ]
+}

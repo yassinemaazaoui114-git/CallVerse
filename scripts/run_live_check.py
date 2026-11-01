@@ -39,7 +39,7 @@ MAX_WORDS = 120
 # The local test models have no such limit: no pause, but only when A AND B are both local (T16).
 PAUSE_SECONDS_GROQ = 5
 TOOL_NAMES = ("get_user", "get_order", "get_tracking", "get_refunds", "get_company_profile", "search_policy",
-              "propose_refund", "propose_subscription", "ask_agent")
+              "propose_refund", "propose_subscription", "propose_cancellation", "ask_agent")
 LEAK_RE = re.compile(r"coordinator|agent|proposal|P-0|\bR-[A-Z]{0,3}-?\d|sent for checking|"
                      + "|".join(TOOL_NAMES), re.IGNORECASE)
 RUDE_WORDS = ("idiot", "idiots", "stupid", "useless", "scam", "scammers", "crap", "damn", "shit", "liars",
@@ -71,7 +71,7 @@ def refund_allowed(row: dict, before: dict) -> tuple[bool, str]:
     tracking = before["tracking"][order_id]
     facts = {"days_late": tracking["days_late"], "delivered": tracking["delivered"],
              "days_since_delivery": tracking["days_since_delivery"], "amount": row["amount"], "paid": paid,
-             "refunded_total": refunded, "proof_received": False}
+             "refunded_total": refunded, "proof_received": False, "status": tracking.get("status")}
     try:
         ok = check_condition(rule["condition"], facts)
     except ValueError as e:

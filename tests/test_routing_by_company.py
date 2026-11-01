@@ -139,10 +139,10 @@ def sha(text_value: str) -> str:
 
 
 def test_shopnova_prompts_are_byte_identical_to_main():
-    """Fingerprints taken on main (1a1c6ee) before T21 touched any code."""
+    """Fingerprints taken on main (1a1c6ee) before T21 touched any code; B and the fallback: new in T14a (cancel)."""
     assert sha(agent_a.SYSTEM_PROMPT) == "3b102f36fb9db23facab8bd358a10f731f28e454ade59c49e84e66fbda2bc2dc"
-    assert sha(agent_b.SYSTEM_PROMPT) == "054a224631ae0d5184d5d1cd4c6f95d8e489838646037e1407f7ffbc55c49aa8"
-    assert sha(llm_fallback.PROMPT) == "e74367e65a93afdffc806e2f2e4035b3cea0c145a468027790acebfc56475f17"
+    assert sha(agent_b.SYSTEM_PROMPT) == "b871f5ff0999f6d844c14932fd1012cfa651bfba217bc31b97b5a8ca73054a51"
+    assert sha(llm_fallback.PROMPT) == "3b889696b6587646aa6741bc4dea655b88cedffff34425521e063bb786b4c251"
     assert sha(writer.SYSTEM_PROMPT) == "2a468702bf7f0393fb322bfcca84e48529e466067a6e88f432590dd0655448f2"
 
 
@@ -153,7 +153,7 @@ def test_shopnova_agents_use_those_prompts():
 
 def test_shopnova_tool_schemas_are_identical_to_main():
     assert sha(json.dumps(registry.TOOL_SCHEMAS, sort_keys=True)) == (
-        "d49abf10a9c8b26e2282479fa359d2c5a80ddb778619fb1484775f2176dd14d9")
+        "f75d3d13acd945b5007f0c49114aced474198cba486d2c8d8f82b6ee98a1373d")
 
 
 def test_shopnova_reply_messages_are_identical_to_main():
@@ -166,14 +166,15 @@ def test_shopnova_reply_messages_are_identical_to_main():
 
 def test_shopnova_routes_reasons_and_rules_are_unchanged():
     shopnova = companies.get("shopnova")
-    assert shopnova["routes"] == {"order_status": "A", "late_delivery": "A", "refund_request": "B", "return_item": "B",
+    assert shopnova["routes"] == {"order_status": "A", "late_delivery": "A", "refund_request": "B", "cancel_order": "B",
+                                  "return_item": "B",
                                   "damaged_item": "B", "other": "A"}
     assert shopnova["reasons"] == reasons.REASONS
     assert shopnova["reason_threshold"] == 0.69   # T24: T23 benchmark value
-    assert shopnova["main_reason_order"] == ["damaged_item", "refund_request", "return_item", "late_delivery",
+    assert shopnova["main_reason_order"] == ["damaged_item", "cancel_order", "refund_request", "return_item", "late_delivery",
                                              "order_status", "other"]
     assert shopnova["allowed_rules"] == {"refund": ["R-REF-03", "R-RET-01", "R-DMG-01"],
-                                         "subscribe": ["R-NOT-01", "R-DEL-02"]}
+                                         "subscribe": ["R-NOT-01", "R-DEL-02"], "cancel": ["R-CAN-01"]}
     assert get_policy("R-ESC-01")["condition"] == "amount > 300"
 
 
@@ -267,8 +268,8 @@ def test_atlas_threshold_comes_from_leave_one_out_on_its_examples():
 
 
 def test_shopnova_leave_one_out_is_unchanged():
-    row = reasons.leave_one_out([0.69])[0]      # T24: new setting (bge-small, top_k 5, 0.69)
-    assert (row["exact"], row["wrong"], row["needs_llm"], row["total"]) == (40, 5, 15, 60)
+    row = reasons.leave_one_out([0.69])[0]      # T24 setting (bge-small, top_k 5, 0.69); T14a: 10 cancel_order examples
+    assert (row["exact"], row["wrong"], row["needs_llm"], row["total"]) == (47, 8, 15, 70)
 
 
 @pytest.mark.parametrize("message, reason", [

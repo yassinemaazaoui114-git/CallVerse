@@ -18,7 +18,8 @@ PROMPT = """You sort customer messages of ShopNova, an online shop.
 Possible contact reasons (use ONLY these names):
 - order_status: where is my order, tracking, shipping status
 - late_delivery: the order is late or the delivery date has passed
-- refund_request: the client wants money back, a refund, a cancellation with reimbursement, compensation
+- refund_request: the client wants money back, a refund, compensation
+- cancel_order: the client wants to cancel an order
 - return_item: the client wants to return or exchange an item, or asks about the return policy
 - damaged_item: the item arrived broken, defective, damaged or wrong
 - other: anything else

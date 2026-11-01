@@ -1,0 +1,181 @@
+{
+ "_note": "PRACTICE set for T14a (decline with the reason + cancellation). REAL user messages from TWCS (Kaggle 'Customer Support on Twitter', Thought Vector, CC BY-NC-SA 4.0), picked by the Brain 2026-10-31. Adapted as little as possible: @handles and links removed, &amp; -> &, the other shop's order number replaced by ours or 'Order N.' added at the end (and one rakhi product named 'order 4513' in h06). Typos, slang and anger kept. Labels/expectations by the Brain, checked by Yassine. Each message runs on a FRESH database (sim_today 2026-10-09).",
+ "messages": [
+  {
+   "id": "t01",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2863887",
+   "user_id": 2,
+   "order_id": 4505,
+   "case": "return_too_late",
+   "text": "I bought an item over 30 days ago but need to return. I understand I am too late for a refund but can I get a credit note/exchange for something else? Thanks Order 4505.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-RET-01",
+    "refund_rows": 0
+   }
+  },
+  {
+   "id": "t02",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1536949",
+   "user_id": 1,
+   "order_id": 4509,
+   "case": "return_too_late",
+   "text": "I purchased order 4509 but had allergic reaction after return window. Can u please do exchange/Amazon credit?",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-RET-01",
+    "refund_rows": 0
+   }
+  },
+  {
+   "id": "t03",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1668306",
+   "user_id": 3,
+   "order_id": 4506,
+   "case": "already_refunded",
+   "text": "when will I get my refund? I have already sent you my things? Order 4506.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-REF-05",
+    "refund_rows": 0
+   }
+  },
+  {
+   "id": "t04",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1325845",
+   "user_id": 3,
+   "order_id": 4506,
+   "case": "already_refunded",
+   "text": "I have emailed you twice regarding the status of my refund for order 4506. But no-one has gotten back! Is this the CX you boast abt?",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-REF-05",
+    "refund_rows": 0
+   }
+  },
+  {
+   "id": "t05",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2226568",
+   "user_id": 2,
+   "order_id": 4510,
+   "case": "refund_not_late",
+   "text": "what happened to my order 4510? Refund if you can't deliver",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-REF-03",
+    "refund_rows": 0
+   }
+  },
+  {
+   "id": "t06",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2625330",
+   "user_id": 4,
+   "order_id": 4513,
+   "case": "refund_not_late",
+   "text": "lost item, no refund and can't get a replacement-where is your consumer service? Order 4513.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-REF-03",
+    "refund_rows": 0
+   }
+  },
+  {
+   "id": "t07",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1614556",
+   "user_id": 3,
+   "order_id": 4511,
+   "case": "cancel_paid",
+   "text": "I have an order that hasn't shipped that I want to cancel. Order 4511.",
+   "expect": {
+    "outcome": "approve",
+    "rule_id": "R-CAN-01",
+    "order_status": "cancelled",
+    "refund_rows": 1,
+    "refund_amount": 54.4
+   }
+  },
+  {
+   "id": "t08",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "635696",
+   "user_id": 3,
+   "order_id": 4511,
+   "case": "cancel_paid",
+   "text": "I made an order by mistake and am trying to cancel. Please can you help? Order 4511.",
+   "expect": {
+    "outcome": "approve",
+    "rule_id": "R-CAN-01",
+    "order_status": "cancelled",
+    "refund_rows": 1,
+    "refund_amount": 54.4
+   }
+  },
+  {
+   "id": "t09",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1660807",
+   "user_id": 5,
+   "order_id": 4514,
+   "case": "cancel_cod",
+   "text": "Hi pls cancel order 4514 . I am unable to cancel it. Thanks",
+   "expect": {
+    "outcome": "approve",
+    "rule_id": "R-CAN-01",
+    "order_status": "cancelled",
+    "refund_rows": 0
+   }
+  },
+  {
+   "id": "t10",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1714315",
+   "user_id": 2,
+   "order_id": 4510,
+   "case": "cancel_shipped",
+   "text": "Trying to cancel an order that has already shipped -- is there any way to just stop this in its tracks and get a refund? Order 4510.",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-CAN-01",
+    "refund_rows": 0,
+    "order_status": "shipped"
+   }
+  },
+  {
+   "id": "t11",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1326296",
+   "user_id": 4,
+   "order_id": 4513,
+   "case": "cancel_shipped",
+   "text": "I want to cancle my order 4513 as product delivery is delayed and want my refund soon",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-CAN-01",
+    "refund_rows": 0,
+    "order_status": "shipped"
+   }
+  },
+  {
+   "id": "t12",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2931347",
+   "user_id": 2,
+   "order_id": 4510,
+   "case": "cancel_shipped",
+   "text": "my delivery didn't arrive yesterday so I need to cancel my order 4510 but can't on the website or app? Please help",
+   "expect": {
+    "outcome": "decline",
+    "rule_id": "R-CAN-01",
+    "refund_rows": 0,
+    "order_status": "shipped"
+   }
+  }
+ ]
+}

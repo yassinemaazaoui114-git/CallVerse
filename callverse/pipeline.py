@@ -13,6 +13,8 @@
   by the Coordinator.
 - No proposal (e.g. a status question): an "info" decision, with facts the Coordinator reads itself;
   a damaged item without a proposal: an "ask_proof" decision (R-DMG-01, a photo is needed first, T09).
+  T14a, ShopNova: a return, refund or cancel request without a proposal first goes through no_proposal_decision: when
+  the rules say no, the client gets a "decline" with the rule's reason (written by code), not only the order status.
 - Final reply (T08): the SLM writes it from the decision ONLY (callverse/slm/writer.py), in the client's
   style from Intake. The agent's own text never reaches the user: it is kept as agent_text (trace only),
   because it was written before the decision ("sent for checking").
@@ -32,8 +34,8 @@ from callverse import companies, trace
 from callverse.agents.agent_a import AgentA
 from callverse.agents.agent_b import AgentB
 from callverse.config import load_config
-from callverse.coordinator.coordinator import (for_user, info_decision, new_case, off_topic_decision, proof_decision,
-                                               review)
+from callverse.coordinator.coordinator import (for_user, info_decision, new_case, no_proposal_decision,
+                                               off_topic_decision, proof_decision, review)
 from callverse.intake import intake
 from callverse.queues.router import route
 from callverse.slm.writer import write_reply
@@ -42,7 +44,8 @@ from callverse.slm.writer import write_reply
 # local test model: "I can propose a full refund ... sent for checking", but no propose_refund call). Short list.
 PROPOSAL_CLAIM_RE = re.compile(r"\bpropos(?:e|ed|es|ing|al)\b|sent for checking|\bsubmitted\b[^.]{0,60}\bfor review",
                                re.IGNORECASE)
-PROPOSAL_TOOLS = ("propose_refund", "propose_subscription", "propose_compensation", "propose_hotel_cancellation")
+PROPOSAL_TOOLS = ("propose_refund", "propose_subscription", "propose_cancellation", "propose_compensation",
+                  "propose_hotel_cancellation")
 PROPOSAL_CLAIM_NOTE = ("[Note: A first answer to this message said that something is proposed, but no proposal tool "
                        "was called. If a rule allows it, call the proposal tool now. Otherwise answer without saying "
                        "that anything is proposed.]")
@@ -99,7 +102,8 @@ def final_reply(ticket: dict, decision: dict | None, slm_chat_fn=None) -> tuple[
     elif ticket.get("main_reason") == "other" and ticket.get("order_id") is None:
         said = off_topic_decision()                     # T10: not about an order -> polite redirect
     else:
-        said = info_decision(ticket.get("order_id"))
+        # T14a: the rules may say "no" (decline, with the reason); otherwise the status, as before.
+        said = no_proposal_decision(ticket.get("main_reason"), ticket.get("order_id")) or info_decision(ticket.get("order_id"))
     said = {**said, "style": reply_style(ticket)}
     # T10: the client's own message is NOT given to the SLM (in T10's dev set it copied an insult back word
     # for word). The tone comes from Intake's style profile; the content only from the decision.
@@ -125,9 +129,10 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
         return agent_cls(chat_fn=chat_fn, company=company)
 
     case = new_case(ticket["ticket_id"])
-    if company != companies.DEFAULT:   # the gate checks that a proposal is about the ticket's own booking
-        case.update(order_id=ticket.get("order_id"), booking_type=ticket.get("booking_type"),
-                    main_reason=ticket.get("main_reason"), user_message=ticket.get("text"))
+    # The gate checks that a proposal is about the ticket's own booking / order, and confirms from the client's words.
+    case.update(order_id=ticket.get("order_id"), main_reason=ticket.get("main_reason"), user_message=ticket.get("text"))
+    if company != companies.DEFAULT:
+        case.update(booking_type=ticket.get("booking_type"))
     result = new_agent().run(message)
     if ticket.get("order_id") is not None and not result["tool_calls"] and not result.get("proposal"):
         # T10 safety net (the S4 slip): Intake found an order id, but the agent used no tool at all
