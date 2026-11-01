@@ -1,0 +1,178 @@
+{
+ "_note": "T14d HELD-OUT set: run ONCE at the very end, never used to fix anything (CLAUDE.md rule 9). 12 REAL first tweets from TWCS (CC BY-NC-SA 4.0) chosen by the Brain from candidates.json (none used before). Minimal adaptation: @handles/links removed, &amp; -> &, our booking/order number added, personal refs (ticket/PNR numbers, a name) removed. Same format as t14c. Do not open this file before the held-out step.",
+ "messages": [
+  {
+   "id": "t01",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2705280",
+   "company": "atlas",
+   "user_id": 2,
+   "booking_id": 7006,
+   "case": "hotel_voucher_request",
+   "text": "My flight is delayed in SEA Flying to DTW due to mechanical issues and I will be missing my connection to BWI and stuck overnight in DTW. Will I get a hotel voucher due to it being a plane issue? If so, how can I get it? Booking 7006.",
+   "expect": {
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "t02",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "609198",
+   "company": "atlas",
+   "user_id": 4,
+   "booking_id": 7008,
+   "case": "cancelled_hotel_help",
+   "text": "cancelled flight from CPT - web site saying BA58 departing tonight 23.30 but no confirmation from BA to hotel. Help Booking 7008.",
+   "expect": {
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "t03",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "24184",
+   "company": "atlas",
+   "user_id": 1,
+   "booking_id": 7005,
+   "case": "compensate_ticket_hotel",
+   "text": "You cancel the flight nd issue no flights for 1 month after accepting bookings? Will you compensate for my ticket/hotel bookings in Australia. Booking 7005.",
+   "expect": {
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "t04",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2596253",
+   "company": "atlas",
+   "user_id": 4,
+   "booking_id": 7008,
+   "case": "not_refunded_yet_positive",
+   "text": "Cancelled booking on OCT 27th. Havent received refund yet Booking 7008.",
+   "expect": {
+    "outcome": "approve",
+    "refund_rows": 1,
+    "refund_amount": 690.0
+   }
+  },
+  {
+   "id": "t05",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1698928",
+   "company": "atlas",
+   "user_id": 4,
+   "booking_id": 7008,
+   "case": "still_no_refund_positive",
+   "text": "very bad customer service. Cancelled ticket 2 months back and still no refund. Almost called them 10 times Booking 7008.",
+   "expect": {
+    "outcome": "approve",
+    "refund_rows": 1,
+    "refund_amount": 690.0
+   }
+  },
+  {
+   "id": "t06",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2523012",
+   "company": "atlas",
+   "user_id": 2,
+   "booking_id": 7006,
+   "case": "insurance_letter",
+   "text": "On 18th Sept , our flight from KL to Miri was delayed for more than 8 hours and we were put in Tune hotel for night. My insurance company request me to get a letter. How can I get the letter ? Please advice. Thanks Booking 7006.",
+   "expect": {
+    "refund_rows": 0,
+    "compensation_rows": 0
+   }
+  },
+  {
+   "id": "t07",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "1219156",
+   "company": "shopnova",
+   "user_id": 5,
+   "order_id": 4514,
+   "case": "membership_cancel",
+   "text": "your return policy sucks. Extremely disappointed with the customer service. Cancelling my prime membership. Order 4514.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "processing"
+   }
+  },
+  {
+   "id": "t08",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "427010",
+   "company": "shopnova",
+   "user_id": 4,
+   "order_id": 4513,
+   "case": "prime_charged_after_cancel",
+   "text": "I canceled prime 3 months ago & you guys charge me every month still, I call you guys refund me and say sorry then do it again. Order 4513.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "shipped"
+   }
+  },
+  {
+   "id": "t09",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "575338",
+   "company": "shopnova",
+   "user_id": 2,
+   "order_id": 4510,
+   "case": "missing_package_cancelling_prime",
+   "text": "also shoutout for being NO help in finding my missing package or giving me a refund #cancellingmyprime Order 4510.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "shipped"
+   }
+  },
+  {
+   "id": "t10",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2372330",
+   "company": "shopnova",
+   "user_id": 2,
+   "order_id": 4510,
+   "case": "pressed_cancel_by_accident",
+   "text": "just accidentally pressed cancel order on something that's arriving tomorrow - how do I fix this?! Order 4510.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "shipped"
+   }
+  },
+  {
+   "id": "t11",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2935937",
+   "company": "shopnova",
+   "user_id": 5,
+   "order_id": 4514,
+   "case": "true_negation_change_delivery",
+   "text": "I've had notification you're going to completely cancel an order today. I do not want to cancel the order I just want to change day of delivery! Order 4514.",
+   "expect": {
+    "refund_rows": 0,
+    "order_status": "processing"
+   }
+  },
+  {
+   "id": "t12",
+   "source": "TWCS (Kaggle, Thought Vector, CC BY-NC-SA 4.0), real tweet",
+   "tweet_id": "2681994",
+   "company": "shopnova",
+   "user_id": 3,
+   "order_id": 4511,
+   "case": "cant_cancel_positive",
+   "text": "so y'all can't cancel my order when it hasn't even been 24 hours...y'all ain't even ship it yet. Order 4511.",
+   "expect": {
+    "outcome": "approve",
+    "rule_id": "R-CAN-01",
+    "order_status": "cancelled",
+    "refund_rows": 1,
+    "refund_amount": 54.4
+   }
+  }
+ ]
+}
