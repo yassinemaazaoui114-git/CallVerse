@@ -31,8 +31,15 @@ export function AuthProvider({ children }) {
     return body.session;
   }, []);
 
+  // Logout is only done when the SERVER confirms it: clearing React state would leave the HttpOnly cookie and
+  // the server session alive. A failure is thrown to the caller (the shell shows it with Retry). A 401 means
+  // the server session is already gone, which is the wanted end state.
   const logout = useCallback(async () => {
-    try { await api.logout(); } catch (e) { /* the cookie is gone either way once we drop the session */ }
+    try {
+      await api.logout();
+    } catch (e) {
+      if (!(e instanceof ApiError && e.code === "not_logged_in")) throw e;
+    }
     setSession(null);
     setNotice("You are logged out.");
   }, []);

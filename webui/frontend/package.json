@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1 --port 5173 --strictPort"
+    "preview": "vite preview --host 127.0.0.1 --port 5173 --strictPort",
+    "test": "vitest run"
   },
   "dependencies": {
     "react": "18.3.1",
@@ -15,7 +16,12 @@
     "react-router-dom": "6.30.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "6.6.3",
+    "@testing-library/react": "16.1.0",
+    "@testing-library/user-event": "14.5.2",
     "@vitejs/plugin-react": "4.3.4",
-    "vite": "5.4.19"
+    "jsdom": "25.0.1",
+    "vite": "5.4.19",
+    "vitest": "2.1.9"
   }
 }

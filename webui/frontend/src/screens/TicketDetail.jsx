@@ -2,7 +2,7 @@
 // message (right): the Coordinator's decision first, then the step timeline, then tools, policy evidence and
 // the raw steps in disclosures. Everything is plain text from the API: an unknown status, outcome or step
 // is shown as it is. Two clocks: computer time (when it really happened) and simulation time (the demo date).
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { api, ApiError } from "../api.js";
 import { useAuth } from "../auth.jsx";
@@ -58,19 +58,34 @@ export default function TicketDetail() {
   const [turnIndex, setTurnIndex] = useState(0);
   const backTo = (location.state && location.state.from) || "/tickets";
 
+  const requestNo = useRef(0);       // the number of the latest request: an older answer is dropped
+  const controller = useRef(null);   // the AbortController of the request in flight
+
   const load = useCallback(async () => {
+    if (controller.current) controller.current.abort();
+    const mine = ++requestNo.current;
+    const ctrl = new AbortController();
+    controller.current = ctrl;
     setError(null);
     try {
-      const body = await api.ticket(ticketId);
+      const body = await api.ticket(ticketId, ctrl.signal);
+      if (mine !== requestNo.current) return;   // the user moved to another ticket meanwhile
       setDetail(body);
       setTurnIndex((i) => Math.min(i, Math.max(0, body.turns.length - 1)));
     } catch (e) {
+      if (mine !== requestNo.current || (e && e.name === "AbortError")) return;   // superseded or unmounted
       if (e instanceof ApiError && e.code === "not_logged_in") { expired(); return; }
       setError(e);
     }
   }, [ticketId, expired]);
 
-  useEffect(() => { setDetail(null); setTurnIndex(0); load(); }, [load]);
+  // A new ticket id: forget the old one, load, and abort the request in flight on unmount / next ticket.
+  useEffect(() => {
+    setDetail(null);
+    setTurnIndex(0);
+    load();
+    return () => { if (controller.current) controller.current.abort(); };
+  }, [load]);
 
   const turn = useMemo(() => (detail && detail.turns[turnIndex]) || null, [detail, turnIndex]);
 

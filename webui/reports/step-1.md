@@ -2,6 +2,7 @@
 
 Branch `feat/ui-react` (from `origin/main` at `21f1167`, T14b merged) · folder `webui/` · 2026-11-01 · Dali's lane.
 Nothing outside `webui/` is changed except a two-line pointer in the main `README.md`.
+**Correction pass (same day, second commit)**: see section 7 at the end.
 
 ## 1. In plain words
 
@@ -72,8 +73,6 @@ Screenshots: `webui/reports/screenshots/01_login.jpg` … `11_phone_detail_steps
   "session expired"). No login rate limit beyond bcrypt's cost (~0.1 s per try).
 - **The Streamlit cookie is not shared**: the new UI has its own login (the brief's cookie/JWT session), so the
   Console's Streamlit cookie and the new cookie are independent.
-- **"No tickets yet"** state is covered by an API test only; not looked at in the browser (the demo fixture
-  always has tickets).
 - **Dev proxy only**: in step 1 the built `dist/` is not served by the API yet (npm dev server + proxy). Serving
   the static build from FastAPI is a few lines for a later step.
 - The Vite dev server also answers on `http://localhost:5173`; the first blank render I saw there was a
@@ -97,3 +96,43 @@ Screenshots: `webui/reports/screenshots/01_login.jpg` … `11_phone_detail_steps
 
 Step 2 of the brief: the ShopNova user page (orders, order detail, "ask about this order" button that only
 prepares the chat; the chat itself is step 3). Before that: your review of this step and the four answers above.
+
+## 7. Correction pass (second commit on `feat/ui-react`)
+
+Asked by the Brain after review. Application changes under `webui/` only; `callverse/` unchanged.
+
+**Fixed**
+1. **Stale answers.** `LiveTickets` and `TicketDetail` number every request and keep an `AbortController`: a new
+   request aborts the previous one, an answer whose number is not the latest is dropped, and the screen aborts
+   the request in flight when it unmounts (`api.js` passes the `AbortSignal` through and lets `AbortError`
+   out untouched).
+2. **Failed filter change.** The screen remembers which filters its rows belong to (`loadedFilters`). When a
+   filter change fails: a visible error with Retry says "Could not load tickets for the selected filters (…).
+   The rows below are the results of the previous filters (…)", the table's caption says the same (it is the
+   table's accessible description), and the "N tickets shown · last update" line is blank until the rows are
+   current again. A failed **background** refresh keeps its old behaviour (rows stay, "Refresh failed. The
+   table still shows the data from HH:MM:SS", Retry). Found on the way: the error box replaced the screen's
+   own words when the code was "unavailable"; it now takes a separate `note` line.
+3. **Logout.** `logout()` only clears the session after the server answered 200 (a 401 counts as already
+   logged out); any other failure is thrown. The shell shows "Log out failed … You are still logged in" with
+   Retry and Dismiss, stays on the page, and the button reads "Logging out…" while waiting.
+
+**Regression tests** (`webui/frontend/src/test`, vitest + Testing Library + jsdom, fake `fetch` answered call by
+call in any order, no server): out-of-order answers on Live tickets (older request aborted AND its late answer
+dropped), a failed filter change after a successful load (error + Retry, rows labelled as previous filters,
+Retry recovers), a failed background refresh (old behaviour kept), abort on unmount, a late answer of the
+previous ticket on Ticket detail, a failed logout with the server session still valid (user stays, Retry then
+succeeds), a 401 on logout. New dev dependencies, pinned: vitest 2.1.9, jsdom 25.0.1,
+@testing-library/react 16.1.0, @testing-library/jest-dom 6.6.3, @testing-library/user-event 14.5.2.
+
+**Results**
+
+| Check | Result |
+|---|---|
+| `npm --prefix webui/frontend test` (vitest) | **7 passed** (3 files) |
+| `python -m pytest webui/api/tests -q` | **15 passed** (unchanged) |
+| `npm --prefix webui/frontend run build` | OK, JS 194.3 kB (62.5 kB gzip), CSS 13.8 kB |
+| "No tickets yet" in the browser (API started on an accounts file with no tickets database) | shown: empty-state panel with the read layer's message, "0 tickets shown · last update …" line (screenshot `12_no_tickets_yet.jpg`) |
+
+**Not verified in the browser**: the failed-filter-change box and the logout-failure box (they need a server
+that fails one call and not the others); both are covered by the vitest tests above.

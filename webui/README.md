@@ -71,8 +71,16 @@ npm --prefix webui/frontend run build
 
 ## Test
 
+API:
+
 ```bash
 python -m pytest webui/api/tests -q
+```
+
+Frontend screens (vitest + Testing Library in a jsdom browser, with a fake `fetch`; no server needed):
+
+```bash
+npm --prefix webui/frontend test
 ```
 
 The tests use a temporary accounts file, a temporary tickets database and temporary company databases; they

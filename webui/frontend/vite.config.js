@@ -22,4 +22,6 @@ export default defineConfig({
     proxy: { "/api": { target: API, changeOrigin: false } },
   },
   build: { outDir: "dist", sourcemap: false },
+  // vitest: screen tests in src/test, in a jsdom browser, with a fake fetch (no server).
+  test: { environment: "jsdom", setupFiles: ["./src/test/setup.js"], globals: false },
 });

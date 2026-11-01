@@ -1,5 +1,11 @@
 // Live tickets: every ticket of every company, newest first, with 4 filters (kept in the URL, so coming back
 // from a ticket keeps them) and a refresh every 10 s that never blanks the table or moves the focus.
+//
+// Requests: every load gets a number and an AbortController. Only the answer of the LATEST request may change
+// the screen (an older answer that arrives late is dropped), the previous request is aborted when a new one
+// starts, and the screen aborts its request when it unmounts. The table always says which filters its rows
+// belong to: after a failed filter change the old rows stay visible but are labelled as the previous filters'
+// results, next to an error with Retry.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api, ApiError } from "../api.js";
@@ -26,41 +32,63 @@ function timeOnly(iso) {
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 
+// "company=atlas, status=Open" or "no filters": the words for a set of filters.
+export function describeFilters(filters) {
+  const parts = Object.entries(filters || {}).filter(([, v]) => v).map(([k, v]) => `${k}=${v}`);
+  return parts.length ? parts.join(", ") : "no filters";
+}
+
 export default function LiveTickets() {
   const { expired } = useAuth();
   const [params, setParams] = useSearchParams();
   const filters = Object.fromEntries(FILTERS.map(([k]) => [k, params.get(k) || ""]));
-
-  const [data, setData] = useState(null);         // the last GOOD answer (never blanked by a failed refresh)
-  const [values, setValues] = useState(null);     // the filter values
-  const [error, setError] = useState(null);       // the error of the FIRST load (no data yet)
-  const [refreshError, setRefreshError] = useState(null); // a failed refresh while data is shown
-  const [lastOk, setLastOk] = useState(null);     // when the table was last updated successfully
-  const [loading, setLoading] = useState(false);
-  const timer = useRef(null);
   const filtersKey = JSON.stringify(filters);
 
+  const [data, setData] = useState(null);           // the last GOOD answer (never blanked by a failure)
+  const [loadedFilters, setLoadedFilters] = useState(null); // the filters that answer belongs to
+  const [values, setValues] = useState(null);       // the filter values
+  const [error, setError] = useState(null);         // the load for the CURRENT filters failed
+  const [refreshError, setRefreshError] = useState(null); // a background refresh failed (data still current)
+  const [lastOk, setLastOk] = useState(null);       // when the table was last updated successfully
+  const [loading, setLoading] = useState(false);
+  const requestNo = useRef(0);          // the number of the latest request: older answers are dropped
+  const controller = useRef(null);      // the AbortController of the request in flight
+  const dataRef = useRef(null);         // the last good answer + its filters, readable inside load()
+  const timer = useRef(null);
+
   const load = useCallback(async (reason) => {
+    if (controller.current) controller.current.abort();
+    const mine = ++requestNo.current;
+    const ctrl = new AbortController();
+    controller.current = ctrl;
     setLoading(true);
     try {
-      const [body, fv] = await Promise.all([api.tickets(filters), api.ticketFilters()]);
+      const [body, fv] = await Promise.all([api.tickets(filters, ctrl.signal), api.ticketFilters(ctrl.signal)]);
+      if (mine !== requestNo.current) return;   // an older request: its answer must not touch the screen
+      dataRef.current = { data: body, key: filtersKey };
       setData(body);
+      setLoadedFilters(filters);
       setValues(fv);
       setError(null);
       setRefreshError(null);
       setLastOk(new Date());
     } catch (e) {
+      if (mine !== requestNo.current || (e && e.name === "AbortError")) return;   // superseded or unmounted
       if (e instanceof ApiError && e.code === "not_logged_in") { expired(); return; }
-      if (reason === "refresh" && data) setRefreshError(e);
-      else setError(e);
+      const current = dataRef.current && dataRef.current.key === filtersKey;
+      if (reason === "refresh" && current) setRefreshError(e);   // the rows shown are still the right ones
+      else setError(e);                                           // no rows yet, or rows of OTHER filters
     } finally {
-      setLoading(false);
+      if (mine === requestNo.current) setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersKey, expired, data]);
+  }, [filtersKey, expired]);
 
-  // First load and reload when the filters change.
-  useEffect(() => { load("first"); }, [filtersKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  // First load, reload when the filters change, and abort the request in flight when the screen unmounts.
+  useEffect(() => {
+    load("filters");
+    return () => { if (controller.current) controller.current.abort(); };
+  }, [load]);
 
   // Refresh every 10 s. Only the data changes; React keeps the focused element (the DOM is updated in place).
   useEffect(() => {
@@ -79,9 +107,8 @@ export default function LiveTickets() {
   const anyFilter = Object.values(filters).some(Boolean);
 
   const rows = data ? data.tickets : [];
-  const statusText = data
-    ? `${data.count} ticket${data.count === 1 ? "" : "s"} shown`
-    : "";
+  const rowsAreCurrent = data && JSON.stringify(loadedFilters) === filtersKey;
+  const statusText = data ? `${data.count} ticket${data.count === 1 ? "" : "s"} shown` : "";
 
   return (
     <>
@@ -115,38 +142,48 @@ export default function LiveTickets() {
       </section>
 
       <div className="refresh-line" style={{ margin: "var(--cv-s3) 0" }}>
-        {data && <span className={`dot ${refreshError ? "stale" : ""}`} aria-hidden="true" />}
+        {rowsAreCurrent && <span className={`dot ${refreshError ? "stale" : ""}`} aria-hidden="true" />}
         <span role="status" aria-live="polite" aria-atomic="true">
-          {data ? `${statusText}${lastOk ? ` · last update ${timeOnly(lastOk.toISOString())}` : ""} · refreshes every 10 s` : ""}
+          {rowsAreCurrent ? `${statusText}${lastOk ? ` · last update ${timeOnly(lastOk.toISOString())}` : ""} · refreshes every 10 s` : ""}
         </span>
         {loading && data && <span className="spinner" style={{ width: 14, height: 14 }} aria-hidden="true" />}
       </div>
 
-      {refreshError && (
+      {refreshError && rowsAreCurrent && (
         <div style={{ marginBottom: "var(--cv-s3)" }}>
-          <ApiErrorView error={{ ...refreshError, code: refreshError.code,
-            message: `Refresh failed (${refreshError.message}). The table still shows the data from ${timeOnly(lastOk && lastOk.toISOString())}.` }}
-            onRetry={() => load("refresh")} />
+          <ApiErrorView error={refreshError} onRetry={() => load("refresh")}
+            note={`Refresh failed. The table still shows the data from ${timeOnly(lastOk && lastOk.toISOString())}.`} />
         </div>
       )}
 
-      {error && !data && <ApiErrorView error={error} onRetry={() => load("first")} />}
+      {error && data && !rowsAreCurrent && (
+        <div style={{ marginBottom: "var(--cv-s3)" }}>
+          <ApiErrorView error={error} onRetry={() => load("filters")}
+            note={`Could not load tickets for the selected filters (${describeFilters(filters)}). `
+              + `The rows below are the results of the previous filters (${describeFilters(loadedFilters)}).`} />
+        </div>
+      )}
+
+      {error && !data && <ApiErrorView error={error} onRetry={() => load("filters")} />}
       {!error && !data && <Loading text="Loading tickets…" />}
+      {!error && data && !rowsAreCurrent && <Loading text={`Loading tickets for ${describeFilters(filters)}…`} />}
 
       {data && !data.has_tickets && (
         <div className="panel"><Empty title="No tickets yet" text={data.no_tickets_message} /></div>
       )}
       {data && data.has_tickets && rows.length === 0 && (
         <div className="panel">
-          <Empty icon="search" title="No ticket matches these filters">
+          <Empty icon="search" title={rowsAreCurrent ? "No ticket matches these filters" : `No ticket matched the previous filters (${describeFilters(loadedFilters)})`}>
             <button type="button" className="btn btn-sm" onClick={clearFilters}>Clear filters</button>
           </Empty>
         </div>
       )}
       {data && rows.length > 0 && (
         <div className={`table-wrap ${loading ? "loading" : ""}`}>
-          <table className="tickets">
-            <caption className="visually-hidden">Live tickets, newest first</caption>
+          <table className="tickets" aria-describedby={rowsAreCurrent ? undefined : "previous-filters-note"}>
+            <caption className={rowsAreCurrent ? "visually-hidden" : "small muted"} id="previous-filters-note" style={{ padding: "var(--cv-s2) var(--cv-s3)", textAlign: "left" }}>
+              {rowsAreCurrent ? "Live tickets, newest first" : `Results of the previous filters (${describeFilters(loadedFilters)}), not of the selected ones`}
+            </caption>
             <thead>
               <tr>{COLUMNS.map(([k, label]) => <th key={k} scope="col">{label}</th>)}</tr>
             </thead>

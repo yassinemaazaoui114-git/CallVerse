@@ -7,6 +7,7 @@
 //   "forbidden"       403: logged in, but not the supervisor
 //   "not_found"       404
 //   any other `error` code the API sends ({error, message}), or "http_<status>" for a non-JSON answer.
+// A cancelled request (AbortSignal) rejects with the browser's AbortError, which the screens ignore.
 
 export class ApiError extends Error {
   constructor(code, message, status) {
@@ -26,6 +27,7 @@ async function request(path, options = {}) {
   try {
     response = await fetch(path, { ...options, headers, credentials: "same-origin" });
   } catch (e) {
+    if (e && e.name === "AbortError") throw e;   // cancelled by the screen: not an API problem
     throw new ApiError("unavailable", "The CallVerse API cannot be reached.", 0);
   }
   let body = null;
@@ -59,7 +61,7 @@ export const api = {
   logout: () => request("/api/auth/logout", { method: "POST" }),
   session: () => request("/api/auth/session"),
   company: (company) => request(`/api/company${query({ company })}`),
-  tickets: (filters) => request(`/api/console/tickets${query(filters)}`),
-  ticketFilters: () => request("/api/console/tickets/filters"),
-  ticket: (id) => request(`/api/console/tickets/${encodeURIComponent(id)}`),
+  tickets: (filters, signal) => request(`/api/console/tickets${query(filters)}`, { signal }),
+  ticketFilters: (signal) => request("/api/console/tickets/filters", { signal }),
+  ticket: (id, signal) => request(`/api/console/tickets/${encodeURIComponent(id)}`, { signal }),
 };
