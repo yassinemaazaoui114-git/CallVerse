@@ -247,7 +247,8 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   locked test once: winner bge-base-en-v1.5 for both jobs (not switched yet; [docs/benchmarks/M3.md](docs/benchmarks/M3.md)).
 - **T14a** ShopNova says no with the reason (`decline`, by code; [docs/decision_format.md](docs/decision_format.md)) and cancels
   orders still being processed (rule R-CAN-01, reason `cancel_order`, tool `propose_cancellation`). Tested on real TWCS tweets:
-  `python -m scripts.run_decline_check --file tests/dev/decline_practice_messages.json`.
+  `python -m scripts.run_decline_check --file tests/dev/decline_practice_messages.json`. Held-out set, run once: 11/12,
+  0 crashes, 0 leaks, 0 wrong writes.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

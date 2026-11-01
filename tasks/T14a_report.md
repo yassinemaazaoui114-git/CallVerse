@@ -1,6 +1,82 @@
-# T14a report — practice 12/12 with option A; held-out set still to run
+# T14a report — held-out 11/12, pass bar met (practice 12/12 with option A)
 
-# Follow-up 2 (option A) — latest state
+# Held-out run — latest state
+
+**In plain words.** The 12 held-out real messages ran once and 11 were handled as expected, so T14a passes its bar (at least
+10/12). Nothing crashed, nothing internal leaked into a reply, and nothing was written wrongly. The one miss, h08, was safe: a
+client asked to cancel a paid order and the system asked them to confirm instead of cancelling. No code was fixed and the set
+was not run again.
+
+| Check | Result | Pass bar |
+|---|---|---|
+| Correct | **11/12** | >= 10/12, pass |
+| Crashes | **0** | 0, pass |
+| Leaks | **0** | 0, pass |
+| Wrong writes | **0** | 0, pass |
+| Seconds | avg 12.4, max 26.6 | - |
+| Groq tokens | 55,011, no daily-limit abort | - |
+| Reply source | 12 of 12 from the SLM, none from the template | - |
+
+Run on 2026-11-01: `CALLVERSE_AGENTS_SET=local`, `python -m scripts.run_decline_check --file tests/data/decline_heldout_messages.json`.
+`expect` key names checked first, without the texts: outcome, rule_id, refund_rows, order_status, refund_amount, all read by
+the runner. Results: `out/decline_check_decline_heldout_messages.json` (git-ignored). Trace:
+`traces/run_20261101_084841_717447.jsonl`.
+
+| Id | Case | Outcome | Rule | Writes | Order after | Seconds | Groq tokens | Result |
+|---|---|---|---|---|---|---:|---:|---|
+| h01 | return too late | decline | R-RET-01 | none | delivered | 10.5 | 6,331 | pass |
+| h02 | return too late | decline | R-RET-01 | none | delivered | 6.8 | 4,946 | pass |
+| h03 | already refunded | decline | R-REF-05 | none | refunded | 9.1 | 3,055 | pass |
+| h04 | already refunded | decline | R-REF-05 | none | refunded | 17.8 | 3,131 | pass |
+| h05 | already refunded | decline | R-REF-05 | none | refunded | 8.8 | 3,085 | pass |
+| h06 | refund, not late | decline | R-REF-03 | none | shipped | 26.6 | 5,911 | pass |
+| h07 | cancel, paid | approve | R-CAN-01 | refund 54.40 | cancelled | 14.7 | 4,200 | pass |
+| h08 | cancel, paid | **ask_user** | R-CAN-01 | none | processing | 8.7 | 4,278 | **FAIL** |
+| h09 | cancel, cash on delivery | approve | R-CAN-01 | no refund | cancelled | 4.4 | 1,863 | pass |
+| h10 | cancel, shipped | decline | R-CAN-01 | none | shipped | 9.6 | 5,986 | pass |
+| h11 | cancel, shipped | decline | R-CAN-01 | none | shipped | 13.4 | 6,067 | pass |
+| h12 | cancel, shipped | decline | R-CAN-01 | none | shipped | 18.0 | 6,158 | pass |
+
+Replies:
+- h01: "I'm sorry for the trouble. Returns are possible within 14 days of delivery. Order 4508 was delivered 16 days ago, so it can no longer be returned."
+- h02: "I'm sorry for the trouble. Returns are possible within 14 days of delivery. Order 4507 was delivered 17 days ago, so it can no longer be returned."
+- h03, h04, h05: "I'm sorry for the trouble. Order 4506 has already been fully refunded (189.00 TND), so no further refund is possible."
+- h06: "I'm sorry for the trouble. Order 4513 is on its way and is not late: it is due by 2026-10-11. A refund for a late delivery is possible when an order is more than 5 days late."
+- h07: "I'm really sorry for the trouble. Your order 4511 is now cancelled. Your refund of 54.40 TND is approved."
+- h08: "I'm really sorry for the trouble. Please confirm that you want to cancel order 4511."
+- h09: "I'm sorry for the trouble. Your order 4514 is now cancelled."
+- h10: "I'm sorry for the trouble. Order 4513 is already on its way, so it can no longer be cancelled. An order can be cancelled only while it is being processed. Once it is delivered, you can return it within 14 days."
+- h11: the same as h10, for order 4510.
+- h12: the same as h10, with "I'm really sorry for the trouble."
+
+**The one failure, h08.** The message was "I am trying 2 cancel order I placed yesterday Order #4511 but I am not getting the
+cancel option on app. Pls help". Intake, the route and Agent B's proposal were right (`cancel_order`, B, R-CAN-01), but the
+proposal had `user_confirmed: false`, so the Coordinator answered `ask_user` ("the client has not confirmed the request yet")
+and wrote nothing. I did not look for which check set that value: the task forbids using this set to fix anything.
+
+**Problems and limits**
+- The failure is safe but leaves a dead end: by step 09's scope, a bare "yes" after "Please confirm" does not cancel. A client
+  like h08 is asked to confirm and that answer does not complete the cancellation. It stays out of this task.
+- The held-out set checks one turn only, on a fresh database per message, in stub finance mode. The > 300 TND path is tested
+  offline only.
+- First launch failed on import because `python` in PowerShell was not `.venv`; it stopped before any message or API call, so
+  it is not a second run. Ollama also had to be started first. The scored run was the only one that processed messages.
+- No code changed after the practice run, so the tests were not re-run: 1122 passed / 1122 stands.
+- `git status`: clean except the untracked `.vscode/`, which is not committed.
+
+**Safe for the demo?** Yes for these cases, after the Brain's review. Avoid the h08 path in a live demo (a cancel with no clear
+request wording), because the confirm step cannot finish.
+
+**Questions for the Brain**
+1. Should a cancel like h08 count as a request ("I am trying to cancel"), and how should a "yes" after "Please confirm" work?
+   Any change needs new practice messages, since this held-out set is now used.
+
+**Next step.** The Brain reviews T14a; Yassine merges. After the merge, reseed every `shopnova.db`
+(`python -m callverse.data.seed`), then run the tests and set `tasks/NEXT.md` to DONE.
+
+Everything below is the earlier history, kept as it was. Its "held-out still to run" lines are replaced by this section.
+
+# Follow-up 2 (option A)
 
 **In plain words.** `cancel_order` now comes only from a sentence that says "cancel"; it never wins by meaning alone. Intake
 then passed the stop rule, so I built the practice runner and ran the 12 practice messages live: all 12 were correct on the
