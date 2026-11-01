@@ -11,7 +11,7 @@ Four kinds of tools:
 - ask_agent (agents/ask.py): ask another agent (Agent A) a question.
 
 T14b: what an agent (or Intake) READS at ShopNova is cleaned first: the database labels `source` / `source_id` and the
-fields `city` / `payment` are removed from the tool result (hide_fields), because the agents do not need them and a small
+fields `city` / `payment` (T14c: and the labels `ai_generated` / `scripted`) are removed from the tool result (hide_fields), because the agents do not need them and a small
 model comments on them. The database, the Coordinator and writes.py still read the full rows (they call the tool functions
 directly, not through run_tool). Atlas has its own HIDDEN list in data/atlas/reads.py.
 
@@ -44,7 +44,9 @@ TOOL_SCHEMAS = {
 }
 
 # T14b: fields the ShopNova read tools do not show to agents (anywhere inside the result, rows of lists included).
-HIDDEN_FIELDS = ("source", "source_id", "city", "payment")
+# T14c: + the data labels ai_generated / scripted (Atlas's reads.py already hides them): they say how a demo row was
+# made, which is not a fact about the client's case.
+HIDDEN_FIELDS = ("source", "source_id", "city", "payment", "ai_generated", "scripted")
 
 
 def hide_fields(value):
