@@ -147,6 +147,8 @@ model library or Streamlit is imported. The existing Console tests still pass: `
 | `GET /api/console/groq` | supervisor | `reads.groq_today()`: tokens used today out of the configured quota, as the core counts them |
 | `GET /api/admin/dashboard?days=7\|30\|90` | ShopNova admin (`view_dashboard`) | `admin_reads.dashboard(days)` (simulation clock) |
 | `GET /api/atlas/admin/dashboard?days=7\|30\|all` | Atlas admin (`view_dashboard`) | `atlas_app_reads.dashboard(days)` (simulation clock) |
+| `GET /api/admin/manage/options` · `GET /api/admin/manage/{products\|orders\|users\|refunds\|log}?search=&page=` | ShopNova admin, the table's permission | `admin_reads.*_page`, `admin_log`; orders carry the allowed `moves` |
+| `POST /api/admin/manage/products[/{id}[/deactivate\|/reactivate]]` · `POST …/orders/{id}/status` · `POST …/users[/{id}]` | ShopNova admin (`edit_catalogue` / `edit_orders` / `edit_users`) | `writes.create_product` / `update_product` / `deactivate_product` / `reactivate_product` / `admin_set_order_status` / `create_user` / `update_user`, with `client_id` |
 | `GET /api/health` | anyone | `{ok: true}` |
 
 Errors always look like `{"error": "<code>", "message": "<words>"}` (`not_logged_in` 401, `forbidden` 403,
