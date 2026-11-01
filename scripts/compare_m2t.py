@@ -270,16 +270,20 @@ def own_a_turns(trace_path: str) -> list[dict]:
     return msgs
 
 
-def main_m2t3() -> None:
+def main_m2t3(setups: dict | None = None) -> None:
+    """setups: column label -> result file prefix (out/<prefix>_<set>.json). Default: M2T3's L and D.
+    With "T" (T14d finish: D re-run on top of T14d's code), the win rule is checked on T against M2T3's L."""
+    setups = setups or {"L": "m2t3_L", "D": "m2t3_D"}
+    labels = list(setups)
     rows, totals = [], {}
-    a_lines = {"L": [], "D": []}
-    for setup in ("L", "D"):
+    a_lines = {s: [] for s in labels}
+    for setup in labels:
         totals[setup] = {"n": 0, "n_expect": 0, "pass": 0, "ww": 0, "crash": 0, "leak": 0, "secs": [],
                          "api_calls": 0, "a_tool_errors": 0, "a_tool_refused": 0, "a_step_limit": 0,
                          "b_tool_errors": 0, "b_tool_refused": 0, "b_step_limit": 0, "a_own": 0, "a_models": Counter()}
     for name, msg_file, groq_file in M2T3_SETS:
         messages = load(msg_file)["messages"]
-        runs = {s: load(f"out/m2t3_{s}_{name}.json") for s in ("L", "D")}
+        runs = {s: load(f"out/{setups[s]}_{name}.json") for s in labels}
         groq = {r["id"]: r for r in load(groq_file)["results"]} if groq_file and Path(groq_file).exists() else {}
         for s, run in runs.items():
             t, tp = totals[s], run["summary"]["trace"]
@@ -302,7 +306,7 @@ def main_m2t3() -> None:
             expected = (f"{e.get('outcome', '(no outcome key)')} {e.get('rule_id', '')}".strip()
                         if has_expect else "(no expect: review)")
             cells = []
-            for s in ("L", "D"):
+            for s in labels:
                 r, t = res[s][m["id"]], totals[s]
                 ww = m2t3_wrong_writes(r, e)
                 t["n"] += 1
@@ -317,27 +321,35 @@ def main_m2t3() -> None:
                 r["_ww"] = ww
             g = groq.get(m["id"])
             gcell = f"{got(g)} {'PASS' if g['passed'] else 'FAIL'}" if g else "-"
-            rows.append(f"| {m['id']} | {name} | {expected} | {cells[0]} | {cells[1]} | {gcell} | "
-                        f"{res['L'][m['id']]['seconds']} / {res['D'][m['id']]['seconds']} |")
-            for s in ("L", "D"):
+            secs = " / ".join(str(res[s][m["id"]]["seconds"]) for s in labels)
+            rows.append(f"| {m['id']} | {name} | {expected} | {' | '.join(cells)} | {gcell} | {secs} |")
+            for s in labels:
                 r = res[s][m["id"]]
                 if r["problems"] or r["_ww"]:
-                    rows.append(f"|  |  | {s} problems | {'; '.join(r['problems'] + r['_ww'])} |  |  |  |")
+                    rows.append(f"|  |  | {s} problems | {'; '.join(r['problems'] + r['_ww'])} |" + "  |" * (len(labels) + 1))
 
-    print("| id | set | expected | L got | D got | Groq ref | s (L / D) |\n|---|---|---|---|---|---|---|")
+    print(f"| id | set | expected | {' | '.join(s + ' got' for s in labels)} | Groq ref | s ({' / '.join(labels)}) |")
+    print("|" + "---|" * (len(labels) + 5))
     print("\n".join(rows))
     print()
-    for s in ("L", "D"):
+    for s in labels:
         t = totals[s]
         print(f"setup {s}: expect passes {t['pass']}/{t['n_expect']} (+{t['n'] - t['n_expect']} without expect) · "
               f"wrong writes {t['ww']} · crashes {t['crash']} · leaks {t['leak']} · "
               f"avg {sum(t['secs']) / len(t['secs']):.2f} s · p95 {p95(t['secs'])} s · "
               f"tool problems A err/refused/step-limit {t['a_tool_errors']}/{t['a_tool_refused']}/{t['a_step_limit']}, "
               f"B {t['b_tool_errors']}/{t['b_tool_refused']}/{t['b_step_limit']} · Groq/API calls {t['api_calls']}")
-    for s in ("L", "D"):
+    for s in labels:
         t = totals[s]
         print(f"setup {s}: Agent A OWN turns {t['a_own']} (models {dict(t['a_models'])}) on: "
               f"{', '.join(a_lines[s]) or 'none'}")
+    if "T" in totals:
+        # T14d finish win rule (tasks/T14d_finish_with_dali_model.md, fixed before the run): same as M2T3, on T.
+        L, T = totals["L"], totals["T"]
+        win = T["crash"] == 0 and T["leak"] == 0 and T["ww"] == 0 and T["pass"] >= L["pass"]
+        print(f"WIN RULE (T = D on T14d code: 0 crashes, 0 leaks, 0 wrong writes, expect passes {T['pass']} >= "
+              f"M2T3 L's {L['pass']}): {win}")
+        return
     L, D = totals["L"], totals["D"]
     # The win rule exactly as fixed in tasks/M2T3_dali_model_60_and_switch.md (before the run). Speed is not in it.
     win = D["crash"] == 0 and D["leak"] == 0 and D["ww"] == 0 and D["pass"] >= L["pass"]
@@ -345,7 +357,9 @@ def main_m2t3() -> None:
 
 
 if __name__ == "__main__":
-    if "--m2t3" in sys.argv:
+    if "--t14d" in sys.argv:
+        main_m2t3({"L": "m2t3_L", "D": "m2t3_D", "T": "t14d_D"})
+    elif "--m2t3" in sys.argv:
         main_m2t3()
     else:
         main_m2t2() if "--m2t2" in sys.argv else main()
