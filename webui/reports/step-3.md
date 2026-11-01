@@ -71,9 +71,12 @@ clearly marked fake channel (every reply starts with `[TEST DATA]`); no Groq quo
 
 ## 4. Problems
 
-- **Jobs are in memory**: an API restart forgets a running job's progress (the channel's reply is still saved in
-  `callverse.db` and reloads; the customer just loses the "still working" notice and may see the reply appear
-  on the next refresh). Fine for one PC; noted.
+- **Jobs are in memory, and the worker is a daemon thread.** A browser disconnect leaves the worker running;
+  stopping the API process does not: the thread dies with the process and the message being handled is
+  interrupted. Only what the channel had already persisted in `callverse.db` is guaranteed to survive a
+  restart (the user message and the steps saved so far; the reply only if the channel reached it). The job's
+  progress record and its duplicate-protection record are lost too, so a resend after a restart is a new
+  run. Fine for a one-PC demo; not a guarantee that every in-flight reply survives.
 - **One stream consumer at a time per job is not enforced**: two tabs can both attach; each gets the events.
   Harmless, but the `busy_user` rule is per customer, not per tab.
 - **The "disconnect" in the browser was a page reload** (the real-network drop was tested in the API tests and
@@ -85,8 +88,9 @@ clearly marked fake channel (every reply starts with `[TEST DATA]`); no Groq quo
 
 ## 5. Questions for the Brain
 
-1. Should a running job survive an API restart (persist `job_id` + `client_id` on the ticket)? Today the
-   reply survives (it is in the store); only the progress notice is lost.
+1. Should a message survive an API restart (persist the job and its `client_id` on the ticket and let a
+   restarted API re-run or resume it)? Today an in-flight message is interrupted by a restart; only what was
+   already written to the store survives.
 2. The chat's `GET /api/shop/chat` uses `store.current_ticket` (the latest continuable ticket) when no ticket
    is named, like the Streamlit page after a reload. Keep, or always start a new conversation on load?
 3. Step 4 (admin approvals) will call `approvals.decide(approval_id, admin, approve, reason)`: plan is
@@ -96,3 +100,49 @@ clearly marked fake channel (every reply starts with `[TEST DATA]`); no Groq quo
 
 Step 4 of the brief: ShopNova admin approvals (approve / reject with a reason, the admin queue, Layer 3 kept).
 After your review of this step.
+
+## 7. Correction pass (second step-3 commit)
+
+Asked by the Brain after review. Changes under `webui/` only; `callverse/` unchanged.
+
+1. **Duplicate protection.** `chat.Registry` now keeps two indexes: `_by_client[(company, user id, client_id)]`
+   for the whole 15 min retention window, and `_current[(company, user id)]` (the running / latest pointer).
+   A `client_id` is bound to its payload (`text`, `ticket_id`, `about_order`): same id + same payload = the
+   same job, whatever came after it (A → B → replay A finds A, no third run); same id + another payload =
+   409 `client_id_reused`. Finished records expire after `KEEP_SECONDS`; the index is bounded to 500 records,
+   oldest finished first, a running job never dropped.
+2. **Request identity in the browser.** `Chat.jsx` keeps the uncertain submission as `pending`
+   ({clientId, text, ticketId, aboutOrder}). A new message always gets a new id; "Resend the same message"
+   re-posts exactly the pending payload with its id; while a submission is uncertain (stream cut, or
+   409 `busy_user`) Send is paused and the screen offers Check status / Resend / Discard, so typed text is
+   never a silent retry. A server-reported failure (error event, refusal) ends the submission: the next message
+   is a new one.
+3. **Stream lifecycle.** Every stream (send or recovery) has a sequence number and an `AbortController`;
+   events and ends of an older stream are ignored (no state, no URL change). Streams are detached on unmount
+   (navigation, logout, session expiry), on a conversation change (`?ticket=`), on New chat and before any
+   new stream. Detaching aborts the reader only; the server's job goes on. `recovering` guards Check status:
+   repeated clicks make one job request and one stream.
+4. **SSE parsing.** `sse.js` normalises CRLF and lone CR, holding a trailing CR until the next chunk (CR and
+   LF in different chunks), accepts an `AbortSignal` (cancels the reader, rejects with `AbortError`) and always
+   releases the reader's lock. Progress and completion events stay separate.
+5. **Restart claim corrected** in section 4, question 1 and the README: a browser disconnect leaves the worker
+   running; terminating the API kills its daemon worker; only persisted data survives.
+
+**Regression tests**: API — A → B → replay A runs the channel twice and replays A's events; same id with another
+text / ticket / order → 409 and no run; registry expiry and bound (oldest finished dropped, running kept).
+Frontend — new text after a failure gets a new id and shows its own result; uncertain submission pauses Send and
+Resend reuses the exact id + payload; navigating away during sending drops the late `done` (no reload, no
+redirect); navigating away during recovery drops the late `done`; repeated Check status = one job request and one
+stream; SSE CRLF split at every one of the frame's chunk boundaries, three-chunk and lone-CR variants; abort
+cancels the reader, releases the body, keeps the events already delivered.
+
+**Results**
+
+| Check | Result |
+|---|---|
+| `python -m pytest webui/api/tests -q` | **42 passed** |
+| `npm --prefix webui/frontend test` | **32 passed** (6 files) |
+| `npm --prefix webui/frontend run build` | OK, JS 220.3 kB (69.2 kB gzip) |
+
+Not re-checked in the browser this pass (the fake-channel browser checks of section 3 were done before the
+correction; the corrected paths are covered by the tests above).

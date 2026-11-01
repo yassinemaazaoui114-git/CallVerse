@@ -37,3 +37,38 @@ describe("sse", () => {
     expect(got).toEqual([{ event: "step", data: { text: "one" } }]);
   });
 });
+
+describe("sse: CRLF and detach", () => {
+  const TEXT = "event: step\r\ndata: {\"text\": \"one\"}\r\n\r\nevent: step\r\ndata: {\"text\": \"two\"}\r\n\r\nevent: done\r\ndata: {\"ok\": 1}\r\n\r\n";
+  const EXPECTED = [{ event: "step", data: { text: "one" } }, { event: "step", data: { text: "two" } }, { event: "done", data: { ok: 1 } }];
+
+  it("parses CRLF frames split at every possible chunk boundary (CR and LF in different chunks too)", async () => {
+    for (let cut = 1; cut < TEXT.length; cut++) {
+      const got = [];
+      await readSSE(streamOf([TEXT.slice(0, cut), TEXT.slice(cut)]), (e) => got.push(e));
+      expect(got, `cut at ${cut}`).toEqual(EXPECTED);
+    }
+  });
+
+  it("also handles three chunks and lone CR line ends", async () => {
+    const got = [];
+    await readSSE(streamOf(["event: step\r", "\ndata: {\"a\":1}\r", "\n\r\nevent: done\rdata: {\"b\":2}\r\r"]), (e) => got.push(e));
+    expect(got).toEqual([{ event: "step", data: { a: 1 } }, { event: "done", data: { b: 2 } }]);
+  });
+
+  it("an abort cancels the reader, releases the body and rejects with AbortError", async () => {
+    const enc = new TextEncoder();
+    let controller;
+    const body = new ReadableStream({ start(c) { controller = c; c.enqueue(enc.encode("event: step\ndata: {\"x\":1}\n\n")); } });
+    const response = { body };
+    const ctrl = new AbortController();
+    const got = [];
+    const run = readSSE(response, (e) => got.push(e), { signal: ctrl.signal });
+    await new Promise((r) => setTimeout(r, 10));
+    ctrl.abort();
+    await expect(run).rejects.toMatchObject({ name: "AbortError" });
+    expect(got).toEqual([{ event: "step", data: { x: 1 } }]);
+    expect(body.locked).toBe(false);
+    expect(() => controller.enqueue(enc.encode("x"))).toThrow();   // the stream was cancelled
+  });
+});

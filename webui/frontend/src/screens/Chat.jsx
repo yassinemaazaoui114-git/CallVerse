@@ -40,11 +40,20 @@ export default function Chat() {
   const { data: convo, error, loading, reload } = useGuardedLoad((signal) => api.chat(ticketParam || undefined, signal), [ticketParam]);
 
   const [draft, setDraft] = useState("");
-  // transport: {status: idle | sending | attached | disconnected | failed, steps: [...], message, clientId}
-  const [tx, setTx] = useState({ status: "idle", steps: [], message: null, clientId: null });
+  // transport: {status: idle | sending | attached | uncertain | failed, reason, steps, message}
+  //   sending   = our POST stream is open          attached  = re-attached to the running job's stream
+  //   uncertain = we do not know how the submission ended (reason: "disconnected" | "busy_user"): the server
+  //               may still be running it -> only "Check status" / "Resend the same message" are offered
+  //   failed    = the server said it failed (error event / refusal): the next message is a NEW submission
+  const [tx, setTx] = useState({ status: "idle", reason: null, steps: [], message: null });
+  // the submission whose outcome is uncertain: its request id and its payload stay together, so a recovery
+  // or a resend is exactly that request, and a NEW message always gets a new id
+  const [pending, setPending] = useState(null);   // {clientId, text, ticketId, aboutOrder} | null
   const [lastResult, setLastResult] = useState(null);   // the `done` data of the last send (business outcome)
   const [fresh, setFresh] = useState(false);             // "New chat" pressed: show an empty conversation
-  const abortRef = useRef(null);
+  const streamSeq = useRef(0);          // the number of the stream in progress: events of an older one are dropped
+  const streamCtrl = useRef(null);      // its AbortController (detach = abort; the server's job goes on)
+  const recovering = useRef(false);     // one Check status at a time
   const markedRef = useRef(new Set());
   const inputRef = useRef(null);
 
@@ -53,6 +62,16 @@ export default function Chat() {
   const unread = (convo && convo.unread) || [];
   const job = convo && convo.job;
   const busy = tx.status === "sending" || tx.status === "attached";
+  const uncertain = tx.status === "uncertain";
+
+  // Detach from any stream when the conversation changes (another ticket, New chat) or the screen unmounts
+  // (navigation, logout, session expiry). Detaching never cancels the server's job: it only stops listening.
+  const detach = useCallback(() => {
+    streamSeq.current += 1;
+    if (streamCtrl.current) { streamCtrl.current.abort(); streamCtrl.current = null; }
+    recovering.current = false;
+  }, []);
+  useEffect(() => detach, [ticketParam, detach]);
 
   // A ticket shown with a new reply: tell the server the customer has seen it (once per ticket).
   useEffect(() => {
@@ -62,28 +81,44 @@ export default function Chat() {
     }
   }, [ticket, reload]);
 
+  // Open a stream: returns {seq, ctrl}; `live(seq)` says whether that stream may still touch the screen.
+  function openStream() {
+    detach();
+    const seq = streamSeq.current;
+    const ctrl = new AbortController();
+    streamCtrl.current = ctrl;
+    return { seq, ctrl };
+  }
+  const live = (seq) => seq === streamSeq.current;
+
   // Stream consumer shared by "send" and "re-attach": feeds the live steps and ends on done / error.
-  const consume = useCallback(async (response) => {
+  async function consume(response, seq, ctrl) {
     let ended = null;
     await readSSE(response, (ev) => {
+      if (!live(seq)) return;
       if (ev.event === "step") setTx((t) => ({ ...t, steps: [...t.steps, ev.data] }));
       else if (ev.event === "done") ended = { kind: "done", data: ev.data };
       else if (ev.event === "error") ended = { kind: "error", data: ev.data };
-    });
+    }, { signal: ctrl.signal });
     return ended;
-  }, []);
+  }
 
-  async function finish(ended) {
+  // How a stream ended. Guarded by `seq`: a late end of an older stream changes nothing (no state, no URL).
+  function finish(ended, seq) {
+    if (!live(seq)) return;
+    streamCtrl.current = null;
     if (!ended) {   // the stream closed without an end event: the connection was cut
-      setTx((t) => ({ ...t, status: "disconnected", message: null }));
+      setTx((t) => ({ ...t, status: "uncertain", reason: "disconnected", message: null }));
       return;
     }
     if (ended.kind === "error") {
-      setTx((t) => ({ ...t, status: "failed", message: ended.data.message || "The request failed." }));
+      setPending(null);   // the server reported the end of THIS submission: the next message is a new one
+      setTx((t) => ({ ...t, status: "failed", reason: null, message: ended.data.message || "The request failed." }));
       return;
     }
+    setPending(null);
     setLastResult(ended.data);
-    setTx({ status: "idle", steps: [], message: null, clientId: null });
+    setTx({ status: "idle", reason: null, steps: [], message: null });
     setFresh(false);
     const tid = ended.data && ended.data.ticket_id;
     if (tid && tid !== ticketParam) {
@@ -95,65 +130,103 @@ export default function Chat() {
     }
   }
 
+  // POST one submission (new or the pending one) and follow its stream.
+  async function submit(sub) {
+    const { seq, ctrl } = openStream();
+    setTx({ status: "sending", reason: null, steps: [], message: null });
+    setLastResult(null);
+    try {
+      const body = { text: sub.text, client_id: sub.clientId };
+      if (sub.ticketId) body.ticket_id = sub.ticketId;
+      if (sub.aboutOrder) body.about_order = sub.aboutOrder;
+      const response = await api.chatSend(body, ctrl.signal);
+      if (!live(seq)) return;
+      setDraft("");
+      const ended = await consume(response, seq, ctrl);
+      finish(ended, seq);
+    } catch (err) {
+      if (!live(seq) || (err && err.name === "AbortError")) return;
+      streamCtrl.current = null;
+      if (err instanceof ApiError && err.code === "not_logged_in") { expired(); return; }
+      if (err instanceof ApiError && err.code === "busy_user") {
+        setTx((t) => ({ ...t, status: "uncertain", reason: "busy_user", message: err.message }));   // keep `pending`
+      } else if (err instanceof ApiError) {
+        setPending(null);   // refused outright (CSRF, not yours, bad text, id reused): not a submission in flight
+        setTx((t) => ({ ...t, status: "failed", reason: null, message: err.message }));
+      } else {
+        setTx((t) => ({ ...t, status: "uncertain", reason: "disconnected", message: null }));
+      }
+    }
+  }
+
+  // A NEW message: always a new request id, bound to the text / ticket / order of this moment.
   async function send(e) {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || busy) return;
-    const clientId = tx.clientId || newClientId();   // a retry after a failure reuses the id: same job, no rerun
-    setTx({ status: "sending", steps: [], message: null, clientId });
-    setLastResult(null);
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
-    try {
-      const body = { text, client_id: clientId };
-      if (ticket) body.ticket_id = ticket.id;
-      if (orderParam) body.about_order = Number(orderParam);
-      const response = await api.chatSend(body, ctrl.signal);
-      setDraft("");
-      const ended = await consume(response);
-      await finish(ended);
-    } catch (err) {
-      if (err && err.name === "AbortError") return;
-      if (err instanceof ApiError && err.code === "not_logged_in") { expired(); return; }
-      if (err instanceof ApiError) {
-        setTx((t) => ({ ...t, status: "failed", message: err.message, clientId: err.code === "busy_user" ? null : t.clientId }));
-      } else {
-        setTx((t) => ({ ...t, status: "disconnected", message: null }));   // the network dropped mid-stream
-      }
-    }
+    if (!text || busy || uncertain) return;
+    const sub = { clientId: newClientId(), text, ticketId: ticket ? ticket.id : null, aboutOrder: orderParam ? Number(orderParam) : null };
+    setPending(sub);
+    await submit(sub);
+  }
+
+  // The pending submission again, same id and same payload: the server answers with the same job (or runs it
+  // once if it never arrived). Never used for new text.
+  async function resendPending() {
+    if (!pending || busy) return;
+    await submit(pending);
   }
 
   // After a disconnect (or when the page loads while a job is running): ask the server, never resend.
+  // One at a time: a second click while a check runs does nothing.
   async function checkStatus() {
+    if (recovering.current || busy) return;
+    recovering.current = true;
+    const { seq, ctrl } = openStream();
+    recovering.current = true;   // openStream's detach cleared it
     try {
-      const { job: current } = await api.chatJob();
-      if (!current) { setTx({ status: "idle", steps: [], message: null, clientId: null }); reload(); return; }
+      const { job: current } = await api.chatJob(ctrl.signal);
+      if (!live(seq)) return;
+      if (!current) { setPending(null); setTx({ status: "idle", reason: null, steps: [], message: null }); reload(); return; }
       if (current.status === "running") {
-        setTx({ status: "attached", steps: current.steps || [], message: null, clientId: current.client_id });
-        const response = await api.chatJobStream();
-        setTx((t) => ({ ...t, steps: [] }));   // the stream replays the steps from the start
-        const ended = await consume(response);
-        await finish(ended);
+        setTx({ status: "attached", reason: null, steps: [], message: null });
+        const response = await api.chatJobStream(ctrl.signal);
+        if (!live(seq)) return;
+        const ended = await consume(response, seq, ctrl);   // the stream replays the steps from the start
+        finish(ended, seq);
         return;
       }
-      if (current.status === "failed") { setTx({ status: "failed", steps: current.steps || [], message: current.error && current.error.message, clientId: current.client_id }); reload(); return; }
-      await finish({ kind: "done", data: current.result });
+      if (current.status === "failed") {
+        setPending(null);
+        setTx({ status: "failed", reason: null, steps: current.steps || [], message: current.error && current.error.message });
+        reload();
+        return;
+      }
+      finish({ kind: "done", data: current.result }, seq);
     } catch (err) {
+      if (!live(seq) || (err && err.name === "AbortError")) return;
       if (err instanceof ApiError && err.code === "not_logged_in") { expired(); return; }
-      setTx((t) => ({ ...t, status: "disconnected" }));
+      setTx((t) => ({ ...t, status: "uncertain", reason: "disconnected" }));
+    } finally {
+      if (live(seq)) recovering.current = false;
     }
   }
 
+  function resetTx() {
+    setTx({ status: "idle", reason: null, steps: [], message: null });
+  }
+
   function newChat() {
-    if (abortRef.current) abortRef.current.abort();
+    detach();
     setFresh(true);
     setLastResult(null);
-    setTx({ status: "idle", steps: [], message: null, clientId: null });
+    setPending(null);
+    resetTx();
     setParams(new URLSearchParams(), { replace: true });
     if (inputRef.current) inputRef.current.focus();
   }
 
   function openTicket(id) {
+    detach();
     setFresh(false);
     setLastResult(null);
     const next = new URLSearchParams();
@@ -254,14 +327,23 @@ export default function Chat() {
             </div>
           )}
 
-          {tx.status === "disconnected" && (
+          {uncertain && (
             <div className="alert alert-danger" role="alert">
               <Icon name="alert" />
               <div className="stack" style={{ gap: "var(--cv-s1)" }}>
-                <strong>Connection lost</strong>
-                <span className="small">The link to CallVerse dropped while it was working. That does not cancel your request: it may still be running and its reply will be saved. Your message is NOT sent again.</span>
+                <strong>{tx.reason === "busy_user" ? "A previous message is still being processed" : "Connection lost"}</strong>
+                <span className="small">
+                  {tx.reason === "busy_user"
+                    ? `${tx.message || ""} Check its status below; your new message is kept and NOT sent until you choose to.`
+                    : "The link to CallVerse dropped while it was working. That does not cancel your request: it may still be running and its reply will be saved. Your message is NOT sent again unless you choose to resend it."}
+                </span>
+                {pending && <span className="muted xs">Waiting submission: “{pending.text.length > 60 ? `${pending.text.slice(0, 60)}…` : pending.text}”</span>}
               </div>
-              <div className="actions"><button type="button" className="btn btn-sm" onClick={checkStatus}><Icon name="refresh" size={14} />Check status</button></div>
+              <div className="actions row">
+                <button type="button" className="btn btn-sm" onClick={checkStatus}><Icon name="refresh" size={14} />Check status</button>
+                {pending && tx.reason === "disconnected" && <button type="button" className="btn btn-ghost btn-sm" onClick={resendPending}>Resend the same message</button>}
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setPending(null); resetTx(); reload(); }}>Discard it</button>
+              </div>
             </div>
           )}
 
@@ -272,7 +354,7 @@ export default function Chat() {
                 <strong>The request failed</strong>
                 <span className="small">{tx.message || "CallVerse could not handle the message."}</span>
               </div>
-              <div className="actions"><button type="button" className="btn btn-ghost btn-sm" aria-label="Dismiss" onClick={() => setTx({ status: "idle", steps: [], message: null, clientId: null })}><Icon name="x" size={14} /></button></div>
+              <div className="actions"><button type="button" className="btn btn-ghost btn-sm" aria-label="Dismiss" onClick={resetTx}><Icon name="x" size={14} /></button></div>
             </div>
           )}
 
@@ -281,14 +363,15 @@ export default function Chat() {
               <label htmlFor="chat-text">Your message</label>
               <textarea id="chat-text" ref={inputRef} className="input" value={draft} onChange={(e) => setDraft(e.target.value)}
                 placeholder={orderParam ? `About order ${orderParam}…` : "Type your message…"} disabled={busy} maxLength={2000}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!busy && draft.trim()) send(e); } }} />
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!busy && !uncertain && draft.trim()) send(e); } }} />
               <span className="muted xs">Enter sends · Shift+Enter for a new line</span>
             </div>
             <div className="actions">
-              <button type="submit" className="btn btn-primary" disabled={busy || !draft.trim() || !!runningOnServer}>
+              <button type="submit" className="btn btn-primary" disabled={busy || uncertain || !draft.trim() || !!runningOnServer}>
                 {busy ? <span className="spinner" aria-hidden="true" /> : <Icon name="chat" size={16} />}{busy ? "Sending…" : "Send"}
               </button>
               {ticket && <span className="muted xs">Replies to ticket {ticket.id}</span>}
+              {uncertain && <span className="muted xs">Send is paused until the previous submission is settled (Check status above).</span>}
             </div>
           </form>
         </section>

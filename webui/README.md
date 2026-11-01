@@ -133,17 +133,31 @@ from the channel's `on_step`), `event: done` (the channel's saved result: ticket
 `event: error` (the worker failed), and `: ping` comments every 15 s on an idle connection. The reader buffers
 partial chunks and splits on blank lines, so a frame cut by the network is reassembled.
 
-Duplicates: each send carries a fresh `client_id`. A second send while the customer's job runs is refused
-(409 `busy_user`) unless it carries the same `client_id` (double click / retry): then the same job is returned.
-A finished job with the same `client_id` is answered from memory, never run twice.
+Duplicates: each send carries a `client_id`, bound on the server to its text, ticket and order for 15 min
+after the job finished (jobs are indexed by company, customer and `client_id`, apart from the "current job"
+pointer; the index is bounded to 500 records, oldest finished dropped first). The same id with the same payload
+returns the same job, even a replay of A after B ran, and never runs the channel again; the same id with
+another payload is refused (409 `client_id_reused`). Another send while the customer's job runs is refused
+(409 `busy_user`).
 
 Disconnects: dropping the stream does **not** stop the worker; the channel finishes and saves its reply in the
 tickets store. The screen says so ("Connection lost… NOT sent again") and offers **Check status**:
 `GET /api/shop/chat/job` tells whether the job is still running (then the screen re-attaches to
 `GET /api/shop/chat/job/stream`, which replays the steps so far) or finished (then the saved conversation is
 reloaded). On page load a running job is shown as "CallVerse is still working on your last message" with Send
-disabled. Jobs live in memory for 15 min after they finish; restarting the API forgets them (the conversation
-itself is always read back from `callverse.db`).
+disabled. Jobs live in memory for 15 min after they finish. **Stopping the API process is not a browser
+disconnect**: the worker is a daemon thread and dies with the process, so a message that was still being
+handled is interrupted; only what the channel had already written to `callverse.db` (the user message, the
+steps so far, and the reply if it was reached) survives a restart. The job's progress and its duplicate record
+are gone too, so a resend after a restart is a new run.
+
+Request identity in the browser: every NEW message gets a fresh `client_id`, bound to its text, ticket and
+order. While a submission's outcome is uncertain (connection lost, or the server said a previous message is
+still running), Send is paused and the screen offers **Check status** (one at a time; never resends),
+**Resend the same message** (the same id and payload: the server returns the same job or runs it once) or
+**Discard**. The next typed message is never treated as a retry of the previous one. Streams are detached
+(aborted on the browser side only) when the conversation changes or the screen unmounts; a late event of a
+detached stream changes nothing and never redirects. Detaching never cancels the server's job.
 
 Transport state (sending / disconnected / failed) is separate from the business outcome (`approve`, `busy`,
 `not_your_order`, an outcome the UI has never seen…), which only comes from the saved result and is shown as

@@ -47,6 +47,7 @@ ERRORS = {
     "forbidden": "This page is for the CallVerse supervisor only.",
     "customer_only": "This page is for ShopNova customers only.",
     "busy_user": "Your previous message is still being processed. Please wait for the reply.",
+    "client_id_reused": "This request id was already used for a different message. Send the new message with a new id.",
     "empty_text": "Please type a message.",
     "text_too_long": f"A message may have at most {chat.MAX_TEXT} characters.",
     "no_job": "No message is being processed.",
@@ -272,8 +273,8 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
         try:
             job, _created = jobs.start(customer["user_id"], companies.DEFAULT, text, body.ticket_id, body.about_order,
                                        body.client_id, chat.run_job)
-        except ValueError:
-            raise ApiError(409, "busy_user")
+        except ValueError as e:
+            raise ApiError(409, str(e))   # busy_user or client_id_reused (both are in ERRORS)
         return StreamingResponse(chat.stream(job), media_type="text/event-stream",
                                  headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 

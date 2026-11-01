@@ -284,3 +284,75 @@ def test_chat_imports_the_channel_lazily():
     """With no fake set, the channel is imported only when send_fn() is first called (never at API import)."""
     chat.use_send_fn(None)
     assert chat._send_fn is None
+
+
+# ---------- correction pass: client_id index, payload binding, bounds ----------
+
+def test_replay_of_a_after_b_returns_a_without_a_third_run(client):
+    calls = []
+    chat.use_send_fn(make_fake(calls=calls))
+    login(client, "sara")
+    a = send(client, "message A", client_id="id-A")
+    b = send(client, "message B", client_id="id-B", ticket_id="T-0001")
+    assert a.status_code == 200 and b.status_code == 200
+    assert len(calls) == 2
+    again = send(client, "message A", client_id="id-A")   # A is no longer the current job: still found
+    assert again.status_code == 200
+    events = parse_sse(again.text)
+    assert events[-1][0] == "done" and events[-1][1]["ticket_id"] == "T-0001"
+    assert [d["text"] for e, d in events if e == "step"] == STEPS   # A's own recorded events, replayed
+    assert len(calls) == 2                                          # the channel ran exactly twice
+    assert client.get("/api/shop/chat/job").json()["job"]["client_id"] == "id-B"   # the pointer stays on B
+
+
+def test_same_client_id_with_other_content_is_rejected(client):
+    calls = []
+    chat.use_send_fn(make_fake(calls=calls))
+    login(client, "sara")
+    assert send(client, "first text", client_id="same").status_code == 200
+    own = client.get("/api/shop/orders").json()["orders"][0]["id"]
+    for other in ({"text": "other text"}, {"text": "first text", "ticket_id": "T-0001"},
+                  {"text": "first text", "about_order": own}):
+        r = client.post("/api/shop/chat/send", json={"client_id": "same", **other}, headers=CSRF)
+        assert r.status_code == 409 and r.json()["error"] == "client_id_reused", other
+    assert len(calls) == 1
+    # the exact same payload is still the same job
+    assert parse_sse(send(client, "first text", client_id="same").text)[-1][0] == "done"
+    assert len(calls) == 1
+
+
+def test_registry_expires_and_bounds_records():
+    """Finished jobs leave the client index after KEEP_SECONDS; above MAX_JOBS the oldest finished go first;
+    a running job is never dropped and the current pointer is independent of the index."""
+    reg = chat.Registry()
+    reg.MAX_JOBS = 3
+    runs = []
+
+    def run(job):
+        runs.append(job.client_id)
+        job.finish({"ok": True})
+    for i in range(5):
+        job, created = reg.start(1, "shopnova", f"m{i}", None, None, f"c{i}", run)
+        assert created
+        for _ in range(100):   # the worker thread finishes at once; wait for it
+            if job.status != "running":
+                break
+            time.sleep(0.01)
+        time.sleep(0.002)   # distinct finish times, in order c0 < c1 < ... (the real "oldest first")
+    kept = {k[2] for k in reg._by_client}
+    assert kept == {"c2", "c3", "c4"}   # the two oldest finished jobs were dropped
+    assert reg.current("shopnova", 1).client_id == "c4"
+    # expiry: push a job past the window
+    reg._by_client[("shopnova", 1, "c4")].finished -= chat.KEEP_SECONDS + 1
+    assert reg.current("shopnova", 1) is None and ("shopnova", 1, "c4") not in reg._by_client
+    # a running job is kept whatever the bound
+    held = []
+    def hold(job): held.append(job)   # never finishes
+    reg.start(1, "shopnova", "running", None, None, "run", hold)
+    for i in range(10, 14):
+        try:
+            reg.start(1, "shopnova", f"m{i}", None, None, f"c{i}", run)
+        except ValueError as e:
+            assert str(e) == "busy_user"
+    assert ("shopnova", 1, "run") in reg._by_client
+    assert len(runs) == 5

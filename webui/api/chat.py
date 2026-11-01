@@ -10,14 +10,17 @@ module adds only transport around it; no pipeline logic is copied:
   reads it with `fetch`; a native EventSource cannot POST). Events: `job` (the job id), `step` (one live
   text), `done` (the channel's saved result), `error` (the worker failed), and `: ping` comments every
   PING_SECONDS so an idle connection stays open;
-- jobs are kept in memory per customer (the latest job per (company, user id)) for KEEP_SECONDS after they
-  finish, so a browser that lost the connection can ask `GET /api/shop/chat/job` what happened, or re-attach
-  to the live stream (`GET /api/shop/chat/job/stream`, which replays the steps so far) WITHOUT sending the
-  message again. A disconnect never stops the worker: the channel keeps running and saves its reply in the
-  tickets store, which the browser then reloads;
-- duplicates: a second send while the customer's job is still running is refused (409 `busy_user`), except
-  when it carries the same `client_id` (a double-click or a retry): then the same job is returned. A finished
-  job with the same `client_id` is returned from memory, not run again;
+- jobs are kept in memory for KEEP_SECONDS after they finish (see Registry), so a browser that lost the
+  connection can ask `GET /api/shop/chat/job` what happened, or re-attach to the live stream
+  (`GET /api/shop/chat/job/stream`, which replays the steps so far) WITHOUT sending the message again. A browser
+  disconnect never stops the worker: the channel keeps running and saves its reply in the tickets store, which
+  the browser then reloads. Stopping the API process is different: the worker is a daemon thread and dies
+  with the process, so only what the channel had already written to the store survives a restart;
+- duplicates: every send may carry a `client_id`. A `client_id` is bound to its message, ticket and order for
+  the whole retention window: the same id with the same payload returns the same job (a double click, a retry
+  after a disconnect, even a replay of A after B ran), never a second channel run; the same id with another
+  payload is refused (409 `client_id_reused`). A send while the customer's job is still running is refused
+  (409 `busy_user`);
 - the channel is imported lazily (`send_fn()`), so a Console-only API process never loads the pipeline, the
   models or the channel. Tests set `send_fn` to a fake.
 
@@ -32,7 +35,7 @@ import uuid
 from datetime import datetime
 
 PING_SECONDS = 15        # keep-alive comment on an idle stream
-KEEP_SECONDS = 15 * 60   # a finished job stays in memory this long (for recovery after a disconnect)
+KEEP_SECONDS = 15 * 60   # a finished job stays in memory this long (recovery and duplicate protection window)
 MAX_TEXT = 2000
 
 _send_fn = None
@@ -92,6 +95,11 @@ class Job:
         self._push("error", self.error)
 
     @property
+    def payload(self) -> tuple:
+        """What a client_id is bound to: the same id may only ever mean this message on this ticket / order."""
+        return (self.text, self.ticket_id, self.about_order)
+
+    @property
     def steps(self) -> list[dict]:
         return [e["data"] for e in self.events if e["event"] == "step"]
 
@@ -113,45 +121,78 @@ class Job:
 
 
 class Registry:
-    """The latest job per customer, with the duplicate rules. One lock: FastAPI handlers run in threads."""
+    """The jobs of the customers, with the duplicate rules. One lock: FastAPI handlers run in threads.
+
+    Two indexes, kept apart on purpose:
+    - `_by_client[(company, user id, client_id)]` = the job that `client_id` started, for the whole retention
+      window (KEEP_SECONDS after it finished). A replay of A after B still finds A and never runs the channel
+      again; a `client_id` reused with a DIFFERENT text / ticket / order is refused (it is not the same request);
+    - `_current[(company, user id)]` = the customer's latest job (the "is something running?" pointer and what
+      GET /api/shop/chat/job reports).
+    Storage is bounded: finished jobs older than KEEP_SECONDS are dropped on every access, and when more than
+    MAX_JOBS are kept the oldest FINISHED ones go first (a running job is never dropped).
+    """
+
+    MAX_JOBS = 500
 
     def __init__(self):
-        self._jobs: dict[tuple[str, int], Job] = {}
+        self._by_client: dict[tuple[str, int, str], Job] = {}
+        self._current: dict[tuple[str, int], Job] = {}
         self._lock = threading.Lock()
 
     @staticmethod
     def _key(company: str, user_id: int) -> tuple[str, int]:
         return company, int(user_id)
 
+    def _prune(self) -> None:
+        """Drop expired finished jobs; then, if still too many, the oldest finished ones. Lock held by caller."""
+        for key, job in list(self._by_client.items()):
+            if job.expired():
+                del self._by_client[key]
+        for key, job in list(self._current.items()):
+            if job.expired():
+                del self._current[key]
+        if len(self._by_client) > self.MAX_JOBS:
+            finished = sorted((j for j in self._by_client.values() if j.finished is not None), key=lambda j: j.finished)
+            for job in finished[: len(self._by_client) - self.MAX_JOBS]:
+                self._by_client.pop((job.company, job.user_id, job.client_id), None)
+
     def current(self, company: str, user_id: int) -> Job | None:
         with self._lock:
-            job = self._jobs.get(self._key(company, user_id))
-            if job is not None and job.expired():
-                del self._jobs[self._key(company, user_id)]
-                return None
-            return job
+            self._prune()
+            return self._current.get(self._key(company, user_id))
 
     def start(self, user_id: int, company: str, text: str, ticket_id: str | None, about_order: int | None,
               client_id: str | None, run) -> tuple[Job, bool]:
-        """(job, created). Same client_id as the current job: that job again (no second run). Another job of
-        this customer still running: ValueError("busy_user"). Otherwise a new job, run by `run(job)` in a thread."""
+        """(job, created).
+        - a known client_id with the SAME payload: that job again, whatever came after it (no second run);
+        - a known client_id with ANOTHER payload: ValueError("client_id_reused");
+        - another job of this customer still running: ValueError("busy_user");
+        - otherwise a new job, run by `run(job)` in a thread."""
         with self._lock:
+            self._prune()
             key = self._key(company, user_id)
-            existing = self._jobs.get(key)
-            if existing is not None and existing.expired():
-                existing = None
-            if existing is not None and client_id and existing.client_id == client_id:
-                return existing, False
-            if existing is not None and existing.status == "running":
+            if client_id:
+                known = self._by_client.get((company, int(user_id), client_id))
+                if known is not None:
+                    if known.payload != (text, ticket_id, about_order):
+                        raise ValueError("client_id_reused")
+                    return known, False
+            running = self._current.get(key)
+            if running is not None and running.status == "running":
                 raise ValueError("busy_user")
             job = Job(user_id, company, text, ticket_id, about_order, client_id)
-            self._jobs[key] = job
+            self._current[key] = job
+            if client_id:
+                self._by_client[(company, int(user_id), client_id)] = job
+            self._prune()   # keep the bound after the insert too (the new job is running: never dropped)
         threading.Thread(target=run, args=(job,), daemon=True, name=f"chat-{job.id[:8]}").start()
         return job, True
 
     def clear(self) -> None:
         with self._lock:
-            self._jobs.clear()
+            self._by_client.clear()
+            self._current.clear()
 
 
 def run_job(job: Job) -> None:
