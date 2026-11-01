@@ -1,0 +1,47 @@
+{
+  "split": "SetFit/amazon_reviews_multi_en test (real, held out)",
+  "seed": 2026,
+  "n": 100,
+  "star_counts": {
+    "1": 17,
+    "2": 10,
+    "3": 17,
+    "4": 24,
+    "5": 32
+  },
+  "model_file": {
+    "path": "models/agent_f/satisfaction.pkl",
+    "bytes": 18600349
+  },
+  "test_file_bytes": 1180425,
+  "agent_f": {
+    "mae_raw": 0.5925,
+    "spearman": 0.8559,
+    "mae": 0.55,
+    "accuracy": 0.51,
+    "within_1": 0.94
+  },
+  "baseline_train_mean": {
+    "value": 3.0,
+    "mae_raw": 1.32,
+    "spearman": 0.0,
+    "mae": 1.32,
+    "accuracy": 0.17,
+    "within_1": 0.51
+  },
+  "baseline_delay_only": "not possible: Amazon reviews have no delivery delay",
+  "his_n5000_expected": {
+    "mae": 0.6054,
+    "within_1": 0.9218,
+    "spearman": 0.8016,
+    "mae_raw": 0.6439
+  },
+  "speed": {
+    "load_s": 0.11,
+    "rss_before_mb": 163.0,
+    "rss_after_load_mb": 230.3,
+    "ms_mean": 1.244,
+    "ms_p95": 1.7,
+    "limit_ms": 200
+  }
+}

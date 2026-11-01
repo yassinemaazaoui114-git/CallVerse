@@ -139,6 +139,8 @@ Measured comparisons of models and methods, kept apart from the running system (
   `evaluate_response(record)` -> satisfaction, PASS / FAIL / UNKNOWN, reward +1 / -1 / None). A separate module: nothing in
   the pipeline calls it yet. Its model file `models/agent_f/satisfaction.pkl` (git-ignored) is built by
   `python -m benchmarks.agent_f.train` (Amazon reviews, see DATA_LICENCES.md); the tests need no model file.
+  F1b checked Semah's file once on 100 real Amazon test reviews (`python -m benchmarks.agent_f.check100`,
+  results in `benchmarks/agent_f/results/check100.json`): MAE 0.55, 94 % within ±1 star, about 1 ms per prediction.
 
 ## Folders
 
