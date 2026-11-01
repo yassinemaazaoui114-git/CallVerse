@@ -74,7 +74,11 @@ export default function AdminApprovals({ company = "shopnova" }) {
       }
       if (e.key !== "Tab") return;
       const focusable = [...dialog.querySelectorAll("button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")];
-      if (focusable.length === 0) return;
+      if (focusable.length === 0) {
+        // while a decision runs both buttons are disabled: nothing is focusable, so Tab would leave the dialog
+        // for the page behind it. Keep the focus on the dialog itself until the answer arrives.
+        e.preventDefault(); dialog.focus(); return;
+      }
       const first = focusable[0], last = focusable[focusable.length - 1];
       const inside = dialog.contains(document.activeElement);
       if (!inside) { e.preventDefault(); (e.shiftKey ? last : first).focus(); return; }

@@ -194,6 +194,32 @@ describe("Refund approvals", () => {
     expect(net.all("/decide")).toHaveLength(0);             // nothing was sent
   });
 
+  it("while a decision runs, Tab and Shift+Tab stay on the dialog, Escape does not close it, nothing is sent twice", async () => {
+    const net = installFakeFetch();
+    await start(net);
+    const opener = screen.getByRole("button", { name: /^approve$/i });
+    opener.focus();
+    const dialog = await openConfirm(true, "late");
+    await act(async () => { within(dialog).getByRole("button", { name: /confirm approval/i }).click(); });
+    const req = await net.waitFor("/decide");             // left unanswered: the decision is in flight
+    expect(within(dialog).getByRole("button", { name: /deciding/i })).toBeDisabled();
+    expect(within(dialog).getByRole("button", { name: /cancel/i })).toBeDisabled();
+    await userEvent.tab();
+    expect(dialog).toHaveFocus();                           // no focusable control: the focus stays on the dialog
+    await userEvent.tab({ shift: true });
+    expect(dialog).toHaveFocus();
+    await userEvent.keyboard("{Escape}");
+    expect(screen.getByRole("dialog")).toBe(dialog);        // still open: a running decision cannot be dismissed
+    await userEvent.keyboard("{Enter}");                    // Enter on the disabled Confirm button: no second POST
+    expect(net.all("/decide")).toHaveLength(1);
+    expect(opener).not.toHaveFocus();
+    await act(async () => { req.respond(200, { ok: true, outcome: "approve", approval: { id: 1, status: "approved" },
+      ticket: { id: "T-0001", status: "Resolved" }, refund: { amount: 378 } }); });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(opener).toHaveFocus();
+    expect(net.all("/decide")).toHaveLength(1);
+  });
+
   it("denied access and empty states", async () => {
     const net = installFakeFetch();
     render(<MemoryRouter initialEntries={["/admin/approvals"]}><AuthProvider><Routes><Route path="/admin/approvals" element={<AdminApprovals />} /></Routes></AuthProvider></MemoryRouter>);
