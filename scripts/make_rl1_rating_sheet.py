@@ -1,4 +1,4 @@
-"""RL1: the rating sheet for the team. 30 real situations x 3 reply styles, written by the local SLM (0 Groq / API calls).
+"""RL1 / RL1b: the rating sheet for the team. 30 real situations x 3 reply styles, written by the local SLM (0 Groq / API calls).
 
 Usage (repo root; Ollama running):
     python -m scripts.make_rl1_rating_sheet
@@ -8,16 +8,19 @@ dev here: tests/dev/t14b_practice_messages.json, tests/dev/t14c_practice_message
 Their decisions are NOT re-made by agents: the earlier runs (out/t14b_after.json, out/t14c_practice_run1.json,
 out/t14c_heldout.json) left a trace file each, with Intake's ticket and the Coordinator's decision (made by rules, from the seeded
 orders and bookings). This script reads those two events per message. The off-topic redirect is left out (fixed text, no style).
-30 of the rest are kept: when there are more, the script drops the one from the most common kind of decision first.
+RL1b: the 30 situations are a fixed list (SITUATION_IDS): RL1's 30 minus h03 and h12 (their decisions are wrong, T14d bugs),
+plus p04 and p06.
 
-For each situation the decision is written 3 times with the real local SLM: reply_style short / apology_first / apology_next_step.
+For each situation the decision is written 3 times with the real local SLM: reply_style short / warm / warm_next_step.
+The client's message is passed as the history (for tone only), so the warm styles can write their empathy sentence about it.
 
 Writes (all in out/, git-ignored):
     rl1_rating_sheet.csv  situation_id, company, user message, decision summary, reply A, reply B, reply C
                           (the letters are shuffled per row, seed 2026)
     rl1_rating_key.json   which letter is which style, per situation. NOT in the sheet: the raters must not see it.
     rl1_samples.json      all 90 replies with style, check result, SLM or template, word count, seconds
-    rl1_stats.json        per style: check pass rate, average words, share with an apology, seconds per reply
+    rl1_stats.json        per style: pass 1st try / after retry / template, average words, share with an SLM empathy
+                          sentence, seconds per reply, template fallback ids; plus the rows where two styles are identical
 """
 
 import csv
@@ -26,7 +29,6 @@ import random
 import re
 import sys
 import time
-from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -40,6 +42,11 @@ from callverse.slm.reply_styles import REPLY_STYLES  # noqa: E402
 OUT = ROOT / "out"
 SEED = 2026
 HOW_MANY = 30
+# RL1b (Q4): RL1's 30 situations without h03 and h12, plus p04 and p06.
+SITUATION_IDS = ["p01", "p02", "p03", "p04", "p05", "p06", "p08", "p09", "p10",
+                 "a01", "a02", "a03", "a04", "a05", "a06", "a07",
+                 "s01", "s02", "s03", "s04", "s05",
+                 "h01", "h02", "h04", "h05", "h06", "h07", "h08", "h09", "h11"]
 # (messages file, earlier run result file). The run file's summary names the trace of that run.
 SOURCES = [("tests/dev/t14b_practice_messages.json", "out/t14b_after.json"),
            ("tests/dev/t14c_practice_messages.json", "out/t14c_practice_run1.json"),
@@ -79,19 +86,14 @@ def gather() -> list[dict]:
     return out
 
 
-def kind(item: dict) -> tuple:
-    d = item["decision"]
-    return (item["company"], d["outcome"], d["action"], d.get("rule_id"))
-
-
 def choose(items: list[dict]) -> list[dict]:
-    """Keep HOW_MANY: while there are more, drop the last item of the most common kind (fixed order, no randomness)."""
-    items = list(items)
-    while len(items) > HOW_MANY:
-        common = Counter(kind(i) for i in items).most_common(1)[0][0]
-        drop = [i for i in items if kind(i) == common][-1]
-        items.remove(drop)
-    return items
+    """RL1b: keep exactly the situations of SITUATION_IDS, in that order (a missing one is an error, not a silent gap)."""
+    by_id = {i["id"]: i for i in items}
+    missing = [s for s in SITUATION_IDS if s not in by_id]
+    if missing:
+        raise SystemExit(f"situations not found in the earlier runs: {missing}")
+    assert len(SITUATION_IDS) == HOW_MANY
+    return [by_id[s] for s in SITUATION_IDS]
 
 
 def summary(item: dict) -> str:
@@ -106,14 +108,18 @@ def write_all(items: list[dict]) -> list[dict]:
     samples = []
     for n, item in enumerate(items, 1):
         base = {**item["decision"], "style": intake_style(item["ticket"])}
+        history = [{"role": "user", "content": item["text"]}]   # the client's message, for tone only (as in the pipeline)
         for name in REPLY_STYLES:
             start = time.perf_counter()
-            result = writer.write_reply({**base, "reply_style": name})   # the real local SLM (role "slm")
+            decision = {**base, "reply_style": name}
+            result = writer.write_reply(decision, history=history)   # the real local SLM (role "slm")
             seconds = round(time.perf_counter() - start, 2)
             how = "template" if result["used_template"] else ("slm" if result["attempts"] == 1 else "slm_retry")
             samples.append({"situation_id": item["id"], "company": item["company"], "reply_style": name,
                             "reply": result["reply"], "check_passed": result["check"]["passed"], "source": how,
                             "words": len(result["reply"].split()), "has_apology": bool(APOLOGY_RE.search(result["reply"])),
+                            # the empathy sentence written by the SLM (warm styles, not the template's fixed opener)
+                            "empathy": writer.split_styled(result["reply"], decision)[0] if how != "template" else "",
                             "seconds": seconds})
         print(f"{n}/{len(items)} {item['id']} done", flush=True)
     return samples
@@ -131,7 +137,16 @@ def stats(samples: list[dict]) -> dict:
                      "avg_words": round(sum(s["words"] for s in rows) / n, 1),
                      "max_words": max(s["words"] for s in rows),
                      "with_apology": round(sum(s["has_apology"] for s in rows) / n, 3),
-                     "avg_seconds": round(sum(s["seconds"] for s in rows) / n, 2)}
+                     "with_slm_empathy_sentence": round(sum(bool(s["empathy"]) for s in rows) / n, 3),
+                     "avg_seconds": round(sum(s["seconds"] for s in rows) / n, 2),
+                     "template_ids": [s["situation_id"] for s in rows if s["source"] == "template"]}
+    # RL1b check line: rows where any two styles gave the same reply (target 0)
+    identical = []
+    for sid in dict.fromkeys(s["situation_id"] for s in samples):
+        replies = [s["reply"] for s in samples if s["situation_id"] == sid]
+        if len(set(replies)) < len(replies):
+            identical.append(sid)
+    out["rows_with_two_identical_styles"] = {"count": len(identical), "ids": identical}
     return out
 
 

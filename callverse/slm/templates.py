@@ -70,43 +70,52 @@ def decision_opener(decision: dict) -> str | None:
     """The calm opener for THIS decision. T14b: none for the off-topic redirect: the client is not upset about an order,
     so "I'm sorry for the trouble." before "I can help with your ShopNova orders" would be odd. The scope sentence stands alone.
     T14c: the same for Atlas's redirect.
-    RL1: a reply style decides instead of the client's mood: "short" never apologises, the two apology styles always do."""
+    (RL1b: a reply style does not use this opener rule: see render_styled.)"""
     if is_redirect(decision):
         return None
-    name = reply_styles.of(decision)
-    if name is None:
-        return calm_opener(decision.get("style"))   # today's rule, unchanged
-    if reply_styles.REPLY_STYLES[name]["apology"] == "never":
-        return None
-    return apology_text(decision.get("style"))
+    return calm_opener(decision.get("style"))
 
 
 def render(decision: dict) -> str:
-    """The template reply for this decision, in the decision's reply style (RL1; none = today's template).
+    """The template reply for this decision. With a reply style (RL1b) -> render_styled; none = today's template.
     The off-topic redirect is a fixed text and ignores the style (T14c)."""
     name = None if is_redirect(decision) else reply_styles.of(decision)
-    if name == "short":
-        return _render_short(decision)
-    text = _render_plain(decision)
-    if name and reply_styles.REPLY_STYLES[name]["closing"]:
-        text = reply_styles.put_last(text, reply_styles.closing_for(decision))   # next step by code, as the last sentence
-    return text
+    if name:
+        return render_styled(decision, name)
+    return _render_plain(decision)
 
 
-def _render_short(decision: dict) -> str:
-    """Style "short": a greeting, the sentences the Coordinator requires (must_say), then the next step. Nothing else."""
+def decision_body(decision: dict) -> str:
+    """RL1b: the decision only, without greeting or opener: the sentences the Coordinator requires (must_say), then the
+    next step. Atlas must always name its booking (ShopNova: not needed since T14b). With nothing to copy: the plain
+    template without its greeting."""
     said = []
     for item in list(decision.get("must_say") or []) + [decision.get("next_step") or ""]:
         item = str(item).strip()
         if item and item not in said:
             said.append(item)
     if not said:
-        return _render_plain(decision)   # nothing to copy: the plain template (it has no opener in this style)
+        plain = _render_plain({**decision, "style": {**(decision.get("style") or {}), "shouting": False, "sentiment": None}})
+        return plain.split(", ", 1)[1] if ", " in plain else plain   # drop "Hello, " / "Hi, "
     text = " ".join(said)
     order = decision.get("order_id")
-    if order is not None and str(order) not in text:
-        text = f"Regarding {case_word(decision)} {order}. {text}"   # Atlas must always name its booking
-    return f"{_greeting(decision.get('style'))}, {text}"
+    if order is not None and str(order) not in text and decision.get("company") not in (None, companies.DEFAULT):
+        text = f"Regarding {case_word(decision)} {order}. {text}"
+    return text
+
+
+def render_styled(decision: dict, name: str) -> str:
+    """RL1b template of a reply style: greeting (by code) + [warm: the fixed calm opener] + the decision
+    + [warm_next_step: the closing line of the outcome]. Always passes the rule check (only the decision's own words)."""
+    spec = reply_styles.REPLY_STYLES[name]
+    parts = [reply_styles.greeting(decision)]
+    if spec["empathy"]:
+        parts.append(apology_text(decision.get("style")))
+    parts.append(decision_body(decision))   # capitals after the greeting: writer.polish fixes them
+    text = " ".join(parts)
+    if spec["closing"] and reply_styles.closing_line(decision):
+        text = reply_styles.put_last(text, reply_styles.closing_line(decision))
+    return text
 
 
 def _render_plain(decision: dict) -> str:

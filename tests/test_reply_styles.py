@@ -1,4 +1,4 @@
-"""RL1 tests: reply styles (short / apology_first / apology_next_step), the situation features, the default unchanged.
+"""RL1 / RL1b tests: reply styles (short / warm / warm_next_step), the situation features, the default unchanged.
 
 No Ollama and no API: the SLM is a fake. A style changes wording only: facts, must_say and the rule check stay the same.
 """
@@ -11,8 +11,7 @@ import pytest
 
 from callverse.learning.situation import FIELDS, situation
 from callverse.slm import reply_styles, templates, writer
-from callverse.slm.check import check_reply
-from callverse.slm.reply_styles import FIXED_CLOSING, REPLY_STYLES
+from callverse.slm.reply_styles import REPLY_STYLES
 from callverse.slm.writer import build_messages, write_reply
 
 NEUTRAL = {"formality": "neutral", "length": "medium", "shouting": False, "sentiment": "neutral", "emotion": "neutral"}
@@ -90,12 +89,31 @@ def sentences(text):
     return [s for s in writer.SENTENCE_SPLIT_RE.split(text.strip()) if s]
 
 
+EMPATHY = "Waiting without news about this is stressful."
+
+
+def warm_body_for(decision):
+    """What a good small model writes in a warm style: one empathy sentence, then the decision."""
+    return f"{EMPATHY} {body_for(decision)}"
+
+
+def greeting_of(reply):
+    return writer.GREETING_RE.match(reply).group(0).strip()
+
+
 # ---------- the style table ----------
 
 def test_three_styles_exist_and_none_is_the_default():
-    assert set(REPLY_STYLES) == {"short", "apology_first", "apology_next_step"}
+    assert set(REPLY_STYLES) == {"short", "warm", "warm_next_step"}
     assert reply_styles.of({}) is None
     assert reply_styles.of({"reply_style": "short"}) == "short"
+
+
+def test_the_rl1_names_are_gone():
+    for old in ("apology_first", "apology_next_step"):
+        with pytest.raises(ValueError):
+            reply_styles.of({"reply_style": old})
+    assert not hasattr(reply_styles, "FIXED_CLOSING")   # the RL1 generic line is removed
 
 
 def test_unknown_style_is_an_error_not_a_silent_default():
@@ -104,8 +122,8 @@ def test_unknown_style_is_an_error_not_a_silent_default():
 
 
 def test_env_var_and_decision_key(monkeypatch):
-    monkeypatch.setenv("CALLVERSE_REPLY_STYLE", "apology_first")
-    assert reply_styles.of({}) == "apology_first"
+    monkeypatch.setenv("CALLVERSE_REPLY_STYLE", "warm")
+    assert reply_styles.of({}) == "warm"
     assert reply_styles.of({"reply_style": "short"}) == "short"   # the decision wins over the env var
 
 
@@ -114,80 +132,199 @@ def test_config_default_is_null():
     assert load_config()["slm"]["reply_style"] is None
 
 
-# ---------- each style, both companies, fake SLM ----------
+# ---------- the greeting: by code, the same for all 3 styles ----------
+
+@pytest.mark.parametrize("key", CASES)
+@pytest.mark.parametrize("formality, expected", [("formal", "Dear customer,"), ("neutral", "Hello,"), ("casual", "Hello,")])
+def test_greeting_is_the_same_for_every_style(key, formality, expected):
+    style = {**NEUTRAL, "formality": formality}
+    for name in ALL_STYLES:
+        decision = decision_for(key, name, style=style)
+        body = body_for(decision) if name == "short" else warm_body_for(decision)
+        out = write_reply(decision, chat_fn=fake_slm("Hi there, " + body))   # the model's own greeting is replaced
+        assert out["check"]["passed"] and not out["used_template"], (name, out)
+        assert out["reply"].startswith(expected + " ") and greeting_of(out["reply"]) == expected
+        assert writer.polish(templates.render(decision), decision).startswith(expected + " ")   # the template too
+
+
+def test_the_model_is_told_not_to_write_a_greeting():
+    for name in ALL_STYLES:
+        text = build_messages(decision_for(("shopnova", "approve"), name))[1]["content"]
+        assert "Do NOT write a greeting" in text and "Start with exactly" not in text
+
+
+# ---------- short ----------
 
 @pytest.mark.parametrize("key", CASES)
 @pytest.mark.parametrize("calm_client", [True, False])
-def test_short_has_no_apology_and_keeps_the_must_say(key, calm_client):
+def test_short_has_no_apology_and_no_empathy(key, calm_client):
     decision = decision_for(key, "short", style=NEUTRAL if calm_client else UPSET)
-    out = write_reply(decision, chat_fn=fake_slm(body_for(decision)))
-    assert OPENER not in out["reply"] and "sorry" not in out["reply"].lower()
-    assert out["check"]["passed"]
-    for item in decision["must_say"]:
-        assert item.lower() in out["reply"].lower()
-
-
-@pytest.mark.parametrize("key", CASES)
-def test_apology_first_starts_with_the_opener_even_for_a_calm_client(key):
-    decision = decision_for(key, "apology_first", style=NEUTRAL)
-    out = write_reply(decision, chat_fn=fake_slm(body_for(decision)))
-    assert out["reply"].startswith(OPENER)
-    assert out["check"]["passed"]
-    for item in decision["must_say"]:
-        assert item.lower() in out["reply"].lower()
-
-
-@pytest.mark.parametrize("key", CASES)
-def test_apology_next_step_has_opener_and_a_closing_sentence_by_code(key):
-    decision = decision_for(key, "apology_next_step", style=NEUTRAL)
-    out = write_reply(decision, chat_fn=fake_slm(body_for(decision)))
+    out = write_reply(decision, chat_fn=fake_slm("I'm so sorry. " + warm_body_for(decision)))   # the model adds feelings anyway
     reply = out["reply"]
-    assert reply.startswith(OPENER) and out["check"]["passed"]
-    assert sentences(reply)[-1] == reply_styles.closing_for(decision)
-    assert reply.lower().count(reply_styles.closing_for(decision).lower()) == 1   # said once
+    assert out["check"]["passed"] and not out["used_template"]
+    assert "sorry" not in reply.lower() and EMPATHY.lower() not in reply.lower() and OPENER not in reply
     for item in decision["must_say"]:
         assert item.lower() in reply.lower()
 
 
-def test_closing_comes_from_next_step_then_the_request_then_the_fixed_line():
-    assert reply_styles.closing_for(decision_for(("shopnova", "approve"))) == "Your order 4512 is now refunded."
-    assert reply_styles.closing_for(decision_for(("shopnova", "ask_proof"))) == "Please send us a photo of the damage."
-    assert reply_styles.closing_for(decision_for(("shopnova", "info"))) == FIXED_CLOSING
-    assert reply_styles.closing_for(decision_for(("atlas", "decline"))) == "You can still cancel the trip for a full refund."
-
-
-def test_fixed_closing_line_passes_the_rule_check_for_every_decision():
-    for key in CASES:
-        decision = decision_for(key, "apology_next_step")
-        reply = templates.render(decision)
-        assert check_reply(reply, decision)["passed"], (key, reply)
-
-
-def test_the_model_is_told_not_to_write_the_closing_and_is_not_shown_the_next_step():
-    decision = decision_for(("shopnova", "approve"), "apology_next_step")
-    text = json.dumps(build_messages(decision))
-    assert "added after your text automatically" in text
-    assert "End with the next step" not in text
-    assert json.loads(build_messages(decision)[1]["content"].split("(nothing else):\n")[1].split("\n\n")[0])["next_step"] == ""
-
-
-def test_short_prompt_asks_for_45_words_and_no_apology():
-    decision = decision_for(("shopnova", "approve"), "short", style=UPSET)
-    text = build_messages(decision)[1]["content"]
-    assert "at most 45 words" in text and "Do NOT apologise" in text
+def test_short_prompt_asks_for_the_decision_only():
+    text = build_messages(decision_for(("shopnova", "approve"), "short", style=UPSET))[1]["content"]
+    assert "at most 45 words" in text and "Write ONLY the decision" in text and "Do NOT write a greeting, an apology" in text
     assert "added before your text automatically" not in text   # upset client, but this style adds no opener
 
 
-def test_short_template_is_short_for_every_decision():
-    for key in CASES:
-        reply = templates.render(decision_for(key, "short"))
-        assert len(reply.split()) <= 45, (key, reply)
-        assert "sorry" not in reply.lower()
+def test_short_with_an_apology_left_fails_the_check():
+    decision = decision_for(("shopnova", "info"), "short")
+    assert writer.styled_problems("Hello, your order 4510 is on its way, sorry about that.", decision)
 
 
-def test_atlas_short_template_still_names_the_booking():
+# ---------- warm: exactly one empathy sentence before the decision ----------
+
+@pytest.mark.parametrize("key", CASES)
+@pytest.mark.parametrize("name", ["warm", "warm_next_step"])
+def test_warm_has_exactly_one_extra_sentence_before_the_decision(key, name):
+    decision = decision_for(key, name)
+    short = write_reply(decision_for(key, "short"), chat_fn=fake_slm(body_for(decision)))["reply"]
+    out = write_reply(decision, chat_fn=fake_slm(warm_body_for(decision)))
+    assert out["check"]["passed"] and not out["used_template"], out
+    reply = out["reply"]
+    if name == "warm_next_step" and reply_styles.closing_line(decision):
+        reply = reply[: -len(reply_styles.closing_line(decision))].strip()
+    warm_sentences, short_sentences = sentences(reply), sentences(short)
+    assert len(warm_sentences) == len(short_sentences) + 1
+    assert warm_sentences[0] == "Hello, " + EMPATHY[0].lower() + EMPATHY[1:]
+    assert " ".join(warm_sentences[1:]).lower() == short.split(", ", 1)[1].lower()   # then the same decision as short
+
+
+def test_warm_keeps_only_one_empathy_sentence():
+    decision = decision_for(("shopnova", "approve"), "warm")
+    out = write_reply(decision, chat_fn=fake_slm("I'm so sorry. " + EMPATHY + " I understand your frustration. "
+                                                 + body_for(decision)))
+    assert out["check"]["passed"]
+    assert sentences(out["reply"])[0] == "Hello, " + EMPATHY[0].lower() + EMPATHY[1:]
+    assert "sorry" not in out["reply"].lower() and "frustration" not in out["reply"].lower()
+
+
+def test_an_empathy_sentence_written_after_the_decision_is_moved_first():
+    """qwen2.5:1.5b often writes the decision first and the feeling after it (RL1b run): code moves it, adds nothing."""
+    decision = decision_for(("shopnova", "info"), "warm")
+    out = write_reply(decision, chat_fn=fake_slm(f"{body_for(decision)} {EMPATHY}"))
+    assert not out["used_template"]
+    assert out["reply"] == f"Hello, {EMPATHY[0].lower()}{EMPATHY[1:]} {body_for(decision)}"
+
+
+@pytest.mark.parametrize("name", ALL_STYLES)
+def test_filler_and_copied_client_words_are_removed(name):
+    decision = decision_for(("shopnova", "info"), name)
+    raw = (f"Hello there. {EMPATHY} {body_for(decision)} Parcel supposed to arrive for the party. "
+           "Please let me know if you need any further assistance.")
+    reply = write_reply(decision, chat_fn=fake_slm(raw))["reply"]
+    assert "there" not in reply.split(".")[0] and "party" not in reply and "assistance" not in reply
+    assert reply.startswith("Hello, ")
+
+
+def test_an_invented_sentence_with_the_order_number_is_removed():
+    """RL1b run, a05: "Your hotel booking 7008 is also cancelled." was kept because it had the number."""
     decision = decision_for(("atlas", "info"), "short")
-    assert check_reply(templates.render(decision), decision)["passed"]
+    reply = write_reply(decision, chat_fn=fake_slm(f"{body_for(decision)} Your hotel booking 7008 is also cancelled."))["reply"]
+    assert "hotel" not in reply
+
+
+@pytest.mark.parametrize("bad", ["The client is upset and wants the money.", "Thank you for your understanding."])
+def test_empathy_must_speak_to_the_client_about_the_problem(bad):
+    assert reply_styles.empathy_problems(bad, decision_for(("shopnova", "info")))
+
+
+def test_warm_prompt_ends_with_the_empathy_line_and_default_does_not():
+    assert build_messages(decision_for(("shopnova", "info"), "warm"))[1]["content"].endswith(reply_styles.EMPATHY_LAST_LINE)
+    assert build_messages(decision_for(("shopnova", "info"), "short"))[1]["content"].endswith("Write the reply now.")
+
+
+def test_a_warm_reply_with_no_feeling_sentence_falls_back():
+    decision = decision_for(("shopnova", "info"), "warm")
+    out = write_reply(decision, chat_fn=fake_slm(f"{body_for(decision)} Is this your service?"))
+    assert out["used_template"]
+
+
+def test_warm_prompt_asks_for_one_empathy_sentence_first():
+    text = build_messages(decision_for(("shopnova", "approve"), "warm"),
+                          history=[{"role": "user", "content": "where is my money??"}])[1]["content"]
+    assert "First write ONE short sentence" in text and "no number, no date, no name, no promise" in text
+    assert "where is my money??" in text   # the client's words, for tone only (as before)
+
+
+@pytest.mark.parametrize("bad", ["Waiting 6 days is stressful.",                      # a number
+                                 "We will fix this for you.",                          # a promise
+                                 "Good news, it is approved.",                         # a decision
+                                 "Waiting since Monday is stressful.",                 # a date
+                                 "We will keep you updated, this is stressful."])      # a forbidden promise (check.py too)
+@pytest.mark.parametrize("name", ["warm", "warm_next_step"])
+def test_a_bad_empathy_sentence_fails_then_the_style_template_answers(bad, name):
+    decision = decision_for(("shopnova", "approve"), name)
+    out = write_reply(decision, chat_fn=fake_slm(f"{bad} {body_for(decision)}"))
+    assert out["used_template"] and out["attempts"] == writer.MAX_ATTEMPTS
+    assert out["reply"].startswith(f"Hello, {OPENER}")   # template warm: greeting + fixed opener
+    assert out["check"]["passed"]
+
+
+def test_a_warm_reply_without_an_empathy_sentence_fails():
+    decision = decision_for(("shopnova", "approve"), "warm")
+    out = write_reply(decision, chat_fn=fake_slm(body_for(decision)))   # the model forgot the empathy sentence
+    assert out["used_template"]
+
+
+def test_empathy_check_accepts_a_plain_sentence_about_the_problem():
+    decision = decision_for(("shopnova", "approve"))
+    assert reply_styles.empathy_problems("Waiting for a parcel that does not come is stressful.", decision) == []
+    assert reply_styles.empathy_problems("Not getting your money back yet is frustrating.", decision) == []
+    assert reply_styles.empathy_problems("", decision)
+
+
+# ---------- warm_next_step: the closing line by outcome (approved table) ----------
+
+CLOSING_TABLE = {   # task RL1b, step 1: exact texts
+    ("shopnova", "approve"): "If the money does not arrive, reply here and we will check it.",
+    ("shopnova", "decline"): "If you think something is wrong, reply here with the details and we will check it.",
+    ("shopnova", "ask_proof"): None,
+    ("shopnova", "layer3_pending"): None,
+    ("shopnova", "info"): "We will message you here if anything changes.",
+    ("atlas", "approve"): "If the money does not arrive, reply here and we will check it.",
+    ("atlas", "decline"): "If you think something is wrong, reply here with the details and we will check it.",
+    ("atlas", "ask_proof"): None,
+    ("atlas", "layer3_pending"): None,
+    ("atlas", "info"): "We will message you here if anything changes.",
+}
+
+
+def test_closing_line_per_outcome_matches_the_table():
+    for key, expected in CLOSING_TABLE.items():
+        assert reply_styles.closing_line(DECISIONS[key]) == expected, key
+    assert (reply_styles.closing_line({"outcome": "approve", "action": "cancel"})
+            == "If you need anything else for this order, reply here.")
+    assert (reply_styles.closing_line({"outcome": "approve", "action": "cancel_hotel", "case_word": "booking"})
+            == "If you need anything else for this booking, reply here.")
+    for outcome in ("ask_user", "ask_proof", "layer3_pending", "send_back", "escalate"):
+        assert reply_styles.closing_line({"outcome": outcome, "action": "refund"}) is None
+
+
+@pytest.mark.parametrize("key", CASES)
+def test_warm_next_step_ends_with_the_closing_line_once(key):
+    decision = decision_for(key, "warm_next_step")
+    closing = CLOSING_TABLE[key]
+    for out in (write_reply(decision, chat_fn=fake_slm(warm_body_for(decision))), write_reply(decision)):   # SLM, template
+        assert out["check"]["passed"]
+        if closing:
+            assert out["reply"].endswith(" " + closing) and out["reply"].count(closing) == 1
+        else:
+            assert out["reply"] == write_reply(decision_for(key, "warm"), chat_fn=fake_slm(warm_body_for(decision)))["reply"] \
+                or out["used_template"]
+
+
+def test_the_model_never_writes_the_closing_line_and_still_sees_the_next_step():
+    decision = decision_for(("shopnova", "approve"), "warm_next_step")
+    text = build_messages(decision)[1]["content"]
+    assert "no closing sentence" in text and CLOSING_TABLE[("shopnova", "approve")] not in text
+    assert 'End with the next step, almost word for word: "Your order 4512 is now refunded."' in text
 
 
 # ---------- the template fallback matches the style ----------
@@ -199,41 +336,52 @@ def test_template_fallback_matches_the_style(key, name):
     out = write_reply(decision)   # conftest: the SLM is offline, so the template answers
     reply = out["reply"]
     assert out["used_template"] and out["check"]["passed"]
+    assert reply.startswith("Hello, ")
     if name == "short":
-        assert OPENER not in reply and len(reply.split()) <= 45
+        assert "sorry" not in reply.lower()
     else:
-        assert reply.startswith(OPENER)
-    if name == "apology_next_step":
-        assert sentences(reply)[-1] == reply_styles.closing_for(decision)
+        assert sentences(reply)[0] == f"Hello, {OPENER}"
+    if name == "warm_next_step" and CLOSING_TABLE[key]:
+        assert sentences(reply)[-1] == CLOSING_TABLE[key]
     for item in decision["must_say"]:
         assert item.lower() in reply.lower()
 
 
-def test_a_bad_model_reply_fails_the_check_and_falls_back_to_the_style_template():
-    decision = decision_for(("shopnova", "approve"), "apology_next_step")
-    out = write_reply(decision, chat_fn=fake_slm("We guarantee your money back within 24 hours."))
-    assert out["used_template"] and out["attempts"] == writer.MAX_ATTEMPTS
-    assert out["reply"].startswith(OPENER) and sentences(out["reply"])[-1] == "Your order 4512 is now refunded."
+@pytest.mark.parametrize("key", CASES)
+def test_the_three_templates_differ_when_the_outcome_has_a_closing_line(key):
+    replies = {name: write_reply(decision_for(key, name))["reply"] for name in ALL_STYLES}
+    assert replies["short"] != replies["warm"]
+    if CLOSING_TABLE[key]:
+        assert replies["warm"] != replies["warm_next_step"]
 
 
 # ---------- the style never changes the content ----------
 
 @pytest.mark.parametrize("key", CASES)
-def test_facts_and_must_say_are_identical_across_styles(key):
+def test_facts_next_step_and_must_say_are_identical_across_styles(key):
     allowed = []
     for name in [None] + ALL_STYLES:
         decision = decision_for(key, name)
         messages = build_messages(decision)[1]["content"]
         allowed.append(json.loads(messages.split("(nothing else):\n")[1].split("\n\n")[0]))
     for a in allowed:
-        assert a["facts"] == allowed[0]["facts"] and a["must_say"] == allowed[0]["must_say"]
-        assert [k for k in a if k.endswith("_number")] == [k for k in allowed[0] if k.endswith("_number")]
+        assert a == allowed[0]
+
+
+@pytest.mark.parametrize("key", CASES)
+def test_must_say_is_in_every_style_reply(key):
+    for name in ALL_STYLES:
+        decision = decision_for(key, name)
+        for out in (write_reply(decision), write_reply(decision, chat_fn=fake_slm(
+                body_for(decision) if name == "short" else warm_body_for(decision)))):
+            for item in decision["must_say"]:
+                assert item.lower() in out["reply"].lower(), (name, out["reply"])
 
 
 def test_the_style_does_not_change_the_decision_dict():
-    decision = decision_for(("shopnova", "approve"), "apology_next_step")
+    decision = decision_for(("shopnova", "approve"), "warm_next_step")
     before = json.dumps(decision, sort_keys=True)
-    write_reply(decision, chat_fn=fake_slm(body_for(decision)))
+    write_reply(decision, chat_fn=fake_slm(warm_body_for(decision)))
     assert json.dumps(decision, sort_keys=True) == before
 
 

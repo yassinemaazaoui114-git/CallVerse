@@ -193,7 +193,7 @@ slm:
     formal: "Please accept our apologies for the trouble."
     casual: "I'm really sorry for the trouble."
     neutral: "I'm sorry for the trouble."
-  # RL1: reply style (callverse/slm/reply_styles.py): short | apology_first | apology_next_step. null = the writer as it was
+  # RL1 / RL1b: reply style (callverse/slm/reply_styles.py): short | warm | warm_next_step. null = the writer as it was
   # (calm opener only for an upset client). The env var CALLVERSE_REPLY_STYLE and decision["reply_style"] override this;
   # the RL policy (RL5) will set it per reply later. It changes wording only, never a decision.
   reply_style: null

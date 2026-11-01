@@ -273,13 +273,15 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   (damaged, broken, ...) in Intake; the off-topic reply is a fixed text (no SLM call) for both companies; the agents no
   longer see `ai_generated` / `scripted`. Check both companies: `python -m scripts.run_t14c --file tests/dev/t14c_practice_messages.json`.
   Report: `tasks/T14c_report.md`.
-- **RL1** Reply styles for the writer (`callverse/slm/reply_styles.py`: `short`, `apology_first`, `apology_next_step`; default
-  none = unchanged). A style changes wording only: the apology opener and the closing sentence are written by code, the
-  decision, `must_say` and the rule check stay the same; each style has its own template fallback. Set it with
+- **RL1 / RL1b** Reply styles for the writer (`callverse/slm/reply_styles.py`; default none = unchanged). RL1b: `short` =
+  greeting + the decision only; `warm` = greeting + ONE empathy sentence written by the SLM about the client's problem (no
+  number, date, promise or decision: own small check, else retry / template) + the decision; `warm_next_step` = `warm` + one
+  closing line chosen by code from the outcome (approved list). The greeting ("Dear customer," formal, else "Hello,") is by
+  code, the same for all 3 styles. The decision, `must_say` and the rule check stay the same; each style has its own template. Set it with
   `decision["reply_style"]`, the env var `CALLVERSE_REPLY_STYLE` or `slm.reply_style` in `config.yaml`. New
   `callverse/learning/situation.py` (`situation(ticket, decision)`, the RL spec fields). Rating sheet for the team (30 real
-  situations x 3 styles, local SLM only): `python -m scripts.make_rl1_rating_sheet` -> `out/rl1_rating_sheet.csv` (+ key, samples).
-  Report: `tasks/RL1_report.md`.
+  situations x 3 styles, local SLM only; RL1b: without h03 / h12, with p04 / p06): `python -m scripts.make_rl1_rating_sheet`
+  -> `out/rl1_rating_sheet.csv` (+ key, samples, stats). Reports: `tasks/RL1_report.md`, `tasks/RL1b_report.md`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 
