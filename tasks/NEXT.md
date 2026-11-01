@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | Status | IN PROGRESS |
-| Task file | tasks/F1c_pin_sklearn.md (pin scikit-learn on review/agent-f, then put NEXT.md back to T14d) |
-| Approved by | Yassine — 2026-11-01 16:15 (F1b answers, all ⭐) |
-| Paused | T14d (tasks/T14d_request_action_match.md, branch feat/t14d-request-match): items 0–4 done, items 5–6 (live) on Monday |
-| Last done | F1b — review/agent-f 9e00aab + report: agent F checked on 100 Amazon test reviews (MAE 0.55, ±1 94 %), 1.2 ms/pred |
+| Task file | tasks/T14d_request_action_match.md (a write must match what the user asked: money words are not an order cancellation, Atlas ticket refund needs a money-back request, wrong-write check counts order status, "not refunded yet" = complaint; 12 new held-out real tweets) |
+| Approved by | Yassine — 2026-11-01 13:33 (B1 + C1–C3) |
+| Progress | items 0–4 done (tasks/T14d_progress.md); items 5–6 (live) on Monday |
+| Last done | F1c — scikit-learn pinned on review/agent-f (ready for Yassine's merge). Agent F tests 14/14 |
 
 Next after T14d: RL1 → step 09 → agent C → agent D.
 
