@@ -5,7 +5,7 @@
 | Status | DONE |
 | Task file | tasks/T14a_decline_and_cancel.md ("say no with the reason" by code + ShopNova cancellation rule R-CAN-01 and cancel action; tested on real TWCS messages) |
 | Approved by | Yassine â€” 2026-10-31 10:57 (all â­) |
-| Last done | T14a â€” merged 190324e, tests 1122/1122: decline by code and cancel rule R-CAN-01; held-out 11/12, 0 crashes, 0 leaks, 0 wrong writes |
+| Last done | T14a â€” reviewed and merged 190324e, tests 1122/1122, both databases reseeded: decline by code and cancel rule R-CAN-01; held-out 11/12, 0 crashes, 0 leaks, 0 wrong writes |
 
 Before starting: main must contain the CLAUDE.md update (Yassine merges chore/claude-md first). Restart the PC and start Ollama before step 7 (live run).
 
