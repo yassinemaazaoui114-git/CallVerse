@@ -95,6 +95,19 @@ export function chatScope(prefix) {
   };
 }
 
+// The ShopNova admin's Manage routes (products, orders, clients, refunds, log): reads with a search box and
+// 50 rows per page, writes with a request id so a retry never writes twice.
+export const manage = {
+  options: (signal) => request("/api/admin/manage/options", { signal }),
+  table: (table, search, page, signal) => request(`/api/admin/manage/${encodeURIComponent(table)}${query({ search, page })}`, { signal }),
+  createProduct: (body) => request("/api/admin/manage/products", { method: "POST", body: JSON.stringify(body) }),
+  updateProduct: (id, body) => request(`/api/admin/manage/products/${encodeURIComponent(id)}`, { method: "POST", body: JSON.stringify(body) }),
+  setProductActive: (id, active, client_id) => request(`/api/admin/manage/products/${encodeURIComponent(id)}/${active ? "reactivate" : "deactivate"}`, { method: "POST", body: JSON.stringify({ client_id }) }),
+  setOrderStatus: (id, status, client_id) => request(`/api/admin/manage/orders/${encodeURIComponent(id)}/status`, { method: "POST", body: JSON.stringify({ status, client_id }) }),
+  createUser: (body) => request("/api/admin/manage/users", { method: "POST", body: JSON.stringify(body) }),
+  updateUser: (id, body) => request(`/api/admin/manage/users/${encodeURIComponent(id)}`, { method: "POST", body: JSON.stringify(body) }),
+};
+
 export function adminScope(prefix) {
   return {
     approvals: (status, signal) => request(`${prefix}${query({ status })}`, { signal }),

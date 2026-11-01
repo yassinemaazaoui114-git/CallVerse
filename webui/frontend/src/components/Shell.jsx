@@ -18,7 +18,7 @@ export const AREAS = {
   },
   "shopnova-admin": {
     theme: "shopnova", home: "/admin/approvals", brand: ["Shop", "Nova admin"],
-    nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }, { to: "/admin/dashboard", label: "Dashboard", icon: "chart" }],
+    nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }, { to: "/admin/dashboard", label: "Dashboard", icon: "chart" }, { to: "/admin/manage", label: "Manage", icon: "pen" }],
   },
   atlas: {
     theme: "atlas", home: "/atlas/bookings", brand: ["Atlas ", "Travel"],

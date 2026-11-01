@@ -19,6 +19,7 @@ import MyBookings from "./screens/MyBookings.jsx";
 import Records from "./screens/Records.jsx";
 import Chat from "./screens/Chat.jsx";
 import LiveTickets from "./screens/LiveTickets.jsx";
+import Manage from "./screens/Manage.jsx";
 import Login from "./screens/Login.jsx";
 import MyOrders from "./screens/MyOrders.jsx";
 import OrderDetail from "./screens/OrderDetail.jsx";
@@ -62,6 +63,7 @@ export default function App() {
           <Route element={<RequireLogin><Shell area="shopnova-admin" /></RequireLogin>}>
             <Route path="/admin/approvals" element={<AdminApprovals />} />
             <Route path="/admin/dashboard" element={<ShopAdminDashboard />} />
+            <Route path="/admin/manage" element={<Manage />} />
           </Route>
           <Route element={<RequireLogin><Shell area="atlas" /></RequireLogin>}>
             <Route path="/atlas/bookings" element={<MyBookings />} />
