@@ -1,5 +1,6 @@
-"""ShopNova admin approvals for the API (step 4): the Layer 3 queue, read with the existing functions and decided
-with callverse.channels.approvals.decide(approval_id, admin, approve, reason).
+"""Admin approvals for the API (step 4 ShopNova, step 5 Atlas): the Layer 3 queue, read with the existing
+functions and decided with callverse.channels.approvals.decide(approval_id, admin, approve, reason, company=...).
+Every function takes the COMPANY (shopnova / atlas); it comes from the route, which took it from the account.
 
 What this module adds is transport only:
 - reads: store.approvals(status, company="shopnova") and admin_reads.approval_facts (the same as the Streamlit
@@ -32,6 +33,7 @@ from callverse.tickets import store
 
 KEEP_SECONDS = 15 * 60
 COMPANY = companies.DEFAULT
+ATLAS = "atlas"
 
 _slm_fn = None       # tests / the demo fixture: a fake reply writer (None = the real SLM through Ollama)
 _decide_fn = None    # resolved lazily: callverse.channels.approvals.decide
@@ -58,30 +60,49 @@ def use_decide_fn(fn) -> None:
 
 # ---------- reads ----------
 
-def _with_facts(approval: dict) -> dict:
-    """An approval row + what the admin needs next to it (admin_reads.approval_facts), JSON-safe."""
-    facts = admin_reads.approval_facts(approval["order_id"], approval["proposal_id"])
-    proposal = admin_reads.proposal(approval["proposal_id"]) or {}
-    return {**approval, "facts": facts,
-            "proposal": {k: proposal.get(k) for k in ("id", "agent", "action", "params", "rule_id", "facts_used",
-                                                       "user_confirmed", "decision", "decision_reason", "created_at",
-                                                       "decided_at")} if proposal else None}
-
-
-def pending() -> list[dict]:
-    return [_with_facts(a) for a in store.approvals("pending", company=COMPANY)]
-
-
-def decided() -> list[dict]:
-    return [_with_facts(a) for a in store.approvals(company=COMPANY) if a["status"] != "pending"]
-
-
-def one(approval_id: int) -> dict | None:
-    """One ShopNova approval with facts, or None (missing or another company's: the same answer)."""
-    approval = store.get_approval(approval_id)
-    if approval is None or approval["company"] != COMPANY:
+def _proposal(company: str, proposal_id) -> dict | None:
+    """The proposal row of the company's own data (ShopNova: admin_reads; Atlas: atlas writes.get_proposal)."""
+    if not proposal_id:
         return None
-    return _with_facts(approval)
+    if company == ATLAS:
+        from callverse.data.atlas import writes as atlas_writes
+        return atlas_writes.get_proposal(proposal_id)
+    return admin_reads.proposal(proposal_id)
+
+
+def _facts(approval: dict, company: str) -> dict:
+    """What the admin sees next to an approval, with the same function as the company's Streamlit page."""
+    if company == ATLAS:
+        from callverse.data.atlas import atlas_app_reads
+        return atlas_app_reads.approval_facts(approval)
+    return admin_reads.approval_facts(approval["order_id"], approval["proposal_id"])
+
+
+PROPOSAL_KEYS = ("id", "agent", "action", "params", "rule_id", "facts_used", "user_confirmed", "decision",
+                 "decision_reason", "created_at", "decided_at", "confirmed_by_code", "confirmation_reason")
+
+
+def _with_facts(approval: dict, company: str) -> dict:
+    """An approval row + what the admin needs next to it, JSON-safe."""
+    proposal = _proposal(company, approval["proposal_id"]) or {}
+    return {**approval, "facts": _facts(approval, company),
+            "proposal": {k: proposal.get(k) for k in PROPOSAL_KEYS} if proposal else None}
+
+
+def pending(company: str = COMPANY) -> list[dict]:
+    return [_with_facts(a, company) for a in store.approvals("pending", company=company)]
+
+
+def decided(company: str = COMPANY) -> list[dict]:
+    return [_with_facts(a, company) for a in store.approvals(company=company) if a["status"] != "pending"]
+
+
+def one(approval_id: int, company: str = COMPANY) -> dict | None:
+    """One approval of this company with facts, or None (missing or another company's: the same answer)."""
+    approval = store.get_approval(approval_id)
+    if approval is None or approval["company"] != company:
+        return None
+    return _with_facts(approval, company)
 
 
 # ---------- evidence: what a decision has actually written ----------
@@ -89,7 +110,7 @@ def one(approval_id: int) -> dict | None:
 STAGES = {
     "nothing_written": "No write found: the proposal is undecided, no refund row, the approval is pending.",
     "company_written_approval_pending": "PARTIAL: the company's transaction is committed (proposal decided"
-                                        " and, for an approval, the refund row written) but the approval record"
+                                        " and, for an approval, the money row written) but the approval record"
                                         " is still pending and the customer was not told.",
     "approval_closed_notification_unconfirmed": "The company's transaction and the approval record are done, but"
                                                 " the customer's reply for THIS approval is not confirmed: no"
@@ -99,7 +120,25 @@ STAGES = {
 }
 
 
-def evidence(approval_id: int) -> dict:
+def _money_row(approval: dict, company: str) -> dict | None:
+    """The money row this approval's proposal wrote, if any: ShopNova = the refund of the order; Atlas = the
+    refund OR the compensation of the booking (by the approval's action), matched on the proposal id."""
+    if company == ATLAS:
+        from callverse.data.atlas import reads as atlas_reads_core
+        kind, booking = approval.get("booking_type"), approval["order_id"]
+        if not kind:
+            return None
+        if approval.get("action") == "compensation":
+            rows = atlas_reads_core.get_compensations(kind, booking).get("compensations", [])
+        else:
+            rows = atlas_reads_core.get_refunds(kind, booking).get("refunds", [])
+    else:
+        from callverse.tools.shopnova_tools import get_refunds
+        rows = get_refunds(approval["order_id"]).get("refunds", [])
+    return next((r for r in rows if r.get("proposal_id") == approval["proposal_id"]), None)
+
+
+def evidence(approval_id: int, company: str = COMPANY) -> dict:
     """Re-read, with the existing functions, everything a decision writes: the approval row (store), the proposal
     decision (admin_reads), the refund row of this proposal (shopnova_tools.get_refunds), the ticket, its last
     message and its steps (store). Then name the STAGE the decision reached. Used after an unexpected exception
@@ -111,13 +150,11 @@ def evidence(approval_id: int) -> dict:
     the reply or a later message reopening the ticket must not turn a completed decision into "unconfirmed", and
     an unrelated assistant message must not pass for this approval's reply. Without that step the notification is
     reported as UNCONFIRMED, never as missing."""
-    from callverse.tools.shopnova_tools import get_refunds
     approval = store.get_approval(approval_id)
-    if approval is None:
+    if approval is None or approval["company"] != company:
         return {"stage": "unknown", "approval": None}
-    proposal = admin_reads.proposal(approval["proposal_id"]) if approval["proposal_id"] else None
-    refunds = get_refunds(approval["order_id"])
-    refund = next((r for r in refunds.get("refunds", []) if r.get("proposal_id") == approval["proposal_id"]), None)
+    proposal = _proposal(company, approval["proposal_id"])
+    refund = _money_row(approval, company)   # "refund" key kept: the money row (a compensation at Atlas)
     ticket = store.get_ticket(approval["ticket_id"])
     messages = store.messages(approval["ticket_id"]) if ticket else []
     last = messages[-1] if messages else None
@@ -135,9 +172,9 @@ def evidence(approval_id: int) -> dict:
         stage = "approval_closed_notification_unconfirmed"
     else:
         stage = "complete"
-    return {"stage": stage, "stage_words": STAGES[stage], "approval": approval,
+    return {"stage": stage, "stage_words": STAGES[stage], "approval": approval, "action": approval.get("action") or "refund",
             "proposal_decision": proposal.get("decision") if proposal else None,
-            "refund": refund, "ticket_status": ticket["status"] if ticket else None,
+            "refund": refund, "money": refund, "ticket_status": ticket["status"] if ticket else None,
             "notification": "confirmed" if decision_step else "unconfirmed",
             "decision_step_at": decision_step.get("at_real") if decision_step else None,
             "last_message": {"sender": last["sender"], "at_real": last.get("at_real")} if last else None}
@@ -154,7 +191,7 @@ class Decisions:
     answer was lost can see "still processing" instead of guessing."""
 
     def __init__(self):
-        self._running: dict[int, dict] = {}                        # approval id -> {admin, client_id, approve, reason, started_at}
+        self._running: dict[tuple[str, int], dict] = {}            # (company, approval id) -> {admin, client_id, approve, reason, started_at}
         self._results: dict[tuple, tuple[float, tuple, dict]] = {}   # key -> (at, payload, result)
         self._lock = threading.Lock()
 
@@ -186,15 +223,16 @@ class Decisions:
             _, payload, result = found
             return ("same", result) if payload == self.payload(approve, reason) else ("mismatch", None)
 
-    def in_flight(self, approval_id: int) -> dict | None:
+    def in_flight(self, company: str, approval_id: int) -> dict | None:
         with self._lock:
-            return dict(self._running[int(approval_id)]) if int(approval_id) in self._running else None
+            found = self._running.get((company, int(approval_id)))
+            return dict(found) if found else None
 
-    def begin(self, approval_id: int, info: dict) -> bool:
+    def begin(self, company: str, approval_id: int, info: dict) -> bool:
         with self._lock:
-            if int(approval_id) in self._running:
+            if (company, int(approval_id)) in self._running:
                 return False
-            self._running[int(approval_id)] = {**info, "started_at": _now()}
+            self._running[(company, int(approval_id))] = {**info, "started_at": _now()}
             return True
 
     def record(self, company: str, admin: str, approval_id: int, client_id: str | None, approve: bool,
@@ -204,9 +242,9 @@ class Decisions:
                 self._results[self._key(company, admin, approval_id, client_id)] = (
                     time.monotonic(), self.payload(approve, reason), result)
 
-    def end(self, approval_id: int) -> None:
+    def end(self, company: str, approval_id: int) -> None:
         with self._lock:
-            self._running.pop(int(approval_id), None)
+            self._running.pop((company, int(approval_id)), None)
 
     def clear(self) -> None:
         with self._lock:
@@ -219,15 +257,17 @@ def _now() -> str:
     return datetime.now().isoformat(timespec="seconds")
 
 
-def run_decision(admin: str, approval_id: int, approve: bool, reason: str) -> dict:
-    """Call the channel's decide() for ShopNova with the admin's username. Returns its dict as it is."""
-    return decide_fn()(int(approval_id), admin, bool(approve), reason, slm_chat_fn=_slm_fn, company=COMPANY)
+def run_decision(admin: str, approval_id: int, approve: bool, reason: str, company: str = COMPANY) -> dict:
+    """Call the channel's decide() for this company with the admin's username. Returns its dict as it is.
+    decide() takes Atlas's own path for an Atlas approval (atlas re-check, atlas writes, refund / compensation /
+    cancellation): nothing here assumes the action is a refund."""
+    return decide_fn()(int(approval_id), admin, bool(approve), reason, slm_chat_fn=_slm_fn, company=company)
 
 
 def result_view(out: dict) -> dict:
     """The response body of a completed decision (the channel's result, trimmed)."""
     return {"approval": out["approval"], "outcome": out["outcome"], "ticket": out["ticket"],
-            "refund": out.get("refund"), "reply_source": out.get("reply_source")}
+            "refund": out.get("refund"), "compensation": out.get("compensation"), "reply_source": out.get("reply_source")}
 
 
 def classify(out: dict) -> tuple[int, str]:

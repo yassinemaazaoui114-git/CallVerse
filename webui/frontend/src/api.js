@@ -68,18 +68,53 @@ export const api = {
   ticket: (id, signal) => request(`/api/console/tickets/${encodeURIComponent(id)}`, { signal }),
   orders: (signal) => request("/api/shop/orders", { signal }),
   order: (id, signal) => request(`/api/shop/orders/${encodeURIComponent(id)}`, { signal }),
-  // admin approvals (step 4)
-  approvals: (status, signal) => request(`/api/admin/approvals${query({ status })}`, { signal }),
-  approval: (id, signal) => request(`/api/admin/approvals/${encodeURIComponent(id)}`, { signal }),
-  decide: (id, body) => request(`/api/admin/approvals/${encodeURIComponent(id)}/decide`, { method: "POST", body: JSON.stringify(body) }),
-  // chat (step 3)
-  chat: (ticket, signal) => request(`/api/shop/chat${query({ ticket })}`, { signal }),
-  chatJob: (signal) => request("/api/shop/chat/job", { signal }),
-  markRead: (ticketId) => request(`/api/shop/chat/tickets/${encodeURIComponent(ticketId)}/read`, { method: "POST" }),
-  // The two streaming calls return the raw fetch Response (read with sse.js); a non-2xx answer throws ApiError.
-  chatSend: (body, signal) => streamRequest("/api/shop/chat/send", { method: "POST", body: JSON.stringify(body), signal }),
-  chatJobStream: (signal) => streamRequest("/api/shop/chat/job/stream", { signal }),
+  // Atlas customer (step 5)
+  bookings: (signal) => request("/api/atlas/bookings", { signal }),
+  booking: (kind, id, signal) => request(`/api/atlas/bookings/${encodeURIComponent(kind)}/${encodeURIComponent(id)}`, { signal }),
+  // Atlas admin records (step 5)
+  records: (table, search, page, signal) => request(`/api/atlas/admin/records/${encodeURIComponent(table)}${query({ search, page })}`, { signal }),
 };
+
+// The chat and the admin queue exist once per company, under their own prefix. A scope binds the calls to one
+// prefix; the screens take the scope from the company they serve (COMPANIES below), so ShopNova's and Atlas's
+// requests can never cross.
+export function chatScope(prefix) {
+  return {
+    chat: (ticket, signal) => request(`${prefix}/chat${query({ ticket })}`, { signal }),
+    chatJob: (signal) => request(`${prefix}/chat/job`, { signal }),
+    markRead: (ticketId) => request(`${prefix}/chat/tickets/${encodeURIComponent(ticketId)}/read`, { method: "POST" }),
+    // The two streaming calls return the raw fetch Response (read with sse.js); a non-2xx answer throws ApiError.
+    chatSend: (body, signal) => streamRequest(`${prefix}/chat/send`, { method: "POST", body: JSON.stringify(body), signal }),
+    chatJobStream: (signal) => streamRequest(`${prefix}/chat/job/stream`, { signal }),
+  };
+}
+
+export function adminScope(prefix) {
+  return {
+    approvals: (status, signal) => request(`${prefix}${query({ status })}`, { signal }),
+    approval: (id, signal) => request(`${prefix}/${encodeURIComponent(id)}`, { signal }),
+    decide: (id, body) => request(`${prefix}/${encodeURIComponent(id)}/decide`, { method: "POST", body: JSON.stringify(body) }),
+  };
+}
+
+// What differs between the two companies' screens: words, routes and API prefixes. Everything else is shared.
+export const COMPANIES = {
+  shopnova: {
+    key: "shopnova", name: "ShopNova", chat: chatScope("/api/shop"), admin: adminScope("/api/admin/approvals"),
+    contextParam: "order", contextWord: "order", contextField: "about_order",
+    home: "/shop/orders", chatPath: "/shop/chat", adminPath: "/admin/approvals",
+    listLabel: "My orders", caseWord: "order",
+  },
+  atlas: {
+    key: "atlas", name: "Atlas Travel", chat: chatScope("/api/atlas"), admin: adminScope("/api/atlas/admin/approvals"),
+    contextParam: "booking", contextWord: "booking", contextField: "about_booking",
+    home: "/atlas/bookings", chatPath: "/atlas/chat", adminPath: "/atlas/admin/approvals",
+    listLabel: "My bookings", caseWord: "booking",
+  },
+};
+
+// Backwards-compatible names (ShopNova) used by the step 3 / 4 screens and tests.
+Object.assign(api, COMPANIES.shopnova.chat, COMPANIES.shopnova.admin);
 
 async function streamRequest(path, options = {}) {
   const headers = { Accept: "text/event-stream" };

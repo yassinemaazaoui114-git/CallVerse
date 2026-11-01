@@ -33,6 +33,47 @@
 :root[data-theme="shopnova"] .btn-primary:hover { filter: brightness(1.15); }
 :root[data-theme="shopnova"] .accent { color: var(--cv-accent); }
 
+/* Atlas Travel: white panels on pale blue, deep blue text, blue primary buttons, orange accent. */
+:root[data-theme="atlas"] {
+  color-scheme: light;
+  --cv-bg: #e0f2fe;            /* pale blue */
+  --cv-panel: #ffffff;
+  --cv-panel-2: #f0f9ff;
+  --cv-border: #bae6fd;
+  --cv-text: #0c4a6e;          /* deep blue */
+  --cv-muted: #35637f;         /* 5.6:1 on white */
+  --cv-primary: #0369a1;       /* primary action: blue with white text (5.6:1) */
+  --cv-on-primary: #ffffff;
+  --cv-primary-soft: #ffedd5;  /* badge: orange tint */
+  --cv-primary-text: #9a3412;  /* badge text on the tint (6.1:1) */
+  --cv-accent: #f97316;        /* orange: brand accent (logo, active nav, highlights) */
+  --cv-ok: #15803d;
+  --cv-warn: #a16207;
+  --cv-danger: #b42318;
+  --cv-danger-soft: #fde8e6;
+  --cv-info-soft: #e0f2fe;
+  --cv-ok-soft: #dcfce7;
+  --cv-warn-soft: #fef3c7;
+}
+:root[data-theme="atlas"] html, :root[data-theme="atlas"] body { background: var(--cv-bg); }
+:root[data-theme="atlas"] .logo span { color: var(--cv-accent); }
+:root[data-theme="atlas"] .nav a[aria-current="page"] { background: var(--cv-primary-soft); color: var(--cv-primary-text); }
+:root[data-theme="atlas"] :focus-visible { outline-color: var(--cv-accent); }
+:root[data-theme="atlas"] a:not(.btn) { color: var(--cv-primary); }
+:root[data-theme="atlas"] .badge-ok { background: var(--cv-ok-soft); color: var(--cv-ok); }
+:root[data-theme="atlas"] .badge-warn { background: var(--cv-warn-soft); color: var(--cv-warn); }
+:root[data-theme="atlas"] .badge-danger { background: var(--cv-danger-soft); color: var(--cv-danger); }
+:root[data-theme="atlas"] .badge-neutral { background: var(--cv-info-soft); color: var(--cv-text); }
+:root[data-theme="atlas"] .btn-primary:hover { filter: brightness(1.12); }
+:root[data-theme="atlas"] .progress li.now .mark { border-color: var(--cv-accent); color: var(--cv-accent); }
+
+/* ---------- Records (Atlas admin) ---------- */
+.records-tabs { display: flex; gap: var(--cv-s1); flex-wrap: wrap; margin-bottom: var(--cv-s3); }
+.records-tools { display: flex; gap: var(--cv-s2); align-items: end; flex-wrap: wrap; margin-bottom: var(--cv-s3); }
+.records-tools .field { flex: 1 1 240px; }
+table.records { min-width: 0; }
+table.records td, table.records th { white-space: nowrap; max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
+
 /* ---------- ShopNova screens ---------- */
 .orders { display: grid; gap: var(--cv-s3); grid-template-columns: 1fr; }
 @media (min-width: 768px) { .orders { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

@@ -178,3 +178,38 @@ def queue_mode(monkeypatch, shop_db):
     """Layer 3 in queue mode (the real admin queue), on the seeded temp shop database."""
     monkeypatch.setenv("CALLVERSE_LAYER3_MODE", "queue")
     return shop_db
+
+
+@pytest.fixture
+def atlas_db_seeded(isolated_env, monkeypatch):
+    """A seeded TEMPORARY atlas.db (scripted bookings 7001-7012 + real data) in queue mode; the shop DB too."""
+    from callverse.data.atlas.seed import seed as atlas_seed
+    monkeypatch.setenv("CALLVERSE_LAYER3_MODE", "queue")
+    path = isolated_env / "atlas_test.db"
+    atlas_seed(path)
+    atlas_db.use_db(path)
+    return path
+
+
+def pending_compensation(user_id: int = 5, booking_id: int = 7004) -> dict:
+    """A pending Atlas COMPENSATION as the channel makes it: the Atlas Coordinator (queue mode) records the
+    proposal, confirms it by code from the client's words, computes the amount and answers layer3_pending; then a
+    ticket + the approvals row (company atlas, booking_type flight, action compensation)."""
+    from callverse.coordinator import atlas_coordinator
+    from callverse.coordinator.coordinator import new_case
+    text = f"My flight {booking_id} was delayed for hours, I want a compensation please."
+    ticket = store.create_ticket("atlas", user_id)
+    store.add_message(ticket["id"], "user", text)
+    store.add_step(ticket["id"], None, "intake", "intake",
+                   {"style": {"formality": "formal", "length": "short"}, "emotion": {"label": "anger"},
+                    "sentiment": {"label": "negative"}, "main_reason": "compensation_request"})
+    proposal = {"agent": "B", "action": "compensation", "params": {"booking_type": "flight", "booking_id": booking_id},
+                "rule_id": "AT-FLT-03", "facts_used": {"read": True}, "user_confirmed": True,
+                "user_quote": "I want a compensation please."}
+    case = {**new_case(ticket["id"]), "order_id": booking_id, "booking_type": "flight",
+            "main_reason": "compensation_request", "user_message": text, "searched_rules": ["AT-FLT-03"]}
+    decision = atlas_coordinator.review(proposal, case)
+    assert decision["outcome"] == "layer3_pending", decision
+    store.update_ticket(ticket["id"], status="Waiting for finance")
+    return store.create_approval(ticket["id"], booking_id, decision["facts"]["amount_tnd"], decision["proposal_id"],
+                                 company="atlas", booking_type="flight", action="compensation")

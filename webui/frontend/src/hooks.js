@@ -53,6 +53,8 @@ export function homeFor(session) {
   if (session.role === "supervisor") return "/tickets";
   if (session.role === "user" && session.company === "shopnova") return "/shop/orders";
   if (session.role === "admin" && session.company === "shopnova") return "/admin/approvals";
+  if (session.role === "user" && session.company === "atlas") return "/atlas/bookings";
+  if (session.role === "admin" && session.company === "atlas") return "/atlas/admin/approvals";
   return "/workspace";
 }
 

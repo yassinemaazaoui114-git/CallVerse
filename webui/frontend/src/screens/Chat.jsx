@@ -18,7 +18,7 @@
 //   marks it read on the server (owned tickets only, checked there).
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api, ApiError } from "../api.js";
+import { ApiError, COMPANIES } from "../api.js";
 import { useAuth } from "../auth.jsx";
 import Icon from "../components/Icon.jsx";
 import { ApiErrorView, Empty, Loading } from "../components/States.jsx";
@@ -31,13 +31,17 @@ function newClientId() {
   return (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : `c-${Date.now()}-${Math.random()}`;
 }
 
-export default function Chat() {
+export default function Chat({ company = "shopnova" }) {
+  // Everything company-specific comes from COMPANIES: the API prefix (ShopNova's and Atlas's chats are two
+  // different routes, jobs and tickets on the server), the context word (order / booking) and the home links.
+  const co = COMPANIES[company];
+  const api = co.chat;
   const { expired } = useAuth();
   const [params, setParams] = useSearchParams();
   const ticketParam = params.get("ticket") || "";
-  const orderParam = params.get("order") || "";
+  const orderParam = params.get(co.contextParam) || "";
 
-  const { data: convo, error, loading, reload } = useGuardedLoad((signal) => api.chat(ticketParam || undefined, signal), [ticketParam]);
+  const { data: convo, error, loading, reload } = useGuardedLoad((signal) => api.chat(ticketParam || undefined, signal), [ticketParam, company]);
 
   const [draft, setDraft] = useState("");
   // transport: {status: idle | sending | attached | uncertain | failed, reason, steps, message}
@@ -138,7 +142,7 @@ export default function Chat() {
     try {
       const body = { text: sub.text, client_id: sub.clientId };
       if (sub.ticketId) body.ticket_id = sub.ticketId;
-      if (sub.aboutOrder) body.about_order = sub.aboutOrder;
+      if (sub.aboutOrder) body[co.contextField] = sub.aboutOrder;
       const response = await api.chatSend(body, ctrl.signal);
       if (!live(seq)) return;
       setDraft("");
@@ -237,7 +241,7 @@ export default function Chat() {
   if (error) {
     return (
       <div className="stack">
-        <div><Link to="/shop/orders" className="btn btn-sm"><Icon name="back" size={14} />My orders</Link></div>
+        <div><Link to={co.home} className="btn btn-sm"><Icon name="back" size={14} />{co.listLabel}</Link></div>
         {error.code === "not_found"
           ? <div className="panel"><Empty icon="search" title={`Ticket ${ticketParam} is not one of your conversations`}><button type="button" className="btn btn-sm" onClick={newChat}>Start a new chat</button></Empty></div>
           : <ApiErrorView error={error} onRetry={reload} />}
@@ -254,7 +258,7 @@ export default function Chat() {
       <div className="page-head">
         <div>
           <h1>Help chat</h1>
-          <p className="sub">Ask us about an order, a delivery, a refund or a return · CallVerse answers here</p>
+          <p className="sub">{company === "atlas" ? "Ask us about a booking, a delay, a cancellation, a refund or a compensation" : "Ask us about an order, a delivery, a refund or a return"} · CallVerse answers here</p>
         </div>
         <button type="button" className="btn btn-sm" onClick={newChat} disabled={busy}><Icon name="chat" size={14} />New chat</button>
       </div>
@@ -268,8 +272,8 @@ export default function Chat() {
               <span className="muted">New conversation</span>
             )}
             {orderParam && (
-              <span className="context-chip"><Icon name="package" size={14} />About order {orderParam}
-                <button type="button" className="btn btn-ghost btn-sm" aria-label="Remove the order context" onClick={() => { const n = new URLSearchParams(params); n.delete("order"); setParams(n, { replace: true }); }}><Icon name="x" size={12} /></button>
+              <span className="context-chip"><Icon name="package" size={14} />About {co.contextWord} {orderParam}
+                <button type="button" className="btn btn-ghost btn-sm" aria-label={`Remove the ${co.contextWord} context`} onClick={() => { const n = new URLSearchParams(params); n.delete(co.contextParam); setParams(n, { replace: true }); }}><Icon name="x" size={12} /></button>
               </span>
             )}
           </div>
@@ -362,7 +366,7 @@ export default function Chat() {
             <div className="field">
               <label htmlFor="chat-text">Your message</label>
               <textarea id="chat-text" ref={inputRef} className="input" value={draft} onChange={(e) => setDraft(e.target.value)}
-                placeholder={orderParam ? `About order ${orderParam}…` : "Type your message…"} disabled={busy} maxLength={2000}
+                placeholder={orderParam ? `About ${co.contextWord} ${orderParam}…` : "Type your message…"} disabled={busy} maxLength={2000}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!busy && !uncertain && draft.trim()) send(e); } }} />
               <span className="muted xs">Enter sends · Shift+Enter for a new line</span>
             </div>
@@ -387,8 +391,8 @@ export default function Chat() {
               <dt>Opened</dt><dd className="tabular">{ticket.created_real || "—"}</dd>
             </dl>
           )}
-          <p className="small muted">A refund above the limit goes to the ShopNova finance team; their decision arrives here as a new reply.</p>
-          <Link to="/shop/orders" className="btn btn-sm"><Icon name="bag" size={14} />My orders</Link>
+          <p className="small muted">{company === "atlas" ? "A refund above the limit and every compensation go to the Atlas finance team" : "A refund above the limit goes to the ShopNova finance team"}; their decision arrives here as a new reply.</p>
+          <Link to={co.home} className="btn btn-sm"><Icon name={company === "atlas" ? "plane" : "bag"} size={14} />{co.listLabel}</Link>
         </aside>
       </div>
     </>

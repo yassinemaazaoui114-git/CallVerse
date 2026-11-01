@@ -20,6 +20,14 @@ export const AREAS = {
     theme: "shopnova", home: "/admin/approvals", brand: ["Shop", "Nova admin"],
     nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }],
   },
+  atlas: {
+    theme: "atlas", home: "/atlas/bookings", brand: ["Atlas ", "Travel"],
+    nav: [{ to: "/atlas/bookings", label: "My bookings", icon: "plane" }, { to: "/atlas/chat", label: "Help chat", icon: "chat" }],
+  },
+  "atlas-admin": {
+    theme: "atlas", home: "/atlas/admin/approvals", brand: ["Atlas ", "Travel admin"],
+    nav: [{ to: "/atlas/admin/approvals", label: "Approvals", icon: "bank" }, { to: "/atlas/admin/records", label: "Records", icon: "file" }],
+  },
   none: { theme: "console", home: "/workspace", brand: ["Call", "Verse"], nav: [] },
 };
 

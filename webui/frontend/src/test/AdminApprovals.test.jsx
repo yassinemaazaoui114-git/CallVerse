@@ -70,7 +70,7 @@ describe("Refund approvals", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Outcome approve v2 unknown");   // unknown outcome as text
     const refresh = await net.waitFor("status=pending", { index: 1 });
     await act(async () => { refresh.respond(200, list([])); });
-    expect(screen.getByText("No refund is waiting for approval")).toBeInTheDocument();
+    expect(screen.getByText("No case is waiting for approval")).toBeInTheDocument();
   });
 
   it("refuse needs a reason; a refused re-check leaves it pending with the Coordinator's words", async () => {
@@ -140,7 +140,7 @@ describe("Refund approvals", () => {
     await act(async () => { r.state.respond(200, { approval: approval(3), in_flight: null, evidence: { stage: "company_written_approval_pending", stage_words: "PARTIAL: the company's transaction is committed.", refund: { amount: 378 }, proposal_decision: "approve", ticket_status: "Waiting for finance" } }); });
     alert = screen.getByRole("alert");
     expect(alert).toHaveTextContent("partially completed — do NOT decide again");
-    expect(alert).toHaveTextContent("Refund row: 378.00 TND");
+    expect(alert).toHaveTextContent("refund row: 378.00 TND");
     expect(within(alert).queryByRole("button", { name: /confirm again/i })).toBeNull();
     await act(async () => { screen.getByRole("button", { name: /dismiss/i }).click(); });
     await act(async () => { (await net.waitFor("status=pending", { index: 3 })).respond(200, list([approval(4)])); });

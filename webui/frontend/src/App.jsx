@@ -2,7 +2,7 @@
 // /workspace for the accounts whose pages are not built yet. The guard only checks "is someone logged in";
 // the ROLE is checked by the API on every request (a wrong role sees "Not available for your account").
 // After login an account goes to its own home (hooks.homeFor): supervisor → Console, ShopNova customer →
-// My orders, everyone else → /workspace.
+// My orders, ShopNova admin → Refund approvals, Atlas customer → My bookings, Atlas admin → Approvals.
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./auth.jsx";
 import Shell from "./components/Shell.jsx";
@@ -10,6 +10,9 @@ import { ApiErrorView, Loading } from "./components/States.jsx";
 import { homeFor } from "./hooks.js";
 import AskAboutOrder from "./screens/AskAboutOrder.jsx";
 import AdminApprovals from "./screens/AdminApprovals.jsx";
+import BookingDetail from "./screens/BookingDetail.jsx";
+import MyBookings from "./screens/MyBookings.jsx";
+import Records from "./screens/Records.jsx";
 import Chat from "./screens/Chat.jsx";
 import LiveTickets from "./screens/LiveTickets.jsx";
 import Login from "./screens/Login.jsx";
@@ -52,6 +55,15 @@ export default function App() {
           </Route>
           <Route element={<RequireLogin><Shell area="shopnova-admin" /></RequireLogin>}>
             <Route path="/admin/approvals" element={<AdminApprovals />} />
+          </Route>
+          <Route element={<RequireLogin><Shell area="atlas" /></RequireLogin>}>
+            <Route path="/atlas/bookings" element={<MyBookings />} />
+            <Route path="/atlas/bookings/:kind/:bookingId" element={<BookingDetail />} />
+            <Route path="/atlas/chat" element={<Chat company="atlas" />} />
+          </Route>
+          <Route element={<RequireLogin><Shell area="atlas-admin" /></RequireLogin>}>
+            <Route path="/atlas/admin/approvals" element={<AdminApprovals company="atlas" />} />
+            <Route path="/atlas/admin/records" element={<Records />} />
           </Route>
           <Route element={<RequireLogin><Shell area="none" /></RequireLogin>}>
             <Route path="/workspace" element={<Workspace />} />

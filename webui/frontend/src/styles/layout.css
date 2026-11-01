@@ -24,8 +24,8 @@
 .topbar .who { margin-left: auto; display: flex; align-items: center; gap: var(--cv-s3); font-size: var(--cv-text-sm); color: var(--cv-muted); flex: none; }
 .topbar .who strong { color: var(--cv-text); font-weight: 600; }
 .topbar .who .btn { white-space: nowrap; }
+@media (max-width: 899px) { .topbar .who .name { display: none; } }   /* the name gives way to the menu first */
 @media (max-width: 599px) {
-  .topbar .who .name { display: none; }
   .topbar .logo { font-size: var(--cv-text-md); }
 }
 @media (max-width: 479px) {

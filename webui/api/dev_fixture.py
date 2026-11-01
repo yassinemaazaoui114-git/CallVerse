@@ -10,6 +10,7 @@ there). Then it prints the three environment variables to set before `python -m 
 The real config/accounts.yaml and callverse/data/*.db are never read or written. Delete the folder when done.
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -47,7 +48,8 @@ def fake_send(user_id, company, text, ticket_id=None, on_step=None, about_order=
     if "fail" in text.lower():
         raise RuntimeError("fake channel failure (test data)")
     t = tickets.ticket_for_message(company, user_id, ticket_id)
-    shown = f"{text} (order {about_order})" if about_order and "order" not in text.lower() else text
+    word = "booking" if company == "atlas" else "order"
+    shown = f"{text} ({word} {about_order})" if about_order and word not in text.lower() else text
     tickets.add_message(t["id"], "user", shown)
     for i, said in enumerate(["Reading your message…", "Checking your order…", "Checking the rules…", "Writing the reply…"]):
         on_step(said)
@@ -145,12 +147,38 @@ def main(folder: Path) -> None:
     store.add_message(t6["id"], "assistant", "Order 4510 is cancelled.", seconds=4.1)
     store.update_ticket(t6["id"], status="Solved")
 
+    # Atlas Travel (step 5): the seeded sample + ONE pending compensation (test data) for the approval queue
+    from callverse.data.atlas.seed import seed as atlas_seed
+    atlas_seed(folder / "atlas.db")
+    atlas_db.use_db(folder / "atlas.db")
+    os.environ.setdefault("CALLVERSE_LAYER3_MODE", "queue")
+    from callverse.coordinator import atlas_coordinator
+    from callverse.coordinator.coordinator import new_case
+    text = "My flight 7004 was delayed for hours, I want a compensation please."
+    ta = store.create_ticket("atlas", 5)
+    mid = store.add_message(ta["id"], "user", text)
+    store.add_step(ta["id"], mid, "intake", "intake", {"style": {"formality": "formal", "length": "short"},
+                                                       "emotion": {"label": "anger"}, "sentiment": {"label": "negative"},
+                                                       "main_reason": "compensation_request"})
+    proposal = {"agent": "B", "action": "compensation", "params": {"booking_type": "flight", "booking_id": 7004},
+                "rule_id": "AT-FLT-03", "facts_used": {"read": True}, "user_confirmed": True,
+                "user_quote": "I want a compensation please."}
+    case = {**new_case(ta["id"]), "order_id": 7004, "booking_type": "flight", "main_reason": "compensation_request",
+            "user_message": text, "searched_rules": ["AT-FLT-03"]}
+    decision = atlas_coordinator.review(proposal, case)
+    if decision["outcome"] == "layer3_pending":
+        store.update_ticket(ta["id"], status="Waiting for finance")
+        store.create_approval(ta["id"], 7004, decision["facts"]["amount_tnd"], decision["proposal_id"],
+                              company="atlas", booking_type="flight", action="compensation")
+
     print("Demo fixture written in", folder)
     print("Logins: every demo username (supervisor, admin, sara, ...) with the password", PASSWORD)
     print("Set these, then run `python -m webui.api.run`:")
     print(f"  CALLVERSE_WEBUI_ACCOUNTS={accounts_path}")
     print(f"  CALLVERSE_WEBUI_TICKETS_DB={folder / 'callverse.db'}")
     print(f"  CALLVERSE_WEBUI_SHOPNOVA_DB={folder / 'shopnova.db'}")
+    print(f"  CALLVERSE_WEBUI_ATLAS_DB={folder / 'atlas.db'}")
+    print("  CALLVERSE_LAYER3_MODE=queue   (the approval queues are only filled in queue mode)")
 
 
 if __name__ == "__main__":

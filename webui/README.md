@@ -4,7 +4,10 @@ The new UI that will replace the three Streamlit apps (brief: `docs/UI_replaceme
 steps. So far: **step 1** = the API skeleton, login, `GET /company`, the supervisor's Console **Live tickets**
 and **Ticket detail**; **step 2** = the ShopNova customer's **My orders**, **Order detail** and **Ask about this
 order**; **step 3** = the customer's **Help chat** with live progress (SSE) through the existing web chat channel;
-**step 4** = the ShopNova admin's **Refund approvals** (the Layer 3 queue) through `approvals.decide`.
+**step 4** = the ShopNova admin's **Refund approvals** (the Layer 3 queue) through `approvals.decide`;
+**step 5** = Atlas Travel: the customer's **My bookings** (flights and hotel stays), **Booking detail** and
+**Help chat**, the admin's **Approvals** (refunds AND compensations) and read-only **Records**. The same screens
+and routes as ShopNova's, under `/api/atlas`, with the company taken from the account.
 The Console and the order pages stay read only and load no model; the chat loads the channel (and so the
 pipeline) on the first message only.
 
@@ -15,7 +18,8 @@ webui/
     auth.py       login + sessions      console_reads.py  wrappers around callverse.console.reads
                                         shop_reads.py     wrappers around callverse.data.shop_reads + read tools
     chat.py       chat jobs (worker thread per message) + SSE stream over callverse.channels.web_chat.send
-    admin.py      the admin approval queue over store.approvals / admin_reads + callverse.channels.approvals.decide
+    admin.py      the admin approval queue (both companies) over store.approvals + callverse.channels.approvals.decide
+    atlas_reads.py wrappers around callverse.data.atlas.atlas_app_reads / reads (bookings, step 5)
     run.py        start the API         dev_fixture.py    temp accounts + example tickets for a demo
     tests/        pytest (one test per route + security rules)
   frontend/       React 18 + Vite 5 (JavaScript): src/screens, src/components, src/styles (design tokens)
@@ -50,7 +54,9 @@ python -m webui.api.dev_fixture C:\path\to\a\temp\folder
 ```
 
 It prints the three variables to set before starting the API (`CALLVERSE_WEBUI_ACCOUNTS`,
-`CALLVERSE_WEBUI_TICKETS_DB`, `CALLVERSE_WEBUI_SHOPNOVA_DB`). Delete the folder when done.
+`CALLVERSE_WEBUI_TICKETS_DB`, `CALLVERSE_WEBUI_SHOPNOVA_DB`, `CALLVERSE_WEBUI_ATLAS_DB`) and
+`CALLVERSE_LAYER3_MODE=queue` (the fixture holds one pending ShopNova refund and one pending Atlas compensation,
+test data). Delete the folder when done.
 
 To look at the **chat screen without Ollama / Groq**, add `CALLVERSE_WEBUI_FAKE_CHAT=1`: the chat then uses the
 fake channel of `webui/api/dev_fixture.py` (no model, every reply starts with `[TEST DATA]`; the words "busy",
@@ -123,12 +129,29 @@ model library or Streamlit is imported. The existing Console tests still pass: `
 | `GET /api/admin/approvals?status=pending\|decided` | ShopNova admin (`approve_refunds`) | the Layer 3 queue: ShopNova rows with the order / proposal facts |
 | `GET /api/admin/approvals/{id}` | ShopNova admin | one ShopNova approval's recorded state (Atlas or missing → 404) |
 | `POST /api/admin/approvals/{id}/decide` | ShopNova admin | `{approve, reason, client_id?}` → `approvals.decide(id, <username from the account>, approve, reason, company="shopnova")` |
+| `GET /api/atlas/bookings` | Atlas customer | the customer's flights and hotel stays (`atlas_app_reads.my_bookings`) |
+| `GET /api/atlas/bookings/{flight\|hotel}/{id}` | Atlas customer | one OWNED booking of that TYPE: the My bookings row, the agents' facts (hidden fields removed), refunds, compensations; wrong type / someone else's / missing → the same 404 |
+| `/api/atlas/chat…` | Atlas customer | the same five chat routes as `/api/shop/chat…`, with `about_booking` as the context; jobs and tickets are the company's own |
+| `/api/atlas/admin/approvals…` | Atlas admin (`approve_refunds`) | the same three approval routes as `/api/admin/approvals…`; an approval's `action` is refund, compensation or cancel, never assumed |
+| `GET /api/atlas/admin/records/{hotels\|flights\|users\|refunds\|compensations\|log}?search=&page=` | Atlas admin (`view_dashboard`) | one page of 50 rows (`atlas_app_reads.*_page`) or the last 50 admin actions |
 | `GET /api/health` | anyone | `{ok: true}` |
 
 Errors always look like `{"error": "<code>", "message": "<words>"}` (`not_logged_in` 401, `forbidden` 403,
 `csrf` 403, `customer_only` 403, `bad_login` 401, `no_accounts` 503, `not_found` 404, `setup_required` 503,
 `busy_user` 409, `empty_text` / `text_too_long` 400, `no_job` 404, `admin_only` 403, `already_decided` 409,
 `decision_in_progress` 409, `recheck_refused` 409, `reason_required` 400, `write_refused` 409).
+
+## Two companies, one API (step 5)
+
+Every company route takes its company from the ROUTE prefix and checks the account against it
+(`accounts.check_role(..., company)` / `check_permission(..., permission, company)`): `hedi` (Atlas user 1) is
+refused on `/api/shop/…` and `sara` (ShopNova user 1) on `/api/atlas/…`, even though both are "user 1". Tickets
+are checked for owner AND company; chat jobs are keyed by (company, user id); recorded decisions and the
+in-flight guard by (company, admin, approval id, client_id); the "about this order / booking" id must be the
+customer's own in that company. `data_ready(company)` answers 503 `setup_required` before any read when
+`shopnova.db` / `atlas.db` is missing (the core's `connect()` would seed it). In the browser, `COMPANIES` in
+`src/api.js` binds each company's screens to its prefix, words and routes; the Chat and Approvals screens are
+the same components with a `company` prop.
 
 ## Admin decisions (step 4)
 
@@ -202,9 +225,10 @@ request through `callverse.auth.accounts.check_role`, never from the browser. Th
 
 ## Design
 
-Two themes on the same components: the Console (dark, `tokens.css`) and ShopNova (light, paper `#FBF7F2`,
-navy `#1F2A44` text and primary buttons, coral `#FF6B4A` accent; `styles/themes.css`, switched by
-`data-theme` on `<html>` per area). Tokens in `frontend/src/styles/tokens.css` (background `#0B1220`, panels `#152033`, text `#E2E8F0`, muted
+Three themes on the same components: the Console (dark, `tokens.css`), ShopNova (light, paper `#FBF7F2`,
+navy `#1F2A44` text and primary buttons, coral `#FF6B4A` accent) and Atlas Travel (white panels on pale blue
+`#E0F2FE`, deep blue `#0C4A6E` text, `#0369A1` primary buttons, orange `#F97316` accent); `styles/themes.css`,
+switched by `data-theme` on `<html>` per area. Tokens in `frontend/src/styles/tokens.css` (background `#0B1220`, panels `#152033`, text `#E2E8F0`, muted
 `#94A3B8`, primary `#2DD4BF` with `#0B1220` text; Open Sans body 16 px, Poppins 600 headings 24–28 px, tables
 14 px; 4/8 px spacing; 8 px controls, 12 px panels). Components use only these variables. SVG icons in
 `components/Icon.jsx`, visible focus rings, `prefers-reduced-motion` honoured, phone layout from 375 px.

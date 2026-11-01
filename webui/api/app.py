@@ -1,32 +1,31 @@
-"""The CallVerse web API (step 1): login/session, GET /api/company, and the supervisor's Console reads.
+"""The CallVerse web API: login/session, GET /api/company, the supervisor's Console reads, and, per company
+(ShopNova under /api/shop, Atlas Travel under /api/atlas), the customer pages, the chat and the admin queue.
 
 Routes (all under /api, JSON):
 - POST /api/auth/login      {username, password} -> the session (sets the HttpOnly cookie)
 - POST /api/auth/logout     deletes the session and clears the cookie
 - GET  /api/auth/session    the logged-in account, or 401
-- GET  /api/company         the company profile (shopnova by default, ?company=atlas), the same function as the
-                            platform server's GET /company
-- GET  /api/console/tickets          the Live tickets table (filters: company, status, priority, agent)  [supervisor]
-- GET  /api/console/tickets/filters  the values of the four filters                                       [supervisor]
-- GET  /api/console/tickets/{id}     one ticket with its conversation and the steps per message          [supervisor]
-- GET  /api/shop/orders              the logged-in ShopNova customer's own orders (step 2)                 [shopnova user]
-- GET  /api/shop/orders/{id}         one owned order with tracking and refunds; missing or another user's
-                                     order: the same 404                                                   [shopnova user]
-- GET  /api/shop/chat?ticket=        the chat: the current (or the named, owned) ticket, its messages, the
-                                     unread-reply notices and the customer's running / last job (step 3)   [shopnova user]
-- POST /api/shop/chat/send           {text, ticket_id?, about_order?, client_id?} -> an SSE stream of the
-                                     channel's live steps, then the saved result (chat.py)                 [shopnova user]
-- GET  /api/shop/chat/job            the customer's running / last job (recovery after a disconnect)      [shopnova user]
-- GET  /api/shop/chat/job/stream     re-attach to the running job's SSE stream (replays the steps so far) [shopnova user]
-- POST /api/shop/chat/tickets/{id}/read   the customer opened this ticket's new reply (owned ticket only) [shopnova user]
-- GET  /api/admin/approvals?status=pending|decided   the ShopNova Layer 3 queue (step 4)                   [shopnova admin]
-- GET  /api/admin/approvals/{id}     one ShopNova approval with its facts (recorded state)                  [shopnova admin]
-- POST /api/admin/approvals/{id}/decide   {approve, reason, client_id?} -> approvals.decide(...)            [shopnova admin]
+- GET  /api/company         the company profile (shopnova by default, ?company=atlas)
+- GET  /api/console/tickets, /tickets/filters, /tickets/{id}                                    [supervisor]
+- ShopNova customer (role user, company shopnova):
+  GET  /api/shop/orders, /api/shop/orders/{id}                                                  (step 2)
+  GET  /api/shop/chat?ticket=, POST /api/shop/chat/send (SSE), GET /api/shop/chat/job,
+  GET  /api/shop/chat/job/stream, POST /api/shop/chat/tickets/{id}/read                         (step 3)
+- ShopNova admin (permission approve_refunds, company shopnova):
+  GET  /api/admin/approvals?status=, GET /api/admin/approvals/{id}, POST /api/admin/approvals/{id}/decide  (step 4)
+- Atlas customer (role user, company atlas):                                                    (step 5)
+  GET  /api/atlas/bookings, GET /api/atlas/bookings/{flight|hotel}/{id}
+  the same chat routes under /api/atlas/chat (about_booking instead of about_order)
+- Atlas admin (company atlas): the same approval routes under /api/atlas/admin/approvals (permission
+  approve_refunds; refunds AND compensations) and the read-only Records under /api/atlas/admin/records/{table}
+  (permission view_dashboard).
 
-Protection: every route except login reads the session cookie; the Console routes need the supervisor role
-(checked on the server through callverse.auth.accounts, never trusted from the browser). POST routes need the
-X-Requested-With header (see settings.py). The Console reads use read-only SQLite connections (reads.py) and no
-model is loaded: this process imports no agent, no LLM layer and no pipeline.
+Protection: every route except login reads the session cookie; the role, the permission AND the company are
+checked on the server through callverse.auth.accounts (never trusted from the browser), so an Atlas account
+with the same numeric user id as a ShopNova one is refused on ShopNova's routes and the other way round. POST
+routes need the X-Requested-With header (see settings.py). Chat jobs and recorded decisions are keyed by company
+too. Read routes never create a missing company database (the data_ready check runs before any read function,
+because the core's connect() would seed a missing file).
 
 Run with: python -m webui.api.run  (127.0.0.1:8610). Tests: pytest webui/api/tests.
 """
@@ -43,14 +42,16 @@ from callverse.config import PROJECT_ROOT
 from callverse.tickets import store
 from callverse.tools.shopnova_tools import get_company_profile   # the function behind the platform's GET /company
 
-from webui.api import admin, auth, chat, console_reads, settings, shop_reads
+from webui.api import admin, atlas_reads, auth, chat, console_reads, settings, shop_reads
+
+ATLAS = "atlas"
+COMPANY_NAMES = {companies.DEFAULT: "ShopNova", ATLAS: "Atlas Travel"}
 
 ERRORS = {
     "not_logged_in": "Please log in to see this page.",
     "forbidden": "This page is for the CallVerse supervisor only.",
     "customer_only": "This page is for ShopNova customers only.",
     "busy_user": "Your previous message is still being processed. Please wait for the reply.",
-    "client_id_reused": "This request id was already used for a different message. Send the new message with a new id.",
     "empty_text": "Please type a message.",
     "text_too_long": f"A message may have at most {chat.MAX_TEXT} characters.",
     "no_job": "No message is being processed.",
@@ -62,7 +63,7 @@ ERRORS = {
     "write_refused": "Nothing was written.",
     "decision_uncertain": "The decision raised an error after it started. Its result is not confirmed: see the "
                           "recorded state.",
-    "client_id_reused": "This request id was already used for a different decision. Send the new one with a new id.",
+    "client_id_reused": "This request id was already used for a different request. Send the new one with a new id.",
     "setup_required": "ShopNova's data is not set up on this PC yet (shopnova.db is missing). Run the seed "
                       "command from docs/DEMO_RUNBOOK.md, then try again.",
     "bad_login": "Wrong username or password.",
@@ -97,8 +98,9 @@ class DecisionIn(BaseModel):
 class ChatIn(BaseModel):
     text: str
     ticket_id: str | None = None
-    about_order: int | None = None
-    client_id: str | None = None   # the browser's id for this send: a retry with the same id is not run twice
+    about_order: int | None = None     # ShopNova: "Ask about this order"
+    about_booking: int | None = None   # Atlas: "Ask about this booking" (the channel takes both as about_order)
+    client_id: str | None = None       # the browser's id for this send: a retry with the same id is not run twice
 
 
 def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | None = None,
@@ -138,43 +140,55 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
             raise ApiError(403, "forbidden")
         return found
 
-    def shopnova_customer(request: Request) -> dict:
-        """The logged-in ShopNova CUSTOMER (role user, company shopnova, linked to a user id), or 401 / 403.
-        accounts.check_role refuses an Atlas account even with the same numeric user id, and any admin or
-        supervisor. The user id then comes from the accounts file, never from the request."""
-        username = current_username(request)
-        if username is None:
-            raise ApiError(401, "not_logged_in")
-        found = accounts.check_role({"authentication_status": True, "username": username}, "user",
-                                    companies.DEFAULT)
-        if found is None:
-            raise ApiError(403, "customer_only")
-        return found
+    def customer_of(company: str):
+        """A dependency: the logged-in CUSTOMER of `company` (role user, that company, linked to a user id), or
+        401 / 403. accounts.check_role refuses an account of the other company even with the same numeric user id,
+        and any admin or supervisor. The user id then comes from the accounts file, never from the request."""
+        def dep(request: Request) -> dict:
+            username = current_username(request)
+            if username is None:
+                raise ApiError(401, "not_logged_in")
+            found = accounts.check_role({"authentication_status": True, "username": username}, "user", company)
+            if found is None:
+                raise ApiError(403, "customer_only", f"This page is for {COMPANY_NAMES[company]} customers only.")
+            return found
+        return dep
 
-    def shop_data_ready() -> None:
-        """503 when ShopNova's database file is missing. Checked BEFORE any read function runs, because
-        callverse.data.db.connect() would create and seed a missing file: a read must never create data.
-        The Console does not need this: its reads open files read-only and never create them."""
-        from callverse.data import db as shopnova_db
-        if not shopnova_db.db_path().exists():
-            raise ApiError(503, "setup_required")
+    def admin_of(company: str, permission: str = "approve_refunds"):
+        """A dependency: the logged-in ADMIN of `company` with `permission`, or 401 / 403 (the same check as the
+        Streamlit admin pages: accounts.check_permission). The username comes from the accounts file."""
+        def dep(request: Request) -> dict:
+            username = current_username(request)
+            if username is None:
+                raise ApiError(401, "not_logged_in")
+            found = accounts.check_permission({"authentication_status": True, "username": username}, permission,
+                                              company)
+            if found is None:
+                raise ApiError(403, "admin_only",
+                               f"This page is for the {COMPANY_NAMES[company]} admin (permission {permission}) only.")
+            return found
+        return dep
 
-    def shopnova_admin(request: Request) -> dict:
-        """The logged-in ShopNova ADMIN with the approve_refunds permission, or 401 / 403. The same check as
-        the Streamlit Refund approvals page (accounts.check_permission): an Atlas admin, a customer and the
-        supervisor are refused; the username comes from the accounts file."""
-        username = current_username(request)
-        if username is None:
-            raise ApiError(401, "not_logged_in")
-        found = accounts.check_permission({"authentication_status": True, "username": username}, "approve_refunds",
-                                          companies.DEFAULT)
-        if found is None:
-            raise ApiError(403, "admin_only")
-        return found
+    def data_ready(company: str) -> None:
+        """503 when the company's database file is missing. Checked BEFORE any read function runs, because the
+        core's connect() would create and seed a missing file: a read must never create data. The Console does
+        not need this: its reads open files read-only and never create them."""
+        if company == ATLAS:
+            from callverse.data.atlas import db as company_db
+            name = "atlas.db"
+        else:
+            from callverse.data import db as company_db
+            name = "shopnova.db"
+        if not company_db.db_path().exists():
+            raise ApiError(503, "setup_required", f"{COMPANY_NAMES[company]}'s data is not set up on this PC yet "
+                           f"({name} is missing). Run the seed command from docs/DEMO_RUNBOOK.md, then try again.")
 
     def csrf_checked(request: Request) -> None:
         if request.headers.get(settings.CSRF_HEADER) != settings.CSRF_VALUE:
             raise ApiError(403, "csrf")
+
+    shopnova_customer = customer_of(companies.DEFAULT)
+    atlas_customer = customer_of(ATLAS)
 
     # ---------- auth ----------
 
@@ -245,174 +259,224 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
 
     @app.get("/api/shop/orders")
     def shop_orders(customer: dict = Depends(shopnova_customer)):
-        shop_data_ready()   # after the role check (a non-customer learns nothing about the files)
+        data_ready(companies.DEFAULT)   # after the role check (a non-customer learns nothing about the files)
         return shop_reads.orders(customer["user_id"])
 
     @app.get("/api/shop/orders/{order_id}")
     def shop_order(order_id: int, customer: dict = Depends(shopnova_customer)):
-        shop_data_ready()
+        data_ready(companies.DEFAULT)
         found = shop_reads.order(customer["user_id"], order_id)
         if found is None:   # missing or not this customer's: the same answer on purpose
             raise ApiError(404, "not_found", f"Order {order_id} is not one of your orders.")
         return found
 
-    # ---------- ShopNova customer chat (step 3): the channel, in a worker thread, streamed as SSE ----------
+    # ---------- Atlas customer (own bookings only, read only; step 5) ----------
 
-    def owned_ticket(customer: dict, ticket_id: str | None) -> dict | None:
-        """The ticket if it is this customer's AND ShopNova's, else 404 (the same for a missing id)."""
-        if not ticket_id:
-            return None
-        ticket = store.get_ticket(ticket_id)
-        if ticket is None or ticket["company"] != companies.DEFAULT or ticket["user_id"] != customer["user_id"]:
-            raise ApiError(404, "not_found", f"Ticket {ticket_id} is not one of your conversations.")
-        return ticket
+    @app.get("/api/atlas/bookings")
+    def atlas_bookings(customer: dict = Depends(atlas_customer)):
+        data_ready(ATLAS)
+        return atlas_reads.bookings(customer["user_id"])
 
-    def owned_order(customer: dict, order_id: int | None) -> None:
-        """404 unless the order is one of this customer's (checked BEFORE the channel is called)."""
-        if order_id is None:
-            return
-        if shop_reads.order_summary(customer["user_id"], order_id) is None:
-            raise ApiError(404, "not_found", f"Order {order_id} is not one of your orders.")
-
-    def job_view(customer: dict) -> dict | None:
-        job = jobs.current(companies.DEFAULT, customer["user_id"])
-        return job.view() if job else None
-
-    @app.get("/api/shop/chat")
-    def shop_chat(ticket: str | None = None, customer: dict = Depends(shopnova_customer)):
-        """The conversation to show: the named owned ticket, or the customer's current ticket (the latest one a
-        new message may still go on, as the Streamlit page does after a reload), or none (new conversation)."""
-        shop_data_ready()
-        found = owned_ticket(customer, ticket) if ticket else store.current_ticket(companies.DEFAULT, customer["user_id"])
-        return {
-            "ticket": found,
-            "messages": store.messages(found["id"]) if found else [],
-            "unread": [{"id": t["id"], "status": t["status"], "updated_real": t.get("updated_real")}
-                       for t in store.unread_tickets(companies.DEFAULT, customer["user_id"])],
-            "job": job_view(customer),
-            "server_time": datetime.now().isoformat(timespec="seconds"),
-        }
-
-    @app.post("/api/shop/chat/send", dependencies=[Depends(csrf_checked)])
-    def shop_chat_send(body: ChatIn, customer: dict = Depends(shopnova_customer)):
-        """Validate everything first (role, data, text, ticket and order ownership), then start the job and
-        return its SSE stream. A second click with the same client_id gets the same job's stream."""
-        shop_data_ready()
-        text = body.text.strip()
-        if not text:
-            raise ApiError(400, "empty_text")
-        if len(text) > chat.MAX_TEXT:
-            raise ApiError(400, "text_too_long")
-        owned_ticket(customer, body.ticket_id)
-        owned_order(customer, body.about_order)
-        try:
-            job, _created = jobs.start(customer["user_id"], companies.DEFAULT, text, body.ticket_id, body.about_order,
-                                       body.client_id, chat.run_job)
-        except ValueError as e:
-            raise ApiError(409, str(e))   # busy_user or client_id_reused (both are in ERRORS)
-        return StreamingResponse(chat.stream(job), media_type="text/event-stream",
-                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
-
-    @app.get("/api/shop/chat/job")
-    def shop_chat_job(customer: dict = Depends(shopnova_customer)):
-        return {"job": job_view(customer)}
-
-    @app.get("/api/shop/chat/job/stream")
-    def shop_chat_job_stream(customer: dict = Depends(shopnova_customer)):
-        job = jobs.current(companies.DEFAULT, customer["user_id"])
-        if job is None:
-            raise ApiError(404, "no_job")
-        return StreamingResponse(chat.stream(job), media_type="text/event-stream",
-                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
-
-    @app.post("/api/shop/chat/tickets/{ticket_id}/read", dependencies=[Depends(csrf_checked)])
-    def shop_chat_read(ticket_id: str, customer: dict = Depends(shopnova_customer)):
-        """The customer opened this ticket's new reply: clear the notice (store.set_unread), owned ticket only."""
-        owned_ticket(customer, ticket_id)
-        store.set_unread(ticket_id, False)
-        return {"ok": True}
-
-    # ---------- ShopNova admin: the Layer 3 approval queue (step 4) ----------
-
-    @app.get("/api/admin/approvals")
-    def admin_approvals(status: str = "pending", _: dict = Depends(shopnova_admin)):
-        shop_data_ready()
-        if status == "pending":
-            rows = admin.pending()
-        elif status == "decided":
-            rows = admin.decided()
-        else:
-            raise ApiError(400, "bad_status", "status must be pending or decided")
-        return {"status": status, "approvals": rows, "count": len(rows),
-                "server_time": datetime.now().isoformat(timespec="seconds")}
-
-    @app.get("/api/admin/approvals/{approval_id}")
-    def admin_approval(approval_id: int, _: dict = Depends(shopnova_admin)):
-        """The recorded state: the approval with its facts, what a decision has written so far (`evidence`,
-        with its stage) and whether a decision on it is running in this process right now (`in_flight`)."""
-        shop_data_ready()
-        found = admin.one(approval_id)
+    @app.get("/api/atlas/bookings/{kind}/{booking_id}")
+    def atlas_booking(kind: str, booking_id: int, customer: dict = Depends(atlas_customer)):
+        """One owned booking of the given TYPE (flight / hotel). Wrong type, someone else's or missing: 404."""
+        data_ready(ATLAS)
+        found = atlas_reads.booking(customer["user_id"], kind, booking_id)
         if found is None:
-            raise ApiError(404, "not_found", f"Approval {approval_id} is not one of ShopNova's.")
-        return {"approval": found, "evidence": admin.evidence(approval_id),
-                "in_flight": decisions.in_flight(approval_id)}
+            raise ApiError(404, "not_found", f"{kind.capitalize() if kind in atlas_reads.KINDS else 'This'} booking "
+                           f"{booking_id} is not one of your bookings.")
+        return found
 
-    @app.post("/api/admin/approvals/{approval_id}/decide", dependencies=[Depends(csrf_checked)])
-    def admin_decide(approval_id: int, body: DecisionIn, who: dict = Depends(shopnova_admin)):
-        """The decision. Browser inputs: the approval id, approve / refuse, the reason (and a client_id for
-        recovery). The admin's username and the company come from the account. The approval's CURRENT state is
-        re-read here (and again inside decide(), under its lock) before anything runs. The handler is a plain
-        `def`: FastAPI runs it in a worker thread, so the slow part (re-check + write + the reply writer) never
-        blocks the event loop.
+    # ---------- the customer chat, per company (step 3; Atlas in step 5) ----------
 
-        Three kinds of answer: the core REFUSED (its error dict: nothing written, mapped to 4xx / 409); the core
-        COMPLETED (200 with its result, recorded under the client_id); something RAISED after decide() began
-        (500 `decision_uncertain` with the re-read evidence: the core may have committed its transaction, closed
-        the approval, or not; the browser must not call that "nothing was done")."""
-        shop_data_ready()
-        reason = body.reason.strip()
-        if len(reason) > 1000:
-            raise ApiError(400, "reason_too_long", "A reason may have at most 1000 characters.")
-        kind, recorded = decisions.recorded(companies.DEFAULT, who["username"], approval_id, body.client_id,
-                                            body.approve, reason)
-        if kind == "mismatch":
-            raise ApiError(409, "client_id_reused")
-        if kind == "same":   # the identical decision asked again (lost response): its recorded result
-            return {**recorded, "recorded": True}
-        current = admin.one(approval_id)
-        if current is None:
-            raise ApiError(404, "not_found", f"Approval {approval_id} is not one of ShopNova's.")
-        if current["status"] != "pending":
-            raise ApiError(409, "already_decided", f"Approval {approval_id} is already {current['status']} "
-                           f"(by {current.get('decided_by') or '—'} at {current.get('decided_at') or '—'}).")
-        if not body.approve and not reason:
-            raise ApiError(400, "reason_required")
-        if not decisions.begin(approval_id, {"admin": who["username"], "client_id": body.client_id,
-                                             "approve": body.approve, "reason": reason}):
-            raise ApiError(409, "decision_in_progress")
-        try:
+    def register_chat(prefix: str, company: str, customer_dep, owns_context, context_word: str):
+        """The chat routes of one company under `prefix`. owns_context(customer, id) says whether the "about
+        this order / booking" id is the customer's own. Jobs are keyed by (company, user id): the two companies
+        never share a job, even with the same numeric user id."""
+
+        def owned_ticket(customer: dict, ticket_id: str | None) -> dict | None:
+            """The ticket if it is this customer's AND this company's, else 404 (the same for a missing id)."""
+            if not ticket_id:
+                return None
+            found = store.get_ticket(ticket_id)
+            if found is None or found["company"] != company or found["user_id"] != customer["user_id"]:
+                raise ApiError(404, "not_found", f"Ticket {ticket_id} is not one of your conversations.")
+            return found
+
+        def job_view(customer: dict) -> dict | None:
+            job = jobs.current(company, customer["user_id"])
+            return job.view() if job else None
+
+        def stream_response(job):
+            return StreamingResponse(chat.stream(job), media_type="text/event-stream",
+                                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+        @app.get(f"{prefix}/chat")
+        def get_chat(ticket: str | None = None, customer: dict = Depends(customer_dep)):
+            """The conversation: the named owned ticket, or the customer's current ticket (the latest one a new
+            message may still go on, as the Streamlit page does after a reload), or none (new conversation)."""
+            data_ready(company)
+            found = owned_ticket(customer, ticket) if ticket else store.current_ticket(company, customer["user_id"])
+            return {
+                "company": company,
+                "ticket": found,
+                "messages": store.messages(found["id"]) if found else [],
+                "unread": [{"id": t["id"], "status": t["status"], "updated_real": t.get("updated_real")}
+                           for t in store.unread_tickets(company, customer["user_id"])],
+                "job": job_view(customer),
+                "server_time": datetime.now().isoformat(timespec="seconds"),
+            }
+
+        @app.post(f"{prefix}/chat/send", dependencies=[Depends(csrf_checked)])
+        def chat_send(body: ChatIn, customer: dict = Depends(customer_dep)):
+            """Validate everything first (role, data, text, ticket and context ownership), then start the job
+            and return its SSE stream. A second click with the same client_id gets the same job's stream."""
+            data_ready(company)
+            text = body.text.strip()
+            if not text:
+                raise ApiError(400, "empty_text")
+            if len(text) > chat.MAX_TEXT:
+                raise ApiError(400, "text_too_long")
+            owned_ticket(customer, body.ticket_id)
+            about = body.about_booking if company == ATLAS else body.about_order
+            if about is not None and not owns_context(customer, about):
+                raise ApiError(404, "not_found", f"{context_word.capitalize()} {about} is not one of yours.")
             try:
-                out = admin.run_decision(who["username"], approval_id, body.approve, reason)
-            except Exception as e:   # noqa: BLE001 — raised after the core started: the outcome is unknown
-                found = admin.evidence(approval_id)
-                raise ApiError(500, "decision_uncertain",
-                               f"{type(e).__name__}: {e}"[:300] + f" — recorded state: {found.get('stage_words')}",
-                               {"evidence": found})
-            if "error" in out:   # the core refused explicitly: by its contract nothing was written
-                status, code = admin.classify(out)
-                raise ApiError(status, code, str(out["error"]))
+                job, _created = jobs.start(customer["user_id"], company, text, body.ticket_id, about,
+                                           body.client_id, chat.run_job)
+            except ValueError as e:
+                raise ApiError(409, str(e))   # busy_user or client_id_reused
+            return stream_response(job)
+
+        @app.get(f"{prefix}/chat/job")
+        def chat_job(customer: dict = Depends(customer_dep)):
+            return {"job": job_view(customer)}
+
+        @app.get(f"{prefix}/chat/job/stream")
+        def chat_job_stream(customer: dict = Depends(customer_dep)):
+            job = jobs.current(company, customer["user_id"])
+            if job is None:
+                raise ApiError(404, "no_job")
+            return stream_response(job)
+
+        @app.post(f"{prefix}/chat/tickets/{{ticket_id}}/read", dependencies=[Depends(csrf_checked)])
+        def chat_read(ticket_id: str, customer: dict = Depends(customer_dep)):
+            """The customer opened this ticket's new reply: clear the notice (store.set_unread), owned only."""
+            owned_ticket(customer, ticket_id)
+            store.set_unread(ticket_id, False)
+            return {"ok": True}
+
+    register_chat("/api/shop", companies.DEFAULT, shopnova_customer,
+                  lambda c, order_id: shop_reads.order_summary(c["user_id"], order_id) is not None, "order")
+    register_chat("/api/atlas", ATLAS, atlas_customer,
+                  lambda c, booking_id: atlas_reads.owned_any(c["user_id"], booking_id) is not None, "booking")
+
+    # ---------- the admin approval queue, per company (step 4; Atlas in step 5) ----------
+
+    def register_admin(prefix: str, company: str):
+        admin_dep = admin_of(company, "approve_refunds")
+
+        @app.get(f"{prefix}")
+        def list_approvals(status: str = "pending", _: dict = Depends(admin_dep)):
+            data_ready(company)
+            if status == "pending":
+                rows = admin.pending(company)
+            elif status == "decided":
+                rows = admin.decided(company)
+            else:
+                raise ApiError(400, "bad_status", "status must be pending or decided")
+            return {"company": company, "status": status, "approvals": rows, "count": len(rows),
+                    "server_time": datetime.now().isoformat(timespec="seconds")}
+
+        @app.get(f"{prefix}/{{approval_id}}")
+        def one_approval(approval_id: int, _: dict = Depends(admin_dep)):
+            """The recorded state: the approval with its facts, what a decision has written so far (`evidence`,
+            with its stage) and whether a decision on it is running in this process right now (`in_flight`)."""
+            data_ready(company)
+            found = admin.one(approval_id, company)
+            if found is None:
+                raise ApiError(404, "not_found", f"Approval {approval_id} is not one of {COMPANY_NAMES[company]}'s.")
+            return {"approval": found, "evidence": admin.evidence(approval_id, company),
+                    "in_flight": decisions.in_flight(company, approval_id)}
+
+        @app.post(f"{prefix}/{{approval_id}}/decide", dependencies=[Depends(csrf_checked)])
+        def decide_approval(approval_id: int, body: DecisionIn, who: dict = Depends(admin_dep)):
+            """The decision. Browser inputs: the approval id, approve / refuse, the reason (and a client_id for
+            recovery). The admin's username and the company come from the account. The approval's CURRENT state
+            is re-read here (and again inside decide(), under its lock) before anything runs. The handler is a
+            plain `def`: FastAPI runs it in a worker thread, so the slow part never blocks the event loop.
+
+            Three kinds of answer: the core REFUSED (its error dict: nothing written, mapped to 4xx / 409); the
+            core COMPLETED (200 with its result, recorded under the client_id); something RAISED after decide()
+            began (500 `decision_uncertain` with the re-read evidence: the core may have committed its transaction,
+            closed the approval, or not; the browser must not call that "nothing was done")."""
+            data_ready(company)
+            reason = body.reason.strip()
+            if len(reason) > 1000:
+                raise ApiError(400, "reason_too_long", "A reason may have at most 1000 characters.")
+            kind, recorded = decisions.recorded(company, who["username"], approval_id, body.client_id,
+                                                body.approve, reason)
+            if kind == "mismatch":
+                raise ApiError(409, "client_id_reused")
+            if kind == "same":   # the identical decision asked again (lost response): its recorded result
+                return {**recorded, "recorded": True}
+            current = admin.one(approval_id, company)
+            if current is None:
+                raise ApiError(404, "not_found", f"Approval {approval_id} is not one of {COMPANY_NAMES[company]}'s.")
+            if current["status"] != "pending":
+                raise ApiError(409, "already_decided", f"Approval {approval_id} is already {current['status']} "
+                               f"(by {current.get('decided_by') or '—'} at {current.get('decided_at') or '—'}).")
+            if not body.approve and not reason:
+                raise ApiError(400, "reason_required")
+            if not decisions.begin(company, approval_id, {"admin": who["username"], "client_id": body.client_id,
+                                                          "approve": body.approve, "reason": reason}):
+                raise ApiError(409, "decision_in_progress")
             try:
-                result = admin.result_view(out)   # response preparation: a failure here must not look like a refusal
-            except Exception as e:   # noqa: BLE001
-                found = admin.evidence(approval_id)
-                raise ApiError(500, "decision_uncertain",
-                               f"the decision completed but its answer could not be prepared ({type(e).__name__}: {e})"
-                               f" — recorded state: {found.get('stage_words')}", {"evidence": found})
-            decisions.record(companies.DEFAULT, who["username"], approval_id, body.client_id, body.approve, reason,
-                             result)
-            return result
-        finally:
-            decisions.end(approval_id)   # whatever happened above: the guard is released
+                try:
+                    out = admin.run_decision(who["username"], approval_id, body.approve, reason, company)
+                except Exception as e:   # noqa: BLE001 — raised after the core started: the outcome is unknown
+                    found = admin.evidence(approval_id, company)
+                    raise ApiError(500, "decision_uncertain",
+                                   f"{type(e).__name__}: {e}"[:300] + f" — recorded state: {found.get('stage_words')}",
+                                   {"evidence": found})
+                if "error" in out:   # the core refused explicitly: by its contract nothing was written
+                    status, code = admin.classify(out)
+                    raise ApiError(status, code, str(out["error"]))
+                try:
+                    result = admin.result_view(out)   # response preparation: a failure here is not a refusal
+                except Exception as e:   # noqa: BLE001
+                    found = admin.evidence(approval_id, company)
+                    raise ApiError(500, "decision_uncertain",
+                                   f"the decision completed but its answer could not be prepared "
+                                   f"({type(e).__name__}: {e}) — recorded state: {found.get('stage_words')}",
+                                   {"evidence": found})
+                decisions.record(company, who["username"], approval_id, body.client_id, body.approve, reason, result)
+                return result
+            finally:
+                decisions.end(company, approval_id)   # whatever happened above: the guard is released
+
+    register_admin("/api/admin/approvals", companies.DEFAULT)
+    register_admin("/api/atlas/admin/approvals", ATLAS)
+
+    # ---------- Atlas admin: Records (read only, permission view_dashboard; step 5) ----------
+
+    @app.get("/api/atlas/admin/records/{table}")
+    def atlas_records(table: str, search: str = "", page: int = 1,
+                      _: dict = Depends(admin_of(ATLAS, "view_dashboard"))):
+        """One page of one Atlas table (atlas_app_reads: hotels, flights, users, refunds, compensations) or the
+        admin log, exactly as the Streamlit Records page reads them."""
+        data_ready(ATLAS)
+        from callverse.data.atlas import atlas_app_reads
+        readers = {"hotels": atlas_app_reads.hotel_bookings_page, "flights": atlas_app_reads.flight_bookings_page,
+                   "users": atlas_app_reads.users_page, "refunds": atlas_app_reads.refunds_page,
+                   "compensations": atlas_app_reads.compensations_page}
+        if table == "log":
+            rows = atlas_app_reads.admin_log(50)
+            return {"table": table, "items": rows, "total": len(rows), "page": 1, "pages": 1, "page_size": 50}
+        if table not in readers:
+            raise ApiError(404, "not_found", f"No table '{table}'.")
+        found = readers[table](search or "", max(1, int(page)))
+        return {"table": table, **found, "page_size": atlas_app_reads.PAGE_SIZE}
 
     @app.get("/api/health")
     def health():
@@ -423,7 +487,7 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
 
 
 def apply_env_overrides() -> None:
-    """Point the account store / tickets DB at the files named by the CALLVERSE_WEBUI_* variables (demo, tests)."""
+    """Point the account store / databases at the files named by the CALLVERSE_WEBUI_* variables (demo, tests)."""
     if settings.ACCOUNTS_FILE:
         accounts.use_accounts(settings.ACCOUNTS_FILE)
     if settings.TICKETS_DB:
@@ -431,6 +495,9 @@ def apply_env_overrides() -> None:
     if settings.SHOPNOVA_DB:
         from callverse.data import db as shopnova_db
         shopnova_db.use_db(settings.SHOPNOVA_DB)
+    if settings.ATLAS_DB:
+        from callverse.data.atlas import db as atlas_db
+        atlas_db.use_db(settings.ATLAS_DB)
     if settings.FAKE_CHAT:
         from webui.api.dev_fixture import fake_send, fake_slm
         chat.use_send_fn(fake_send)

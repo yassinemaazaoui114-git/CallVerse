@@ -12,7 +12,7 @@
 // - a refused re-check leaves the approval pending and shows the Coordinator's words;
 // - an outcome the UI has never seen is shown as text.
 import { useEffect, useRef, useState } from "react";
-import { api, ApiError } from "../api.js";
+import { ApiError, COMPANIES } from "../api.js";
 import { useAuth } from "../auth.jsx";
 import Icon from "../components/Icon.jsx";
 import { ApiErrorView, Empty, Loading } from "../components/States.jsx";
@@ -29,10 +29,25 @@ function statusClass(status) {
   return "badge-neutral";
 }
 
-export default function AdminApprovals() {
+// What a case is called: "order 4515" at ShopNova, "flight booking 7004" at Atlas. The action (refund /
+// compensation / cancel) comes from the approval row: nothing here assumes a refund.
+function caseOf(a, company) {
+  if (company === "atlas") return `${a.booking_type || ""} booking ${a.order_id}`.trim();
+  return `order ${a.order_id}`;
+}
+function actionOf(a) { return words(a.action || "refund"); }
+function moneyOf(out) {
+  if (out.refund) return `refund ${tnd(out.refund.amount)} written`;
+  if (out.compensation) return `compensation ${tnd(out.compensation.amount)} written`;
+  return "nothing paid";
+}
+
+export default function AdminApprovals({ company = "shopnova" }) {
+  const co = COMPANIES[company];
+  const api = co.admin;
   const { expired } = useAuth();
   const [tab, setTab] = useState("pending");
-  const { data, error, loading, reload } = useGuardedLoad((signal) => api.approvals(tab, signal), [tab]);
+  const { data, error, loading, reload } = useGuardedLoad((signal) => api.approvals(tab, signal), [tab, company]);
   const [reasons, setReasons] = useState({});          // approval id -> reason typed
   const [confirm, setConfirm] = useState(null);         // {approval, approve, reason, clientId} waiting for "Confirm"
   const [inflight, setInflight] = useState(null);       // approval id being decided
@@ -63,7 +78,7 @@ export default function AdminApprovals() {
       setNotice({ kind: "ok", approvalId: approval.id,
         text: `Approval ${approval.id}: ${words(out.approval && out.approval.status)}${out.recorded ? " (recorded earlier)" : ""}.`,
         detail: `Outcome ${words(out.outcome)} · ticket ${out.ticket ? `${out.ticket.id} is now ${words(out.ticket.status)}` : "—"}`
-          + (out.refund ? ` · refund ${tnd(out.refund.amount)} written` : " · nothing paid") + " · the customer got a new reply." });
+          + ` · ${moneyOf(out)} · the customer got a new reply.` });
       setReasons((r) => ({ ...r, [approval.id]: "" }));
       reload();
     } catch (err) {
@@ -123,7 +138,7 @@ export default function AdminApprovals() {
     }
     if (stage === "nothing_written") {
       setNotice({ kind: "uncertain", approvalId: approval.id,
-        text: `Approval ${approval.id}: the result is not confirmed. No write was found (proposal undecided, no refund row, no decision running in the API).`,
+        text: `Approval ${approval.id}: the result is not confirmed. No write was found (proposal undecided, no money row, no decision running in the API).`,
         detail: `${head}If the request never reached the server, "Confirm again" sends it with the SAME request id; the server will not run it twice if it did arrive.`,
         check, retry: request ? { approval, ...request } : null });
       return;
@@ -133,7 +148,7 @@ export default function AdminApprovals() {
       text: stage === "approval_closed_notification_unconfirmed"
         ? `Approval ${approval.id}: decided and recorded, but the customer's reply for it is not confirmed — do NOT decide again.`
         : `Approval ${approval.id}: partially completed — do NOT decide again.`,
-      detail: `${head}${evidence.stage_words}${evidence.refund ? ` Refund row: ${tnd(evidence.refund.amount)}.` : ""}${evidence.proposal_decision ? ` Proposal decision: ${words(evidence.proposal_decision)}.` : ""} Ticket ${words(evidence.ticket_status)}. Finishing the record or the customer reply needs a core step (reported to Yassine).`,
+      detail: `${head}${evidence.stage_words}${evidence.money || evidence.refund ? ` ${words(evidence.action || "refund")} row: ${tnd((evidence.money || evidence.refund).amount)}.` : ""}${evidence.proposal_decision ? ` Proposal decision: ${words(evidence.proposal_decision)}.` : ""} Ticket ${words(evidence.ticket_status)}. Finishing the record or the customer reply needs a core step (reported to Yassine).`,
       check });
     reload();
   }
@@ -153,8 +168,8 @@ export default function AdminApprovals() {
     <>
       <div className="page-head">
         <div>
-          <h1>Refund approvals</h1>
-          <p className="sub">The Layer 3 queue: refunds above the limit wait for your decision · the client never sees your reason</p>
+          <h1>{company === "atlas" ? "Approvals" : "Refund approvals"}</h1>
+          <p className="sub">{company === "atlas" ? "The Layer 3 queue: refunds above the limit and every compensation wait for your decision" : "The Layer 3 queue: refunds above the limit wait for your decision"} · the client never sees your reason</p>
         </div>
         <button type="button" className="btn btn-sm" onClick={reload} disabled={loading}><Icon name="refresh" size={14} />Refresh</button>
       </div>
@@ -185,7 +200,7 @@ export default function AdminApprovals() {
       {error && <ApiErrorView error={error} onRetry={reload} />}
       {!error && loading && !data && <Loading text="Loading the queue…" />}
       {data && rows.length === 0 && (
-        <div className="panel"><Empty icon="bank" title={tab === "pending" ? "No refund is waiting for approval" : "No decision yet"} /></div>
+        <div className="panel"><Empty icon="bank" title={tab === "pending" ? "No case is waiting for approval" : "No decision yet"} /></div>
       )}
 
       <div className="orders">
@@ -198,22 +213,24 @@ export default function AdminApprovals() {
             <article className="panel order-card" key={a.id} aria-labelledby={`appr-${a.id}`}>
               <div className="head">
                 <span id={`appr-${a.id}`} style={{ fontFamily: "var(--cv-font-heading)", fontWeight: 600, fontSize: "var(--cv-text-lg)" }}>
-                  Approval {a.id} · <span className="tabular">{tnd(a.amount)}</span>
+                  Approval {a.id} · {actionOf(a)} of <span className="tabular">{tnd(a.amount)}</span>
                 </span>
                 <span className={`badge ${statusClass(a.status)}`}>{words(a.status)}</span>
               </div>
               <dl className="kv">
-                <dt>Order</dt><dd>{a.order_id} · {f.user_name || "unknown client"}</dd>
+                <dt>{company === "atlas" ? "Booking" : "Order"}</dt><dd>{caseOf(a, company)} · {f.user_name || "unknown client"}</dd>
                 <dt>Ticket</dt><dd className="mono">{a.ticket_id}</dd>
                 <dt>Proposal</dt><dd>{a.proposal_id || "—"}{p.action ? ` · ${words(p.action)} by agent ${p.agent}` : ""}</dd>
                 <dt>Rule</dt><dd>{f.rule_id || "—"}{f.rule_title ? `: ${f.rule_title}` : ""}</dd>
-                <dt>Order status</dt><dd>{words(f.order_status)}</dd>
-                <dt>Paid</dt><dd className="tabular">{tnd(f.paid)}</dd>
-                <dt>Already refunded</dt><dd className="tabular">{tnd(f.refunded_total)}</dd>
-                <dt>Days late</dt><dd className="tabular">{f.days_late ?? "—"}</dd>
+                {"order_status" in f && <><dt>Order status</dt><dd>{words(f.order_status)}</dd></>}
+                {"booking_status" in f && <><dt>Booking status</dt><dd>{words(f.booking_status)}</dd></>}
+                {"paid" in f && <><dt>Paid</dt><dd className="tabular">{tnd(f.paid)}</dd></>}
+                {"refunded_total" in f && <><dt>Already refunded</dt><dd className="tabular">{tnd(f.refunded_total)}</dd></>}
+                {"days_late" in f && <><dt>Days late</dt><dd className="tabular">{f.days_late ?? "—"}</dd></>}
+                {f.confirmation && <><dt>Confirmed by code</dt><dd>{String(f.confirmation)}</dd></>}
                 {"proof_received" in (p.facts_used || {}) && <><dt>Proof</dt><dd>{String(p.facts_used.proof_received)}</dd></>}
                 {a.booking_type && <><dt>Booking</dt><dd>{a.booking_type}</dd></>}
-                {a.action && a.action !== "refund" && <><dt>Action</dt><dd>{words(a.action)}</dd></>}
+                <dt>Action</dt><dd>{actionOf(a)}</dd>
                 {!isPending && <>
                   <dt>Decided by</dt><dd>{a.decided_by || "—"}</dd>
                   <dt>Decided at</dt><dd className="tabular">{a.decided_at || "—"}<span className="muted xs"> (simulation clock)</span></dd>
@@ -249,12 +266,13 @@ export default function AdminApprovals() {
             onKeyDown={(e) => { if (e.key === "Escape" && !inflight) setConfirm(null); }}>
             <h2 id="confirm-title">{confirm.approve ? "Approve" : "Refuse"} approval {confirm.approval.id}?</h2>
             <dl className="kv">
-              <dt>Approval</dt><dd>{confirm.approval.id} · order {confirm.approval.order_id} · ticket {confirm.approval.ticket_id}</dd>
+              <dt>Approval</dt><dd>{confirm.approval.id} · {caseOf(confirm.approval, company)} · ticket {confirm.approval.ticket_id}</dd>
               <dt>Amount</dt><dd className="tabular">{tnd(confirm.approval.amount)}</dd>
-              <dt>Choice</dt><dd><strong>{confirm.approve ? "Approve: the refund is written and the client is told" : "Refuse: nothing is paid and the client is told"}</strong></dd>
+              <dt>Action</dt><dd>{actionOf(confirm.approval)}</dd>
+              <dt>Choice</dt><dd><strong>{confirm.approve ? `Approve: the ${actionOf(confirm.approval)} is written and the client is told` : "Refuse: nothing is paid and the client is told"}</strong></dd>
               <dt>Reason</dt><dd>{confirm.reason || <span className="muted">none (allowed when approving)</span>}</dd>
             </dl>
-            <p className="small muted">The Coordinator re-checks the order on fresh data before anything is written. Your reason is stored, never shown to the client.</p>
+            <p className="small muted">The Coordinator re-checks the {company === "atlas" ? "booking" : "order"} on fresh data before anything is written. Your reason is stored, never shown to the client.</p>
             <div className="row">
               <button type="button" className="btn btn-primary" onClick={submit} disabled={!!inflight}>
                 {inflight ? <span className="spinner" aria-hidden="true" /> : <Icon name="check" size={16} />}{inflight ? "Deciding…" : `Confirm ${confirm.approve ? "approval" : "refusal"}`}
