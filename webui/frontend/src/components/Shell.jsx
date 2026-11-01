@@ -3,7 +3,7 @@
 //   console  = the CallVerse Console (dark control room, supervisor)
 //   shopnova = the ShopNova customer site (light, coral accent)
 import { useEffect, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth.jsx";
 import Icon from "./Icon.jsx";
 
@@ -34,6 +34,7 @@ export const AREAS = {
 export default function Shell({ area = "console" }) {
   const { session, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [logoutError, setLogoutError] = useState(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const cfg = AREAS[area] || AREAS.console;   // a fixed object per area, so the effect below runs once per area
@@ -103,7 +104,11 @@ export default function Shell({ area = "console" }) {
         )}
       </header>
       <main id="main" className="content" tabIndex={-1}>
-        <Outlet />
+        {/* keyed by the path: the page content rises in once per navigation; a refresh of the data on the same
+            page changes nothing here, so the entrance never replays */}
+        <div className="page-enter" key={location.pathname}>
+          <Outlet />
+        </div>
       </main>
     </div>
   );

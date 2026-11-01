@@ -44,9 +44,18 @@
   --cv-radius-panel: 12px;
   --cv-control-h: 40px;     /* min height of inputs and buttons (touch targets) */
 
-  /* motion */
-  --cv-motion: 150ms;
-  --cv-ease: cubic-bezier(0.2, 0, 0, 1);
+  /* motion: three durations (a colour change, a small move, a panel or dialog arriving) and two curves
+     (ease-out when something arrives, ease-in when it leaves). prefers-reduced-motion sets all three to 0. */
+  --cv-motion-fast: 120ms;
+  --cv-motion: 180ms;
+  --cv-motion-slow: 260ms;
+  --cv-ease: cubic-bezier(0.2, 0, 0, 1);        /* ease-out: arriving */
+  --cv-ease-in: cubic-bezier(0.4, 0, 1, 1);     /* leaving */
+
+  /* elevation: one soft shadow for panels in the light themes (none in the dark Console), one for dialogs */
+  --cv-shadow: none;
+  --cv-shadow-dialog: 0 16px 48px rgba(0, 0, 0, 0.45);
+  --cv-focus-ring: rgba(45, 212, 191, 0.35);    /* the soft halo around a focused input */
 
   /* layers */
   --cv-z-sticky: 10;
@@ -58,5 +67,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { --cv-motion: 0ms; }
+  :root { --cv-motion-fast: 0ms; --cv-motion: 0ms; --cv-motion-slow: 0ms; }
 }
