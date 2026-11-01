@@ -317,7 +317,8 @@ SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 def _lower_first_word(text: str) -> str:
     """Lower-case the first letter after a greeting, unless it is "I" or a name such as "ShopNova"."""
     word = text.split(" ", 1)[0]
-    if word in ("I", "I'm", "I've", "I'll") or not word[1:].islower():
+    # T14c: a one-letter word ("A full refund ...") has no rest to look at: it is lowered too ("Hello, a full ...").
+    if word in ("I", "I'm", "I've", "I'll") or (len(word) > 1 and not word[1:].islower()):
         return text
     return text[:1].lower() + text[1:]
 

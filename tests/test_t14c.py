@@ -310,6 +310,11 @@ def test_atlas_decline_without_the_slm_passes_the_check():
     assert out["used_template"] and out["check"]["passed"] and "booking 7008" in out["reply"]
 
 
+def test_a_one_letter_first_word_is_lowered_after_the_greeting():
+    assert writer.fix_punctuation("Hello, A full refund is possible.") == "Hello, a full refund is possible."
+    assert writer.fix_punctuation("Hello, I can help.") == "Hello, I can help."
+
+
 # ---------- item 6: off-topic = fixed text, no SLM call, both companies ----------
 
 def never_called(*args, **kwargs):
