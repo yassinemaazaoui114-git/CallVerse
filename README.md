@@ -134,6 +134,11 @@ Measured comparisons of models and methods, kept apart from the running system (
   python -m benchmarks.m3.benchmark             # scores on validation + the choice (benchmarks/m3/results/)
   python -m benchmarks.m3.locked_test           # the winners on the locked test sets, ONCE (already done)
   ```
+- **Vision (Qwen3-VL-2B QLoRA, prepared 2026-11-01, not integrated yet)**: 150 real photos (ShopNova + Atlas) labelled
+  with *visual evidence only* (never customer intent), and a self-contained Kaggle notebook (baseline, QLoRA training,
+  validation-only selection, held-out test comparison). Everything is in
+  [benchmarks/vision_qlora/README.md](benchmarks/vision_qlora/README.md); sources and licences in
+  [benchmarks/vision_qlora/DATASET_PROVENANCE.md](benchmarks/vision_qlora/DATASET_PROVENANCE.md).
 
 ## Folders
 
@@ -168,6 +173,7 @@ apps/atlas/         the Atlas Travel Streamlit app (app.py, Home.py, pages/: My 
 config/             accounts.example.yaml (the real accounts.yaml is not in git)
 scripts/            runnable entry points
 benchmarks/m3/      the M3 embeddings benchmark (T23): code, validation data, results
+benchmarks/vision_qlora/  vision dataset manifest + builder + Kaggle QLoRA notebook (photos are not in git)
 tests/              pytest tests (tests/data: held-out sets)
 tasks/              NEXT.md, task files, reports
 docs/               design and contract documents
