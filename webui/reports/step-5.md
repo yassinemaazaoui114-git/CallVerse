@@ -66,9 +66,9 @@ fake reply writer (replies marked `[TEST DATA]`); no Groq, no real money.
 ## 4. Problems and limitations
 
 - **Atlas admin dashboard** (rates, charts) is not in this step: the brief puts dashboards in step 6.
-- **A pending Atlas refund** (above 1,500 TND) could not be produced from the seeded sample without the
-  pipeline; the queue, decision and recovery paths were tested with a compensation (the core's `decide()` takes
-  one Atlas path for refund, compensation and cancellation, and the UI names the action from the row).
+- (closed in the correction commit) A pending Atlas refund above 1,500 TND IS in the seeded sample: sonia's
+  flight 7006 (1,900 TND, departure delay of 5 h or more) under AT-FLT-04; the Atlas Coordinator answers
+  `layer3_pending` for it. The refund path is now tested like the compensation one (below, section 7).
 - The ShopNova-side test helper and the Atlas one build pending cases through the Coordinators (`review`), not
   through `web_chat.send` (that would load the local models); the approval rows are exactly what the channel
   creates.
@@ -92,3 +92,19 @@ fake reply writer (replies marked `[TEST DATA]`); no Groq, no real money.
 
 Step 6 of the brief (dashboards: Console Dashboard, Agents, Satisfaction, Groq today; the two admin dashboards).
 After your review of this step.
+
+## 7. Correction (second step-5 commit)
+
+1. **`BookingDetail.jsx` read `compensations.total`**; the core's `reads.get_compensations` returns
+   `compensated_total`. Fixed; the screen test now uses the exact API shape (`refunded_total`,
+   `compensated_total`, the compensation rows) and asserts a nonzero "compensation so far: 250.00 TND".
+2. **Atlas refund coverage** (`pending_atlas_refund()` in the test conftest: flight 7006, 1,900 TND, AT-FLT-04,
+   through the Atlas Coordinator, no core change, no model): the queue row says `action=refund`; approve writes
+   the REFUND row (1,900 TND) and no compensation, the evidence names `action=refund` with that money row, the
+   customer (sonia) gets the reply and the notice; refuse needs a reason and pays nothing; the same request id
+   again is recorded, the same id with another choice is 409 `client_id_reused`, a new decision is 409
+   `already_decided`; `close_approval` raising after the transaction gives 500 `decision_uncertain`, stage
+   `company_written_approval_pending` with the refund as the money row, and the retry is refused by the core
+   with one refund row.
+
+Results: API **71 passed**, vitest **43 passed**, build OK.

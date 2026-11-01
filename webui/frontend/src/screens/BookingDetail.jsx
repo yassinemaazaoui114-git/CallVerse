@@ -101,7 +101,7 @@ export default function BookingDetail() {
               ))}
             </ul>
           )}
-          <p className="small muted">Refunded so far: <span className="tabular">{tnd(data.refunds.refunded_total)}</span> · compensation so far: <span className="tabular">{tnd(data.compensations.total)}</span></p>
+          <p className="small muted">Refunded so far: <span className="tabular">{tnd(data.refunds.refunded_total)}</span> · compensation so far: <span className="tabular">{tnd(data.compensations.compensated_total)}</span></p>
         </section>
       </div>
     </>

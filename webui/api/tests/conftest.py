@@ -213,3 +213,27 @@ def pending_compensation(user_id: int = 5, booking_id: int = 7004) -> dict:
     store.update_ticket(ticket["id"], status="Waiting for finance")
     return store.create_approval(ticket["id"], booking_id, decision["facts"]["amount_tnd"], decision["proposal_id"],
                                  company="atlas", booking_type="flight", action="compensation")
+
+
+def pending_atlas_refund(user_id: int = 2, booking_id: int = 7006) -> dict:
+    """A pending Atlas REFUND as the channel makes it: sonia's flight 7006 (1,900 TND, delayed 5 h or more) under
+    AT-FLT-04; above the 1,500 TND finance limit, the Atlas Coordinator answers layer3_pending (seeded data,
+    no core change, no model)."""
+    from callverse.coordinator import atlas_coordinator
+    from callverse.coordinator.coordinator import new_case
+    text = f"My flight booking {booking_id} left hours late, I want a refund please."
+    ticket = store.create_ticket("atlas", user_id)
+    store.add_message(ticket["id"], "user", text)
+    store.add_step(ticket["id"], None, "intake", "intake",
+                   {"style": {"formality": "formal", "length": "short"}, "emotion": {"label": "anger"},
+                    "sentiment": {"label": "negative"}, "main_reason": "refund_request"})
+    proposal = {"agent": "B", "action": "refund", "params": {"booking_type": "flight", "booking_id": booking_id},
+                "rule_id": "AT-FLT-04", "facts_used": {"read": True}, "user_confirmed": True,
+                "user_quote": "I want a refund please."}
+    case = {**new_case(ticket["id"]), "order_id": booking_id, "booking_type": "flight",
+            "main_reason": "refund_request", "user_message": text, "searched_rules": ["AT-FLT-04"]}
+    decision = atlas_coordinator.review(proposal, case)
+    assert decision["outcome"] == "layer3_pending", decision
+    store.update_ticket(ticket["id"], status="Waiting for finance")
+    return store.create_approval(ticket["id"], booking_id, decision["facts"]["amount_tnd"], decision["proposal_id"],
+                                 company="atlas", booking_type="flight", action="refund")

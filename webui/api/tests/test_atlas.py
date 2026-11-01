@@ -10,7 +10,7 @@ import threading
 from types import SimpleNamespace
 
 import pytest
-from conftest import CSRF, login, pending_approval, pending_compensation
+from conftest import CSRF, login, pending_approval, pending_atlas_refund, pending_compensation
 
 from callverse.data.atlas import reads as atlas_core_reads
 from callverse.tickets import store
@@ -293,3 +293,58 @@ def test_missing_atlas_database_gives_503_and_creates_nothing(client, isolated_e
     login(client, "atlas_admin")
     assert client.get("/api/atlas/admin/approvals").status_code == 503
     assert not missing.exists()
+
+
+# ---------- admin: an Atlas REFUND above the limit (not a compensation) ----------
+
+def test_atlas_refund_queue_and_approve_writes_a_refund_not_a_compensation(client):
+    a = pending_atlas_refund()
+    login(client, "atlas_admin")
+    row = client.get("/api/atlas/admin/approvals").json()["approvals"][0]
+    assert row["id"] == a["id"] and row["action"] == "refund" and row["booking_type"] == "flight"
+    assert row["order_id"] == 7006 and row["amount"] == 1900.0 and row["facts"]["rule_id"] == "AT-FLT-04"
+    r = decide(client, a["id"], True, "delay confirmed", client_id="rf1")
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["outcome"] == "approve" and body["approval"]["status"] == "approved"
+    assert body["refund"]["amount"] == 1900.0 and body["compensation"] is None       # a refund, not a compensation
+    assert [x["amount"] for x in atlas_core_reads.get_refunds("flight", 7006)["refunds"]] == [1900.0]
+    assert atlas_core_reads.get_compensations("flight", 7006)["compensations"] == []
+    ev = client.get(f"/api/atlas/admin/approvals/{a['id']}").json()["evidence"]
+    assert ev["stage"] == "complete" and ev["action"] == "refund" and ev["money"]["amount"] == 1900.0
+    # the customer (sonia) got the reply and the notice
+    client.post("/api/auth/logout", headers=CSRF)
+    login(client, "sonia")
+    convo = client.get("/api/atlas/chat").json()
+    assert convo["unread"][0]["id"] == a["ticket_id"] and convo["messages"][-1]["sender"] == "assistant"
+
+
+def test_atlas_refund_refuse_duplicate_and_uncertain(client, monkeypatch):
+    a = pending_atlas_refund()
+    login(client, "atlas_admin")
+    assert decide(client, a["id"], False, "").status_code == 400                       # a reason is required
+    r = decide(client, a["id"], False, "airline already refunded", client_id="rr1")
+    assert r.status_code == 200 and r.json()["outcome"] == "layer3_refused" and r.json()["refund"] is None
+    assert atlas_core_reads.get_refunds("flight", 7006)["refunds"] == []
+    # the same request id again -> recorded; another choice with that id -> refused; a new decision -> already decided
+    again = decide(client, a["id"], False, "airline already refunded", client_id="rr1")
+    assert again.status_code == 200 and again.json()["recorded"] is True
+    assert decide(client, a["id"], True, "airline already refunded", client_id="rr1").json()["error"] == "client_id_reused"
+    assert decide(client, a["id"], True, "x").json()["error"] == "already_decided"
+    # uncertain: a second refund case (the refusal paid nothing, so 7006 still qualifies); the company
+    # transaction commits, then the approval record fails -> partial, the money row is the REFUND
+    b = pending_atlas_refund()
+    from callverse.channels import approvals as channel
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("disk full")
+    monkeypatch.setattr(channel.store, "close_approval", boom)
+    r = decide(client, b["id"], True, "ok", client_id="ru1")
+    assert r.status_code == 500 and r.json()["error"] == "decision_uncertain"
+    ev = r.json()["evidence"]
+    assert ev["stage"] == "company_written_approval_pending" and ev["action"] == "refund"
+    assert ev["money"]["amount"] == 1900.0 and ev["money"]["booking_id"] == 7006
+    monkeypatch.undo()
+    retry = decide(client, b["id"], True, "ok", client_id="ru1")
+    assert retry.status_code == 409 and retry.json()["error"] == "already_decided"    # the core refuses: paid once
+    assert len(atlas_core_reads.get_refunds("flight", 7006)["refunds"]) == 1

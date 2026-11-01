@@ -58,9 +58,13 @@ describe("Atlas Travel screens", () => {
       req.respond(200, { kind: "flight", sim_today: "2026-10-09",
         booking: { id: 7005, route: "Tunis (TUN) → Paris (CDG)", airline: "Air Test", flight_number: "AT 100", situation: "cancelled (weather)", paid: 700 },
         facts: { carrier_name: "Air Test", flight_status: "cancelled", cancellation_reason: "weather", paid_tnd: 700, refunded_total: 0, status: "booked", new_field_v9: "shown raw" },
-        refunds: { booking_id: 7005, refunds: [], refunded_total: 0 }, compensations: { booking_id: 7005, compensations: [], total: 0 } });
+        // the exact shape of reads.get_refunds / get_compensations: refunded_total and compensated_total
+        refunds: { booking_type: "flight", booking_id: 7005, refunds: [], refunded_total: 0 },
+        compensations: { booking_type: "flight", booking_id: 7005, compensations: [{ id: 3, booking_type: "flight", booking_id: 7005, amount: 250, status: "approved", rule_id: "AT-FLT-03", proposal_id: "AP-0002", created_at: "2026-10-09" }], compensated_total: 250 } });
     });
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Booking 7005");
+    expect(screen.getByText(/compensation so far/)).toHaveTextContent("compensation so far: 250.00 TND");   // nonzero, from compensated_total
+    expect(screen.getByRole("region", { name: /money/i })).toHaveTextContent("Compensation of 250.00 TND · approved");
     expect(screen.getByText("weather")).toBeInTheDocument();
     expect(screen.getByText(/new_field_v9/)).toBeInTheDocument();   // an unknown fact stays visible (raw)
     render(
