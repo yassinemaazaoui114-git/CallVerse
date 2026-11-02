@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Status | DONE |
-| Task file | tasks/T34_integrate_branches.md (bring in agent F extras, Dali's new login, Mahmoud's client simulator, the vision adapter; main's reviewed code wins; new parts OFF / only on their own input) — on branch feat/t34-integrate |
-| Approved by | Yassine — 2026-11-02 18:19 ("lessgo with this ones fastest way") |
-| Last done | T34 — merged into main (44b6152), 2003 tests pass on main (5 skipped: voice extras / browser / live Ollama). Open decisions: T34 report section 5 (Agent B + photo proof, vision in the demo, agent F RL port, voice website). |
+| Status | READY |
+| Task file | tasks/T35_react_photo.md (photo upload in the React Help chat: `image_b64` in the chat API passed to `web_chat.send(image=...)`, file input + preview in Chat.jsx, ShopNova + Atlas; photo never stored) — on branch feat/t35-react-photo |
+| Approved by | Yassine — 2026-11-02 22:14 ("tell claude code to fix it in the react") |
+| Last done | T34 — merged into main (44b6152; README note 01a1836). Vision is in the back end and the Streamlit chats, not yet in the React UI. |
 
-Next after T34: the branch owners (Semah, Molka, Mahmoud, Dali) OK the merge into main; then Yassine merges.
+Merge needs Dali's OK (webui is his area). Optional after the demo: fix/chat-order-context ("Ask about this order" opens a new chat).
 
 Status values: READY · IN PROGRESS · WAITING FOR REVIEW · DONE
 Roadmap (Notion): CallVerse — Full Version Roadmap (finished tasks in its "Done" table) · Dali's lane: tasks/NEXT_PLATFORM.md · Semah's lane: tasks/NEXT_VOICE.md
