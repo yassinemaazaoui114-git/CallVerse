@@ -5,7 +5,7 @@ Branch: `feat/t29-polish` (from main 9feca1b).
 - [x] Step 0: branch, task file + NEXT committed.
 - [x] Step 1: money-back words (`request_words.py`, `negation.py` ACTION), `tests/test_t29_money_words.py` (30 tests).
 - [x] Step 2: F6: `propose_rebooking` refused by code with no later flight; `AgentC.run` marks `no_later_flight`; `pipeline.run_c` -> `atlas_special.no_later_flight_decision` (escalate, fixed sentence). `tests/test_t29_no_later_flight.py` (3 tests).
-- [~] Step 3: code done (`eval_agents.override_facts`, `proposal_tools.nothing_paid`, `tests/test_t29_bench_and_unpaid.py` 4 tests). 26-case bench run: pending.
-- [ ] Step 5: regression (full suite + 72-message set).
-- [ ] Step 6: docs, report.
+- [x] Step 3: `eval_agents.override_facts`, `proposal_tools.nothing_paid`, 4 tests. Bench 22/26, 1 wrong proposal (B02, model), `out/t29_eval_agents.*`.
+- [~] Step 5: full suite 1848/1848; 72-set running (`out/t29_run72.sh`, DB backup `out/t29_dbbackup/`).
+- [~] Step 6: runbook + README done; report pending.
 - [ ] Step 4 (optional): "client" -> "user" in P20 rule texts.
