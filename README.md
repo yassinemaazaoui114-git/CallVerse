@@ -356,6 +356,8 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
 - **T32** Wrap-up: the agent bench's "Wrong proposals" line also counts forbidden-tool proposals (T31: 3, all caught by
   the Coordinator); `--summarize` re-prints a saved run with no model call. Finding for the teacher:
   [docs/findings_agent_c.md](docs/findings_agent_c.md). Report [tasks/T32_report.md](tasks/T32_report.md).
+- **T33** Style policy demo check: `python -m scripts.style_demo_check` runs 5 demo messages with the policy OFF and ON
+  (switch patched in memory only; `config.yaml` stays OFF). 5/5 decisions unchanged. Report [tasks/T33_report.md](tasks/T33_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,

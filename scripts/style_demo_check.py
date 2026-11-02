@@ -77,6 +77,9 @@ def run(message: dict, on: bool) -> dict:
     if on:
         cfg["learning"] = {**cfg.get("learning", {}), "style_policy": True, "style_policy_file": POLICY_FILE}
     pipeline.load_config = lambda: cfg
+    store.use_db(store.DEFAULT_DB_PATH)   # let go of the tickets file, then start a fresh one: an open ticket or
+    TICKETS_DB.unlink(missing_ok=True)    # pending approval from the OFF run must not change the ON run
+    store.use_db(TICKETS_DB)
     random.seed(SEED)
     seen.clear()
     try:
