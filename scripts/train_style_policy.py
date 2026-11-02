@@ -16,7 +16,8 @@ default). --replies slm writes them again with the local SLM (slower, Ollama mus
 Rewards (callverse/learning/rewards.py), each with its label in style_log and in the outputs:
   synthetic  made-up world (warm best for angry clients, short for calm ones): a DEMO, not real learning
   ratings    the team's stars imported with scripts.import_ratings (style_log source = real); offline replay: a round
-             only counts when that situation was rated in the chosen style
+             only counts when that situation was rated in the chosen style. Writes NO style_log rows (same as
+             --no-log): the real rows are already there, and replay rows would be read back as ratings (T31)
   agent_f    agent F's predicted satisfaction: today it ignores the style, so the script warns "nothing to learn"
 
 Outputs: out/rl5_curve.csv (reward curve), out/rl5_policy.json (the policy the pipeline loads when the switch is on),
@@ -127,6 +128,8 @@ def train(cases: list[dict], source: str, n: int, seed: int, replies: str = "cac
         if not rated or not cases:
             raise SystemExit("no real ratings in style_log: run python -m scripts.import_ratings <file> first")
     label = {"synthetic": "synthetic", "ratings": "real", "agent_f": "predicted"}[source]
+    if source == "ratings":
+        log = False   # T31: replay rounds are not new ratings; logging them as "real" would count them twice
     curve, seen, total, used = [], [], 0.0, 0
     for step in range(1, n + 1):
         case = rng.choice(cases)
@@ -206,7 +209,7 @@ def main() -> None:
     ap.add_argument("--n", type=int, default=300, help="rounds")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--replies", choices=("cached", "slm", "none"), default="cached")
-    ap.add_argument("--no-log", action="store_true", help="do not write style_log rows")
+    ap.add_argument("--no-log", action="store_true", help="do not write style_log rows (--source ratings never writes them)")
     ap.add_argument("--db", help="tickets DB file for style_log (default: callverse/data/callverse.db)")
     ap.add_argument("--baselines", action="store_true", help="step 6: bandit vs fixed styles vs random (synthetic)")
     args = ap.parse_args()

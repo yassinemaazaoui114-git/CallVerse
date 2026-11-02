@@ -351,6 +351,8 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   `python -m scripts.import_ratings <filled file.xlsx>` (rejects identical tabs or one value everywhere), then
   `python -m scripts.train_style_policy --source ratings` (writes `out/rl5_policy.json`, `out/rl5_curve.csv`).
   Baselines: `python -m scripts.train_style_policy --baselines`. Report [tasks/T30_report.md](tasks/T30_report.md).
+- **T31** Held-out C/D final check (D07 dropped, C12 tightened, run once): **6/10** (C 3/7, D 3/3), nothing wrong written.
+  `--source ratings` training no longer writes `style_log` rows. Report [tasks/T31_report.md](tasks/T31_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,
