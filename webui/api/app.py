@@ -59,7 +59,9 @@ ERRORS = {
     "forbidden": "This page is for the CallVerse supervisor only.",
     "customer_only": "This page is for ShopNova customers only.",
     "busy_user": "Your previous message is still being processed. Please wait for the reply.",
-    "empty_text": "Please type a message.",
+    "empty_text": "Please type a message or add a photo.",
+    "photo_too_large": "This photo is too large. Please send a photo under 5 MB.",
+    "photo_type": "We could not read this photo. Please send a JPEG, PNG or WebP image.",
     "text_too_long": f"A message may have at most {chat.MAX_TEXT} characters.",
     "no_job": "No message is being processed.",
     "admin_only": "This page is for the ShopNova admin (permission approve_refunds) only.",
@@ -153,6 +155,7 @@ class ChatIn(BaseModel):
     about_order: int | None = None     # ShopNova: "Ask about this order"
     about_booking: int | None = None   # Atlas: "Ask about this booking" (the channel takes both as about_order)
     client_id: str | None = None       # the browser's id for this send: a retry with the same id is not run twice
+    image_b64: str | None = None       # T35: one photo (JPEG / PNG / WebP, base64, at most 5 MB); never stored
 
 
 def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | None = None,
@@ -464,7 +467,11 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
             and return its SSE stream. A second click with the same client_id gets the same job's stream."""
             data_ready(company)
             text = body.text.strip()
-            if not text:
+            try:
+                image = chat.decode_photo(body.image_b64)   # checked before any job starts
+            except ValueError as e:
+                raise ApiError(400, str(e))   # photo_too_large or photo_type
+            if not text and image is None:   # a photo with no text is allowed (the channel handles it)
                 raise ApiError(400, "empty_text")
             if len(text) > chat.MAX_TEXT:
                 raise ApiError(400, "text_too_long")
@@ -474,7 +481,7 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
                 raise ApiError(404, "not_found", f"{context_word.capitalize()} {about} is not one of yours.")
             try:
                 job, _created = jobs.start(customer["user_id"], company, text, body.ticket_id, about,
-                                           body.client_id, chat.run_job)
+                                           body.client_id, chat.run_job, image=image)
             except ValueError as e:
                 raise ApiError(409, str(e))   # busy_user or client_id_reused
             return stream_response(job)
