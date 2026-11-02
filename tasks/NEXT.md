@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Status | DONE |
-| Task file | tasks/T32_wrapup.md (bench counts forbidden-tool proposals, C12 note in the T31 report, docs/findings_agent_c.md; style policy stays OFF) — on branch feat/t32-wrapup |
-| Approved by | Yassine — 2026-11-02 17:32 ("ok") |
-| Last done | T32 — merged into main (6c64c9c), 1879 tests pass on main |
+| Status | WAITING FOR REVIEW |
+| Task file | tasks/T33_style_demo_check.md (5 demo replies with the style policy OFF vs ON, real-ratings policy; config.yaml stays OFF; Yassine decides after) — on branch feat/t33-style-demo |
+| Approved by | Yassine — 2026-11-02 17:48 (decision card: "T33 style policy demo check") |
+| Last done | T32 — merged into main (d020ccd), 1879 tests pass on main |
 
-Next after T32: decide whether to turn the style policy ON for the demo (see one demo reply with it on first). Optional: Console "Learning" page (T30 step 9).
+Next after T33: Yassine decides ON or OFF for the demo (one-line config change if ON). Optional: Console "Learning" page.
 
 Status values: READY · IN PROGRESS · WAITING FOR REVIEW · DONE
 Roadmap (Notion): CallVerse — Full Version Roadmap (finished tasks in its "Done" table) · Dali's lane: tasks/NEXT_PLATFORM.md · Semah's lane: tasks/NEXT_VOICE.md
