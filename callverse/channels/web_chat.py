@@ -242,16 +242,26 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn, imag
             shown.append(said)
             on_step(said)
 
-    def flush():
-        """Stop listening and save the trace lines heard so far as steps (in order). Safe to call twice."""
-        trace.remove_listener(listen)
+    def save_heard():
+        """Save the trace lines heard so far as steps (in order), and keep listening."""
         while records:
             row = step_row(records.pop(0))
             if row:
                 store.add_step(tid, message_id, *row)
 
-    def channel_step(kind, data):
-        flush()   # the pipeline's steps first, so the steps stay in time order
+    def flush():
+        """Stop listening and save the trace lines heard so far as steps (in order). Safe to call twice."""
+        trace.remove_listener(listen)
+        save_heard()
+
+    def channel_step(kind, data, keep_listening=False):
+        """Save a channel step after the pipeline's steps heard so far (time order). Most channel steps come at the
+        end of a message, so listening stops here. keep_listening=True is for a step that comes BEFORE the pipeline
+        (the photo check, T35b): stopping there hid every live step and saved step of a photo message."""
+        if keep_listening:
+            save_heard()
+        else:
+            flush()
         store.add_step(tid, message_id, kind, "channel", data)
 
     def finish(reply, status, outcome, source, **fields):
@@ -372,7 +382,7 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn, imag
         if image is not None:
             channel_step("photo_check", {"file_error": file_error,
                                          **({k: photo[k] for k in ("checked", "error", "assessment", "backend")}
-                                            if photo else {})})
+                                            if photo else {})}, keep_listening=True)
         if file_error and not has_text:
             return finish(PHOTO_ERROR_REPLY, "Waiting for user", "photo_invalid", "channel")
         if photo and photo["error"] == "vision_unavailable" and not has_text:
