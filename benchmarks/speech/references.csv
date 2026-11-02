@@ -1,0 +1,11 @@
+filename,reference,category,expected_number
+audio-1.wav,"Hello, I would like to check the status of my order number four five one two.",order,4512
+audio-2.wav,"Can you track order eight seven three nine six for me?",order,87396
+audio-3.wav,"My order number is one zero five two eight, and it hasn't arrived.",order,10528
+audio-4.wav,"I need to cancel order six four zero one seven.",order,64017
+audio-5.wav,"There is a problem with order nine two three five zero.",order,92350
+audio-6.wav,"I paid forty-nine euros and ninety-nine cents, but my refund hasn't arrived.",amount,49.99
+audio-7.wav,"The product costs one hundred and twenty euros.",amount,120.00
+audio-8.wav,"I was charged seventy-five euros and fifty cents twice.",amount,75.50
+audio-9.wav,"My refund should be two hundred and thirty-four euros.",amount,234.00
+audio-10.wav,"I received only nineteen euros and ninety cents.",amount,19.90
