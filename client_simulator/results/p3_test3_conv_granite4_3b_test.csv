@@ -1,0 +1,121 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+uss_mwoz_0177,3,5,True,True,False,"Perfect service, all my requests were handled exactly as I wanted.",,,False,3.6344428062438965,5,granite4:3b
+uss_mwoz_0649,3,3,True,True,False,"It provided the information I needed, but I had to ask a few follow-up questions.",,,False,3.777564287185669,3,granite4:3b
+uss_sgd_0361,3,5,True,True,False,"Perfect service, all my requests were handled exactly as I wanted.",,,False,3.674586296081543,5,granite4:3b
+uss_mwoz_0321,3,4,True,True,False,All information was correct and helpful.,,,False,3.6979336738586426,4,granite4:3b
+uss_sgd_0377,3,4,True,True,False,Helpful and provided all the info I needed.,,,False,3.6683437824249268,4,granite4:3b
+uss_mwoz_0454,4,5,True,True,False,"Perfect service, all my requests were handled exactly as I wanted.",,,False,3.7461349964141846,5,granite4:3b
+uss_mwoz_0814,3,4,True,True,False,The agent was helpful and found a suitable room.,,,False,3.4201626777648926,4,granite4:3b
+uss_mwoz_0776,4,3,True,True,False,"It did the job, but I had to ask a lot of questions.",,,False,3.6598284244537354,3,granite4:3b
+uss_sgd_0828,3,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.3333230018615723,5,granite4:3b
+uss_mwoz_0077,4,4,True,True,False,"Good service, but had to adjust dates.",,,False,3.384145498275757,4,granite4:3b
+uss_mwoz_0608,3,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.5892581939697266,5,granite4:3b
+uss_mwoz_0886,3,4,True,True,False,"Informative and helpful, but had to ask for postcode.",,,False,3.514017105102539,4,granite4:3b
+uss_sgd_0642,3,4,True,True,False,Helpful and thorough in finding both car and apartment.,,,False,3.720351457595825,4,granite4:3b
+uss_mwoz_0756,3,4,True,True,False,"Good service, but had to ask for postcode.",,,False,3.728149652481079,4,granite4:3b
+uss_sgd_0742,3,5,True,True,False,Perfect booking and event details.,,,False,3.6964166164398193,5,granite4:3b
+uss_sgd_0468,4,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.4972221851348877,5,granite4:3b
+uss_mwoz_0572,3,4,True,True,False,"All information provided, needed to be looked up.",,,False,3.5100765228271484,4,granite4:3b
+uss_sgd_0389,3,5,True,True,False,"Perfect, all my needs were met.",,,False,3.483083963394165,5,granite4:3b
+uss_sgd_0873,4,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.5492591857910156,5,granite4:3b
+uss_mwoz_0589,3,4,True,True,False,The booking was straightforward and the agent provided all the details I needed.,,,False,3.498828649520874,4,granite4:3b
+uss_sgd_0652,3,5,True,True,False,"Perfect service, all needs met.",,,False,3.541698932647705,5,granite4:3b
+uss_mwoz_0897,3,4,True,True,False,Helpful and answered all questions.,,,False,3.428806781768799,4,granite4:3b
+uss_sgd_0660,3,3,True,True,False,"It did the job, but had to change plans.",,,False,3.1956090927124023,3,granite4:3b
+uss_sgd_0726,3,4,True,True,False,Helpful and efficient.,,,False,3.2507660388946533,4,granite4:3b
+uss_sgd_0676,4,5,True,True,False,Perfect booking and car reservation.,,,False,3.2549798488616943,5,granite4:3b
+uss_sgd_0482,4,4,True,True,False,Found a good hotel and confirmed the flight details.,,,False,3.1332244873046875,4,granite4:3b
+uss_sgd_0467,3,3,True,True,False,"It did the job, nothing special.",,,False,3.076401710510254,3,granite4:3b
+uss_mwoz_0969,3,3,True,True,False,"It did the job, nothing special.",,,False,3.1125099658966064,3,granite4:3b
+uss_mwoz_0638,3,4,True,True,False,Had to confirm a few details but got everything sorted.,,,False,3.174135208129883,4,granite4:3b
+uss_sgd_0236,3,4,True,True,False,The agent found a suitable hotel and confirmed the reservation.,,,False,3.202852964401245,4,granite4:3b
+uss_sgd_0563,3,4,True,True,False,"Good service, but had to clarify the snake policy.",,,False,3.2603225708007812,4,granite4:3b
+uss_mwoz_0888,3,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.3673157691955566,5,granite4:3b
+uss_mwoz_0381,4,4,True,True,False,Helpful and provided all needed info.,,,False,3.215925693511963,4,granite4:3b
+uss_sgd_0996,2,3,True,True,False,"It did the job, nothing special.",,,False,3.4361395835876465,3,granite4:3b
+uss_mwoz_0770,3,4,True,True,False,The agent was helpful and found a suitable hotel.,,,False,3.412179708480835,4,granite4:3b
+uss_mwoz_0258,3,3,True,True,False,It found a place but not on the dates I wanted.,,,False,3.3523428440093994,3,granite4:3b
+uss_sgd_0491,4,4,True,True,False,Helpful and got everything I needed.,,,False,3.5008068084716797,4,granite4:3b
+uss_mwoz_0099,3,3,True,True,False,"It did the job, but had to repeat myself a few times.",,,False,3.601149320602417,3,granite4:3b
+uss_sgd_0528,3,3,True,True,False,It handled the changes but needed a few back-and-forth.,,,False,3.7834131717681885,3,granite4:3b
+uss_mwoz_0819,3,4,True,True,False,"Helpful and thorough, even though I had to repeat myself a bit.",,,False,3.9829301834106445,4,granite4:3b
+uss_mwoz_0826,4,4,True,True,False,"Good service, got everything I needed.",,,False,3.858644485473633,4,granite4:3b
+uss_mwoz_0226,3,4,True,True,False,All my requests were handled well.,,,False,3.6486997604370117,4,granite4:3b
+uss_mwoz_0800,4,4,True,True,False,All information was provided and it was easy to get.,,,False,3.4932024478912354,4,granite4:3b
+uss_mwoz_0346,3,3,True,True,False,It found a restaurant but not what I wanted.,,,False,3.0868074893951416,3,granite4:3b
+uss_sgd_0605,3,3,True,True,False,"It did the job, nothing special.",,,False,2.8263561725616455,3,granite4:3b
+uss_sgd_0927,3,3,True,True,False,"It did the job, nothing special.",,,False,2.6352035999298096,3,granite4:3b
+uss_sgd_0483,3,4,True,True,False,Helpful and thorough.,,,False,2.818289041519165,4,granite4:3b
+uss_mwoz_0269,4,4,True,True,False,Helpful and thorough.,,,False,2.9415981769561768,4,granite4:3b
+uss_mwoz_0043,4,4,True,True,False,Helpful and provided all needed info.,,,False,3.2041754722595215,4,granite4:3b
+uss_mwoz_0565,3,4,True,True,False,The agent was helpful and got everything done.,,,False,3.419919013977051,4,granite4:3b
+uss_sgd_0154,3,4,True,True,False,Helpful and thorough.,,,False,3.2679316997528076,4,granite4:3b
+uss_sgd_0494,4,2,True,True,False,Had to try multiple times before it worked.,,,False,3.2866337299346924,2,granite4:3b
+uss_sgd_0014,3,5,True,True,False,"Perfect service, all needs met.",,,False,3.2366673946380615,5,granite4:3b
+uss_mwoz_0656,4,4,True,True,False,Had to clarify a few things but got the reservation and restaurant booking done.,,,False,3.4061880111694336,4,granite4:3b
+uss_mwoz_0798,3,4,True,True,False,The agent provided all the information I needed and handled the booking smoothly.,,,False,3.551720142364502,4,granite4:3b
+uss_mwoz_0920,3,4,True,True,False,The agent was helpful and provided all the information I needed.,,,False,3.764282703399658,4,granite4:3b
+uss_mwoz_0810,3,4,True,True,False,Helpful and got everything I needed.,,,False,3.9474573135375977,4,granite4:3b
+uss_sgd_0031,3,4,True,True,False,The agent found everything I needed and was helpful.,,,False,3.79612135887146,4,granite4:3b
+uss_sgd_0216,3,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.8192410469055176,5,granite4:3b
+uss_sgd_0692,4,4,True,True,False,Helpful and found good songs.,,,False,3.875148296356201,4,granite4:3b
+uss_mwoz_0490,4,5,True,True,False,"Perfect service, all needs met.",,,False,3.669541120529175,5,granite4:3b
+uss_mwoz_0038,3,4,True,True,False,The agent was helpful and found a suitable place to stay.,,,False,3.8139896392822266,4,granite4:3b
+uss_sgd_0327,3,5,True,True,False,"Perfect experience, all my requests were handled exactly as I wanted.",,,False,3.932075023651123,5,granite4:3b
+uss_mwoz_0234,3,5,True,True,False,"Exceptional service, everything went smoothly and they even helped with gluten-free food and outdoor seating.",,,False,3.9401798248291016,5,granite4:3b
+uss_sgd_0399,3,4,True,True,False,Helpful and thorough in finding both car and apartment.,,,False,4.001551151275635,4,granite4:3b
+uss_mwoz_0610,4,5,True,True,False,Perfect booking and all questions answered.,,,False,3.7747018337249756,5,granite4:3b
+uss_mwoz_0687,4,4,True,True,False,All information provided was correct and helpful.,,,False,3.5683140754699707,4,granite4:3b
+uss_mwoz_0898,3,4,True,True,False,The agent provided all the necessary information and handled the reservation smoothly.,,,False,3.4762418270111084,4,granite4:3b
+uss_sgd_0095,4,4,True,True,False,Found everything I needed and it was easy to use.,,,False,3.33756422996521,4,granite4:3b
+uss_sgd_0550,3,4,True,True,False,The agent provided all the necessary information and handled the booking smoothly.,,,False,3.7248501777648926,4,granite4:3b
+uss_mwoz_0098,3,4,True,True,False,Had to clarify a few things but got everything sorted.,,,False,3.8822996616363525,4,granite4:3b
+uss_mwoz_0395,3,4,True,True,False,The agent found a suitable hotel and confirmed the booking.,,,False,3.7703983783721924,4,granite4:3b
+uss_mwoz_0478,4,4,True,True,False,All information provided was correct and helpful.,,,False,3.754326343536377,4,granite4:3b
+uss_mwoz_0600,4,4,True,True,False,Helpful and thorough throughout.,,,False,3.3718583583831787,4,granite4:3b
+uss_mwoz_0801,3,4,True,True,False,The agent was helpful and found everything I needed.,,,False,3.3637473583221436,4,granite4:3b
+uss_mwoz_0976,3,5,True,True,False,"Perfect service, all my needs were met.",,,False,3.2996957302093506,5,granite4:3b
+uss_mwoz_0661,3,4,True,True,False,The agent provided all the information I needed and handled my request efficiently.,,,False,3.539396286010742,4,granite4:3b
+uss_mwoz_0264,3,4,True,True,False,"Helpful and thorough, even with the taxi booking.",,,False,3.7128419876098633,4,granite4:3b
+uss_mwoz_0081,3,4,True,True,False,The agent found a cheap hotel with free parking and confirmed the booking.,,,False,3.6040704250335693,4,granite4:3b
+uss_mwoz_0793,3,4,True,True,False,The agent provided all the necessary information and handled cancellations and dietary preferences well.,,,False,3.86946439743042,4,granite4:3b
+uss_sgd_0318,3,5,True,True,False,"Perfect service, all my requests were handled exactly as I wanted.",,,False,3.998731851577759,5,granite4:3b
+uss_mwoz_0896,3,4,True,True,False,The agent was helpful and found a good place to stay.,,,False,4.07117223739624,4,granite4:3b
+uss_mwoz_0207,3,3,True,True,False,"It did the job, nothing special.",,,False,4.029370069503784,3,granite4:3b
+uss_sgd_0506,4,4,True,True,False,The agent provided good information and assistance.,,,False,3.7714736461639404,4,granite4:3b
+uss_mwoz_0071,3,4,True,True,False,"Helpful and thorough, but I had to stop before booking.",,,False,3.5983948707580566,4,granite4:3b
+uss_mwoz_0495,3,3,True,True,False,"It did the job, nothing special.",,,False,3.4106884002685547,3,granite4:3b
+uss_mwoz_0724,2,2,True,True,False,Couldn't find a 4-star hotel with wifi in the north.,,,False,3.242967128753662,2,granite4:3b
+uss_mwoz_0044,4,4,True,True,False,"Helpful and thorough, even when it couldn't answer every question.",,,False,3.3150179386138916,4,granite4:3b
+uss_sgd_0092,4,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.254814624786377,5,granite4:3b
+uss_mwoz_0374,3,3,True,True,False,It found a place but not what I wanted.,,,False,3.2713119983673096,3,granite4:3b
+uss_sgd_0614,3,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.3817591667175293,5,granite4:3b
+uss_sgd_0599,3,4,True,True,False,Helpful and thorough in finding events and attractions.,,,False,3.5544795989990234,4,granite4:3b
+uss_mwoz_0371,3,4,True,True,False,"Good service, but had to ask for details.",,,False,3.734644889831543,4,granite4:3b
+uss_mwoz_0534,3,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.7065107822418213,5,granite4:3b
+uss_mwoz_0940,3,4,True,True,False,Found a cheap restaurant and booked a table for us.,,,False,3.766063690185547,4,granite4:3b
+uss_mwoz_0509,3,4,True,True,False,Helpful and provided all needed details.,,,False,3.502244472503662,4,granite4:3b
+uss_mwoz_0503,1,3,True,True,False,"It did the job, but I had to repeat myself a lot.",,,False,3.564791202545166,3,granite4:3b
+uss_mwoz_0754,4,4,True,True,False,Helpful and thorough in finding a place and confirming the booking.,,,False,3.6402742862701416,4,granite4:3b
+uss_sgd_0680,3,4,True,True,False,"Found the right movie and time, but had to ask for more details.",,,False,3.6995372772216797,4,granite4:3b
+uss_mwoz_0242,3,4,True,True,False,"Informative and helpful, got all the details I needed.",,,False,3.76119327545166,4,granite4:3b
+uss_mwoz_0169,4,4,True,True,False,Helpful and provided all needed info.,,,False,3.5052571296691895,4,granite4:3b
+uss_mwoz_0467,3,3,True,True,False,It provided the information but had some limitations.,,,False,3.1895601749420166,3,granite4:3b
+uss_mwoz_0124,4,4,True,True,False,All information provided was helpful and accurate.,,,False,3.141265392303467,4,granite4:3b
+uss_mwoz_0635,3,4,True,True,False,"The service was efficient and helpful, even though I had to make a few adjustments.",,,False,3.359062433242798,4,granite4:3b
+uss_sgd_0560,2,3,True,True,False,"It did the job, but took a few tries to get right.",,,False,3.564615249633789,3,granite4:3b
+uss_mwoz_0357,3,4,True,True,False,Helpful and provided all needed info.,,,False,3.7889156341552734,4,granite4:3b
+uss_sgd_0381,4,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.6027488708496094,5,granite4:3b
+uss_sgd_0854,4,4,True,True,False,"Found what I needed, but had to confirm a few details.",,,False,3.2576255798339844,4,granite4:3b
+uss_sgd_0347,3,5,True,True,False,"Perfect service, very helpful and informative.",,,False,2.904567241668701,5,granite4:3b
+uss_mwoz_0647,3,4,True,True,False,Helpful and provided all needed info.,,,False,2.935032367706299,4,granite4:3b
+uss_sgd_0518,4,5,True,True,False,"Perfect service, everything went smoothly.",,,False,3.0595784187316895,5,granite4:3b
+uss_mwoz_0350,3,4,True,True,False,All my requests were handled well.,,,False,3.235917329788208,4,granite4:3b
+uss_mwoz_0282,3,3,True,True,False,"It did the job, but I had to repeat myself a lot.",,,False,3.6311593055725098,3,granite4:3b
+uss_sgd_0619,3,5,True,True,False,"Perfect service, all my requests were handled exactly as I wanted.",,,False,3.50956130027771,5,granite4:3b
+uss_mwoz_0680,3,4,True,True,False,Helpful and thorough in finding attractions and train tickets.,,,False,3.6942076683044434,4,granite4:3b
+uss_sgd_0513,3,4,True,True,False,All information was correct and helpful.,,,False,3.6821110248565674,4,granite4:3b
+uss_sgd_0193,3,3,True,True,False,"It found a place and a movie, but couldn't book the table.",,,False,3.3994300365448,3,granite4:3b
+uss_sgd_0243,3,4,True,True,False,Helpful and thorough.,,,False,3.426337480545044,4,granite4:3b
+uss_mwoz_0076,3,4,True,True,False,The agent provided all the necessary information and confirmed the booking.,,,False,3.4255316257476807,4,granite4:3b
+uss_mwoz_0280,3,3,True,True,False,"It did the job, nothing special.",,,False,3.3366825580596924,3,granite4:3b

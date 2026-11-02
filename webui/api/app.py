@@ -2,7 +2,8 @@
 (ShopNova under /api/shop, Atlas Travel under /api/atlas), the customer pages, the chat and the admin queue.
 
 Routes (all under /api, JSON):
-- POST /api/auth/login      {username, password} -> the session (sets the HttpOnly cookie)
+- POST /api/auth/login      {username, password, portal} -> the session (sets the HttpOnly cookie); portal =
+                            shop | atlas | console, checked against the account file before a session exists
 - POST /api/auth/logout     deletes the session and clears the cookie
 - GET  /api/auth/session    the logged-in account, or 401
 - GET  /api/company         the company profile (shopnova by default, ?company=atlas)
@@ -44,10 +45,11 @@ from pydantic import BaseModel
 from callverse import companies
 from callverse.auth import accounts
 from callverse.config import PROJECT_ROOT
+from callverse.data import writes   # the ShopNova admin's write functions (Manage routes); the core checks every input again
 from callverse.tickets import store
 from callverse.tools.shopnova_tools import get_company_profile   # the function behind the platform's GET /company
 
-from webui.api import admin, atlas_reads, auth, chat, console_reads, owner, settings, shop_reads
+from webui.api import admin, atlas_reads, auth, chat, console_reads, manage, owner, settings, shop_reads
 
 ATLAS = "atlas"
 COMPANY_NAMES = {companies.DEFAULT: "ShopNova", ATLAS: "Atlas Travel"}
@@ -61,6 +63,7 @@ ERRORS = {
     "text_too_long": f"A message may have at most {chat.MAX_TEXT} characters.",
     "no_job": "No message is being processed.",
     "admin_only": "This page is for the ShopNova admin (permission approve_refunds) only.",
+    "bad_portal": "Unknown sign-in page (allowed: shop, atlas, console).",
     "decision_in_progress": "A decision on this approval is already being processed. Check its state in a moment.",
     "reason_required": "A reason is required to refuse.",
     "already_decided": "This approval was already decided.",
@@ -71,7 +74,7 @@ ERRORS = {
     "client_id_reused": "This request id was already used for a different request. Send the new one with a new id.",
     "setup_required": "ShopNova's data is not set up on this PC yet (shopnova.db is missing). Run the seed "
                       "command from docs/DEMO_RUNBOOK.md, then try again.",
-    "bad_login": "Wrong username or password.",
+    "bad_login": "Wrong username or password, or this account does not sign in on this page.",
     "no_accounts": accounts.NO_ACCOUNTS_MESSAGE,
     "csrf": f"Missing {settings.CSRF_HEADER} header.",
     "not_found": "Not found.",
@@ -94,6 +97,48 @@ class ApiError(Exception):
 class LoginIn(BaseModel):
     username: str
     password: str
+    portal: str = ""   # the sign-in page: shop | atlas | console (it limits WHO may sign in, it grants nothing)
+
+
+class ProductIn(BaseModel):
+    name: str
+    category: str
+    price: float
+    stock: int
+    client_id: str | None = None
+
+
+class ProductPatch(BaseModel):
+    name: str | None = None
+    category: str | None = None
+    price: float | None = None
+    stock: int | None = None
+    client_id: str | None = None
+
+
+class UserIn(BaseModel):
+    name: str
+    email: str
+    phone: str
+    city: str
+    client_id: str | None = None
+
+
+class UserPatch(BaseModel):
+    name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    city: str | None = None
+    client_id: str | None = None
+
+
+class StatusIn(BaseModel):
+    status: str
+    client_id: str | None = None
+
+
+class ClientIdIn(BaseModel):
+    client_id: str | None = None
 
 
 class DecisionIn(BaseModel):
@@ -201,19 +246,28 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
     # ---------- auth ----------
 
     @app.post("/api/auth/login", dependencies=[Depends(csrf_checked)])
-    def login(body: LoginIn, response: Response):
+    def login(body: LoginIn, request: Request, response: Response):
+        """Sign in through one portal. Order: the portal name is known (else 400), the password is right, the
+        account (from the FILE: role + company) belongs to that portal. A wrong password, an unknown username and
+        an account of another portal get the SAME 401 `bad_login` (same words, a bcrypt check every time), so the
+        page never says which part was wrong nor that an account exists elsewhere. A refused attempt changes
+        nothing: an existing session stays as it was. A successful one replaces the browser's previous session
+        (that token is deleted on the server): one browser, one session, whichever page it came through."""
         if accounts.load_accounts() is None:
             raise ApiError(503, "no_accounts")
+        if body.portal not in auth.PORTALS:
+            raise ApiError(400, "bad_portal")
         username = body.username.strip()
         if not auth.verify_password(username, body.password):
             raise ApiError(401, "bad_login")
         info = auth.session_info(username)
-        if info is None:
+        if info is None or not auth.may_use_portal(info, body.portal):
             raise ApiError(401, "bad_login")
+        sessions.delete(request.cookies.get(settings.COOKIE_NAME))   # the previous session of this browser, if any
         token = sessions.create(username)
         response.set_cookie(settings.COOKIE_NAME, token, httponly=True, samesite="strict", secure=False,
                             max_age=int(settings.SESSION_HOURS * 3600), path="/api")
-        return {"session": info}
+        return {"session": {**info, "portal": body.portal}}
 
     @app.post("/api/auth/logout", dependencies=[Depends(csrf_checked)])
     def logout(request: Request, response: Response):
@@ -223,7 +277,9 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
 
     @app.get("/api/auth/session")
     def session(info: dict = Depends(logged_in)):
-        return {"session": info}
+        """The logged-in account and the portal it belongs to (from the file), so the browser can send a
+        logout or an expired session back to the right sign-in page."""
+        return {"session": {**info, "portal": auth.portal_of(info)}}
 
     # ---------- company ----------
 
@@ -607,6 +663,79 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
 
     register_scan("/api/admin/stock-check", companies.DEFAULT)
     register_scan("/api/atlas/admin/room-check", ATLAS)
+
+    # ---------- ShopNova admin: Manage (products, orders, clients, refunds, admin log) ----------
+    # Thin wrappers around callverse.data.admin_reads / writes (webui/api/manage.py): the same functions and
+    # the same per-table permission as the Streamlit Manage page. Nothing is deleted: a product is deactivated,
+    # an order is cancelled (only unpaid, not shipped). Refunds are never written here.
+
+    SHOP = companies.DEFAULT
+
+    def manage_write(kind: str, who: dict, client_id: str | None, payload: tuple, call):
+        '''One core write, once per request id; the core's refusal becomes 4xx with the field it names.'''
+        data_ready(SHOP)
+        try:
+            return manage.run(kind, who["username"], client_id, payload, call)
+        except manage.Refused as e:
+            raise ApiError(e.status, e.code, e.message, {"field": e.field} if e.field else None) from None
+        except manage.Duplicate as e:
+            raise ApiError(409, e.code, e.message) from None
+
+    def given(body: BaseModel) -> dict:
+        '''The fields the browser sent (None = not changed), without the request id.'''
+        return {k: v for k, v in body.model_dump().items() if k != "client_id" and v is not None}
+
+    @app.get("/api/admin/manage/options")
+    def manage_options(_: dict = Depends(admin_of(SHOP, "view_dashboard"))):
+        data_ready(SHOP)
+        return manage.options()
+
+    @app.get("/api/admin/manage/{table}")
+    def manage_table(table: str, request: Request, search: str = "", page: int = 1):
+        if table not in manage.TABLE_PERMISSION:
+            raise ApiError(404, "not_found", f"No table '{table}'.")
+        admin_of(SHOP, manage.TABLE_PERMISSION[table])(request)   # the table's own permission
+        data_ready(SHOP)
+        return manage.log() if table == "log" else manage.page(table, search, page)
+
+    @app.post("/api/admin/manage/products", dependencies=[Depends(csrf_checked)])
+    def manage_create_product(body: ProductIn, who: dict = Depends(admin_of(SHOP, "edit_catalogue"))):
+        fields = given(body)
+        return manage_write("create_product", who, body.client_id, tuple(sorted(fields.items())),
+                            lambda: writes.create_product(who["username"], body.name, body.category, body.price, body.stock))
+
+    @app.post("/api/admin/manage/products/{product_id}", dependencies=[Depends(csrf_checked)])
+    def manage_update_product(product_id: int, body: ProductPatch, who: dict = Depends(admin_of(SHOP, "edit_catalogue"))):
+        fields = given(body)
+        return manage_write("update_product", who, body.client_id, (product_id, tuple(sorted(fields.items()))),
+                            lambda: writes.update_product(who["username"], product_id, **fields))
+
+    @app.post("/api/admin/manage/products/{product_id}/deactivate", dependencies=[Depends(csrf_checked)])
+    def manage_deactivate_product(product_id: int, body: ClientIdIn, who: dict = Depends(admin_of(SHOP, "edit_catalogue"))):
+        return manage_write("deactivate_product", who, body.client_id, (product_id,),
+                            lambda: writes.deactivate_product(who["username"], product_id))
+
+    @app.post("/api/admin/manage/products/{product_id}/reactivate", dependencies=[Depends(csrf_checked)])
+    def manage_reactivate_product(product_id: int, body: ClientIdIn, who: dict = Depends(admin_of(SHOP, "edit_catalogue"))):
+        return manage_write("reactivate_product", who, body.client_id, (product_id,),
+                            lambda: writes.reactivate_product(who["username"], product_id))
+
+    @app.post("/api/admin/manage/orders/{order_id}/status", dependencies=[Depends(csrf_checked)])
+    def manage_order_status(order_id: int, body: StatusIn, who: dict = Depends(admin_of(SHOP, "edit_orders"))):
+        return manage_write("admin_set_order_status", who, body.client_id, (order_id, body.status),
+                            lambda: writes.admin_set_order_status(who["username"], order_id, body.status))
+
+    @app.post("/api/admin/manage/users", dependencies=[Depends(csrf_checked)])
+    def manage_create_user(body: UserIn, who: dict = Depends(admin_of(SHOP, "edit_users"))):
+        fields = given(body)
+        return manage_write("create_user", who, body.client_id, tuple(sorted(fields.items())),
+                            lambda: writes.create_user(who["username"], body.name, body.email, body.phone, body.city))
+
+    @app.post("/api/admin/manage/users/{user_id}", dependencies=[Depends(csrf_checked)])
+    def manage_update_user(user_id: int, body: UserPatch, who: dict = Depends(admin_of(SHOP, "edit_users"))):
+        fields = given(body)
+        return manage_write("update_user", who, body.client_id, (user_id, tuple(sorted(fields.items()))),
+                            lambda: writes.update_user(who["username"], user_id, **fields))
 
     # ---------- Atlas admin: Records (read only, permission view_dashboard; step 5) ----------
 

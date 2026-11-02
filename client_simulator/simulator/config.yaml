@@ -1,0 +1,31 @@
+# CallVerse Client Simulator (M1) - lean setup (TASK3). Writer = small LLM in Ollama, scorer = CPU model (no GPU).
+model: gemma3:1b                 # WRITER (plays the customer); set after TASK3 step 6 - see S2_simulator_llm.md
+fallback_model: phi4-mini:3.8b   # previous setup (writer + LLM scorer)
+ollama_url: http://127.0.0.1:11434   # not localhost: on Windows that adds ~2 s per request
+num_ctx: 1024                    # longest test conversation needs 802 tokens (682 prompt + 120 output)
+# Start Ollama with OLLAMA_KV_CACHE_TYPE=q8_0 and OLLAMA_FLASH_ATTENTION=1 (measured: same realism, 0.46 s vs 2.59 s per message)
+roleplay:
+  prompt_style: examples         # examples = full card + real example messages; finetuned = compact card (callverse-sim-writer)
+  n_examples: 5
+  temperature: 0.8
+  num_predict: 120
+  retries: 1                     # retry once on empty, assistant-style or repeated-opener output
+  avoid_repeat_openers: true     # first messages must not start like one of the last 50 first messages
+  typo_noise: true               # cards with typo_level medium/high: add light typos if the model wrote perfectly
+  typo_noise_prob: {medium: 0.25, high: 0.4}   # share of clean messages that get noise (set from the real profile: 30% with a spelling error)
+  typo_lowercase_prob: 0.3       # high-typo noise also lowercases this share (real: 9% all-lowercase)
+scoring:
+  score_mode: scorer             # scorer (default, CPU) | llm (writer LLM + rubric prompt + calibration, the previous method)
+  prompt_version: s2
+  temperature: 0.0
+  num_predict: 100
+  structured_output: true
+  calibration_profile: main      # llm mode only: main | fallback
+scorer:
+  model_dir: models/scorer       # scorer_int8.onnx + tokenizer.json (included in git)
+  model_file: scorer_int8.onnx
+  calibration_file: scorer_calibration.json   # per-source maps fitted on dev half A
+  calibration: quantile          # DEFAULT: matches the real score distribution (distance 0.06); dev = map chosen on dev (isotonic, best QWK)
+  source_tag: csat               # CallVerse conversations are scored as customer-support contacts (Flipkart CSAT domain)
+  comment_from_writer: true      # one-line comment written by the writer LLM after the score is fixed
+real_numbers_file: real_numbers.json

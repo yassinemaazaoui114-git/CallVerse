@@ -1,0 +1,174 @@
+{
+  "judged_by": "Claude Code (blind: codes only, shuffled order; automatic checks shown next to each output)",
+  "scale": "realism 0-2 and stays-in-role 0-2 per card, 3 cards -> totals 0-6",
+  "per_model": {
+    "gemma3:4b": {
+      "realism": 6,
+      "role": 5,
+      "cards": {
+        "T1-angry": {
+          "code": "X01",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Short, caps shouting, concrete facts, reply 'dhl is useless!' reads like a real angry customer. Strong anger, but almost no typos on the typos card (auto: first message perfect spelling)."
+        },
+        "T1-calm": {
+          "code": "X08",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Concise, natural, calm; reply gives the number plus the order date. Exactly what a calm customer writes."
+        },
+        "T1-formal": {
+          "code": "X12",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "'Good morning, I am writing to inquire about order 4512' - formal and concise; reply formal ('It is 4512')."
+        }
+      }
+    },
+    "userlm-8b": {
+      "realism": 2,
+      "role": 3,
+      "cards": {
+        "T1-angry": {
+          "code": "X02",
+          "realism": 0,
+          "role": 0,
+          "reasoning": "First message is in the agent's voice ('I'm sorry to hear that... Our team is here to help... Can you please provide me with more information') - breaks role. Reply then asks the agent 'Is that correct?'."
+        },
+        "T1-formal": {
+          "code": "X07",
+          "realism": 1,
+          "role": 2,
+          "reasoning": "Wrapped in quotation marks and opens with the meta line 'I'm a customer who ordered...'. Reply is fine. Polite and formal enough."
+        },
+        "T1-calm": {
+          "code": "X10",
+          "realism": 1,
+          "role": 1,
+          "reasoning": "Meta opener 'I'm a customer who ordered...'; reply 'Certainly! Our order number is...' sounds like an assistant."
+        }
+      }
+    },
+    "qwen3.5:4b": {
+      "realism": 6,
+      "role": 5,
+      "cards": {
+        "T1-angry": {
+          "code": "X03",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "'hi im so pissed ... pls help!!!' and 'yeah its 4512 ordered oct 1st! why did dhl not send it yet??' - lowercase, missing apostrophes, angry, answers the question. Matches the card fully."
+        },
+        "T1-formal": {
+          "code": "X09",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Natural and short, but says 'two weeks late' (card: due 8 Oct, a week of no tracking) and tone is neutral rather than formal."
+        },
+        "T1-calm": {
+          "code": "X11",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Natural, calm, specific; reply 'Sure, it's 4512. I was really hoping for it by the 8th though.' adds a human touch."
+        }
+      }
+    },
+    "mistral:7b": {
+      "realism": 3,
+      "role": 5,
+      "cards": {
+        "T1-formal": {
+          "code": "X04",
+          "realism": 1,
+          "role": 2,
+          "reasoning": "Stays a formal customer, but 70 words like an email, and the reply repeats the whole request (79 words) instead of just giving the number."
+        },
+        "T1-angry": {
+          "code": "X06",
+          "realism": 1,
+          "role": 1,
+          "reasoning": "First message is very real ('wtf? compensation pls?'). Reply starts with 'whats ur order number?' - echoes the agent's question as if it were the agent (role slip)."
+        },
+        "T1-calm": {
+          "code": "X19",
+          "realism": 1,
+          "role": 2,
+          "reasoning": "Polite calm customer, but the reply repeats the entire request (49 words) instead of answering the question."
+        }
+      }
+    },
+    "granite4:3b": {
+      "realism": 5,
+      "role": 4,
+      "cards": {
+        "T1-formal": {
+          "code": "X05",
+          "realism": 1,
+          "role": 1,
+          "reasoning": "Natural first message but worried, not formal. Reply 'Yes, please confirm my order number is 4512' is an odd phrasing (asks the agent to confirm)."
+        },
+        "T1-calm": {
+          "code": "X14",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Calm-worried, gives all facts up front (many real customers do); reply minimal and correct."
+        },
+        "T1-angry": {
+          "code": "X21",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Terse lowercase 'hey, laptop still not here... help!' and 'order id 4512. laptop for study. where is it?' - real, annoyed; but no typos and only mild anger."
+        }
+      }
+    },
+    "llama3.2:3b": {
+      "realism": 5,
+      "role": 4,
+      "cards": {
+        "T1-calm": {
+          "code": "X13",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Calm, specific, one long sentence like a real chat; reply answers and asks what is going on."
+        },
+        "T1-formal": {
+          "code": "X17",
+          "realism": 1,
+          "role": 1,
+          "reasoning": "Not formal ('I'm trying to track my order'); reply 'Yes, I'd be happy to confirm.' is an assistant-style phrase."
+        },
+        "T1-angry": {
+          "code": "X18",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Lowercase, no apostrophes, run-on - satisfies the typos card and reads real; but pleading ('help me pls') more than angry."
+        }
+      }
+    },
+    "phi4-mini:3.8b": {
+      "realism": 5,
+      "role": 5,
+      "cards": {
+        "T1-formal": {
+          "code": "X15",
+          "realism": 2,
+          "role": 2,
+          "reasoning": "Formal-ish and concise ('I am contacting regarding my laptop order 4512'); reply correct."
+        },
+        "T1-calm": {
+          "code": "X16",
+          "realism": 1,
+          "role": 2,
+          "reasoning": "'Dear ShopNova,' is a letter opener that real chat users rarely write; otherwise calm and correct."
+        },
+        "T1-angry": {
+          "code": "X20",
+          "realism": 2,
+          "role": 1,
+          "reasoning": "Natural lowercase message, but neither angry nor typo-ridden; ends with 'thanks.' twice."
+        }
+      }
+    }
+  }
+}

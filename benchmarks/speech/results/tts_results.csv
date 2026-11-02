@@ -1,0 +1,11 @@
+sample_id,language,voice,text,spoken_text,audio_duration_seconds,synthesis_latency_seconds
+en-1,en,en_GB-cori-medium,Your order 4512 has been shipped.,Your order 4 5 1 2 has been shipped.,2.55,0.535
+en-2,en,en_GB-cori-medium,Your refund of 49 euros and 99 cents has been approved.,Your refund of 49 euros and 99 cents has been approved.,4.14,0.486
+en-3,en,en_GB-cori-medium,Order 87396 will arrive tomorrow.,Order 8 7 3 9 6 will arrive tomorrow.,3.2,0.276
+en-4,en,en_GB-cori-medium,The total amount is 120 euros.,The total amount is 120 euros.,2.67,0.134
+en-5,en,en_GB-cori-medium,We have cancelled order 10528.,We have cancelled order 1 0 5 2 8.,2.72,0.143
+fr-1,fr,fr_FR-upmc-medium,Votre commande 4512 a été expédiée.,Votre commande 4 5 1 2 a été expédiée.,3.55,0.533
+fr-2,fr,fr_FR-upmc-medium,Votre remboursement de 49 euros et 99 centimes a été approuvé.,Votre remboursement de 49 euros et 99 centimes a été approuvé.,4.79,0.477
+fr-3,fr,fr_FR-upmc-medium,La commande 87396 arrivera demain.,La commande 8 7 3 9 6 arrivera demain.,3.63,0.17
+fr-4,fr,fr_FR-upmc-medium,Le montant total est de 120 euros.,Le montant total est de 120 euros.,2.35,0.111
+fr-5,fr,fr_FR-upmc-medium,Nous avons annulé la commande 10528.,Nous avons annulé la commande 1 0 5 2 8.,4.05,0.187

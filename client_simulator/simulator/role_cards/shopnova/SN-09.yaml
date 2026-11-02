@@ -1,0 +1,13 @@
+id: SN-09
+company: shopnova
+reason: refund_request
+mood: sarcastic
+typo_level: medium
+persona:
+  description: Returned a jacket three weeks ago.
+  language: English
+goal: The return was received but the refund has still not reached your card.
+facts:
+  order_id: 4522
+  amount: 79.90 EUR
+patience_turns: 4

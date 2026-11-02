@@ -1,0 +1,12 @@
+id: SN-14
+company: shopnova
+reason: damaged_item
+mood: calm
+typo_level: medium
+persona:
+  description: Ordered a set of glasses.
+  language: English
+goal: Two of the six glasses arrived broken. You want those two replaced.
+facts:
+  order_id: 4527
+patience_turns: 4

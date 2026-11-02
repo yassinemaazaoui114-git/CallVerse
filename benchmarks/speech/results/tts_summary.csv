@@ -1,0 +1,5 @@
+engine,language,samples,avg_latency_seconds,avg_audio_duration_seconds,real_time_factor,listening_result
+Piper,en,5,0.315,3.056,0.103,Clear; no errors observed
+Piper,fr,5,0.296,3.674,0.08,Clear; no errors observed
+SAPI5,en,5,0.104,3.694,0.028,Clear; no errors observed
+SAPI5,fr,5,0.083,4.136,0.02,Clear; no errors observed

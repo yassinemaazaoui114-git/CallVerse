@@ -338,3 +338,51 @@ companies:
       refund: [AT-FLT-01, AT-FLT-04, AT-HOT-02, AT-HOT-04]
       compensation: [AT-FLT-02, AT-FLT-03]
       cancel_hotel: [AT-HOT-01, AT-HOT-02, AT-HOT-03]
+
+# Voice + text web channel (callverse/web). It is a CHANNEL ADAPTER: it turns audio into text and the
+# approved reply into audio. It never decides anything itself; business logic stays in the agents.
+voice:
+  # auto = "real" when the agents' API key (GROQ_API_KEY) is set, otherwise "mock".
+  # real = Agent A answers (the only agent built so far). mock = fixed demo replies, no agent, no data.
+  mode: auto
+  languages: [en, fr]
+  stt:
+    # Speech-to-text providers, tried in order. groq = Whisper on Groq's API (needs GROQ_API_KEY);
+    # faster_whisper = the open-source Whisper model running inside our own server container (CPU).
+    providers: [groq, faster_whisper]
+    groq: {provider: groq, model: "whisper-large-v3-turbo"}
+    # "base": in our round-trip test (Piper voice -> Whisper) it was as accurate as "small" and 3x faster.
+    faster_whisper: {model: "base", compute_type: "int8", cpu_threads: 2}
+  tts:
+    # Piper voices (open source, run on the server CPU). Chosen by a round-trip test and by their data licence:
+    # cori = LibriVox (public domain) recordings, upmc = CC BY-SA 4.0.
+    voices: {en: "en_GB-cori-medium", fr: "fr_FR-upmc-medium"}
+  limits:
+    max_audio_bytes: 5000000      # 5 MB
+    max_audio_seconds: 30
+    max_text_chars: 1000
+    turns_per_session_per_10min: 30
+    turns_per_ip_per_hour: 120
+    turns_global_per_hour: 600    # whole site, protects the shared API quota
+    sessions_per_ip_per_hour: 30
+    session_ttl_minutes: 60
+    max_history_turns: 10         # user+assistant pairs kept as conversation context
+
+# Photo check (callverse/vision). Qwen3-VL-2B + the CallVerse QLoRA adapter, trained on Kaggle (2026-11-01) on 103 real
+# photos, chosen on validation, held-out test: accuracy 0.84 vs 0.64 for the base model with the same prompt (paired
+# +0.20 [0.08, 0.36]); benchmark files: evaluation/ in the adapter repo and benchmarks/vision_qlora/.
+# The answer is VISUAL EVIDENCE only (never intent, never a decision). Backends are tried in order: "qlora" = base +
+# adapter, "base" = base model alone with the same prompt (fallback when the adapter cannot load).
+# adapter_path: a local adapter folder instead of the Hugging Face repo (e.g. models/vision/qlora, git-ignored).
+vision:
+  enabled: true
+  backends: [qlora, base]
+  base_model: "Qwen/Qwen3-VL-2B-Instruct"
+  base_revision: "89644892e4d85e24eaac8bacfd4f463576704203"
+  adapter_repo: "Ayachi7/CallVerse-Qwen3VL-2B-Vision-QLoRA"
+  adapter_revision: "40b84e5694112d4afba8407d45a023160ce90a2e"
+  adapter_path: null
+  max_pixels: 262144        # 512 x 512 = at most 256 image tokens, as in training
+  min_pixels: 16384
+  max_side: 1024            # uploads are shrunk to this before the processor
+  max_new_tokens: 160

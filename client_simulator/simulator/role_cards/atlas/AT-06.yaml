@@ -1,0 +1,15 @@
+id: AT-06
+company: atlas
+reason: refund_request
+mood: confused
+typo_level: medium
+persona:
+  description: Booked a Tunis to Sousse bus with pay later.
+  language: English
+goal: You were told your bus on 20 October is cancelled. You ask how to get your money
+  back and whether you can take another bus.
+facts:
+  booking_ref: BK-7736
+  date: 20 October
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-AT-06.yaml

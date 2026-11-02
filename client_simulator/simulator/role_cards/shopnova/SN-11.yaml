@@ -1,0 +1,14 @@
+id: SN-11
+company: shopnova
+reason: return_item
+mood: confused
+typo_level: medium
+persona:
+  description: Received the wrong shoe size.
+  language: English
+goal: You do not understand how to print the return label and swap the size.
+facts:
+  order_id: 4524
+  size_ordered: 42
+  size_received: 44
+patience_turns: 4

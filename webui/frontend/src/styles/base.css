@@ -19,6 +19,7 @@ h1, h2, h3 {
   font-weight: 600;
   margin: 0;
   line-height: 1.25;
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 h1 { font-size: var(--cv-text-xl); }
@@ -58,35 +59,65 @@ code, .mono { font-family: var(--cv-font-mono); font-size: 0.92em; }
   border-radius: var(--cv-radius-control); border: 1px solid var(--cv-border);
   background: var(--cv-panel-2); color: var(--cv-text);
   font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
-  transition: background-color var(--cv-motion) var(--cv-ease), border-color var(--cv-motion) var(--cv-ease);
+  transition: background-color var(--cv-motion-fast) var(--cv-ease), border-color var(--cv-motion-fast) var(--cv-ease),
+              color var(--cv-motion-fast) var(--cv-ease), transform var(--cv-motion-fast) var(--cv-ease);
   touch-action: manipulation;
 }
 .btn:hover { border-color: var(--cv-muted); }
+.btn:active:not(:disabled) { transform: scale(0.98); }   /* a press that can be felt, 2 % and 120 ms */
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-danger { background: var(--cv-danger-soft); color: var(--cv-danger); border-color: transparent; }
+.btn-danger:hover { border-color: var(--cv-danger); }
 .btn-primary { background: var(--cv-primary); color: var(--cv-on-primary); border-color: var(--cv-primary); }
 .btn-primary:hover { filter: brightness(1.08); border-color: var(--cv-primary); }
 .btn-ghost { background: transparent; border-color: transparent; }
 .btn-ghost:hover { background: var(--cv-panel-2); border-color: transparent; }
 .btn-sm { min-height: 32px; padding: 0 var(--cv-s3); font-size: var(--cv-text-sm); }
 
-.field { display: flex; flex-direction: column; gap: var(--cv-s1); }
+.field { display: flex; flex-direction: column; gap: var(--cv-s1); min-width: 0; }
 .field > label { font-size: var(--cv-text-sm); font-weight: 600; color: var(--cv-muted); }
+.field > label .req { color: var(--cv-danger); margin-left: 2px; }
+.field .hint { font-size: var(--cv-text-xs); color: var(--cv-muted); }
+.field .field-error { font-size: var(--cv-text-xs); color: var(--cv-danger); font-weight: 600; display: flex; gap: var(--cv-s1); align-items: center; }
 .input, .select {
   min-height: var(--cv-control-h); width: 100%;
   padding: 0 var(--cv-s3);
   border-radius: var(--cv-radius-control); border: 1px solid var(--cv-border);
   background: var(--cv-bg); color: var(--cv-text); font: inherit;
-  transition: border-color var(--cv-motion) var(--cv-ease);
+  transition: border-color var(--cv-motion-fast) var(--cv-ease), box-shadow var(--cv-motion-fast) var(--cv-ease);
 }
 .input:hover, .select:hover { border-color: var(--cv-muted); }
+.input:focus-visible, .select:focus-visible, textarea.input:focus-visible {
+  outline: none; border-color: var(--cv-primary); box-shadow: 0 0 0 3px var(--cv-focus-ring);
+}
+.input[aria-invalid="true"], .select[aria-invalid="true"] { border-color: var(--cv-danger); }
+.input[aria-invalid="true"]:focus-visible { box-shadow: 0 0 0 3px var(--cv-danger-soft); }
+.input:disabled, .select:disabled { opacity: 0.6; cursor: not-allowed; }
 .select { cursor: pointer; }
+.form-grid { display: grid; gap: var(--cv-s3); grid-template-columns: 1fr; }
+@media (min-width: 640px) { .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .form-grid .span-2 { grid-column: span 2; } }
+.form-actions { display: flex; gap: var(--cv-s2); flex-wrap: wrap; align-items: center; }
 
 /* ---------- panels, badges, alerts ---------- */
 .panel {
   background: var(--cv-panel); border: 1px solid var(--cv-border);
   border-radius: var(--cv-radius-panel); padding: var(--cv-s4);
+  box-shadow: var(--cv-shadow);
 }
+@media (min-width: 768px) { .panel { padding: var(--cv-s5); } }
 .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--cv-s3); flex-wrap: wrap; margin-bottom: var(--cv-s3); }
+.panel-head h2 { font-size: var(--cv-text-lg); }
+.panel-head .sub { color: var(--cv-muted); font-size: var(--cv-text-sm); }
+
+/* segmented tabs: every screen's tab row (role=tablist of .btn tabs) becomes one control, the chosen tab
+   lifted on the panel colour; the screens keep their markup */
+[role="tablist"], .segmented { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: var(--cv-radius-control); background: var(--cv-panel-2); border: 1px solid var(--cv-border); }
+[role="tablist"] > .btn, .segmented > .btn { background: transparent; border-color: transparent; color: var(--cv-muted); min-height: 32px; }
+[role="tablist"] > .btn:hover, .segmented > .btn:hover { color: var(--cv-text); }
+[role="tablist"] > .btn[aria-selected="true"], .segmented > .btn[aria-pressed="true"],
+[role="tablist"] > .btn.btn-primary[aria-selected="true"], .segmented > .btn.btn-primary[aria-pressed="true"] {
+  background: var(--cv-panel); color: var(--cv-text); border-color: var(--cv-border); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); filter: none;
+}
 
 .badge {
   display: inline-flex; align-items: center; gap: var(--cv-s1);
@@ -103,6 +134,7 @@ code, .mono { font-family: var(--cv-font-mono); font-size: 0.92em; }
   display: flex; gap: var(--cv-s3); align-items: flex-start;
   padding: var(--cv-s3) var(--cv-s4); border-radius: var(--cv-radius-control);
   border: 1px solid var(--cv-border); background: var(--cv-info-soft); color: var(--cv-text);
+  animation: cv-fade-in var(--cv-motion) var(--cv-ease);   /* a notice arrives, it does not pop */
 }
 .alert svg { flex: none; margin-top: 2px; }
 .alert-danger { border-color: var(--cv-danger); background: var(--cv-danger-soft); }
@@ -122,6 +154,36 @@ code, .mono { font-family: var(--cv-font-mono); font-size: 0.92em; }
   padding: var(--cv-s6) var(--cv-s4); text-align: center; color: var(--cv-muted);
   display: flex; flex-direction: column; align-items: center; gap: var(--cv-s3);
 }
+.state-block > svg:first-child { width: 48px; height: 48px; padding: 12px; border-radius: 50%; background: var(--cv-panel-2); color: var(--cv-muted); }
+
+/* shared keyframes: one fade for notices, one short rise for panels, dialogs and the page content */
+@keyframes cv-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cv-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* the page content: a 6 px rise from 70 % opacity, so a page is readable even on a frame where the animation
+   has not run (a background tab pauses animations); set once per navigation, never on a data refresh */
+@keyframes cv-page { from { opacity: 0.7; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.page-enter { animation: cv-page var(--cv-motion) var(--cv-ease); }
+
+/* a loading placeholder that keeps the space of the rows it stands for (no layout shift) */
+.skeleton { display: grid; gap: var(--cv-s2); }
+.skeleton > span { display: block; height: 14px; border-radius: 4px; background: var(--cv-panel-2); animation: cv-pulse 1.2s ease-in-out infinite; }
+.skeleton > span:nth-child(2n) { width: 70%; }
+@keyframes cv-pulse { 50% { opacity: 0.45; } }
+.state-block > svg:first-child { width: 48px; height: 48px; padding: 12px; border-radius: 50%; background: var(--cv-panel-2); color: var(--cv-muted); }
+
+/* shared keyframes: one fade for notices, one short rise for panels, dialogs and the page content */
+@keyframes cv-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cv-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* the page content: a 6 px rise from 70 % opacity, so a page is readable even on a frame where the animation
+   has not run (a background tab pauses animations); set once per navigation, never on a data refresh */
+@keyframes cv-page { from { opacity: 0.7; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.page-enter { animation: cv-page var(--cv-motion) var(--cv-ease); }
+
+/* a loading placeholder that keeps the space of the rows it stands for (no layout shift) */
+.skeleton { display: grid; gap: var(--cv-s2); }
+.skeleton > span { display: block; height: 14px; border-radius: 4px; background: var(--cv-panel-2); animation: cv-pulse 1.2s ease-in-out infinite; }
+.skeleton > span:nth-child(2n) { width: 70%; }
+@keyframes cv-pulse { 50% { opacity: 0.45; } }
 
 .spinner {
   width: 20px; height: 20px; border-radius: 50%;
@@ -131,6 +193,7 @@ code, .mono { font-family: var(--cv-font-mono); font-size: 0.92em; }
 @keyframes cv-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation: none; border-top-color: var(--cv-primary); }
+  .skeleton > span { animation: none; opacity: 0.7; }
   * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
 }
 
@@ -141,9 +204,13 @@ details.disclosure > summary {
   border-radius: var(--cv-radius-control);
 }
 details.disclosure > summary::-webkit-details-marker { display: none; }
+details.disclosure > summary:hover { color: var(--cv-text); }
+details.disclosure > summary:hover { color: var(--cv-text); }
 details.disclosure > summary .chev { transition: transform var(--cv-motion) var(--cv-ease); }
 details.disclosure[open] > summary .chev { transform: rotate(90deg); }
 details.disclosure > .disclosure-body { padding: 0 var(--cv-s3) var(--cv-s3); }
+details.disclosure[open] > .disclosure-body { animation: cv-fade-in var(--cv-motion) var(--cv-ease); }
+details.disclosure[open] > .disclosure-body { animation: cv-fade-in var(--cv-motion) var(--cv-ease); }
 pre.raw {
   margin: 0; padding: var(--cv-s3); overflow: auto; max-height: 360px;
   background: var(--cv-bg); border-radius: var(--cv-radius-control); border: 1px solid var(--cv-border);

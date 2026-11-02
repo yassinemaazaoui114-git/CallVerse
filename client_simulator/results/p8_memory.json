@@ -1,0 +1,25 @@
+{
+  "gemma3:1b": {
+    "longest_prompt_tokens": 682,
+    "needed_with_output": 802,
+    "chosen_num_ctx": 1024,
+    "default_4096": {
+      "num_ctx": 4096,
+      "vram_mib": 841,
+      "nvidia_smi_delta_mib": 873,
+      "sec_per_message": 2.58
+    },
+    "default_1024": {
+      "num_ctx": 1024,
+      "vram_mib": 838,
+      "nvidia_smi_delta_mib": 858,
+      "sec_per_message": 2.59
+    },
+    "kvq8_fa_1024": {
+      "num_ctx": 1024,
+      "vram_mib": 828,
+      "nvidia_smi_delta_mib": 847,
+      "sec_per_message": 0.45
+    }
+  }
+}

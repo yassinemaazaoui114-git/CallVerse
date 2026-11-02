@@ -1,0 +1,92 @@
+{
+ "X01": {
+  "realism": 0,
+  "role": 0,
+  "reasoning": "Agent voice: 'I'm so sorry... I can definitely help you... Could you please tell me the order number' - breaks role."
+ },
+ "X02": {
+  "realism": 2,
+  "role": 2,
+  "reasoning": "Concerned but polite and specific; reply answers with the number."
+ },
+ "X03": {
+  "realism": 1,
+  "role": 1,
+  "reasoning": "'Please help!' gives no situation at all; reply fine."
+ },
+ "X04": {
+  "realism": 1,
+  "role": 1,
+  "reasoning": "Says 4 days (card: a week); mild, no typos on the typos card; contains a tweet-style <HANDLE>."
+ },
+ "X05": {
+  "realism": 0,
+  "role": 1,
+  "reasoning": "Copies the role card text ('an online shop (electronics, home, fashion), that delivers parcels'); perfect grammar on the typos card."
+ },
+ "X06": {
+  "realism": 1,
+  "role": 2,
+  "reasoning": "Wrapped in quotation marks and long; otherwise a calm customer."
+ },
+ "X07": {
+  "realism": 0,
+  "role": 0,
+  "reasoning": "'I am a customer service representative, and I am here to help you' - breaks role."
+ },
+ "X08": {
+  "realism": 2,
+  "role": 2,
+  "reasoning": "Natural, calm, asks where the parcel is; reply adds the order date."
+ },
+ "X09": {
+  "realism": 0,
+  "role": 0,
+  "reasoning": "Agent voice ('I'm currently investigating this issue') - breaks role."
+ },
+ "X10": {
+  "realism": 2,
+  "role": 2,
+  "reasoning": "Formal and specific; reply confirms number and dates."
+ },
+ "X11": {
+  "realism": 1,
+  "role": 2,
+  "reasoning": "Natural first message; reply lists the card facts in a 'key: value' format."
+ },
+ "X12": {
+  "realism": 0,
+  "role": 0,
+  "reasoning": "'Your laptop was shipped on 1 October...?' - speaks from the agent's side."
+ },
+ "X13": {
+  "realism": 2,
+  "role": 1,
+  "reasoning": "Very real anger ('Ugh, seriously?! ... Where is my laptop?!'), but no typos on the typos card."
+ },
+ "X14": {
+  "realism": 2,
+  "role": 2,
+  "reasoning": "Short, natural, worried; reply minimal."
+ },
+ "X15": {
+  "realism": 2,
+  "role": 1,
+  "reasoning": "Natural, asks about compensation; not formal."
+ },
+ "X16": {
+  "realism": 0,
+  "role": 0,
+  "reasoning": "Agent voice (same text as X01) - breaks role."
+ },
+ "X17": {
+  "realism": 2,
+  "role": 2,
+  "reasoning": "Lowercase with real typos ('moveing', 'dont no', 'mmy') and specific facts; reads like a real tweet."
+ },
+ "X18": {
+  "realism": 1,
+  "role": 1,
+  "reasoning": "'Please help!' only; reply plain; neither angry nor typo-ridden."
+ }
+}

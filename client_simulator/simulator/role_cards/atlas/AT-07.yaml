@@ -1,0 +1,15 @@
+id: AT-07
+company: atlas
+reason: special_assistance
+mood: anxious
+typo_level: low
+persona:
+  description: Uses a wheelchair; flying Hamburg to Tunis to see her grandchildren.
+  language: English
+goal: Your flight on 17 October was cancelled. You need a new flight with step-free
+  boarding.
+facts:
+  booking_ref: BK-7730
+  date: 17 October
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-AT-07.yaml

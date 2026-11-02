@@ -1,0 +1,121 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+uss_mwoz_0177,3,4,True,True,False,"Helpful, but a bit too much info at times.",,,False,3.1235122680664062,4,llama3.2:3b
+uss_mwoz_0649,3,4,True,True,False,"Helpful, but a bit too much info.",,,False,2.801487445831299,4,llama3.2:3b
+uss_sgd_0361,3,4,True,True,False,"Helpful, but some follow-up questions were needed.",,,False,2.958404302597046,4,llama3.2:3b
+uss_mwoz_0321,3,4,True,True,False,"Helpful, but a bit confusing at times.",,,False,2.9199979305267334,4,llama3.2:3b
+uss_sgd_0377,3,2,True,True,False,"Too many follow-up questions, didn't get the main info.",,,False,3.0622220039367676,2,llama3.2:3b
+uss_mwoz_0454,4,4,True,True,False,"Helpful, but a bit too much info.",,,False,3.077183723449707,4,llama3.2:3b
+uss_mwoz_0814,3,3,True,True,False,"Helpful, but had to ask multiple follow-up questions.",,,False,2.886884927749634,3,llama3.2:3b
+uss_mwoz_0776,4,2,True,True,False,"Helpful, but a bit frustrating with the constant back-and-forth.",,,False,3.0521979331970215,2,llama3.2:3b
+uss_sgd_0828,3,4,True,True,False,"Helpful, but had to correct some mistakes.",,,False,2.841015338897705,4,llama3.2:3b
+uss_mwoz_0077,4,4,True,True,False,"Helpful, but a bit too pushy with extras.",,,False,2.9530911445617676,4,llama3.2:3b
+uss_mwoz_0608,3,5,True,True,False,"Very helpful, answered all my questions.",,,False,3.017073392868042,5,llama3.2:3b
+uss_mwoz_0886,3,4,True,True,False,"Helpful, but a bit too much info at once.",,,False,2.9790892601013184,4,llama3.2:3b
+uss_sgd_0642,3,4,True,True,False,"Helpful, but kept trying to upsell me.",,,False,3.069912910461426,4,llama3.2:3b
+uss_mwoz_0756,3,4,True,True,False,"Helpful, but a bit slow to book the hotel.",,,False,3.0619049072265625,4,llama3.2:3b
+uss_sgd_0742,3,4,True,True,False,"Helpful, but had to repeat some questions.",,,False,3.1048529148101807,4,llama3.2:3b
+uss_sgd_0468,4,5,True,True,False,Helpful and answered all my questions.,,,False,2.9897103309631348,5,llama3.2:3b
+uss_mwoz_0572,3,4,True,True,False,"Helpful, but a bit too much info at once.",,,False,3.019871473312378,4,llama3.2:3b
+uss_sgd_0389,3,4,True,True,False,"Helpful, but a bit too much info at once.",,,False,3.0243732929229736,4,llama3.2:3b
+uss_sgd_0873,4,4,True,True,False,"Helpful, but a bit too many questions.",,,False,3.036677122116089,4,llama3.2:3b
+uss_mwoz_0589,3,2,True,True,False,Had to ask multiple follow-up questions.,,,False,2.93680477142334,2,llama3.2:3b
+uss_sgd_0652,3,4,True,True,False,"Helpful, but a bit slow and repetitive.",,,False,2.9845454692840576,4,llama3.2:3b
+uss_mwoz_0897,3,4,True,True,False,"Helpful, but had to ask for everything",,,False,2.8914077281951904,4,llama3.2:3b
+uss_sgd_0660,3,2,True,True,False,"It got the info, but couldn't book the flight.",,,False,2.7483325004577637,2,llama3.2:3b
+uss_sgd_0726,3,4,True,True,False,"Helpful, but some follow-up questions were needed.",,,False,2.9036178588867188,4,llama3.2:3b
+uss_sgd_0676,4,4,True,True,False,"Helpful, but a bit too pushy with extras.",,,False,2.910327434539795,4,llama3.2:3b
+uss_sgd_0482,4,4,True,True,False,"Helpful, but had to ask for refund info.",,,False,2.816190481185913,4,llama3.2:3b
+uss_sgd_0467,3,2,True,True,False,Had to repeat myself multiple times.,,,False,2.7700302600860596,2,llama3.2:3b
+uss_mwoz_0969,3,2,True,True,False,Not very helpful with my specific needs.,,,False,2.734827995300293,2,llama3.2:3b
+uss_mwoz_0638,3,4,True,True,False,"Helpful, but had to ask for everything.",,,False,2.8028910160064697,4,llama3.2:3b
+uss_sgd_0236,3,5,True,True,False,Helpful and efficient booking process.,,,False,2.7903590202331543,5,llama3.2:3b
+uss_sgd_0563,3,2,True,True,False,Too much information and not helpful with my request.,,,False,2.8393335342407227,2,llama3.2:3b
+uss_mwoz_0888,3,2,True,True,False,Unhelpful and awkward conversation.,,,False,2.8849616050720215,2,llama3.2:3b
+uss_mwoz_0381,4,4,True,True,False,"Helpful, but some follow-up questions needed.",,,False,2.780374765396118,4,llama3.2:3b
+uss_sgd_0996,2,2,True,True,False,Had to repeat myself multiple times.,,,False,2.901303291320801,2,llama3.2:3b
+uss_mwoz_0770,3,4,True,True,False,"Helpful, but some extra fees were a surprise.",,,False,2.915203094482422,4,llama3.2:3b
+uss_mwoz_0258,3,3,True,True,False,"Helpful, but had to ask multiple follow-ups.",,,False,2.8768115043640137,3,llama3.2:3b
+uss_sgd_0491,4,4,True,True,False,"Helpful, but a bit slow and repetitive.",,,False,2.9318504333496094,4,llama3.2:3b
+uss_mwoz_0099,3,2,True,True,False,"Had to repeat myself multiple times, but finally got the booking done.",,,False,3.05136775970459,2,llama3.2:3b
+uss_sgd_0528,3,2,True,True,False,"It kept asking for more info, couldn't book anything.",,,False,3.105430841445923,2,llama3.2:3b
+uss_mwoz_0819,3,2,True,True,False,Had to ask multiple follow-up questions.,,,False,3.1701674461364746,2,llama3.2:3b
+uss_mwoz_0826,4,4,True,True,False,"Helpful, but a bit slow and repetitive.",,,False,3.103717088699341,4,llama3.2:3b
+uss_mwoz_0226,3,4,True,True,False,"Helpful, but a bit slow to get to the point.",,,False,3.0051286220550537,4,llama3.2:3b
+uss_mwoz_0800,4,4,True,True,False,"Helpful, but had to ask for more info multiple times.",,,False,2.9537909030914307,4,llama3.2:3b
+uss_mwoz_0346,3,2,True,True,False,"It provided the info, but was very unhelpful.",,,False,2.8163931369781494,2,llama3.2:3b
+uss_sgd_0605,3,2,True,True,False,"Answered my question, but was lacking in details.",,,False,2.581265687942505,2,llama3.2:3b
+uss_sgd_0927,3,4,True,True,False,"Helpful, but no booking was made.",,,False,2.529989242553711,4,llama3.2:3b
+uss_sgd_0483,3,3,True,True,False,"Helpful, but had to repeat some questions.",,,False,2.7444686889648438,3,llama3.2:3b
+uss_mwoz_0269,4,4,True,True,False,"Helpful, but a bit slow to get to the point.",,,False,2.8482558727264404,4,llama3.2:3b
+uss_mwoz_0043,4,4,True,True,False,"Helpful, but some follow-up questions were needed.",,,False,3.0759665966033936,4,llama3.2:3b
+uss_mwoz_0565,3,4,True,True,False,"Helpful, but a bit slow to book train ticket.",,,False,3.1409265995025635,4,llama3.2:3b
+uss_sgd_0154,3,4,True,True,False,"Helpful, but had to ask for everything.",,,False,2.949946880340576,4,llama3.2:3b
+uss_sgd_0494,4,2,True,True,False,"Unhelpful and frustrating, couldn't get simple flight info.",,,False,2.9292781352996826,2,llama3.2:3b
+uss_sgd_0014,3,4,True,True,False,"Helpful, but had to ask for everything.",,,False,2.914428472518921,4,llama3.2:3b
+uss_mwoz_0656,4,4,True,True,False,"Helpful, even with follow-up questions.",,,False,2.895418882369995,4,llama3.2:3b
+uss_mwoz_0798,3,4,True,True,False,"Helpful, but had to ask for many details.",,,False,2.919391393661499,4,llama3.2:3b
+uss_mwoz_0920,3,2,True,True,False,Had to repeat myself multiple times.,,,False,2.9605531692504883,2,llama3.2:3b
+uss_mwoz_0810,3,4,True,True,False,"Helpful, but had to repeat some questions.",,,False,3.055309295654297,4,llama3.2:3b
+uss_sgd_0031,3,2,True,True,False,"It was too much information, just what I asked for.",,,False,3.0718448162078857,2,llama3.2:3b
+uss_sgd_0216,3,4,True,True,False,"Helpful, but a bit too many questions.",,,False,3.1235756874084473,4,llama3.2:3b
+uss_sgd_0692,4,2,True,True,False,It was helpful but a bit too repetitive.,,,False,3.266406774520874,2,llama3.2:3b
+uss_mwoz_0490,4,5,True,True,False,Helpful and assisted with multiple requests.,,,False,3.1334710121154785,5,llama3.2:3b
+uss_mwoz_0038,3,2,True,True,False,Had to ask multiple follow-up questions.,,,False,3.12379789352417,2,llama3.2:3b
+uss_sgd_0327,3,2,True,True,False,It was a long and confusing conversation.,,,False,3.1279609203338623,2,llama3.2:3b
+uss_mwoz_0234,3,5,True,True,False,"Excellent service, went above and beyond.",,,False,2.9723689556121826,5,llama3.2:3b
+uss_sgd_0399,3,4,True,True,False,"Helpful, but had to ask for multiple things.",,,False,3.008375406265259,4,llama3.2:3b
+uss_mwoz_0610,4,4,True,True,False,"Helpful, but a bit slow to get to the point.",,,False,2.9781720638275146,4,llama3.2:3b
+uss_mwoz_0687,4,5,True,True,False,"Very helpful, answered all my questions.",,,False,2.9156899452209473,5,llama3.2:3b
+uss_mwoz_0898,3,4,True,True,False,"Helpful, but some initial confusion.",,,False,2.916302442550659,4,llama3.2:3b
+uss_sgd_0095,4,4,True,True,False,"Helpful, but a bit too much info.",,,False,2.8043456077575684,4,llama3.2:3b
+uss_sgd_0550,3,4,True,True,False,"Helpful, but a bit too much information at once.",,,False,3.0455713272094727,4,llama3.2:3b
+uss_mwoz_0098,3,4,True,True,False,"Helpful, but a bit slow and repetitive.",,,False,3.1087722778320312,4,llama3.2:3b
+uss_mwoz_0395,3,4,True,True,False,"Helpful, but a bit too much info at first.",,,False,3.0954196453094482,4,llama3.2:3b
+uss_mwoz_0478,4,4,True,True,False,"Helpful, but a bit slow to answer all my questions.",,,False,3.180976152420044,4,llama3.2:3b
+uss_mwoz_0600,4,2,True,True,False,Had to repeat myself multiple times.,,,False,2.87632417678833,2,llama3.2:3b
+uss_mwoz_0801,3,4,True,True,False,"Helpful, but some confusion and extra questions.",,,False,2.9110257625579834,4,llama3.2:3b
+uss_mwoz_0976,3,4,True,True,False,"Helpful, but a bit too much information at once.",,,False,2.916191816329956,4,llama3.2:3b
+uss_mwoz_0661,3,4,True,True,False,"Helpful, but some questions were a bit frustrating.",,,False,2.945552110671997,4,llama3.2:3b
+uss_mwoz_0264,3,4,True,True,False,"Helpful, but a bit too much info.",,,False,3.0498995780944824,4,llama3.2:3b
+uss_mwoz_0081,3,4,True,True,False,"Helpful, but kept repeating questions.",,,False,2.934270143508911,4,llama3.2:3b
+uss_mwoz_0793,3,2,True,True,False,"Had to repeat myself multiple times, but finally got the info I needed.",,,False,3.0272421836853027,2,llama3.2:3b
+uss_sgd_0318,3,4,True,True,False,"Helpful, but a bit too much info at once.",,,False,3.129359006881714,4,llama3.2:3b
+uss_mwoz_0896,3,4,True,True,False,"Helpful, but a bit slow to get to the point.",,,False,3.2132277488708496,4,llama3.2:3b
+uss_mwoz_0207,3,2,True,True,False,It was frustrating to have to repeat myself multiple times.,,,False,3.2709338665008545,2,llama3.2:3b
+uss_sgd_0506,4,2,True,True,False,It was a bit too much information and not what I asked for.,,,False,3.2088425159454346,2,llama3.2:3b
+uss_mwoz_0071,3,4,True,True,False,"Helpful, but a bit too much info at once.",,,False,3.104076862335205,4,llama3.2:3b
+uss_mwoz_0495,3,2,True,True,False,Had to repeat myself multiple times.,,,False,2.958030939102173,2,llama3.2:3b
+uss_mwoz_0724,2,2,True,True,False,Failed to find a 4-star hotel with wifi in the north.,,,False,2.7867472171783447,2,llama3.2:3b
+uss_mwoz_0044,4,2,True,True,False,Had to ask multiple questions to get the info I needed.,,,False,2.7504680156707764,2,llama3.2:3b
+uss_sgd_0092,4,4,True,True,False,"Helpful, found everything I needed.",,,False,2.7446560859680176,4,llama3.2:3b
+uss_mwoz_0374,3,2,True,True,False,"Helpful, but kept pushing for booking.",,,False,2.776946783065796,2,llama3.2:3b
+uss_sgd_0614,3,4,True,True,False,"Helpful, but a bit too pushy with hotel options.",,,False,2.9524970054626465,4,llama3.2:3b
+uss_sgd_0599,3,4,True,True,False,"It provided a lot of information, but was a bit too pushy.",,,False,3.1827926635742188,4,llama3.2:3b
+uss_mwoz_0371,3,2,True,True,False,It was a bit of a journey to get the information I needed.,,,False,3.3208980560302734,2,llama3.2:3b
+uss_mwoz_0534,3,5,True,True,False,"Helpful and efficient, even with some follow-up questions.",,,False,3.3326709270477295,5,llama3.2:3b
+uss_mwoz_0940,3,3,True,True,False,"Helpful, but not very informative about the hotel.",,,False,3.288130283355713,3,llama3.2:3b
+uss_mwoz_0509,3,4,True,True,False,"Helpful, but a bit too much info provided.",,,False,3.049208641052246,4,llama3.2:3b
+uss_mwoz_0503,1,2,True,True,False,Had to repeat myself multiple times.,,,False,2.9486730098724365,2,llama3.2:3b
+uss_mwoz_0754,4,4,True,True,False,"Helpful, but some follow-up questions were needed.",,,False,2.9586522579193115,4,llama3.2:3b
+uss_sgd_0680,3,4,True,True,False,"Helpful, but had to repeat myself multiple times.",,,False,2.9549827575683594,4,llama3.2:3b
+uss_mwoz_0242,3,2,True,True,False,"It provided some useful info, but was a bit slow and unhelpful at times.",,,False,3.0426673889160156,2,llama3.2:3b
+uss_mwoz_0169,4,3,True,True,False,"Helpful, but a bit of a detour.",,,False,2.9924371242523193,3,llama3.2:3b
+uss_mwoz_0467,3,2,True,True,False,Not ideal due to lack of accessibility features.,,,False,2.716641426086426,2,llama3.2:3b
+uss_mwoz_0124,4,2,True,True,False,Had to repeat myself multiple times.,,,False,2.737828016281128,2,llama3.2:3b
+uss_mwoz_0635,3,4,True,True,False,"Helpful, but a bit slow and repetitive.",,,False,2.8231136798858643,4,llama3.2:3b
+uss_sgd_0560,2,2,True,True,False,Frustrating experience with multiple mistakes.,,,False,2.896132707595825,2,llama3.2:3b
+uss_mwoz_0357,3,4,True,True,False,"Helpful, but a bit too much info at once.",,,False,3.1731109619140625,4,llama3.2:3b
+uss_sgd_0381,4,4,True,True,False,"Helpful, but had to reconfirm details.",,,False,3.101553440093994,4,llama3.2:3b
+uss_sgd_0854,4,3,True,True,False,"Helpful, but had to ask for oneway flights separately.",,,False,2.852487087249756,3,llama3.2:3b
+uss_sgd_0347,3,4,True,True,False,"Helpful, but kept trying to sell me tickets.",,,False,2.697249412536621,4,llama3.2:3b
+uss_mwoz_0647,3,4,True,True,False,"Helpful, but a bit slow to get started.",,,False,2.7737057209014893,4,llama3.2:3b
+uss_sgd_0518,4,4,True,True,False,"It found what I was looking for, but was a bit slow.",,,False,2.889923334121704,4,llama3.2:3b
+uss_mwoz_0350,3,2,True,True,False,"Too many questions, not enough help.",,,False,2.977414131164551,2,llama3.2:3b
+uss_mwoz_0282,3,2,True,True,False,Had to repeat myself multiple times.,,,False,3.1133272647857666,2,llama3.2:3b
+uss_sgd_0619,3,4,True,True,False,"Helpful, but had to confirm everything.",,,False,2.8904170989990234,4,llama3.2:3b
+uss_mwoz_0680,3,4,True,True,False,"Helpful, but a bit slow to provide relevant info.",,,False,2.913571357727051,4,llama3.2:3b
+uss_sgd_0513,3,4,True,True,False,"Helpful, but had to repeat myself multiple times.",,,False,2.9665307998657227,4,llama3.2:3b
+uss_sgd_0193,3,4,True,True,False,"Helpful, but had to repeat requests.",,,False,2.8238284587860107,4,llama3.2:3b
+uss_sgd_0243,3,3,True,True,False,"Helpful, but a bit scattered.",,,False,2.908268451690674,3,llama3.2:3b
+uss_mwoz_0076,3,4,True,True,False,"Helpful, but some questions were awkwardly phrased.",,,False,2.9111320972442627,4,llama3.2:3b
+uss_mwoz_0280,3,2,True,True,False,Had to repeat myself multiple times.,,,False,2.787109613418579,2,llama3.2:3b

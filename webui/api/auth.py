@@ -95,6 +95,30 @@ def session_info(username: str) -> dict | None:
             "company": accounts.company_of(found)}
 
 
+# ---------- sign-in portals ----------
+# Three sign-in pages, one account store and one session: the portal only decides WHICH accounts a page may sign
+# in. It is checked here, on the server, from the accounts FILE (role + company), after the password: the
+# browser only names the page it is on ("shop", "atlas", "console"); a company or role it sends is never read.
+PORTALS = {
+    "shop": {"roles": ("user", "admin"), "company": "shopnova"},
+    "atlas": {"roles": ("user", "admin"), "company": "atlas"},
+    "console": {"roles": ("supervisor",), "company": None},
+}
+
+
+def portal_of(info: dict) -> str | None:
+    """The portal an account signs in through (info = session_info): supervisor -> console, a ShopNova
+    customer or admin -> shop, an Atlas one -> atlas. None for anything else (no portal accepts it)."""
+    for name, rule in PORTALS.items():
+        if info["role"] in rule["roles"] and info["company"] == rule["company"]:
+            return name
+    return None
+
+
+def may_use_portal(info: dict, portal: str) -> bool:
+    return portal in PORTALS and portal_of(info) == portal
+
+
 def has_role(username: str | None, role: str) -> dict | None:
     """The account if it has `role` (through accounts.check_role, the same check as the Streamlit pages)."""
     if not username:

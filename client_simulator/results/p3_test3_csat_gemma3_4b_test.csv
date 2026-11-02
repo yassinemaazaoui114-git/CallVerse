@@ -1,0 +1,201 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+csat_04279,5,1,False,True,False,Unacceptable wait time and no explanation.,return_item,8 h+,False,5.24588942527771,1,gemma3:4b
+csat_83543,5,4,False,True,False,Hopefully the pickup is arranged quickly.,return_item,5-30 min,False,5.246628284454346,4,gemma3:4b
+csat_51748,5,2,False,True,False,The delay was unacceptable and frustrating.,late_delivery,30 min-2 h,False,4.969749212265015,2,gemma3:4b
+csat_29459,5,5,False,True,False,"Excellent service, refund processed quickly!",refund_request,0-5 min,False,4.977827072143555,5,gemma3:4b
+csat_79580,5,5,False,True,False,Nice,late_delivery,0-5 min,True,4.862964391708374,5,gemma3:4b
+csat_14190,5,5,False,True,False,Thanks,return_item,0-5 min,True,4.764808893203735,5,gemma3:4b
+csat_66434,4,5,False,True,False,"Excellent service, quickly resolved the issue.",damaged_item,0-5 min,False,4.780050277709961,5,gemma3:4b
+csat_40843,5,4,False,True,False,"Finally, someone answered my question!",other,30 min-2 h,False,4.771829128265381,4,gemma3:4b
+csat_43070,4,4,False,True,False,Hopefully the pickup is arranged quickly.,return_item,2-8 h,False,4.878812789916992,4,gemma3:4b
+csat_76294,5,1,False,True,False,Take hard action against the seller regarding this issue,other,unknown,True,5.065217018127441,1,gemma3:4b
+csat_78820,5,1,False,True,False,Absolutely unacceptable – a completely wrong item!,damaged_item,8 h+,False,5.068650960922241,1,gemma3:4b
+csat_72728,5,4,False,True,False,Hopefully the pickup is arranged quickly.,return_item,5-30 min,False,5.082077741622925,4,gemma3:4b
+csat_76635,5,4,False,True,False,Helpful and answered my question quickly.,other,5-30 min,False,5.086006164550781,4,gemma3:4b
+csat_32713,5,1,False,True,False,Unacceptable wait time and no resolution.,other,8 h+,False,5.020308494567871,1,gemma3:4b
+csat_32573,5,4,False,True,False,Hopefully the return process will be smooth.,return_item,2-8 h,False,5.017016410827637,4,gemma3:4b
+csat_25882,5,2,False,True,False,Very frustrating – the item was completely wrong!,damaged_item,30 min-2 h,False,5.047604084014893,2,gemma3:4b
+csat_50628,5,5,False,True,False,Excellent and clear update on my order!,order_status,0-5 min,True,5.063445091247559,5,gemma3:4b
+csat_54998,5,4,False,True,False,The agent was helpful and resolved my query quickly.,other,5-30 min,False,5.093315601348877,4,gemma3:4b
+csat_79247,5,2,False,True,False,Return policy should be more fast.,return_item,8 h+,True,5.073697328567505,2,gemma3:4b
+csat_00943,5,4,False,True,False,"Helpful, though the wait was a bit long.",other,30 min-2 h,False,5.098530292510986,4,gemma3:4b
+csat_82094,2,1,False,True,False,Kindly deliver products in time,late_delivery,8 h+,True,5.054523706436157,1,gemma3:4b
+csat_74777,5,5,False,True,False,Everything is goodpH,order_status,unknown,True,4.969048023223877,5,gemma3:4b
+csat_70507,5,5,False,True,False,Very nice,other,0-5 min,True,4.891074895858765,5,gemma3:4b
+csat_12150,5,5,False,True,False,Quick and easy invoice request handled.,other,0-5 min,False,4.821414947509766,5,gemma3:4b
+csat_45472,4,2,False,True,False,Still waiting for a resolution to this issue.,return_item,5-30 min,False,4.8781468868255615,2,gemma3:4b
+csat_65059,5,1,False,True,False,Absolutely unacceptable – a completely missing item!,damaged_item,8 h+,False,4.930917263031006,1,gemma3:4b
+csat_55861,5,4,False,True,False,The response was prompt and helpful.,return_item,5-30 min,False,5.010344982147217,4,gemma3:4b
+csat_83609,4,5,False,True,False,Excellent and quick assistance!,other,0-5 min,False,4.99065899848938,5,gemma3:4b
+csat_64299,5,5,False,True,False,"Excellent service, refund processed quickly!",refund_request,0-5 min,False,4.96266508102417,5,gemma3:4b
+csat_82546,5,1,False,True,False,Unintelligible response - completely dissatisfied.,late_delivery,8 h+,True,4.999406099319458,1,gemma3:4b
+csat_34280,5,4,False,True,False,Ok,return_item,5-30 min,True,4.910171985626221,4,gemma3:4b
+csat_45875,5,3,False,True,False,"Needs product as order, light gold M",return_item,30 min-2 h,True,4.973462820053101,3,gemma3:4b
+csat_49219,5,1,False,True,False,Completely unacceptable – my order was wrong!,damaged_item,30 min-2 h,True,5.0020294189453125,1,gemma3:4b
+csat_21353,5,4,False,True,False,Helpful and explained everything clearly.,other,5-30 min,False,4.942798376083374,4,gemma3:4b
+csat_71203,4,1,False,True,False,Unacceptable wait time and no explanation.,other,8 h+,False,5.0242838859558105,1,gemma3:4b
+csat_79231,1,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.988584995269775,5,gemma3:4b
+csat_39254,5,1,False,True,False,Absolutely unacceptable wait times!,late_delivery,8 h+,False,4.923416376113892,1,gemma3:4b
+csat_14340,1,4,False,True,False,Helpful and explained everything clearly.,other,5-30 min,False,4.942405700683594,4,gemma3:4b
+csat_65867,5,5,False,True,False,"Excellent service, quickly sorted out!",order_status,0-5 min,False,4.951369285583496,5,gemma3:4b
+csat_04214,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.947346925735474,5,gemma3:4b
+csat_58389,4,2,False,True,False,Please reduce response time,return_item,30 min-2 h,True,4.942346811294556,2,gemma3:4b
+csat_13653,4,2,False,True,False,was very good but my problems related query not confirmation to solve,return_item,8 h+,True,5.099532842636108,2,gemma3:4b
+csat_49645,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,5.080353260040283,5,gemma3:4b
+csat_62487,5,5,False,True,False,Excellent and quick service!,other,0-5 min,False,5.051901817321777,5,gemma3:4b
+csat_10198,5,4,False,True,False,Hopefully the refund will be processed quickly.,refund_request,2-8 h,False,5.095627784729004,4,gemma3:4b
+csat_09383,5,5,False,True,False,Customer service is fabulous and impressive.,return_item,8 h+,True,4.9290242195129395,5,gemma3:4b
+csat_14172,5,5,False,True,False,Very good behaviour and helpful customer support,other,0-5 min,True,4.947749853134155,5,gemma3:4b
+csat_67574,4,1,False,True,False,Unacceptable wait time and no resolution.,return_item,8 h+,False,5.007739305496216,1,gemma3:4b
+csat_80988,4,2,False,True,False,Issue should be solved ASAP,other,5-30 min,True,4.973945140838623,2,gemma3:4b
+csat_00743,5,1,False,True,False,"Please, do not do work with bad sellers, who send wrong items and fake products",return_item,2-8 h,True,5.224713325500488,1,gemma3:4b
+csat_80555,1,1,False,True,False,"Terrible product, completely useless.",other,8 h+,True,5.295363664627075,1,gemma3:4b
+csat_30447,3,5,False,True,False,"Excellent service, quickly sorted out!",order_status,0-5 min,False,5.276510715484619,5,gemma3:4b
+csat_42541,5,2,False,True,False,Still waiting for my delivery – incredibly frustrating!,late_delivery,5-30 min,False,5.3355958461761475,2,gemma3:4b
+csat_48290,5,4,False,True,False,The refund was processed quickly and efficiently.,refund_request,5-30 min,False,5.101400375366211,4,gemma3:4b
+csat_04256,5,5,False,True,False,"Excellent service, quickly resolved my concern.",other,0-5 min,False,5.046849489212036,5,gemma3:4b
+csat_28999,5,5,False,True,False,"Excellent service, refund processed quickly!",refund_request,0-5 min,False,5.048612356185913,5,gemma3:4b
+csat_47785,5,5,False,True,False,"Excellent service, quick resolution!",late_delivery,0-5 min,True,4.9935619831085205,5,gemma3:4b
+csat_74117,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.967628717422485,5,gemma3:4b
+csat_75690,5,2,False,True,False,Still waiting for my delivery!,late_delivery,unknown,False,4.939114332199097,2,gemma3:4b
+csat_65439,5,2,False,True,False,Still waiting for a resolution to this issue.,return_item,5-30 min,False,4.963902711868286,2,gemma3:4b
+csat_16874,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.9607884883880615,5,gemma3:4b
+csat_04906,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.217559099197388,5,gemma3:4b
+csat_19937,5,4,False,True,False,"Helpful and efficient, thanks for the assistance.",other,5-30 min,False,4.270315885543823,4,gemma3:4b
+csat_56262,5,5,False,True,False,Very very good response,return_item,2-8 h,True,4.192843198776245,5,gemma3:4b
+csat_11592,1,2,False,True,False,Extremely slow response time was unacceptable.,order_status,8 h+,False,4.243682146072388,2,gemma3:4b
+csat_06884,5,5,False,True,False,Excellent and helpful assistance!,other,0-5 min,False,4.946532726287842,5,gemma3:4b
+csat_84400,1,1,False,True,False,Absolutely unacceptable service and complete lack of resolution!,return_item,5-30 min,True,5.149353504180908,1,gemma3:4b
+csat_11530,5,4,False,True,False,Just hoping to get an update on my order quickly.,order_status,2-8 h,False,5.246968507766724,4,gemma3:4b
+csat_41631,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,5.218911409378052,5,gemma3:4b
+csat_52309,5,4,False,True,False,Helpful and explained everything clearly.,other,5-30 min,False,5.265515089035034,4,gemma3:4b
+csat_67258,5,5,False,True,False,Quick and helpful assistance – excellent service!,other,0-5 min,False,5.034572124481201,5,gemma3:4b
+csat_64688,4,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.9868340492248535,5,gemma3:4b
+csat_83080,4,2,False,True,False,Still waiting for my delivery – incredibly frustrating!,late_delivery,5-30 min,False,5.018380641937256,2,gemma3:4b
+csat_60151,5,4,False,True,False,Shopzilla best??,return_item,5-30 min,True,4.993185520172119,4,gemma3:4b
+csat_69216,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.984777450561523,5,gemma3:4b
+csat_18284,5,4,False,True,False,"Finally, someone answered and acknowledged my request.",return_item,30 min-2 h,False,5.014432668685913,4,gemma3:4b
+csat_14240,5,5,False,True,False,"Excellent service, issue resolved quickly!",return_item,0-5 min,False,4.981534481048584,5,gemma3:4b
+csat_45121,5,5,False,True,False,Excellent and quick assistance!,other,0-5 min,True,4.975722312927246,5,gemma3:4b
+csat_23479,5,4,False,True,False,"Finally, they gave me an update!",order_status,5-30 min,False,4.990436315536499,4,gemma3:4b
+csat_82118,5,5,False,True,False,Nice one,other,30 min-2 h,True,4.869825839996338,5,gemma3:4b
+csat_32216,5,5,False,True,False,I had really good experience while talking to support executive,return_item,0-5 min,True,4.922817945480347,5,gemma3:4b
+csat_77338,5,5,False,True,False,Best service,other,unknown,True,4.867554187774658,5,gemma3:4b
+csat_77496,5,2,False,True,False,The service felt incredibly dismissive.,other,unknown,False,4.842030763626099,2,gemma3:4b
+csat_84416,3,4,False,True,False,"Hopefully, the invoice will arrive promptly.",other,5-30 min,False,4.928008556365967,4,gemma3:4b
+csat_25951,1,4,False,True,False,Hopefully the exchange will be straightforward.,return_item,5-30 min,False,4.898902177810669,4,gemma3:4b
+csat_62558,5,4,False,True,False,"Finally, someone picked up the return!",return_item,5-30 min,False,4.973586559295654,4,gemma3:4b
+csat_26493,4,4,False,True,False,Hopefully the pickup is arranged quickly.,return_item,5-30 min,False,4.975784063339233,4,gemma3:4b
+csat_33739,5,4,False,True,False,Hopefully the pickup is arranged quickly.,return_item,5-30 min,False,4.222102165222168,4,gemma3:4b
+csat_27871,5,4,False,True,False,Helpful and explained everything clearly.,other,5-30 min,False,4.2002058029174805,4,gemma3:4b
+csat_67386,3,5,False,True,False,Good,return_item,0-5 min,True,4.122782945632935,5,gemma3:4b
+csat_43645,5,4,False,True,False,Helpful and efficient response.,other,5-30 min,False,4.104862213134766,4,gemma3:4b
+csat_84001,5,2,False,True,False,Still waiting for a resolution to this issue.,return_item,5-30 min,False,4.888474702835083,2,gemma3:4b
+csat_53510,4,5,False,True,False,Excellent and quick assistance!,other,0-5 min,False,4.849910020828247,5,gemma3:4b
+csat_06620,5,5,False,True,False,"Excellent service, quick and helpful!",other,0-5 min,False,4.9255266189575195,5,gemma3:4b
+csat_19067,4,4,False,True,False,Helpful and explained everything clearly.,other,30 min-2 h,False,4.951959133148193,4,gemma3:4b
+csat_38600,1,1,False,True,False,My problem was not solved.,other,30 min-2 h,True,4.9970622062683105,1,gemma3:4b
+csat_81344,4,4,False,True,False,Hopefully the return process will be smooth.,return_item,5-30 min,False,5.046397924423218,4,gemma3:4b
+csat_82144,5,5,False,True,False,Work properly,other,0-5 min,True,4.987436771392822,5,gemma3:4b
+csat_01135,5,5,False,True,False,Perfectly helpful response.,other,0-5 min,True,4.952572584152222,5,gemma3:4b
+csat_24278,5,4,False,True,False,Hopefully the return process will be smooth.,return_item,5-30 min,False,4.908029556274414,4,gemma3:4b
+csat_77852,5,5,False,True,False,"Perfect, thanks for the update!",order_status,0-5 min,True,4.893585681915283,5,gemma3:4b
+csat_61560,5,4,False,True,False,Hopefully the refund will be processed quickly.,refund_request,2-8 h,False,4.98158073425293,4,gemma3:4b
+csat_81816,4,1,False,True,False,Unacceptable wait time and no explanation.,other,8 h+,False,5.010532855987549,1,gemma3:4b
+csat_06572,1,1,False,True,False,Your team not solving my issue since last 30 days,other,8 h+,True,5.155945539474487,1,gemma3:4b
+csat_66891,2,1,False,True,False,Unacceptable wait time and no resolution.,return_item,8 h+,False,5.162660121917725,1,gemma3:4b
+csat_26832,5,4,False,True,False,The representative quickly resolved my payment problem.,other,5-30 min,False,5.162811517715454,4,gemma3:4b
+csat_57521,5,5,False,True,False,Excellent and speedy response!,late_delivery,0-5 min,False,5.128502368927002,5,gemma3:4b
+csat_55324,1,4,False,True,False,Please return request my order,return_item,5-30 min,True,4.910946369171143,4,gemma3:4b
+csat_04974,1,4,False,True,False,"Hopefully, they’ll investigate this quickly.",other,30 min-2 h,False,4.935374021530151,4,gemma3:4b
+csat_68951,5,2,False,True,False,The service felt incredibly dismissive and unhelpful.,other,5-30 min,False,4.972588539123535,2,gemma3:4b
+csat_60821,1,2,False,True,False,Reasons do bc proper,order_status,30 min-2 h,True,4.9525957107543945,2,gemma3:4b
+csat_80032,4,4,False,True,False,Just hoping to get an update on my order quickly.,order_status,2-8 h,False,5.0782740116119385,4,gemma3:4b
+csat_80760,5,4,False,True,False,The process was smooth and helpful.,return_item,5-30 min,False,5.03891658782959,4,gemma3:4b
+csat_31554,5,5,False,True,False,"Excellent service, quick and easy return process.",return_item,0-5 min,False,5.017428874969482,5,gemma3:4b
+csat_84805,5,5,False,True,False,"Quick and helpful assistance, thanks!",other,0-5 min,False,5.05095648765564,5,gemma3:4b
+csat_27932,4,4,False,True,False,Hopefully the return process will be smooth.,return_item,5-30 min,False,4.985834121704102,4,gemma3:4b
+csat_51289,1,4,False,True,False,The refund was processed quickly and efficiently.,refund_request,5-30 min,False,5.013011693954468,4,gemma3:4b
+csat_26079,5,2,False,True,False,The service felt incredibly dismissive and unhelpful.,other,5-30 min,False,5.026809453964233,2,gemma3:4b
+csat_45075,4,1,False,True,False,Absolutely unacceptable delay!,late_delivery,5-30 min,True,4.987720012664795,1,gemma3:4b
+csat_50724,5,5,False,True,False,Helpful team member,return_item,0-5 min,True,4.93357253074646,5,gemma3:4b
+csat_03971,5,5,False,True,False,Very good ?? thank you so much ?? I liked it ??,damaged_item,5-30 min,True,5.098061800003052,5,gemma3:4b
+csat_60955,4,4,False,True,False,"Helpful and efficient, thanks for the assistance.",other,5-30 min,False,5.102574825286865,4,gemma3:4b
+csat_41835,5,2,False,True,False,Still waiting for my delivery – incredibly frustrating!,late_delivery,5-30 min,False,5.184746265411377,2,gemma3:4b
+csat_46188,5,5,False,True,False,Excellent and quick assistance!,other,0-5 min,False,5.212777376174927,5,gemma3:4b
+csat_00652,3,1,False,True,False,Absolutely unacceptable wait times and no explanation.,other,8 h+,False,5.036614656448364,1,gemma3:4b
+csat_62596,5,5,False,True,False,"Excellent service, quick resolution!",late_delivery,0-5 min,False,4.969383478164673,5,gemma3:4b
+csat_42860,5,5,False,True,False,Quick and helpful response – problem sorted!,other,0-5 min,False,4.947073936462402,5,gemma3:4b
+csat_59542,5,4,False,True,False,The refund was processed quickly and efficiently.,refund_request,5-30 min,False,4.980438232421875,4,gemma3:4b
+csat_21794,5,4,False,True,False,Helpful and answered my question quickly.,other,30 min-2 h,False,4.983259916305542,4,gemma3:4b
+csat_65467,5,5,False,True,False,"Excellent service, quickly sorted out!",order_status,0-5 min,False,5.001114130020142,5,gemma3:4b
+csat_69553,1,5,False,True,False,Very good,order_status,0-5 min,True,4.910071611404419,5,gemma3:4b
+csat_19914,5,5,False,True,False,Thank you so much customer service,other,0-5 min,True,4.869287729263306,5,gemma3:4b
+csat_69931,1,1,False,True,False,This was my last order from Shopzilla,return_item,2-8 h,True,4.8946239948272705,1,gemma3:4b
+csat_40501,5,5,False,True,False,Great experience,order_status,0-5 min,True,4.82606315612793,5,gemma3:4b
+csat_29959,5,1,False,True,False,Unacceptable wait time and no explanation.,return_item,8 h+,False,4.924368381500244,1,gemma3:4b
+csat_27597,5,4,False,True,False,Hopefully the pickup is arranged quickly.,return_item,5-30 min,False,4.948392868041992,4,gemma3:4b
+csat_14306,5,4,False,True,False,The agent was helpful and resolved my concern quickly.,other,0-5 min,False,4.984104871749878,4,gemma3:4b
+csat_34460,5,4,False,True,False,"Finally, someone understood the seriousness of the situation.",other,30 min-2 h,False,5.126683950424194,4,gemma3:4b
+csat_38755,4,4,False,True,False,The agent quickly resolved my payment problem.,other,30 min-2 h,False,5.1265363693237305,4,gemma3:4b
+csat_45939,5,5,False,True,False,Customer care resolved my problem in very short time,return_item,0-5 min,True,5.130874156951904,5,gemma3:4b
+csat_32945,1,4,False,True,False,"Finally, an update on my order!",order_status,30 min-2 h,False,5.091603517532349,4,gemma3:4b
+csat_56520,2,1,False,True,False,There is no solution to my problem. I am very upset.,other,2-8 h,True,5.2141172885894775,1,gemma3:4b
+csat_69409,5,5,False,True,False,"Excellent service, quick resolution!",late_delivery,0-5 min,True,5.185344934463501,5,gemma3:4b
+csat_57928,4,5,False,True,False,Nys talking and .My problem and payment issues immediately solved,return_item,5-30 min,True,5.349977493286133,5,gemma3:4b
+csat_73874,1,5,False,True,False,Thank you,other,5-30 min,True,5.243481636047363,5,gemma3:4b
+csat_37511,5,4,False,True,False,"Finally, someone gave me an update!",order_status,5-30 min,False,5.063765048980713,4,gemma3:4b
+csat_19823,5,5,False,True,False,So good job mujhe baat karke aapse aap mujhe poochha chij per Mujhe problem solve To hua per main aapko 10 mein se 10 number dena chahta u so Mach,return_item,5-30 min,True,5.690627813339233,5,gemma3:4b
+csat_27523,4,5,False,True,False,"Excellent service, quickly resolved my issue.",other,0-5 min,False,5.537924528121948,5,gemma3:4b
+csat_26757,5,4,False,True,False,Hopefully the pickup is arranged quickly.,return_item,5-30 min,False,5.626559019088745,4,gemma3:4b
+csat_35053,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,5.6068503856658936,5,gemma3:4b
+csat_68497,5,5,False,True,False,Thank you,return_item,0-5 min,True,4.897073268890381,5,gemma3:4b
+csat_73471,4,5,False,True,False,Quick and helpful response – sorted it out perfectly!,return_item,0-5 min,False,4.923731088638306,5,gemma3:4b
+csat_51213,1,1,False,True,False,Incomplete order and useless support!,other,8 h+,True,4.938730001449585,1,gemma3:4b
+csat_68533,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.947736740112305,5,gemma3:4b
+csat_63260,5,2,False,True,False,Logistic delivery is very bad,return_item,0-5 min,True,5.001965761184692,2,gemma3:4b
+csat_63463,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.9663474559783936,5,gemma3:4b
+csat_31166,4,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.19298243522644,5,gemma3:4b
+csat_05311,1,5,False,True,False,"Excellent service, quick resolution!",late_delivery,0-5 min,False,4.1657350063323975,5,gemma3:4b
+csat_04876,5,4,False,True,False,"Helpful and efficient, thanks for the assistance.",other,2-8 h,False,4.241984844207764,4,gemma3:4b
+csat_80936,5,5,False,True,False,"Excellent service, quickly sorted out!",order_status,0-5 min,False,4.242487668991089,5,gemma3:4b
+csat_01533,5,5,False,True,False,"Excellent service, sorted out my payment issue quickly.",other,0-5 min,False,5.041379690170288,5,gemma3:4b
+csat_01963,5,5,False,True,False,"Excellent service, quick resolution!",late_delivery,0-5 min,False,5.05611777305603,5,gemma3:4b
+csat_84007,1,4,False,True,False,"Hopefully, they’ll investigate this quickly.",other,2-8 h,False,5.032635450363159,4,gemma3:4b
+csat_37202,5,5,False,True,False,Thanks for support,other,2-8 h,True,4.971591949462891,5,gemma3:4b
+csat_59249,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.934096336364746,5,gemma3:4b
+csat_55476,4,5,False,True,False,Good service,refund_request,0-5 min,True,4.852348327636719,5,gemma3:4b
+csat_21302,5,1,False,True,False,Unacceptable wait time and no resolution.,return_item,8 h+,False,4.847015142440796,1,gemma3:4b
+csat_80752,5,5,False,True,False,Very good,return_item,0-5 min,True,4.822494745254517,5,gemma3:4b
+csat_77730,5,5,False,True,False,Very nice,return_item,0-5 min,True,4.746767520904541,5,gemma3:4b
+csat_71773,4,5,False,True,False,"Excellent service, quick and easy return process.",return_item,0-5 min,False,4.871258974075317,5,gemma3:4b
+csat_75357,1,4,False,True,False,Helpful and answered my question quickly.,other,unknown,False,4.870021820068359,4,gemma3:4b
+csat_58135,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.937841415405273,5,gemma3:4b
+csat_30713,5,5,False,True,False,"Excellent service, quick resolution!",late_delivery,0-5 min,False,5.013625383377075,5,gemma3:4b
+csat_36610,5,1,False,True,False,Try to solve your logistics issues this is my second time for this order i am getting issues,order_status,8 h+,True,5.25268816947937,1,gemma3:4b
+csat_23544,5,5,False,True,False,"Excellent service, quick and easy return process.",return_item,0-5 min,False,5.245971441268921,5,gemma3:4b
+csat_63640,5,1,False,True,False,Batt kar ka accha lage,other,5-30 min,True,5.243932485580444,1,gemma3:4b
+csat_25847,5,4,False,True,False,Hopefully the pickup is arranged quickly.,return_item,2-8 h,False,5.2462968826293945,4,gemma3:4b
+csat_49970,5,4,False,True,False,Could be a bit quicker with the pickup arranged.,return_item,30 min-2 h,False,5.020044803619385,4,gemma3:4b
+csat_36831,4,4,False,True,False,Finally got an update on my order!,order_status,30 min-2 h,False,5.033360481262207,4,gemma3:4b
+csat_52708,5,5,False,True,False,We had a good time talking about it.,refund_request,0-5 min,True,5.082032680511475,5,gemma3:4b
+csat_24548,5,5,False,True,False,Good,other,0-5 min,True,4.992640256881714,5,gemma3:4b
+csat_72588,5,5,False,True,False,Thanks for helping,other,5-30 min,True,4.896251201629639,5,gemma3:4b
+csat_50243,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,4.875540018081665,5,gemma3:4b
+csat_56661,4,4,False,True,False,Helpful and answered my question quickly.,other,5-30 min,False,4.851100444793701,4,gemma3:4b
+csat_78531,5,5,False,True,False,Quick and easy invoice request handled.,other,0-5 min,False,4.9415717124938965,5,gemma3:4b
+csat_52511,4,5,False,True,False,Gave him csat,other,0-5 min,True,4.960353136062622,5,gemma3:4b
+csat_34493,5,4,False,True,False,Glad they were able to cancel the return.,return_item,5-30 min,False,4.9928483963012695,4,gemma3:4b
+csat_68428,5,4,False,True,False,"Prompt response, hoping for a swift resolution.",other,2-8 h,False,5.015684604644775,4,gemma3:4b
+csat_05268,1,1,False,True,False,Unhelpful executives and unacceptable delivery delays!,order_status,0-5 min,True,5.161211729049683,1,gemma3:4b
+csat_73554,1,2,False,True,False,Unresolved issue and lack of follow-up are extremely frustrating.,other,2-8 h,True,5.4301769733428955,2,gemma3:4b
+csat_63748,5,5,False,True,False,Thanks,return_item,5-30 min,True,5.298851251602173,5,gemma3:4b
+csat_67918,5,5,False,True,False,"Excellent service, quick and easy!",return_item,0-5 min,False,5.256227493286133,5,gemma3:4b
+csat_35939,5,4,False,True,False,The agent was helpful and resolved my concern quickly.,other,0-5 min,False,5.150696516036987,4,gemma3:4b
+csat_18591,5,4,False,True,False,"Finally, someone answered and acknowledged my request.",return_item,30 min-2 h,False,4.944695234298706,4,gemma3:4b
+csat_00061,5,2,False,True,False,"Still waiting for a resolution, frustrating!",return_item,5-30 min,False,5.061335802078247,2,gemma3:4b
+csat_71598,5,5,False,True,False,"Excellent service, quickly resolved my issue.",other,0-5 min,False,5.079697370529175,5,gemma3:4b
+csat_13689,4,1,False,True,False,Shopzilla should improve on the quality of the product delivered. It says Shopzilla assured and we get a bad product,return_item,8 h+,True,5.380239963531494,1,gemma3:4b
+csat_74863,5,4,False,True,False,Hopefully the return will be straightforward.,return_item,unknown,False,5.346743583679199,4,gemma3:4b
+csat_20502,5,5,False,True,False,Good,return_item,30 min-2 h,True,5.23147988319397,5,gemma3:4b
+csat_04554,5,5,False,True,False,"Excellent service, quickly sorted out!",order_status,0-5 min,False,5.2123637199401855,5,gemma3:4b

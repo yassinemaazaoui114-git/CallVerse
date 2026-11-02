@@ -58,8 +58,9 @@ const query = (params) => {
 };
 
 export const api = {
-  login: (username, password) =>
-    request("/api/auth/login", { method: "POST", body: JSON.stringify({ username, password }) }),
+  // portal = the sign-in page (shop | atlas | console): the server signs in only the accounts of that portal
+  login: (username, password, portal) =>
+    request("/api/auth/login", { method: "POST", body: JSON.stringify({ username, password, portal }) }),
   logout: () => request("/api/auth/logout", { method: "POST" }),
   session: () => request("/api/auth/session"),
   company: (company) => request(`/api/company${query({ company })}`),
@@ -94,6 +95,19 @@ export function chatScope(prefix) {
     chatJobStream: (signal) => streamRequest(`${prefix}/chat/job/stream`, { signal }),
   };
 }
+
+// The ShopNova admin's Manage routes (products, orders, clients, refunds, log): reads with a search box and
+// 50 rows per page, writes with a request id so a retry never writes twice.
+export const manage = {
+  options: (signal) => request("/api/admin/manage/options", { signal }),
+  table: (table, search, page, signal) => request(`/api/admin/manage/${encodeURIComponent(table)}${query({ search, page })}`, { signal }),
+  createProduct: (body) => request("/api/admin/manage/products", { method: "POST", body: JSON.stringify(body) }),
+  updateProduct: (id, body) => request(`/api/admin/manage/products/${encodeURIComponent(id)}`, { method: "POST", body: JSON.stringify(body) }),
+  setProductActive: (id, active, client_id) => request(`/api/admin/manage/products/${encodeURIComponent(id)}/${active ? "reactivate" : "deactivate"}`, { method: "POST", body: JSON.stringify({ client_id }) }),
+  setOrderStatus: (id, status, client_id) => request(`/api/admin/manage/orders/${encodeURIComponent(id)}/status`, { method: "POST", body: JSON.stringify({ status, client_id }) }),
+  createUser: (body) => request("/api/admin/manage/users", { method: "POST", body: JSON.stringify(body) }),
+  updateUser: (id, body) => request(`/api/admin/manage/users/${encodeURIComponent(id)}`, { method: "POST", body: JSON.stringify(body) }),
+};
 
 export function adminScope(prefix) {
   return {

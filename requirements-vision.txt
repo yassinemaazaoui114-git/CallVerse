@@ -1,0 +1,13 @@
+# Photo check (callverse/vision): Qwen3-VL-2B + the CallVerse QLoRA adapter. Install with:
+#   pip install -r requirements-vision.txt
+# The core requirements stay unchanged, so teammates without the photo check need nothing new.
+# Checked together on 2026-11-01 (CPU, Python 3.13): torch 2.15.0, torchvision 0.29.2, transformers 5.22.1, peft 0.21.2.
+-r requirements.txt
+transformers>=4.57.1     # Qwen3-VL needs 4.57+
+peft>=0.21               # loads the LoRA adapter (the adapter was saved with peft 0.21.2)
+accelerate>=1.1
+torchvision              # the Qwen3-VL processor needs it
+Pillow>=10.0
+python-multipart>=0.0.9  # photo uploads on the website (Molka's /api/turn/image)
+# GPU only (optional): 4-bit NF4 like in training. Without it the GPU uses 16-bit, the CPU float32.
+# bitsandbytes>=0.45

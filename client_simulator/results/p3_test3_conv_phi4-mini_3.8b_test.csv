@@ -1,0 +1,121 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+uss_mwoz_0177,3,3,True,True,False,Got the booking done but had to ask for extra details like WiFi and dry cleaning services.,,,False,3.774460792541504,3,phi4-mini:3.8b
+uss_mwoz_0649,3,2,True,True,False,The assistant didn't understand the request for a nightclub and provided unrelated hotel information.,,,False,3.854644536972046,2,phi4-mini:3.8b
+uss_sgd_0361,3,5,True,True,False,"Everything was sorted out as I wanted, very helpful service.",,,False,3.720346212387085,5,phi4-mini:3.8b
+uss_mwoz_0321,3,5,True,True,False,The assistant provided comprehensive information and assisted with all queries.,,,False,3.7267889976501465,5,phi4-mini:3.8b
+uss_sgd_0377,3,3,True,True,False,Found the bus and attractions but no help with booking or laundry service.,,,False,3.6431078910827637,3,phi4-mini:3.8b
+uss_mwoz_0454,4,5,True,True,False,The assistant provided all the requested information efficiently and accurately.,,,False,3.7033660411834717,5,phi4-mini:3.8b
+uss_mwoz_0814,3,4,True,True,False,Found the place and answered all my questions.,,,False,3.446885108947754,4,phi4-mini:3.8b
+uss_mwoz_0776,4,3,True,True,False,Got the reservation but had to ask for multiple changes and additional requests.,,,False,3.6052377223968506,3,phi4-mini:3.8b
+uss_sgd_0828,3,5,True,True,False,Everything was clear and quick.,,,False,3.2392094135284424,5,phi4-mini:3.8b
+uss_mwoz_0077,4,4,True,True,False,The booking was successful but there were some issues with smoking policy and additional questions.,,,False,3.4310669898986816,4,phi4-mini:3.8b
+uss_mwoz_0608,3,5,True,True,False,Helpful and got all my queries answered.,,,False,3.5894927978515625,5,phi4-mini:3.8b
+uss_mwoz_0886,3,4,True,True,False,Helpful and provided all the needed information.,,,False,3.4077723026275635,4,phi4-mini:3.8b
+uss_sgd_0642,3,5,True,True,False,The assistant provided all the necessary information and the conversation went smoothly.,,,False,3.6327691078186035,5,phi4-mini:3.8b
+uss_mwoz_0756,3,3,True,True,False,Got the hotel but had issues with restaurant booking and additional queries.,,,False,3.5142550468444824,3,phi4-mini:3.8b
+uss_sgd_0742,3,4,True,True,False,"The booking went smoothly, but there was a minor hiccup with the initial bus availability.",,,False,3.6241135597229004,4,phi4-mini:3.8b
+uss_sgd_0468,4,5,True,True,False,Everything was clear and easy to follow.,,,False,3.572950839996338,5,phi4-mini:3.8b
+uss_mwoz_0572,3,4,True,True,False,Helpful and provided all the needed information.,,,False,3.532479763031006,4,phi4-mini:3.8b
+uss_sgd_0389,3,3,True,True,False,The agent provided various suggestions but missed the initial request for attractions.,,,False,3.563974380493164,3,phi4-mini:3.8b
+uss_sgd_0873,4,5,True,True,False,"Everything was booked as requested, very helpful.",,,False,3.503127336502075,5,phi4-mini:3.8b
+uss_mwoz_0589,3,3,True,True,False,Got the booking but some details were missing.,,,False,3.3993608951568604,3,phi4-mini:3.8b
+uss_sgd_0652,3,3,True,True,False,Got the flight but had some issues with hotel and attractions.,,,False,3.540896415710449,3,phi4-mini:3.8b
+uss_mwoz_0897,3,3,True,True,False,Found the restaurant but had issues with accommodation preferences.,,,False,3.41864275932312,3,phi4-mini:3.8b
+uss_sgd_0660,3,2,True,True,False,The assistant failed to book the flight as per my updated request.,,,False,3.2679409980773926,2,phi4-mini:3.8b
+uss_sgd_0726,3,4,True,True,False,Helpful and got all my queries answered.,,,False,3.397998809814453,4,phi4-mini:3.8b
+uss_sgd_0676,4,5,True,True,False,The agent provided all the necessary information and booked everything as requested.,,,False,3.424098491668701,5,phi4-mini:3.8b
+uss_sgd_0482,4,4,True,True,False,"Found the flight but the ticket isn't refundable, which is a minor issue.",,,False,3.366058826446533,4,phi4-mini:3.8b
+uss_sgd_0467,3,2,True,True,False,"Failed to book, but provided some information.",,,False,3.282578468322754,2,phi4-mini:3.8b
+uss_mwoz_0969,3,2,True,True,False,The assistant couldn't provide all the requested information.,,,False,3.3162953853607178,2,phi4-mini:3.8b
+uss_mwoz_0638,3,3,True,True,False,Got the info but had some issues with payment options.,,,False,3.2751622200012207,3,phi4-mini:3.8b
+uss_sgd_0236,3,5,True,True,False,"Everything was as expected, very helpful.",,,False,3.2017970085144043,5,phi4-mini:3.8b
+uss_sgd_0563,3,3,True,True,False,Got the flight but the hotel and other requests were not addressed.,,,False,3.2923102378845215,3,phi4-mini:3.8b
+uss_mwoz_0888,3,3,True,True,False,The booking was successful but the conversation had some unnecessary deviations.,,,False,3.436008930206299,3,phi4-mini:3.8b
+uss_mwoz_0381,4,5,True,True,False,The assistant provided all the necessary information and the booking process was smooth.,,,False,3.4081459045410156,5,phi4-mini:3.8b
+uss_sgd_0996,2,3,True,True,False,Reached the goal but the interaction had some issues.,,,False,3.64300274848938,3,phi4-mini:3.8b
+uss_mwoz_0770,3,4,True,True,False,"Found the hotel but had some concerns, but booking was successful.",,,False,3.6249122619628906,4,phi4-mini:3.8b
+uss_mwoz_0258,3,2,True,True,False,"Reached an impasse, unable to book as requested.",,,False,3.4759373664855957,2,phi4-mini:3.8b
+uss_sgd_0491,4,4,True,True,False,"Mostly satisfied, but there were some minor issues with details.",,,False,3.5555083751678467,4,phi4-mini:3.8b
+uss_mwoz_0099,3,2,True,True,False,The conversation was somewhat helpful but had some issues with booking and clarity.,,,False,3.604158639907837,2,phi4-mini:3.8b
+uss_sgd_0528,3,1,True,True,False,The assistant failed to book the flight and couldn't address my changes.,,,False,3.707435369491577,1,phi4-mini:3.8b
+uss_mwoz_0819,3,4,True,True,False,Helpful and got all my questions answered.,,,False,3.8126580715179443,4,phi4-mini:3.8b
+uss_mwoz_0826,4,4,True,True,False,"Found the restaurant and train, but had some issues with scooter policy and ticket pickup.",,,False,3.7641422748565674,4,phi4-mini:3.8b
+uss_mwoz_0226,3,4,True,True,False,Found the places but had to ask for dry cleaning info.,,,False,3.6686859130859375,4,phi4-mini:3.8b
+uss_mwoz_0800,4,2,True,True,False,Information was provided but with some missing details and issues.,,,False,3.52339506149292,2,phi4-mini:3.8b
+uss_mwoz_0346,3,2,True,True,False,Got the info but no delivery service as expected.,,,False,3.2712349891662598,2,phi4-mini:3.8b
+uss_sgd_0605,3,3,True,True,False,Got the info but no booking was made.,,,False,2.8947739601135254,3,phi4-mini:3.8b
+uss_sgd_0927,3,4,True,True,False,"Found the flight but it wasn't refundable, but that's okay.",,,False,2.6491482257843018,4,phi4-mini:3.8b
+uss_sgd_0483,3,5,True,True,False,Everything was found and booked perfectly.,,,False,2.8499269485473633,5,phi4-mini:3.8b
+uss_mwoz_0269,4,5,True,True,False,Helpful and got all my queries answered.,,,False,2.9575443267822266,5,phi4-mini:3.8b
+uss_mwoz_0043,4,4,True,True,False,"All my needs were met, though there was a minor hiccup with the Meze Bar Restaurant's contact number.",,,False,3.4563961029052734,4,phi4-mini:3.8b
+uss_mwoz_0565,3,4,True,True,False,"Everything was sorted out as needed, slight delay in confirmation process.",,,False,3.711658239364624,4,phi4-mini:3.8b
+uss_sgd_0154,3,4,True,True,False,Found the flight but missed the hotel booking opportunity.,,,False,3.6176607608795166,4,phi4-mini:3.8b
+uss_sgd_0494,4,2,True,True,False,The agent couldn't assist with the booking as requested.,,,False,3.5431747436523438,2,phi4-mini:3.8b
+uss_sgd_0014,3,3,True,True,False,Found the bus but had to look for hotels separately.,,,False,3.3323540687561035,3,phi4-mini:3.8b
+uss_mwoz_0656,4,5,True,True,False,The booking process was smooth and all my queries were answered satisfactorily.,,,False,3.439101219177246,5,phi4-mini:3.8b
+uss_mwoz_0798,3,3,True,True,False,Reached the goal but faced some limitations and issues.,,,False,3.43745493888855,3,phi4-mini:3.8b
+uss_mwoz_0920,3,4,True,True,False,Helpful and got most of my requests fulfilled.,,,False,3.6491198539733887,4,phi4-mini:3.8b
+uss_mwoz_0810,3,3,True,True,False,The assistant provided information but there were some unnecessary details and interruptions.,,,False,3.8162765502929688,3,phi4-mini:3.8b
+uss_sgd_0031,3,3,True,True,False,"Got the bus and game info, but house booking and attractions were not as helpful.",,,False,3.7475311756134033,3,phi4-mini:3.8b
+uss_sgd_0216,3,5,True,True,False,"Everything was sorted out as needed, very efficient service.",,,False,3.8785431385040283,5,phi4-mini:3.8b
+uss_sgd_0692,4,3,True,True,False,The booking was done but the conversation drifted to unrelated topics like music.,,,False,4.151505947113037,3,phi4-mini:3.8b
+uss_mwoz_0490,4,5,True,True,False,Everything was very easy and quick.,,,False,3.878399133682251,5,phi4-mini:3.8b
+uss_mwoz_0038,3,4,True,True,False,"Efficient booking process, slight hiccup with hotel availability.",,,False,3.9245176315307617,4,phi4-mini:3.8b
+uss_sgd_0327,3,2,True,True,False,The conversation was somewhat helpful but had irrelevant responses and issues with requests.,,,False,3.9958808422088623,2,phi4-mini:3.8b
+uss_mwoz_0234,3,5,True,True,False,Excellent assistance throughout the entire process.,,,False,3.582939386367798,5,phi4-mini:3.8b
+uss_sgd_0399,3,2,True,True,False,It took a few steps but eventually found what I needed.,,,False,3.6067874431610107,2,phi4-mini:3.8b
+uss_mwoz_0610,4,5,True,True,False,Everything was clear and helpful.,,,False,3.3771884441375732,5,phi4-mini:3.8b
+uss_mwoz_0687,4,3,True,True,False,Got the info I needed but had some issues with booking.,,,False,3.22929048538208,3,phi4-mini:3.8b
+uss_mwoz_0898,3,2,True,True,False,Experience was frustrating and unhelpful.,,,False,3.3062942028045654,2,phi4-mini:3.8b
+uss_sgd_0095,4,4,True,True,False,"Found bus and activities, but could have been more specific with initial request.",,,False,3.323263645172119,4,phi4-mini:3.8b
+uss_sgd_0550,3,3,True,True,False,The booking was successful but there were some issues with details and additional requests.,,,False,3.786926031112671,3,phi4-mini:3.8b
+uss_mwoz_0098,3,3,True,True,False,Got the bus fare info but had issues with hotel booking and train reservation.,,,False,4.037908315658569,3,phi4-mini:3.8b
+uss_mwoz_0395,3,3,True,True,False,"Found the hotel but no spa or pool, other than what was asked.",,,False,4.072607040405273,3,phi4-mini:3.8b
+uss_mwoz_0478,4,4,True,True,False,"Information was helpful, but there was a slight delay in response.",,,False,4.0554656982421875,4,phi4-mini:3.8b
+uss_mwoz_0600,4,3,True,True,False,Reached the goal but the interaction felt a bit rushed and lacked some details.,,,False,3.763625383377075,3,phi4-mini:3.8b
+uss_mwoz_0801,3,3,True,True,False,Service was helpful but had some confusing moments.,,,False,3.5497989654541016,3,phi4-mini:3.8b
+uss_mwoz_0976,3,5,True,True,False,"Everything was addressed perfectly, very helpful.",,,False,3.4498326778411865,5,phi4-mini:3.8b
+uss_mwoz_0661,3,3,True,True,False,Found the restaurant but hotel had issues with disability parking and smoking policy.,,,False,3.5585970878601074,3,phi4-mini:3.8b
+uss_mwoz_0264,3,4,True,True,False,"Found the restaurant and hotel details, but the agent didn't address the smoking area preference directly.",,,False,3.6425821781158447,4,phi4-mini:3.8b
+uss_mwoz_0081,3,3,True,True,False,Found a place but there were some concerns about smoking policy.,,,False,3.462891101837158,3,phi4-mini:3.8b
+uss_mwoz_0793,3,3,True,True,False,Reached the goal but faced some issues along the way.,,,False,3.6291768550872803,3,phi4-mini:3.8b
+uss_sgd_0318,3,4,True,True,False,"The assistant provided a wide range of information, but the conversation lacked a bit of personalization and follow-up.",,,False,3.889807939529419,4,phi4-mini:3.8b
+uss_mwoz_0896,3,3,True,True,False,Got the booking but had some issues with details.,,,False,3.8143882751464844,3,phi4-mini:3.8b
+uss_mwoz_0207,3,3,True,True,False,"Got the college and restaurant info, but taxi booking was a bit confusing and no disability access info provided.",,,False,4.106144189834595,3,phi4-mini:3.8b
+uss_sgd_0506,4,3,True,True,False,Reached the goal but the interaction felt a bit disjointed.,,,False,4.034525394439697,3,phi4-mini:3.8b
+uss_mwoz_0071,3,3,True,True,False,Got the info but no booking was done.,,,False,3.6921589374542236,3,phi4-mini:3.8b
+uss_mwoz_0495,3,2,True,True,False,The assistant was unhelpful and missed the customer's needs.,,,False,3.647812843322754,2,phi4-mini:3.8b
+uss_mwoz_0724,2,2,True,True,False,Had to keep asking for what I clearly needed.,,,False,3.200061559677124,2,phi4-mini:3.8b
+uss_mwoz_0044,4,2,True,True,False,The conversation was somewhat helpful but lacked specific details I needed.,,,False,3.1782329082489014,2,phi4-mini:3.8b
+uss_sgd_0092,4,3,True,True,False,Found the games but hotel booking was a bit confusing.,,,False,3.207771062850952,3,phi4-mini:3.8b
+uss_mwoz_0374,3,2,True,True,False,Reached a solution but faced some limitations and issues.,,,False,3.1669015884399414,2,phi4-mini:3.8b
+uss_sgd_0614,3,5,True,True,False,"Everything was as expected, very helpful.",,,False,3.373671531677246,5,phi4-mini:3.8b
+uss_sgd_0599,3,3,True,True,False,Found bus and attractions but no car rental service.,,,False,3.5559964179992676,3,phi4-mini:3.8b
+uss_mwoz_0371,3,3,True,True,False,Got the train booked but had issues with restaurant recommendations.,,,False,3.7209439277648926,3,phi4-mini:3.8b
+uss_mwoz_0534,3,5,True,True,False,Efficient and helpful booking process completed.,,,False,3.683130979537964,5,phi4-mini:3.8b
+uss_mwoz_0940,3,4,True,True,False,"Helpful and found the hotel, but missed on restaurant details.",,,False,3.732867479324341,4,phi4-mini:3.8b
+uss_mwoz_0509,3,5,True,True,False,Everything was clear and helpful.,,,False,3.4444611072540283,5,phi4-mini:3.8b
+uss_mwoz_0503,1,2,True,True,False,The conversation was frustrating and didn't resolve all my needs.,,,False,3.423551321029663,2,phi4-mini:3.8b
+uss_mwoz_0754,4,4,True,True,False,"Efficient booking, but missed guesthouse availability.",,,False,3.469806671142578,4,phi4-mini:3.8b
+uss_sgd_0680,3,5,True,True,False,Provided excellent assistance with movie recommendations and details.,,,False,3.4149959087371826,5,phi4-mini:3.8b
+uss_mwoz_0242,3,4,True,True,False,The assistant provided the necessary information but missed the reservation option initially.,,,False,3.5299642086029053,4,phi4-mini:3.8b
+uss_mwoz_0169,4,5,True,True,False,Helpful and provided all the needed information.,,,False,3.3294761180877686,5,phi4-mini:3.8b
+uss_mwoz_0467,3,2,True,True,False,"Hotel didn't meet all needs, no accessible parking or Italian breakfast.",,,False,3.1418282985687256,2,phi4-mini:3.8b
+uss_mwoz_0124,4,3,True,True,False,Got the hotel but missed some details on other requests.,,,False,3.198584794998169,3,phi4-mini:3.8b
+uss_mwoz_0635,3,3,True,True,False,"Got the hotel and restaurant, but had some issues with taxi booking details.",,,False,3.3058197498321533,3,phi4-mini:3.8b
+uss_sgd_0560,2,3,True,True,False,Had some issues but got the booking eventually.,,,False,3.4589433670043945,3,phi4-mini:3.8b
+uss_mwoz_0357,3,4,True,True,False,Everything was clear and I got all the information I needed.,,,False,3.6410462856292725,4,phi4-mini:3.8b
+uss_sgd_0381,4,2,True,True,False,The conversation was somewhat helpful but had issues with booking.,,,False,3.523313283920288,2,phi4-mini:3.8b
+uss_sgd_0854,4,3,True,True,False,Found flights but had some issues with details.,,,False,3.2247228622436523,3,phi4-mini:3.8b
+uss_sgd_0347,3,5,True,True,False,Helpful and found flights as requested.,,,False,2.9756808280944824,5,phi4-mini:3.8b
+uss_mwoz_0647,3,3,True,True,False,Got the info but the conversation had some confusing turns.,,,False,2.978773355484009,3,phi4-mini:3.8b
+uss_sgd_0518,4,3,True,True,False,Found interesting stuff but the hotel booking was not needed.,,,False,3.1023905277252197,3,phi4-mini:3.8b
+uss_mwoz_0350,3,3,True,True,False,Service was adequate but had some issues with payment and additional requests.,,,False,3.396453619003296,3,phi4-mini:3.8b
+uss_mwoz_0282,3,3,True,True,False,The booking was completed but there was some confusion and back-and-forth.,,,False,3.767467498779297,3,phi4-mini:3.8b
+uss_sgd_0619,3,5,True,True,False,The booking process was smooth and efficient.,,,False,3.5829832553863525,5,phi4-mini:3.8b
+uss_mwoz_0680,3,3,True,True,False,Got the booking but had some issues with additional requests.,,,False,3.6766128540039062,3,phi4-mini:3.8b
+uss_sgd_0513,3,3,True,True,False,Found the salon but had some issues with details.,,,False,3.5249078273773193,3,phi4-mini:3.8b
+uss_sgd_0193,3,3,True,True,False,"Found the place but couldn't book a table, otherwise a decent interaction.",,,False,3.2518930435180664,3,phi4-mini:3.8b
+uss_sgd_0243,3,3,True,True,False,Got the info but the conversation was a bit all over the place.,,,False,3.4769093990325928,3,phi4-mini:3.8b
+uss_mwoz_0076,3,3,True,True,False,Got the information but had some issues with payment options.,,,False,3.481748580932617,3,phi4-mini:3.8b
+uss_mwoz_0280,3,3,True,True,False,Found the guesthouse but had some issues with train booking and smoking policy.,,,False,3.551213026046753,3,phi4-mini:3.8b

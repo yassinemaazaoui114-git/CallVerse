@@ -18,7 +18,7 @@ function renderShell() {
       <AuthProvider>
         <Routes>
           <Route element={<Shell />}><Route path="/tickets" element={<Page />} /></Route>
-          <Route path="/login" element={<p>login page</p>} />
+          <Route path="/console/login" element={<p>login page</p>} />
         </Routes>
       </AuthProvider>
     </MemoryRouter>

@@ -1,0 +1,201 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+csat_04279,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,8 h+,False,5.4918739795684814,4,userlm-8b
+csat_83543,5,,False,False,False,,return_item,5-30 min,False,5.178115606307983,5,userlm-8b
+csat_51748,5,4.0,True,True,False,I appreciate the prompt response and assistance.,late_delivery,30 min-2 h,False,4.624662399291992,4,userlm-8b
+csat_29459,5,4.0,True,True,False,Refund process to be fast and convenient.,refund_request,0-5 min,False,4.8820271492004395,4,userlm-8b
+csat_79580,5,4.0,True,True,False,Nice,late_delivery,0-5 min,True,4.545364141464233,4,userlm-8b
+csat_14190,5,4.0,True,True,False,Thanks,return_item,0-5 min,True,4.715340614318848,4,userlm-8b
+csat_66434,4,4.0,True,True,False,Efficient service.,damaged_item,0-5 min,False,4.496992349624634,4,userlm-8b
+csat_40843,5,4.0,True,True,False,I appreciate the prompt response and helpful information provided.,other,30 min-2 h,False,4.680715799331665,4,userlm-8b
+csat_43070,4,,False,False,False,,return_item,2-8 h,False,4.629914283752441,5,userlm-8b
+csat_76294,5,2.0,True,True,False,Take hard action against the seller regarding this issue.,other,unknown,True,5.063462257385254,2,userlm-8b
+csat_78820,5,4.0,True,True,False,I appreciate the prompt response and assistance.,damaged_item,8 h+,False,5.261415481567383,4,userlm-8b
+csat_72728,5,,False,False,False,,return_item,5-30 min,False,4.7790093421936035,5,userlm-8b
+csat_76635,5,4.0,True,True,False,I appreciate the prompt response and helpful information.,other,5-30 min,False,5.201646089553833,4,userlm-8b
+csat_32713,5,,False,False,False,,other,8 h+,False,4.716143608093262,5,userlm-8b
+csat_32573,5,,False,False,False,,return_item,2-8 h,False,4.216106176376343,5,userlm-8b
+csat_25882,5,,False,False,False,,damaged_item,30 min-2 h,False,4.149075508117676,5,userlm-8b
+csat_50628,5,4.0,True,True,False,???,order_status,0-5 min,True,3.832944631576538,4,userlm-8b
+csat_54998,5,,False,False,False,,other,5-30 min,False,3.82045578956604,5,userlm-8b
+csat_79247,5,4.0,True,True,False,Return policy should be more fast.,return_item,8 h+,True,4.3035595417022705,4,userlm-8b
+csat_00943,5,,False,False,False,,other,30 min-2 h,False,4.348659038543701,5,userlm-8b
+csat_82094,2,4.0,True,True,False,Kindly deliver products in time.,late_delivery,8 h+,True,4.5687055587768555,4,userlm-8b
+csat_74777,5,4.0,True,True,False,Good service overall.,order_status,unknown,True,4.7680442333221436,4,userlm-8b
+csat_70507,5,4.0,True,True,False,Very nice,other,0-5 min,True,4.49979567527771,4,userlm-8b
+csat_12150,5,,False,False,False,,other,0-5 min,False,4.500866651535034,5,userlm-8b
+csat_45472,4,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,5-30 min,False,4.429244041442871,4,userlm-8b
+csat_65059,5,4.0,True,True,False,I appreciate the prompt response and assistance.,damaged_item,8 h+,False,4.617287635803223,4,userlm-8b
+csat_55861,5,,False,False,False,,return_item,5-30 min,False,4.518232583999634,5,userlm-8b
+csat_83609,4,4.0,True,True,False,Good service and fast response.,other,0-5 min,False,4.822659969329834,4,userlm-8b
+csat_64299,5,4.0,True,True,False,Refund process to be fast and convenient.,refund_request,0-5 min,False,4.996788024902344,4,userlm-8b
+csat_82546,5,2.0,True,True,False,Ati su<ID> jbab,late_delivery,8 h+,True,4.997126340866089,2,userlm-8b
+csat_34280,5,4.0,True,True,False,Ok,return_item,5-30 min,True,5.047236204147339,4,userlm-8b
+csat_45875,5,4.0,True,True,False,The customer service was helpful and the agent provided a satisfactory solution.,return_item,30 min-2 h,True,5.379974842071533,4,userlm-8b
+csat_49219,5,4.0,True,True,False,,damaged_item,30 min-2 h,True,4.96688437461853,4,userlm-8b
+csat_21353,5,,False,False,False,,other,5-30 min,False,4.456101894378662,5,userlm-8b
+csat_71203,4,3.0,True,True,False,,other,8 h+,False,4.052683591842651,3,userlm-8b
+csat_79231,1,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,3.618835926055908,4,userlm-8b
+csat_39254,5,4.0,True,True,False,I appreciate the prompt response and assistance provided.,late_delivery,8 h+,False,3.9235458374023438,4,userlm-8b
+csat_14340,1,,False,False,False,,other,5-30 min,False,3.9276983737945557,5,userlm-8b
+csat_65867,5,4.0,True,True,False,Order status enquiry was handled promptly and efficiently.,order_status,0-5 min,False,4.695481777191162,4,userlm-8b
+csat_04214,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,4.718961715698242,4,userlm-8b
+csat_58389,4,4.0,True,True,False,Please reduce response time.,return_item,30 min-2 h,True,4.52606201171875,4,userlm-8b
+csat_13653,4,4.0,True,True,False,"The customer service was helpful, but I still need a solution for my return request.",return_item,8 h+,True,5.450546979904175,4,userlm-8b
+csat_49645,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,5.101775646209717,4,userlm-8b
+csat_62487,5,3.0,True,True,False,,other,0-5 min,False,4.767584800720215,3,userlm-8b
+csat_10198,5,,False,False,False,,refund_request,2-8 h,False,4.65155553817749,5,userlm-8b
+csat_09383,5,4.0,True,True,False,Customer service is fabulous and impressive.,return_item,8 h+,True,4.175556659698486,4,userlm-8b
+csat_14172,5,4.0,True,True,False,Very good behavior and helpful customer support.,other,0-5 min,True,4.497979402542114,4,userlm-8b
+csat_67574,4,3.0,True,True,False,I appreciate the effort to resolve my issue.,return_item,8 h+,False,5.078085899353027,3,userlm-8b
+csat_80988,4,4.0,True,True,False,Issue should be solved ASAP,other,5-30 min,True,5.3176398277282715,4,userlm-8b
+csat_00743,5,2.0,True,True,False,"Please, do not do work with bad sellers, who send wrong items and fake products.",return_item,2-8 h,True,5.853775262832642,2,userlm-8b
+csat_80555,1,2.0,True,True,False,Bekar product chhi-chhi-chhi,other,8 h+,True,5.94438099861145,2,userlm-8b
+csat_30447,3,4.0,True,True,False,Order status enquiry was handled promptly and efficiently.,order_status,0-5 min,False,5.939382314682007,4,userlm-8b
+csat_42541,5,4.0,True,True,False,I appreciate the prompt response and assistance.,late_delivery,5-30 min,False,5.947786808013916,4,userlm-8b
+csat_48290,5,4.0,True,True,False,Refund process to be fast and convenient.,refund_request,5-30 min,False,5.510655403137207,4,userlm-8b
+csat_04256,5,,False,False,False,,other,0-5 min,False,4.918750286102295,5,userlm-8b
+csat_28999,5,4.0,True,True,False,Refund process to be fast and convenient.,refund_request,0-5 min,False,4.8989763259887695,4,userlm-8b
+csat_47785,5,4.0,True,True,False,5star,late_delivery,0-5 min,True,4.747316598892212,4,userlm-8b
+csat_74117,5,4.0,True,True,False,Good service.,return_item,0-5 min,False,4.339478969573975,4,userlm-8b
+csat_75690,5,,False,False,False,,late_delivery,unknown,False,4.2813074588775635,5,userlm-8b
+csat_65439,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,5-30 min,False,4.095263719558716,4,userlm-8b
+csat_16874,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,4.0696375370025635,4,userlm-8b
+csat_04906,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,3.874488115310669,4,userlm-8b
+csat_19937,5,,False,False,False,,other,5-30 min,False,4.03957724571228,5,userlm-8b
+csat_56262,5,4.0,True,True,False,Very very good response,return_item,2-8 h,True,3.9623568058013916,4,userlm-8b
+csat_11592,1,4.0,True,True,False,I appreciate the quick response and assistance.,order_status,8 h+,False,4.259747743606567,4,userlm-8b
+csat_06884,5,4.0,True,True,False,Installation/demo was smooth and convenient.,other,0-5 min,False,4.68272590637207,4,userlm-8b
+csat_84400,1,2.0,True,True,False,I am very disappointed with the lack of resolution and communication from your team.,return_item,5-30 min,True,5.645280838012695,2,userlm-8b
+csat_11530,5,4.0,True,True,False,Order status enquiry was handled promptly and efficiently.,order_status,2-8 h,False,5.89986515045166,4,userlm-8b
+csat_41631,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,5.755330801010132,4,userlm-8b
+csat_52309,5,4.0,True,True,False,Installation/demo was helpful and informative.,other,5-30 min,False,5.8418378829956055,4,userlm-8b
+csat_67258,5,,False,False,False,,other,0-5 min,False,4.8879475593566895,5,userlm-8b
+csat_64688,4,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,4.633953094482422,4,userlm-8b
+csat_83080,4,4.0,True,True,False,I appreciate the prompt response and assistance.,late_delivery,5-30 min,False,4.6559531688690186,4,userlm-8b
+csat_60151,5,4.0,True,True,False,Shopzilla best??,return_item,5-30 min,True,4.526239395141602,4,userlm-8b
+csat_69216,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,4.5975658893585205,4,userlm-8b
+csat_18284,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,30 min-2 h,False,4.794179677963257,4,userlm-8b
+csat_14240,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,0-5 min,False,4.9109907150268555,4,userlm-8b
+csat_45121,5,4.0,True,True,False,The customer service was prompt and helpful.,other,0-5 min,True,5.147424936294556,4,userlm-8b
+csat_23479,5,4.0,True,True,False,Order status enquiry was handled promptly and efficiently.,order_status,5-30 min,False,5.501178979873657,4,userlm-8b
+csat_82118,5,4.0,True,True,False,Nice one,other,30 min-2 h,True,5.220163583755493,4,userlm-8b
+csat_32216,5,4.0,True,True,False,I had really good experience while talking to support executive.,return_item,0-5 min,True,5.3841712474823,4,userlm-8b
+csat_77338,5,4.0,True,True,False,Best service.,other,unknown,True,4.989865779876709,4,userlm-8b
+csat_77496,5,,False,False,False,,other,unknown,False,4.38988995552063,5,userlm-8b
+csat_84416,3,,False,False,False,,other,5-30 min,False,4.172605037689209,5,userlm-8b
+csat_25951,1,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,5-30 min,False,4.009886026382446,4,userlm-8b
+csat_62558,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,5-30 min,False,4.34584903717041,4,userlm-8b
+csat_26493,4,,False,False,False,,return_item,5-30 min,False,4.52862286567688,5,userlm-8b
+csat_33739,5,,False,False,False,,return_item,5-30 min,False,4.254470348358154,5,userlm-8b
+csat_27871,5,,False,False,False,,other,5-30 min,False,3.866391897201538,5,userlm-8b
+csat_67386,3,4.0,True,True,False,Good,return_item,0-5 min,True,3.531595230102539,4,userlm-8b
+csat_43645,5,,False,False,False,,other,5-30 min,False,3.3981528282165527,5,userlm-8b
+csat_84001,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,5-30 min,False,4.1012797355651855,4,userlm-8b
+csat_53510,4,4.0,True,True,False,Good service.,other,0-5 min,False,4.1511290073394775,4,userlm-8b
+csat_06620,5,4.0,True,True,False,I appreciate the prompt response and assistance provided.,other,0-5 min,False,4.531935214996338,4,userlm-8b
+csat_19067,4,,False,False,False,,other,30 min-2 h,False,4.6554954051971436,5,userlm-8b
+csat_38600,1,2.0,True,True,False,Meri samsya ka samadhan nhi kiya gya,other,30 min-2 h,True,5.1144700050354,2,userlm-8b
+csat_81344,4,4.0,True,True,False,I appreciate the prompt assistance and look forward to resolving my return request.,return_item,5-30 min,False,5.721949815750122,4,userlm-8b
+csat_82144,5,4.0,True,True,False,Work properly,other,0-5 min,True,5.39425253868103,4,userlm-8b
+csat_01135,5,4.0,True,True,False,Na,other,0-5 min,True,5.335270404815674,4,userlm-8b
+csat_24278,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,5-30 min,False,4.840899229049683,4,userlm-8b
+csat_77852,5,4.0,True,True,False,Satisfied with the service.,order_status,0-5 min,True,4.482381582260132,4,userlm-8b
+csat_61560,5,,False,False,False,,refund_request,2-8 h,False,4.378154754638672,5,userlm-8b
+csat_81816,4,3.0,True,True,False,I appreciate the effort to provide a solution.,other,8 h+,False,4.854912757873535,3,userlm-8b
+csat_06572,1,2.0,True,True,False,Your team not solving my issue since last 30 days.,other,8 h+,True,5.180177450180054,2,userlm-8b
+csat_66891,2,3.0,True,True,False,,return_item,8 h+,False,4.67017388343811,3,userlm-8b
+csat_26832,5,,False,False,False,,other,5-30 min,False,4.545956611633301,5,userlm-8b
+csat_57521,5,4.0,True,True,False,I appreciate the prompt response and assistance.,late_delivery,0-5 min,False,4.5039191246032715,4,userlm-8b
+csat_55324,1,4.0,True,True,False,Please return request my order,return_item,5-30 min,True,4.181556224822998,4,userlm-8b
+csat_04974,1,,False,False,False,,other,30 min-2 h,False,4.419708967208862,5,userlm-8b
+csat_68951,5,,False,False,False,,other,5-30 min,False,4.425037860870361,5,userlm-8b
+csat_60821,1,4.0,True,True,False,Reasons do bc proper,order_status,30 min-2 h,True,4.284384727478027,4,userlm-8b
+csat_80032,4,4.0,True,True,False,Order status enquiry was handled promptly and efficiently.,order_status,2-8 h,False,4.319488286972046,4,userlm-8b
+csat_80760,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,5-30 min,False,4.712430953979492,4,userlm-8b
+csat_31554,5,4.0,True,True,False,The return process was smooth and convenient.,return_item,0-5 min,False,5.108857870101929,4,userlm-8b
+csat_84805,5,,False,False,False,,other,0-5 min,False,4.870660781860352,5,userlm-8b
+csat_27932,4,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,5-30 min,False,4.835474252700806,4,userlm-8b
+csat_51289,1,,False,False,False,,refund_request,5-30 min,False,4.4486775398254395,5,userlm-8b
+csat_26079,5,,False,False,False,,other,5-30 min,False,4.058793544769287,5,userlm-8b
+csat_45075,4,2.0,True,True,False,No,late_delivery,5-30 min,True,4.1167168617248535,2,userlm-8b
+csat_50724,5,4.0,True,True,False,Helpful team member,return_item,0-5 min,True,4.050344228744507,4,userlm-8b
+csat_03971,5,4.0,True,True,False,I'm very satisfied with the service. Thank you!,damaged_item,5-30 min,True,4.5653815269470215,4,userlm-8b
+csat_60955,4,,False,False,False,,other,5-30 min,False,4.689760208129883,5,userlm-8b
+csat_41835,5,4.0,True,True,False,I appreciate the prompt response and assistance.,late_delivery,5-30 min,False,4.9249207973480225,4,userlm-8b
+csat_46188,5,4.0,True,True,False,Installation/demo was smooth and easy to follow.,other,0-5 min,False,5.023635149002075,4,userlm-8b
+csat_00652,3,3.0,True,True,False,,other,8 h+,False,4.130321741104126,3,userlm-8b
+csat_62596,5,4.0,True,True,False,Fast and helpful response.,late_delivery,0-5 min,False,4.233328580856323,4,userlm-8b
+csat_42860,5,4.0,True,True,False,I appreciate the prompt response and resolution of my issue.,other,0-5 min,False,4.46284031867981,4,userlm-8b
+csat_59542,5,4.0,True,True,False,Refund process to be fast and convenient.,refund_request,5-30 min,False,4.604923725128174,4,userlm-8b
+csat_21794,5,,False,False,False,,other,30 min-2 h,False,4.972979307174683,5,userlm-8b
+csat_65467,5,4.0,True,True,False,Order status enquiry was handled promptly and efficiently.,order_status,0-5 min,False,5.3010640144348145,4,userlm-8b
+csat_69553,1,4.0,True,True,False,Very good,order_status,0-5 min,True,4.752166271209717,4,userlm-8b
+csat_19914,5,4.0,True,True,False,Thank you so much customer service,other,0-5 min,True,4.6227147579193115,4,userlm-8b
+csat_69931,1,2.0,True,True,False,This was my last order from Shopzilla,return_item,2-8 h,True,4.988367319107056,2,userlm-8b
+csat_40501,5,4.0,True,True,False,Great experience,order_status,0-5 min,True,4.691596984863281,4,userlm-8b
+csat_29959,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,8 h+,False,4.984292268753052,4,userlm-8b
+csat_27597,5,,False,False,False,,return_item,5-30 min,False,4.542402505874634,5,userlm-8b
+csat_14306,5,3.0,True,True,False,UnProfessional Behaviour.,other,0-5 min,False,4.248144149780273,3,userlm-8b
+csat_34460,5,,False,False,False,,other,30 min-2 h,False,4.047784805297852,5,userlm-8b
+csat_38755,4,,False,False,False,,other,30 min-2 h,False,3.7835030555725098,5,userlm-8b
+csat_45939,5,4.0,True,True,False,Customer care resolved my problem in very short time.,return_item,0-5 min,True,4.3824615478515625,4,userlm-8b
+csat_32945,1,4.0,True,True,False,Order status enquiry was handled promptly.,order_status,30 min-2 h,False,4.668571472167969,4,userlm-8b
+csat_56520,2,2.0,True,True,False,I'm very upset and there's no solution to my problem.,other,2-8 h,True,5.344504117965698,2,userlm-8b
+csat_69409,5,4.0,True,True,False,Thanks for helping me out!,late_delivery,0-5 min,True,5.661313056945801,4,userlm-8b
+csat_57928,4,4.0,True,True,False,Nys talking and .My problem and payment issues immediately solved,return_item,5-30 min,True,5.746716737747192,4,userlm-8b
+csat_73874,1,4.0,True,True,False,Thanks!,other,5-30 min,True,5.47918176651001,4,userlm-8b
+csat_37511,5,4.0,True,True,False,Order status enquiry was handled promptly and efficiently.,order_status,5-30 min,False,5.304397821426392,4,userlm-8b
+csat_19823,5,4.0,True,True,False,So good job mujhe baat karke aapse aap mujhe poochha chij per Mujhe problem solve To hua per main aapko 10 mein se 10 number dena chahta u so Mach.,return_item,5-30 min,True,7.338261842727661,4,userlm-8b
+csat_27523,4,,False,False,False,,other,0-5 min,False,6.706067085266113,5,userlm-8b
+csat_26757,5,,False,False,False,,return_item,5-30 min,False,6.614921569824219,5,userlm-8b
+csat_35053,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,6.244720458984375,4,userlm-8b
+csat_68497,5,4.0,True,True,False,Thanks!,return_item,0-5 min,True,3.8655142784118652,4,userlm-8b
+csat_73471,4,4.0,True,True,False,I appreciate the prompt response to my email regarding the return process.,return_item,0-5 min,False,4.565669298171997,4,userlm-8b
+csat_51213,1,2.0,True,True,False,Incomplete order was delivered and no effective support was provided.,other,8 h+,True,5.078617334365845,2,userlm-8b
+csat_68533,5,4.0,True,True,False,Efficient reverse pickup process.,return_item,0-5 min,False,5.309190273284912,4,userlm-8b
+csat_63260,5,4.0,True,True,False,Logistic delivery is very bad.,return_item,0-5 min,True,5.683072090148926,4,userlm-8b
+csat_63463,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,5.159427642822266,4,userlm-8b
+csat_31166,4,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,4.425647497177124,4,userlm-8b
+csat_05311,1,4.0,True,True,False,Fast and helpful response.,late_delivery,0-5 min,False,4.266416072845459,4,userlm-8b
+csat_04876,5,,False,False,False,,other,2-8 h,False,3.8024775981903076,5,userlm-8b
+csat_80936,5,4.0,True,True,False,Order status verified quickly and efficiently.,order_status,0-5 min,False,4.027839660644531,4,userlm-8b
+csat_01533,5,4.0,True,True,False,Good service.,other,0-5 min,False,4.276595592498779,4,userlm-8b
+csat_01963,5,4.0,True,True,False,Fast and helpful response.,late_delivery,0-5 min,False,4.278615951538086,4,userlm-8b
+csat_84007,1,,False,False,False,,other,2-8 h,False,4.296813488006592,5,userlm-8b
+csat_37202,5,4.0,True,True,False,Thanks for support,other,2-8 h,True,4.1106860637664795,4,userlm-8b
+csat_59249,5,4.0,True,True,False,Efficient reverse pickup process.,return_item,0-5 min,False,4.36576509475708,4,userlm-8b
+csat_55476,4,4.0,True,True,False,Good service,refund_request,0-5 min,True,4.354524374008179,4,userlm-8b
+csat_21302,5,3.0,True,True,False,,return_item,8 h+,False,4.231032371520996,3,userlm-8b
+csat_80752,5,4.0,True,True,False,Very good,return_item,0-5 min,True,4.195957183837891,4,userlm-8b
+csat_77730,5,4.0,True,True,False,Very nice,return_item,0-5 min,True,4.000470161437988,4,userlm-8b
+csat_71773,4,4.0,True,True,False,The return process was smooth and convenient.,return_item,0-5 min,False,4.23260235786438,4,userlm-8b
+csat_75357,1,,False,False,False,,other,unknown,False,4.306061506271362,5,userlm-8b
+csat_58135,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,4.372694969177246,4,userlm-8b
+csat_30713,5,4.0,True,True,False,Fast and helpful response.,late_delivery,0-5 min,False,4.410063028335571,4,userlm-8b
+csat_36610,5,2.0,True,True,False,Try to solve your logistics issues this is my second time for this order i am getting issues.,order_status,8 h+,True,4.929780006408691,2,userlm-8b
+csat_23544,5,4.0,True,True,False,The return process was smooth and convenient.,return_item,0-5 min,False,5.5021281242370605,4,userlm-8b
+csat_63640,5,4.0,True,True,False,Batt kar ka accha lage,other,5-30 min,True,5.726289987564087,4,userlm-8b
+csat_25847,5,,False,False,False,,return_item,2-8 h,False,5.604804515838623,5,userlm-8b
+csat_49970,5,,False,False,False,,return_item,30 min-2 h,False,4.5857226848602295,5,userlm-8b
+csat_36831,4,4.0,True,True,False,Order status enquiry was handled promptly and efficiently.,order_status,30 min-2 h,False,4.609506845474243,4,userlm-8b
+csat_52708,5,4.0,True,True,False,We had a great conversation.,refund_request,0-5 min,True,4.503814458847046,4,userlm-8b
+csat_24548,5,4.0,True,True,False,Good,other,0-5 min,True,4.539730072021484,4,userlm-8b
+csat_72588,5,4.0,True,True,False,Thanks for helping,other,5-30 min,True,4.7038657665252686,4,userlm-8b
+csat_50243,5,4.0,True,True,False,Efficient service.,return_item,0-5 min,False,4.4543023109436035,4,userlm-8b
+csat_56661,4,,False,False,False,,other,5-30 min,False,4.072294473648071,5,userlm-8b
+csat_78531,5,,False,False,False,,other,0-5 min,False,3.913789987564087,5,userlm-8b
+csat_52511,4,4.0,True,True,False,Gave him CSAT,other,0-5 min,True,4.108076333999634,4,userlm-8b
+csat_34493,5,4.0,True,True,False,The return cancellation process was smooth and efficient.,return_item,5-30 min,False,4.327436208724976,4,userlm-8b
+csat_68428,5,,False,False,False,,other,2-8 h,False,4.421129465103149,5,userlm-8b
+csat_05268,1,2.0,True,True,False,Please train your executives to address the query and provide resolution. They all are just explaining the problem in different ways but they don't have any solution and they are not helping me at all. Also Shopzilla is the worst service provider I saw in my entire life. You are taking more than 10 ,order_status,0-5 min,True,8.835921287536621,2,userlm-8b
+csat_73554,1,4.0,True,True,False,The customer service was good but the voice disturbance and long wait caused frustration.,other,2-8 h,True,9.608173131942749,4,userlm-8b
+csat_63748,5,4.0,True,True,False,Thanks,return_item,5-30 min,True,9.241066932678223,4,userlm-8b
+csat_67918,5,4.0,True,True,False,Good service.,return_item,0-5 min,False,9.254535675048828,4,userlm-8b
+csat_35939,5,3.0,True,True,False,,other,0-5 min,False,4.836566686630249,3,userlm-8b
+csat_18591,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,30 min-2 h,False,4.238759994506836,4,userlm-8b
+csat_00061,5,4.0,True,True,False,I appreciate the prompt response and assistance.,return_item,5-30 min,False,4.479167461395264,4,userlm-8b
+csat_71598,5,,False,False,False,,other,0-5 min,False,4.463529348373413,5,userlm-8b
+csat_13689,4,2.0,True,True,False,Shopzilla should improve on the quality of the product delivered. It says Shopzilla assured and we get a bad product.,return_item,8 h+,True,5.728522062301636,2,userlm-8b
+csat_74863,5,,False,False,False,,return_item,unknown,False,5.184613466262817,5,userlm-8b
+csat_20502,5,4.0,True,True,False,Good,return_item,30 min-2 h,True,4.944948434829712,4,userlm-8b
+csat_04554,5,4.0,True,True,False,Order status enquiry was handled promptly and efficiently.,order_status,0-5 min,False,5.352215528488159,4,userlm-8b

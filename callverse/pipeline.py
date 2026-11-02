@@ -40,6 +40,7 @@ from callverse.agents.agent_b import AgentB
 from callverse.agents.agent_c import AgentC
 from callverse.agents.agent_d import shortage_note
 from callverse.config import load_config
+from callverse.vision import fusion
 from callverse.coordinator.coordinator import (for_user, info_decision, new_case, no_proposal_decision,
                                                off_topic_decision, proof_decision, review)
 from callverse.intake import intake
@@ -81,15 +82,16 @@ def claims_proposal(answer: str) -> bool:
 
 
 def ticket_note(ticket: dict) -> str:
-    """Short note from Intake added to the client message, so the agent knows the order and the reason."""
+    """Short note from Intake added to the client message, so the agent knows the order and the reason.
+    Vision: when a photo came with the message, one more line says what the photo check saw (marked unverified)."""
     if companies.of(ticket) == "atlas":
         note = (f"[Intake note: booking id = {ticket['order_id']}, booking type = {ticket.get('booking_type')}, "
                 f"main reason = {ticket['main_reason']}]")
-        warning = stock_warning(ticket)
-        return f"{note}\n{warning}" if warning else note
-    note = f"[Intake note: order id = {ticket['order_id']}, main reason = {ticket['main_reason']}]"
-    warning = stock_warning(ticket)
-    return f"{note}\n{warning}" if warning else note
+    else:
+        note = f"[Intake note: order id = {ticket['order_id']}, main reason = {ticket['main_reason']}]"
+    # P20: Agent D's stock warning; vision: what the photo check saw (both only when there is something to say).
+    extra = [line for line in (stock_warning(ticket), fusion.note(ticket)) if line]
+    return "\n".join([note, *extra])
 
 
 def stock_warning(ticket: dict) -> str | None:
@@ -142,10 +144,25 @@ def reply_style(ticket: dict) -> dict:
 
 def final_reply(ticket: dict, decision: dict | None, slm_chat_fn=None) -> tuple[dict, str, str]:
     """(decision said to the user, final reply, reply_source). The SLM sees only the decision + style."""
+    if decision and decision["outcome"] == "ask_proof" and ticket.get("photo"):
+        # vision: R-DMG-01 asks for a photo but one was sent and the photo check saw no clear damage (or could not run).
+        # Never ask again for a photo already sent: a colleague looks at it (the refund is NOT approved).
+        trace.log("ask_proof_with_photo", "pipeline", {"ticket_id": ticket["ticket_id"],
+                                                        "proposal_id": decision.get("proposal_id"),
+                                                        "conflict": (ticket.get("fusion") or {}).get("conflict")})
+        decision = gate(ticket).escalate_decision(decision.get("order_id"),
+                                                  "R-DMG-01: photo received but no visible damage confirmed")
     if companies.of(ticket) != companies.DEFAULT:
         said = gate(ticket).said_to_user(ticket, decision)
     elif decision:
         said = for_user(decision)
+    elif ticket.get("main_reason") == "damaged_item" and ticket.get("photo") and ticket.get("order_id") is None:
+        said = info_decision(None)                      # vision: photo received, the order number is still needed
+    elif ticket.get("main_reason") == "damaged_item" and ticket.get("photo"):
+        # vision: a photo came but no proposal was approved (photo shows no clear damage, could not be checked, or
+        # the agent made no proposal): a colleague looks at the photo; never ask for a photo already sent.
+        said = gate(ticket).escalate_decision(ticket.get("order_id"), "damaged item with a photo: needs a colleague "
+                                              f"({(ticket.get('fusion') or {}).get('conflict') or 'no approved proposal'})")
     elif ticket.get("main_reason") == "damaged_item":
         said = proof_decision(ticket.get("order_id"))   # T09: no photo yet -> ask for it (R-DMG-01)
     elif ticket.get("main_reason") == "other" and ticket.get("order_id") is None:
@@ -222,6 +239,9 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
     case = new_case(ticket["ticket_id"])
     # The gate checks that a proposal is about the ticket's own booking / order, and confirms from the client's words.
     case.update(order_id=ticket.get("order_id"), main_reason=ticket.get("main_reason"), user_message=ticket.get("text"))
+    # Vision: R-DMG-01's photo proof comes from the CHANNEL (a photo was received and the photo check sees damage,
+    # callverse/vision/fusion.py), never from the agent. The Coordinator still checks every other rule.
+    case.update(proof_received=bool((ticket.get("fusion") or {}).get("proof_received")))
     if company != companies.DEFAULT:
         case.update(booking_type=ticket.get("booking_type"))
     # P20: a yes counts for Agent C only when this message answers C's own question (set by the channel).
@@ -267,7 +287,8 @@ def handle_ticket(ticket: dict, chat_fn=None, slm_chat_fn=None) -> dict:
     """Route an existing ticket and answer it (used by handle() and by the queue batch).
     chat_fn = fake LLM for the agents (tests); slm_chat_fn = fake LLM for the SLM (tests)."""
     decision = route(ticket)
-    message = f"{ticket['text']}\n\n{ticket_note(ticket)}"
+    text = ticket["text"] or "(The customer sent a photo without any text.)"
+    message = f"{text}\n\n{ticket_note(ticket)}"
     answer, handover, text = None, None, None
     proposals, final = [], None
     try:

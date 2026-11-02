@@ -1,0 +1,13 @@
+id: AT-13
+company: atlas
+reason: other
+mood: confused
+typo_level: high
+persona:
+  description: First time booking online.
+  language: English
+goal: Your name is misspelled on the ticket and you are scared you will not be allowed
+  to board.
+facts:
+  booking_ref: BK-7745
+patience_turns: 4

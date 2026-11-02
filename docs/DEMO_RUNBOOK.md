@@ -38,6 +38,17 @@ shows the ticket; Ticket detail lists "What was done" (waiting for the user's ye
 order …"). A ticket Agent C passes to Agent B as an urgent refund shows the red "Urgent" badge (Live tickets, Ticket
 detail, and first in the admin's Approvals).
 
+### Optional flows (T34 integration branch)
+- **Photo (vision)**: needs `requirements-vision.txt`, `bitsandbytes` and the CUDA build of torch (4-bit on the GPU,
+  about 2.2 GB VRAM). In the **Streamlit** Help chat (ShopNova 8501 / Atlas 8503), attach one photo to the message,
+  e.g. `My order 4509 arrived damaged, see the photo. I want a refund.` with a photo of a cracked phone. The first
+  photo takes about 25 s (model load), then about 4 s per photo. T34 live result: the photo check saw the damage, but
+  Agent B still asked for a photo, so the pipeline passed the case to a colleague (no refund written). Say: the photo
+  is evidence only; the rules decide. Without the packages the chat answers "The photo check is not available right now…".
+- **Client Simulator**: `python -m scripts.run_client_simulator` (needs `requirements-simulator.txt`, Ollama with
+  `gemma3:1b`). Three simulated clients write to the center and score the chat 1-5 (results in `out/t34_simulator.md`).
+  It reseeds the demo data: run **Reset** afterwards.
+
 ## 4. Known limits (say them if asked)
 - T28: a bare "Yes" / "No" answers only the ONE open question of this chat (Agent B's "Please confirm …" or Agent C's
   offer), for 30 minutes and only as the very next message. With nothing open, "Yes" goes the normal way (re-asked).

@@ -1,0 +1,405 @@
+{
+  "note": "ALL SIMULATED feedback (callverse/learning/simulator.py). Not evidence of real customer satisfaction.",
+  "situations": 69,
+  "personas": {
+    "train": 12,
+    "val": 6,
+    "eval": 6
+  },
+  "rows": {
+    "train": 2484,
+    "val": 1242,
+    "eval": 1242
+  },
+  "episodes": 6000,
+  "seeds": [
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "satisfaction_model": "stacker_selected.pkl (compare_satisfaction.py)",
+  "satisfaction": {
+    "val": {
+      "all": {
+        "fixed_text_delay": {
+          "mae": 0.9557,
+          "spearman": 0.0073
+        },
+        "selected_response_aware": {
+          "mae": 0.6559,
+          "spearman": 0.5697
+        },
+        "baseline_mean_rating": {
+          "mae": 0.7595,
+          "spearman": 0.0
+        }
+      },
+      "shopnova": {
+        "fixed_text_delay": {
+          "mae": 0.9054,
+          "spearman": 0.112
+        },
+        "selected_response_aware": {
+          "mae": 0.6679,
+          "spearman": 0.5678
+        },
+        "baseline_mean_rating": {
+          "mae": 0.8027,
+          "spearman": 0.0
+        }
+      },
+      "atlas": {
+        "fixed_text_delay": {
+          "mae": 1.0441,
+          "spearman": -0.1718
+        },
+        "selected_response_aware": {
+          "mae": 0.6348,
+          "spearman": 0.5698
+        },
+        "baseline_mean_rating": {
+          "mae": 0.7359,
+          "spearman": 0.0
+        }
+      }
+    },
+    "eval": {
+      "all": {
+        "fixed_text_delay": {
+          "mae": 0.9988,
+          "spearman": 0.0077
+        },
+        "selected_response_aware": {
+          "mae": 0.6876,
+          "spearman": 0.6001
+        },
+        "baseline_mean_rating": {
+          "mae": 0.8394,
+          "spearman": 0.0
+        }
+      },
+      "shopnova": {
+        "fixed_text_delay": {
+          "mae": 0.9119,
+          "spearman": 0.1529
+        },
+        "selected_response_aware": {
+          "mae": 0.6782,
+          "spearman": 0.5988
+        },
+        "baseline_mean_rating": {
+          "mae": 0.8329,
+          "spearman": 0.0
+        }
+      },
+      "atlas": {
+        "fixed_text_delay": {
+          "mae": 1.1518,
+          "spearman": -0.2264
+        },
+        "selected_response_aware": {
+          "mae": 0.7043,
+          "spearman": 0.5998
+        },
+        "baseline_mean_rating": {
+          "mae": 0.8859,
+          "spearman": 0.0
+        }
+      }
+    }
+  },
+  "simulator_audit_eval": {
+    "by_reply_quality": {
+      "clean": {
+        "n": 751,
+        "mean_rating": 3.377
+      },
+      "contradiction": {
+        "n": 32,
+        "mean_rating": 2.094
+      },
+      "fabricated_action": {
+        "n": 32,
+        "mean_rating": 2.0
+      },
+      "false_approval": {
+        "n": 28,
+        "mean_rating": 1.857
+      },
+      "false_delivery_promise": {
+        "n": 25,
+        "mean_rating": 2.44
+      },
+      "generic": {
+        "n": 105,
+        "mean_rating": 2.371
+      },
+      "incomplete": {
+        "n": 95,
+        "mean_rating": 3.137
+      },
+      "invented_amount": {
+        "n": 32,
+        "mean_rating": 2.219
+      },
+      "stale_fact": {
+        "n": 39,
+        "mean_rating": 2.385
+      },
+      "unapproved_refund": {
+        "n": 39,
+        "mean_rating": 2.205
+      },
+      "voucher_overclaim": {
+        "n": 35,
+        "mean_rating": 2.514
+      },
+      "wrong_amount": {
+        "n": 29,
+        "mean_rating": 2.172
+      }
+    },
+    "clean_by_style_and_mood": {
+      "short|upset": 2.741,
+      "short|calm": 3.16,
+      "apology_first|upset": 3.539,
+      "apology_first|calm": 3.083,
+      "apology_next_step|upset": 3.455,
+      "apology_next_step|calm": 3.504
+    }
+  },
+  "correctness_eval": {
+    "all": {
+      "n": 1242,
+      "n_wrong": 291,
+      "false_pass": 0,
+      "false_pass_rate": 0.0,
+      "false_pass_95ci": [
+        0.0,
+        0.013
+      ],
+      "fail_precision": 1.0,
+      "fail_recall": 1.0,
+      "unknown_rate": 0.0,
+      "false_fail": 0,
+      "clean_pass_rate": 1.0
+    },
+    "shopnova": {
+      "n": 792,
+      "n_wrong": 186,
+      "false_pass": 0,
+      "false_pass_rate": 0.0,
+      "false_pass_95ci": [
+        0.0,
+        0.0202
+      ],
+      "fail_precision": 1.0,
+      "fail_recall": 1.0,
+      "unknown_rate": 0.0,
+      "false_fail": 0,
+      "clean_pass_rate": 1.0
+    },
+    "atlas": {
+      "n": 450,
+      "n_wrong": 105,
+      "false_pass": 0,
+      "false_pass_rate": 0.0,
+      "false_pass_95ci": [
+        0.0,
+        0.0353
+      ],
+      "fail_precision": 1.0,
+      "fail_recall": 1.0,
+      "unknown_rate": 0.0,
+      "false_fail": 0,
+      "clean_pass_rate": 1.0
+    }
+  },
+  "reward_eval": {
+    "fixed": {
+      "n": 1242,
+      "agreement_with_oracle": 0.6852
+    },
+    "selected": {
+      "n": 1242,
+      "agreement_with_oracle": 0.744
+    }
+  },
+  "latency_ms": {
+    "evaluate_response_mean": 5.96,
+    "evaluate_response_p95": 7.85
+  },
+  "policies_eval": {
+    "always_short": {
+      "n": 414,
+      "avg_rating": 3.0338,
+      "avg_rating_95ci": [
+        2.9589,
+        3.1135
+      ],
+      "share_satisfied": 0.244,
+      "e2e_success_rate": 0.244
+    },
+    "always_apology_first": {
+      "n": 414,
+      "avg_rating": 3.5411,
+      "avg_rating_95ci": [
+        3.4589,
+        3.6305
+      ],
+      "share_satisfied": 0.5,
+      "e2e_success_rate": 0.5
+    },
+    "always_apology_next_step": {
+      "n": 414,
+      "avg_rating": 3.6063,
+      "avg_rating_95ci": [
+        3.5314,
+        3.6764
+      ],
+      "share_satisfied": 0.558,
+      "e2e_success_rate": 0.558,
+      "hallucination_rate": 0.0
+    },
+    "random": {
+      "n": 414,
+      "avg_rating": 3.3623,
+      "avg_rating_95ci": [
+        3.2825,
+        3.4397
+      ],
+      "share_satisfied": 0.4082,
+      "e2e_success_rate": 0.4082
+    },
+    "rule_based": {
+      "n": 414,
+      "avg_rating": 3.5386,
+      "avg_rating_95ci": [
+        3.4565,
+        3.628
+      ],
+      "share_satisfied": 0.4879,
+      "e2e_success_rate": 0.4879
+    },
+    "supervised_group_train": {
+      "n": 414,
+      "avg_rating": 3.4686,
+      "avg_rating_95ci": [
+        3.3937,
+        3.5507
+      ],
+      "share_satisfied": 0.4686,
+      "e2e_success_rate": 0.4686
+    },
+    "agent_f_argmax": {
+      "n": 414,
+      "avg_rating": 3.5362,
+      "avg_rating_95ci": [
+        3.4589,
+        3.6135
+      ],
+      "share_satisfied": 0.5121,
+      "e2e_success_rate": 0.5121
+    }
+  },
+  "bandits_eval": {
+    "thompson_beta|agent_f": {
+      "avg_rating_mean": 3.4734,
+      "avg_rating_std": 0.0626,
+      "per_seed": [
+        3.4855,
+        3.5556,
+        3.3647,
+        3.4614,
+        3.5
+      ],
+      "train_s_per_seed": 37.7
+    },
+    "thompson_beta|simulated": {
+      "avg_rating_mean": 3.472,
+      "avg_rating_std": 0.0019,
+      "per_seed": [
+        3.4686,
+        3.4734,
+        3.4734,
+        3.4734,
+        3.471
+      ],
+      "train_s_per_seed": 10.1
+    },
+    "gaussian_thompson|agent_f": {
+      "avg_rating_mean": 3.4874,
+      "avg_rating_std": 0.0098,
+      "per_seed": [
+        3.4903,
+        3.4855,
+        3.4783,
+        3.4783,
+        3.5048
+      ],
+      "train_s_per_seed": 37.9
+    },
+    "gaussian_thompson|simulated": {
+      "avg_rating_mean": 3.47,
+      "avg_rating_std": 0.0012,
+      "per_seed": [
+        3.471,
+        3.471,
+        3.471,
+        3.4686,
+        3.4686
+      ],
+      "train_s_per_seed": 10.6
+    },
+    "linucb|agent_f": {
+      "avg_rating_mean": 3.4657,
+      "avg_rating_std": 0.2179,
+      "per_seed": [
+        3.6063,
+        3.6063,
+        3.5411,
+        3.5411,
+        3.0338
+      ],
+      "train_s_per_seed": 40.5
+    },
+    "linucb|simulated": {
+      "avg_rating_mean": 3.4657,
+      "avg_rating_std": 0.2179,
+      "per_seed": [
+        3.6063,
+        3.6063,
+        3.5411,
+        3.5411,
+        3.0338
+      ],
+      "train_s_per_seed": 12.5
+    },
+    "epsilon_greedy|agent_f": {
+      "avg_rating_mean": 3.3696,
+      "avg_rating_std": 0.2239,
+      "per_seed": [
+        3.5556,
+        3.5507,
+        3.5507,
+        3.087,
+        3.1039
+      ],
+      "train_s_per_seed": 38.5
+    },
+    "epsilon_greedy|simulated": {
+      "avg_rating_mean": 3.4918,
+      "avg_rating_std": 0.0176,
+      "per_seed": [
+        3.471,
+        3.4903,
+        3.4976,
+        3.4783,
+        3.5217
+      ],
+      "train_s_per_seed": 10.1
+    }
+  }
+}

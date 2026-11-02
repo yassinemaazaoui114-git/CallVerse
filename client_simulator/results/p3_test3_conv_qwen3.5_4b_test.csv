@@ -1,0 +1,121 @@
+id,real,raw,valid_json,parsed,breaks_role,comment,reason,delay_bucket,has_remark,wall_s,raw_f,model
+uss_mwoz_0177,3,3,True,True,False,It handled multiple requests well but the '0 star' rating was clearly a mistake.,,,False,5.7515709400177,3,qwen3.5:4b
+uss_mwoz_0649,3,3,True,True,False,Got the info I needed but had to ask for repeats.,,,False,5.697486877441406,3,qwen3.5:4b
+uss_sgd_0361,3,4,True,True,False,The agent handled multiple requests smoothly and provided all necessary details.,,,False,5.459327697753906,4,qwen3.5:4b
+uss_mwoz_0321,3,3,True,True,False,It handled multiple requests well despite some confusion.,,,False,5.623912811279297,3,qwen3.5:4b
+uss_sgd_0377,3,3,True,True,False,It handled multiple requests well but felt a bit repetitive.,,,False,5.638463020324707,3,qwen3.5:4b
+uss_mwoz_0454,4,3,True,True,False,It handled the booking well but kept asking unnecessary questions.,,,False,5.7287352085113525,3,qwen3.5:4b
+uss_mwoz_0814,3,3,True,True,False,It booked the room but kept asking unnecessary questions.,,,False,5.436499834060669,3,qwen3.5:4b
+uss_mwoz_0776,4,2,True,True,False,The agent kept asking irrelevant questions and got confused about my requests.,,,False,5.562255144119263,2,qwen3.5:4b
+uss_sgd_0828,3,3,True,True,False,It got the job done but kept asking for confirmation.,,,False,5.268515348434448,3,qwen3.5:4b
+uss_mwoz_0077,4,4,True,True,False,The agent handled multiple requests smoothly and provided all necessary details.,,,False,5.330994367599487,4,qwen3.5:4b
+uss_mwoz_0608,3,4,True,True,False,Great service despite the confusing booking details.,,,False,5.509897708892822,4,qwen3.5:4b
+uss_mwoz_0886,3,3,True,True,False,It answered most questions but kept asking for a reservation unnecessarily.,,,False,5.357579946517944,3,qwen3.5:4b
+uss_sgd_0642,3,3,True,True,False,It handled the car booking well but got distracted by an unrelated apartment request.,,,False,5.567259788513184,3,qwen3.5:4b
+uss_mwoz_0756,3,3,True,True,False,It answered my questions but kept missing the mark on bookings.,,,False,5.564945936203003,3,qwen3.5:4b
+uss_sgd_0742,3,3,True,True,False,It handled the booking but got confused about my original request.,,,False,5.528490304946899,3,qwen3.5:4b
+uss_sgd_0468,4,4,True,True,False,The agent handled my changing requests smoothly and booked the tickets successfully.,,,False,5.498756408691406,4,qwen3.5:4b
+uss_mwoz_0572,3,3,True,True,False,It answered most questions but got confused about the car and college details.,,,False,5.484930038452148,3,qwen3.5:4b
+uss_sgd_0389,3,4,True,True,False,The agent handled multiple requests smoothly and provided all the details I needed.,,,False,5.516099214553833,4,qwen3.5:4b
+uss_sgd_0873,4,4,True,True,False,The agent handled multiple requests smoothly and confirmed all details accurately.,,,False,5.678538799285889,4,qwen3.5:4b
+uss_mwoz_0589,3,4,True,True,False,The agent handled my complex request well despite the initial mismatch.,,,False,5.545165538787842,4,qwen3.5:4b
+uss_sgd_0652,3,4,True,True,False,The agent handled multiple requests smoothly and provided all the details I needed.,,,False,5.6639909744262695,4,qwen3.5:4b
+uss_mwoz_0897,3,3,True,True,False,It handled multiple requests well but felt a bit rushed.,,,False,5.56920051574707,3,qwen3.5:4b
+uss_sgd_0660,3,2,True,True,False,The agent kept asking for details and then failed to book the reservation I just confirmed.,,,False,5.361766338348389,2,qwen3.5:4b
+uss_sgd_0726,3,4,True,True,False,The agent handled multiple requests smoothly and provided all necessary details.,,,False,5.5013556480407715,4,qwen3.5:4b
+uss_sgd_0676,4,4,True,True,False,The agent handled multiple bookings smoothly and answered all my questions clearly.,,,False,5.513290166854858,4,qwen3.5:4b
+uss_sgd_0482,4,3,True,True,False,It booked the flight but missed the hotel reservation request.,,,False,5.39894962310791,3,qwen3.5:4b
+uss_sgd_0467,3,2,True,True,False,The agent failed to book the reservation and ignored my request for live music.,,,False,5.36542820930481,2,qwen3.5:4b
+uss_mwoz_0969,3,2,True,True,False,The agent kept giving me impossible requests like 0-star hotels and ignored my disability needs.,,,False,5.468006372451782,2,qwen3.5:4b
+uss_mwoz_0638,3,2,True,True,False,The agent kept asking for info I already gave and got payment details wrong.,,,False,5.382352352142334,2,qwen3.5:4b
+uss_sgd_0236,3,4,True,True,False,The agent found a suitable hotel and handled the booking details correctly.,,,False,5.429426193237305,4,qwen3.5:4b
+uss_sgd_0563,3,2,True,True,False,The agent kept making mistakes about the flight details and ignored my request for a snake handler.,,,False,5.490782022476196,2,qwen3.5:4b
+uss_mwoz_0888,3,2,True,True,False,The agent kept making unrelated bookings and ignoring my original request for a restaurant.,,,False,5.599752426147461,2,qwen3.5:4b
+uss_mwoz_0381,4,4,True,True,False,"Great service, handled my complex booking and questions perfectly.",,,False,5.482298135757446,4,qwen3.5:4b
+uss_sgd_0996,2,2,True,True,False,The agent kept getting the details wrong and missed my request for wifi.,,,False,5.758696556091309,2,qwen3.5:4b
+uss_mwoz_0770,3,4,True,True,False,"Despite the booking failure, it eventually got me a hotel and answered all my questions.",,,False,5.6949241161346436,4,qwen3.5:4b
+uss_mwoz_0258,3,3,True,True,False,It found a room but kept asking for more details I didn't need.,,,False,5.534554719924927,3,qwen3.5:4b
+uss_sgd_0491,4,2,True,True,False,The agent kept getting dates wrong and missed my original request for a car.,,,False,5.784913778305054,2,qwen3.5:4b
+uss_mwoz_0099,3,3,True,True,False,It eventually got the job done despite some confusion.,,,False,5.7249555587768555,3,qwen3.5:4b
+uss_sgd_0528,3,2,True,True,False,The agent kept getting the destination and dates wrong despite my corrections.,,,False,5.787442684173584,2,qwen3.5:4b
+uss_mwoz_0819,3,4,True,True,False,The agent handled my complex multi-step request well and was very helpful.,,,False,5.946414232254028,4,qwen3.5:4b
+uss_mwoz_0826,4,3,True,True,False,It answered my questions but kept asking if I wanted to book even when I said no.,,,False,5.8521568775177,3,qwen3.5:4b
+uss_mwoz_0226,3,3,True,True,False,It found what I needed but kept asking unnecessary questions.,,,False,5.723306655883789,3,qwen3.5:4b
+uss_mwoz_0800,4,4,True,True,False,Got all the details I needed despite some initial confusion.,,,False,5.601704359054565,4,qwen3.5:4b
+uss_mwoz_0346,3,3,True,True,False,Got the info I needed but had to ask for it repeatedly.,,,False,5.18269944190979,3,qwen3.5:4b
+uss_sgd_0605,3,3,True,True,False,It found the flight but kept asking for things I didn't need.,,,False,4.8526527881622314,3,qwen3.5:4b
+uss_sgd_0927,3,3,True,True,False,It answered my questions clearly even though I didn't need the booking.,,,False,4.650987863540649,3,qwen3.5:4b
+uss_sgd_0483,3,4,True,True,False,"Great service, found everything I needed quickly.",,,False,4.705236911773682,4,qwen3.5:4b
+uss_mwoz_0269,4,4,True,True,False,The agent handled multiple requests smoothly and provided all the details I needed.,,,False,4.946287155151367,4,qwen3.5:4b
+uss_mwoz_0043,4,2,True,True,False,The agent kept giving wrong information and missed my actual request.,,,False,5.166148900985718,2,qwen3.5:4b
+uss_mwoz_0565,3,4,True,True,False,Handled multiple requests smoothly and provided clear confirmations.,,,False,5.350571870803833,4,qwen3.5:4b
+uss_sgd_0154,3,3,True,True,False,It handled the booking well but kept asking for details I already knew.,,,False,5.442455530166626,3,qwen3.5:4b
+uss_sgd_0494,4,2,True,True,False,The agent kept getting the dates and locations mixed up and couldn't find any flights.,,,False,5.401745796203613,2,qwen3.5:4b
+uss_sgd_0014,3,4,True,True,False,The agent handled multiple requests smoothly and provided all necessary details.,,,False,5.368305444717407,4,qwen3.5:4b
+uss_mwoz_0656,4,4,True,True,False,Handled multiple requests smoothly and provided helpful recommendations.,,,False,5.363277912139893,4,qwen3.5:4b
+uss_mwoz_0798,3,2,True,True,False,The agent kept giving wrong info and booking things I didn't ask for.,,,False,5.377696990966797,2,qwen3.5:4b
+uss_mwoz_0920,3,3,True,True,False,It handled the complex booking and extra questions well enough.,,,False,5.519239187240601,3,qwen3.5:4b
+uss_mwoz_0810,3,3,True,True,False,It handled multiple requests well but got confused about the taxi cancellation policy.,,,False,5.751545429229736,3,qwen3.5:4b
+uss_sgd_0031,3,3,True,True,False,It handled multiple requests well but missed the initial bus departure time.,,,False,5.8141257762908936,3,qwen3.5:4b
+uss_sgd_0216,3,4,True,True,False,The agent handled multiple requests smoothly and provided all the details I needed.,,,False,5.95441460609436,4,qwen3.5:4b
+uss_sgd_0692,4,3,True,True,False,It handled multiple requests well but the song search felt out of place.,,,False,6.200782299041748,3,qwen3.5:4b
+uss_mwoz_0490,4,4,True,True,False,Great service that handled multiple requests smoothly.,,,False,5.814293622970581,4,qwen3.5:4b
+uss_mwoz_0038,3,3,True,True,False,It handled multiple requests but got confused about my original train booking change.,,,False,5.972851037979126,3,qwen3.5:4b
+uss_sgd_0327,3,2,True,True,False,The agent kept making unrelated suggestions and got the dates wrong.,,,False,5.972817897796631,2,qwen3.5:4b
+uss_mwoz_0234,3,5,True,True,False,The agent handled multiple complex requests smoothly and provided all the details I needed.,,,False,5.684353828430176,5,qwen3.5:4b
+uss_sgd_0399,3,4,True,True,False,"Great service, booked the car and found great apartment options.",,,False,5.755460262298584,4,qwen3.5:4b
+uss_mwoz_0610,4,4,True,True,False,The agent handled my complex request well and booked the train successfully.,,,False,5.494102716445923,4,qwen3.5:4b
+uss_mwoz_0687,4,4,True,True,False,Great service despite the booking error.,,,False,5.222587585449219,4,qwen3.5:4b
+uss_mwoz_0898,3,2,True,True,False,The agent kept asking irrelevant questions and gave confusing pricing details.,,,False,5.146310806274414,2,qwen3.5:4b
+uss_sgd_0095,4,3,True,True,False,It handled multiple requests well but missed the initial train booking.,,,False,5.111402988433838,3,qwen3.5:4b
+uss_sgd_0550,3,4,True,True,False,The agent handled multiple bookings and questions efficiently despite some minor confusion.,,,False,5.553676605224609,4,qwen3.5:4b
+uss_mwoz_0098,3,3,True,True,False,It handled multiple requests but got confused about seat reservations.,,,False,5.7821526527404785,3,qwen3.5:4b
+uss_mwoz_0395,3,3,True,True,False,It eventually got me a booking but kept asking unnecessary questions.,,,False,5.7652363777160645,3,qwen3.5:4b
+uss_mwoz_0478,4,3,True,True,False,It answered my questions but kept repeating itself.,,,False,5.732757568359375,3,qwen3.5:4b
+uss_mwoz_0600,4,2,True,True,False,The agent booked a train ticket when I asked for a restaurant and ignored my request to pay with credit card.,,,False,5.53358006477356,2,qwen3.5:4b
+uss_mwoz_0801,3,3,True,True,False,It handled multiple requests but got confused about the time twice.,,,False,5.558836936950684,3,qwen3.5:4b
+uss_mwoz_0976,3,2,True,True,False,The agent gave me wrong information about the hotel and mixed up my requests.,,,False,5.594581842422485,2,qwen3.5:4b
+uss_mwoz_0661,3,2,True,True,False,The agent kept changing topics and ignored my original request for a Russian restaurant.,,,False,5.821362257003784,2,qwen3.5:4b
+uss_mwoz_0264,3,3,True,True,False,It handled multiple requests but made some confusing errors like booking a Tesla for a hotel pickup.,,,False,5.773681640625,3,qwen3.5:4b
+uss_mwoz_0081,3,3,True,True,False,It found a place but kept asking unnecessary questions.,,,False,5.473867177963257,3,qwen3.5:4b
+uss_mwoz_0793,3,3,True,True,False,It eventually got everything done despite the initial confusion.,,,False,5.565977096557617,3,qwen3.5:4b
+uss_sgd_0318,3,4,True,True,False,The agent handled multiple requests smoothly and provided all the details I needed.,,,False,5.713942050933838,4,qwen3.5:4b
+uss_mwoz_0896,3,3,True,True,False,It handled the booking well but got stuck on a minor detail about smoking.,,,False,5.8282716274261475,3,qwen3.5:4b
+uss_mwoz_0207,3,2,True,True,False,The agent kept giving me wrong info and ignored my original request.,,,False,5.987600803375244,2,qwen3.5:4b
+uss_sgd_0506,4,2,True,True,False,The agent kept getting confused about my requests and gave irrelevant answers.,,,False,5.884296894073486,2,qwen3.5:4b
+uss_mwoz_0071,3,3,True,True,False,The agent answered most questions but kept asking for booking details I didn't want to give yet.,,,False,5.783674478530884,3,qwen3.5:4b
+uss_mwoz_0495,3,2,True,True,False,The agent gave me wrong information and kept asking for details I already provided.,,,False,5.6174421310424805,2,qwen3.5:4b
+uss_mwoz_0724,2,2,True,True,False,The agent kept saying no when I asked for a specific rating and location.,,,False,5.397074222564697,2,qwen3.5:4b
+uss_mwoz_0044,4,3,True,True,False,It answered most questions but missed the boat attraction request initially.,,,False,5.3539252281188965,3,qwen3.5:4b
+uss_sgd_0092,4,4,True,True,False,The agent handled my changing requests smoothly and completed the booking.,,,False,5.262434959411621,4,qwen3.5:4b
+uss_mwoz_0374,3,2,True,True,False,The agent kept giving me bad news instead of finding a suitable room.,,,False,5.240942716598511,2,qwen3.5:4b
+uss_sgd_0614,3,4,True,True,False,The agent handled multiple requests smoothly and provided all the details I needed.,,,False,5.42184591293335,4,qwen3.5:4b
+uss_sgd_0599,3,4,True,True,False,The agent handled multiple complex requests smoothly and provided all the details I needed.,,,False,5.831555128097534,4,qwen3.5:4b
+uss_mwoz_0371,3,3,True,True,False,The agent handled the train booking well but got confused about the restaurant request.,,,False,6.046254634857178,3,qwen3.5:4b
+uss_mwoz_0534,3,4,True,True,False,The agent handled multiple requests smoothly and confirmed everything clearly.,,,False,6.001826286315918,4,qwen3.5:4b
+uss_mwoz_0940,3,4,True,True,False,"Great service, booked both the hotel and restaurant successfully.",,,False,5.912693500518799,4,qwen3.5:4b
+uss_mwoz_0509,3,4,True,True,False,Great service that handled my complex booking and extra requests perfectly.,,,False,5.502948045730591,4,qwen3.5:4b
+uss_mwoz_0503,1,2,True,True,False,The agent kept failing to book the table and got confused about my requests.,,,False,5.508451461791992,2,qwen3.5:4b
+uss_mwoz_0754,4,4,True,True,False,The agent handled my complex requests well and booked everything correctly.,,,False,5.53190803527832,4,qwen3.5:4b
+uss_sgd_0680,3,3,True,True,False,"Found the right movie and details, though the grammar was a bit off.",,,False,5.6449384689331055,3,qwen3.5:4b
+uss_mwoz_0242,3,3,True,True,False,The agent made a mistake but eventually provided all the requested details.,,,False,5.680812835693359,3,qwen3.5:4b
+uss_mwoz_0169,4,3,True,True,False,It handled multiple requests but missed the initial train price.,,,False,5.344295978546143,3,qwen3.5:4b
+uss_mwoz_0467,3,2,True,True,False,The agent kept answering irrelevant questions and missed the main booking request.,,,False,5.0777058601379395,2,qwen3.5:4b
+uss_mwoz_0124,4,3,True,True,False,It answered my questions but kept asking for more details unnecessarily.,,,False,5.083412408828735,3,qwen3.5:4b
+uss_mwoz_0635,3,4,True,True,False,"Great service, booked everything quickly and efficiently.",,,False,5.1624250411987305,4,qwen3.5:4b
+uss_sgd_0560,2,3,True,True,False,It eventually got everything right despite the repeated mistakes.,,,False,5.354533433914185,3,qwen3.5:4b
+uss_mwoz_0357,3,3,True,True,False,It handled multiple requests well but missed the initial train search.,,,False,5.586554050445557,3,qwen3.5:4b
+uss_sgd_0381,4,4,True,True,False,It handled multiple bookings smoothly despite the initial error.,,,False,5.423194169998169,4,qwen3.5:4b
+uss_sgd_0854,4,3,True,True,False,It answered my questions but kept asking for more details unnecessarily.,,,False,5.179974317550659,3,qwen3.5:4b
+uss_sgd_0347,3,4,True,True,False,The agent found good options and answered all my questions clearly.,,,False,4.946556806564331,4,qwen3.5:4b
+uss_mwoz_0647,3,3,True,True,False,The agent got confused about my original request and kept changing topics.,,,False,4.984982967376709,3,qwen3.5:4b
+uss_sgd_0518,4,3,True,True,False,It handled multiple requests but the booking confirmation felt premature.,,,False,5.117146968841553,3,qwen3.5:4b
+uss_mwoz_0350,3,2,True,True,False,The agent kept getting confused and missed my actual request for a taxi.,,,False,5.450014114379883,2,qwen3.5:4b
+uss_mwoz_0282,3,3,True,True,False,"It handled the complex requests eventually, though it was confusing at first.",,,False,5.794621229171753,3,qwen3.5:4b
+uss_sgd_0619,3,4,True,True,False,The agent handled my changing requests smoothly and booked the ticket correctly.,,,False,5.641209602355957,4,qwen3.5:4b
+uss_mwoz_0680,3,3,True,True,False,The agent eventually found what I needed despite some confusion earlier.,,,False,5.6874916553497314,3,qwen3.5:4b
+uss_sgd_0513,3,4,True,True,False,The agent handled my changing requests well and provided all the details I needed.,,,False,5.578717470169067,4,qwen3.5:4b
+uss_sgd_0193,3,2,True,True,False,The agent kept making mistakes and couldn't even book the table I asked for.,,,False,5.329872369766235,2,qwen3.5:4b
+uss_sgd_0243,3,3,True,True,False,It answered most questions but kept asking for a purchase that I didn't want.,,,False,5.445709705352783,3,qwen3.5:4b
+uss_mwoz_0076,3,2,True,True,False,The agent kept giving wrong details and refused simple payment options.,,,False,5.447086811065674,2,qwen3.5:4b
+uss_mwoz_0280,3,2,True,True,False,The agent kept giving wrong information and missed my original request for a train.,,,False,5.416537284851074,2,qwen3.5:4b
