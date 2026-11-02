@@ -7,6 +7,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { api, ApiError } from "../api.js";
 import { useAuth } from "../auth.jsx";
 import Icon from "../components/Icon.jsx";
+import { OutcomeList, UrgentBadge, outcomesOf } from "../components/Outcomes.jsx";
 import { ApiErrorView, BackToTickets, Empty, Loading } from "../components/States.jsx";
 import { priorityClass } from "./LiveTickets.jsx";
 
@@ -111,6 +112,7 @@ export default function TicketDetail() {
       <section className="panel ticket-identity" aria-label="Ticket identity">
         <div className="title-row">
           <h1>{t.id}</h1>
+          {detail.urgent && <UrgentBadge />}
           <span className="badge badge-neutral">{String(t.status ?? "—")}</span>
           <span className="badge">{String(t.company ?? "—")}</span>
           <span className={`badge ${priorityClass(t.priority)}`}>priority {String(t.priority ?? "—")}</span>
@@ -139,6 +141,7 @@ export default function TicketDetail() {
                 <Icon name="bank" size={14} />
                 <span>Finance approval {a.id}: <strong>{String(a.status)}</strong> · {Number(a.amount).toFixed(2)} TND on {a.booking_type ? `${a.booking_type} booking` : "order"} {a.order_id}
                   {a.decided_by ? ` · decided by ${a.decided_by}` : ""}</span>
+                {a.urgent ? <UrgentBadge /> : null}
               </div>
             ))}
           </div>
@@ -196,6 +199,8 @@ export default function TicketDetail() {
               ) : <span className="muted small">No Coordinator decision recorded for this message.</span>}
             </div>
           )}
+
+          {turn && <OutcomeList items={outcomesOf(turn.steps)} />}
 
           {turn && (
             <div>

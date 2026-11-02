@@ -11,6 +11,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { api, ApiError } from "../api.js";
 import { useAuth } from "../auth.jsx";
 import Icon from "../components/Icon.jsx";
+import { UrgentBadge } from "../components/Outcomes.jsx";
 import { ApiErrorView, Empty, Loading } from "../components/States.jsx";
 
 const REFRESH_MS = 10_000;
@@ -198,6 +199,7 @@ export default function LiveTickets() {
                             aria-label={`Open ticket ${t.id}`}>
                             {t.id}<Icon name="chevron" size={14} />
                           </Link>
+                          {t.urgent && <> <UrgentBadge /></>}
                         </td>
                       );
                     }
