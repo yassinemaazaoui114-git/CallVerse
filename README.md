@@ -62,11 +62,12 @@ python -m callverse.data.seed   # builds the ShopNova database (callverse/data/s
 
 ## Start the apps
 
-**Live demo with the new web UI (T26)**: start Ollama, then double-click `Demo.bat` (or the "CallVerse Demo" Desktop
-shortcut). It checks Ollama, `callverse-m2-v3`, `qwen2.5:1.5b` and `config/accounts.yaml`, opens the API
-(http://127.0.0.1:8610) and the web UI (http://127.0.0.1:5173) in two windows (queue mode, local models) and the browser.
-To repeat the demo from clean data: close the two windows, run `scripts
-eset_demo.ps1` and type `YES`.
+**Live demo with the new web UI (T26, T28)**: double-click the **"CallVerse Demo"** shortcut on the Desktop (or
+`Demo.bat`). No command to type: it starts Ollama if it is not running, checks `callverse-m2-v3`, `qwen2.5:1.5b` and
+`config/accounts.yaml`, opens the API (http://127.0.0.1:8610) and the web UI (http://127.0.0.1:5173) in two windows
+(queue mode, local models), waits until both answer and opens the login page. Close the two windows to stop.
+To repeat the demo from clean data: close the two windows, double-click **"CallVerse Reset"** (or `Reset.bat`, which runs
+`scripts/reset_demo.ps1`) and type `YES`. The two shortcuts are (re)made by `scripts/make_shortcuts.ps1`.
 Accounts, exact messages and known limits: [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md).
 
 **ShopNova app** (the company's website, <http://127.0.0.1:8501>, this PC only). Start Ollama first, then:
@@ -328,6 +329,13 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
 - **T27** Missing web UI screens: Promotions (ShopNova admin) and Hotel deals (Atlas admin) with Approve / Refuse,
   "Check now" on both admin dashboards (Agent D's scan), the Urgent badge, and Agent C/D's outcomes in Ticket detail.
   Thin API wrappers of the existing functions only (`webui/api/owner.py`); report [tasks/T27_report.md](tasks/T27_report.md).
+
+- **T28** Desktop shortcuts "CallVerse Demo" / "CallVerse Reset" (`scripts/make_shortcuts.ps1`, `Reset.bat`) and
+  step 09, conversation memory inside one chat (`callverse/channels/conversation.py`, design `docs/step09_design.md`):
+  "and what about it?" uses the order the user typed before; one pending question per chat, so a bare "yes" continues
+  B's "Please confirm ..." through the normal Coordinator (a refund still needs the client's money-back words in the
+  first message) and "no" closes it; one decision per message (a second order gets its status or "send it as a new
+  message"); "no refund please" is read as negative. Report [tasks/T28_report.md](tasks/T28_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,
