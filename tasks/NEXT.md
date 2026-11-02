@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | READY |
+| Status | IN PROGRESS |
 | Task file | tasks/T31_heldout_cd_final.md (held-out C/D: drop D07, tighten C12, then the single final run; plus the T30 replay-row fix in style_log) |
 | Approved by | Yassine — 2026-11-02 16:15 ("approved") |
 | Last done | T30 — merged into main, 1876 tests pass on main (Brain review PASS: regression 72/72, switch-ON spot check 12/12) |

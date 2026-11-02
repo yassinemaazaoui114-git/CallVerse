@@ -1,5 +1,5 @@
 {
- "about": "Practice (dev) cases for agents A, B, C, D (P20). A and B: hand-written by the team (2026-10-28), A04 updated to main's Agent A. A08, C and D: DRAFT written by Claude for P20 to the official C/D spec; the team must review them. Facts on sim_today 2026-10-09. Run: python -m scripts.eval_agents --file tests/dev/agents_cases.json --model <ollama model>. Held-out cases: tests/data/agents_heldout.json (final check only).",
+ "about": "Practice (dev) cases for agents A, B, C, D (P20). A and B: hand-written by the team (2026-10-28), A04 updated to main's Agent A. A08, C and D: DRAFT written by Claude for P20 to the official C/D spec; the team must review them. Facts on sim_today 2026-10-09. Run: python -m scripts.eval_agents --file tests/dev/agents_cases.json --model <ollama model>. Held-out cases: tests/data/agents_heldout_cd.json (final check only).",
  "written_by": "A01-A07, B01-B07: team (hand-written). A11, C01-C07, D01-D04: Claude draft (P20), to be reviewed.",
  "cases": [
   {
