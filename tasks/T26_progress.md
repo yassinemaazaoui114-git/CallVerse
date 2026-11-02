@@ -20,3 +20,15 @@ Branch: `feat/t26-demo-ready` (from main b5addd3). Started 2026-11-02.
   real models: start the API with only CALLVERSE_WEBUI_ACCOUNTS pointing at a temp copy made by
   `webui.api.dev_fixture.write_accounts(folder)`, plus CALLVERSE_AGENTS_SET=local and CALLVERSE_LAYER3_MODE=queue.
 - Do not run step 7 while a regression runner is busy: the runners reseed the company databases.
+
+## Brain notes (2026-11-02 10:30) — read before resuming
+The last session ended at about 08:58 (PC low on memory / session stopped). Steps 7, 8 and 9 were not started. Files in `out/t26_*` written after the last commit are not committed.
+What the Brain read in `out/`:
+- `t26_decline_heldout` 11/12 (h10, with low-confidence routing ON), `t26_t14c_heldout` 12/12, `t26_t14d_heldout` 12/12 (routing OFF), 0 wrong writes, 0 Groq tokens. With the first four sets (46/48) the regression bar (>= 70/72, 0 wrong writes) is met; h10 and s02 were not re-run with the switch OFF.
+- `t26_eval_agents_v3` = **invalid run**: every A/B/C case crashed with `TypeError: with_overrides.<locals>.run_tool() got an unexpected keyword argument 'booking_type'` (the P20 bench wrapper in `scripts/eval_agents.py` predates T14f's `booking_type`). Agent D passed 4/4 (rules). Fix the wrapper to accept `**kwargs` (bench only, small), add a test, then re-run the 26 cases once (P20 had 24/26; bar >= 22/26, 0 wrong proposals).
+To finish, in this order (keep it short, Yassine has little usage left):
+1. Commit what is on disk; fix the bench wrapper; re-run h10 + s02 (switch OFF) and the 26 cases. Close other apps first (7.7 GB RAM); do not run step 7 while a regression runner is busy.
+2. Step 7: live flows F1–F4 first (Sara 4512, Youssef 4515 + admin approve, Nizar 7004 + atlas_admin approve, Amira 4511), then F5 (C at ShopNova), F6 (C at Atlas, Hedi 7005 rebooking), F7 (D: stock check, hotel deals). Real models, queue mode, `Demo.bat` run once for real.
+3. Step 8 `docs/DEMO_RUNBOOK.md` (known limits: bare "Yes" re-asks except C's own question; the new UI has no Promotions / Hotel deals pages yet = T27; D has no seats; C/D cases are drafts, no held-out set), README.
+4. Step 9 report `out/T26_report.md` (merged / not merged, test counts, both regression tables, F1–F7 table, P20's new rules with their text, conflict decisions, list for T27).
+If short on time: do 1 (bench fix only), 2 (F1–F4), 3, 4, and say which flows were not run.
