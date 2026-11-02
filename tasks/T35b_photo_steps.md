@@ -18,3 +18,6 @@ kept only the `photo_check` step (the Console's "What was done" was almost empty
 ## Limits
 Branch `feat/t35b-photo-steps` from main (separate from the T35 UI branch: core code, no need for Dali's OK).
 No change to agents, prompts, Coordinator, vision, config. Never merge into main.
+
+## Add-on
+Approved by Yassine, 2 Nov 2026 ("yes, add 'Checking your photo…'"): a live text before the photo check.

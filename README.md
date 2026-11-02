@@ -162,7 +162,7 @@ Measured comparisons of models and methods, kept apart from the running system (
   [benchmarks/vision_qlora/README.md](benchmarks/vision_qlora/README.md); sources and licences in
   [benchmarks/vision_qlora/DATASET_PROVENANCE.md](benchmarks/vision_qlora/DATASET_PROVENANCE.md).
   T35b: a chat message with a photo now shows its live steps and saves all its pipeline steps (before, only the
-  photo check step was kept). Report [tasks/T35b_report.md](tasks/T35b_report.md).
+  photo check step was kept), and says "Checking your photo…" first. Report [tasks/T35b_report.md](tasks/T35b_report.md).
 
 ## Folders
 

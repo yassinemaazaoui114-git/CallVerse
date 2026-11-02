@@ -6,7 +6,8 @@ Branch `feat/t35b-photo-steps` (from main 01a1836). Not merged. Task: `tasks/T35
 When a customer sent a photo, the chat showed only "Sending…" until the reply came. The ticket also kept only one
 step, so the Console could not show what the center did. The cause was one line: saving the photo check step also
 switched off the step recorder, before the rest of the work started. Now the photo step leaves the recorder on. A
-photo message shows its live steps and saves all its steps, like a message without a photo.
+photo message shows its live steps and saves all its steps, like a message without a photo. Then (approved by
+Yassine) the chat also says "Checking your photo…" right away, so the customer is not left waiting ~30 s with no news.
 
 ## 2. Done
 - `callverse/channels/web_chat.py`:
@@ -20,10 +21,14 @@ photo message shows its live steps and saves all its steps, like a message witho
 - `tests/test_vision_integration.py`: `test_photo_message_keeps_live_steps_and_saves_the_pipeline_steps`. A photo
   message must give live texts and save `photo_check`, `route` and `coordinator`, in time order, and leave no listener.
   **It fails on the old code** (`assert 0 >= 2`: no live text) and passes with the fix.
+- **Add-on (approved by Yassine, 2 Nov: "yes, add 'Checking your photo…'")**: `PHOTO_STEP_TEXT = "Checking your
+  photo…"`. The channel says it itself, just before the photo check (no trace line comes before the photo model
+  has loaded). It goes through the same shown-once rule (`say()`, now shared with `listen`). It is said only when a
+  photo is sent. Tests: it is the first live text of a photo message, and a message without a photo never gets it.
 - README (one note under Vision). This report and the task file.
 
 ## 3. Evidence
-- `python -m pytest -q --ignore=tests/data` → **2004 passed, 5 skipped** (main 2003 + 1 new).
+- `python -m pytest -q --ignore=tests/data` → **2005 passed, 5 skipped** (main 2003 + 2 new).
 - Live check (2 Nov, 23:46): real models (vision qlora nf4, `callverse-m2-v3`, `qwen2.5:1.5b`), temporary tickets DB.
   I called `web_chat.send` directly: sara, `My order 4509 arrived damaged, see the photo. I want a refund.` + cv001
   (cracked phone).
@@ -36,16 +41,18 @@ photo message shows its live steps and saves all its steps, like a message witho
   | Listeners left after | — | 0 |
 
   Time: 64.5 s, including the model load.
+- Live check after the add-on (same message, same photo): live texts **Checking your photo… (5.5 s)**, Reading
+  your message (32.5), Checking your order (34.9), Checking with our refund team (37.2), Checking the rules (53.1),
+  Writing the reply (56.2). Escalate, 22 steps saved, 60.5 s.
 
 ## 4. Problems
-- The first live step comes only after about 35 s: about 25 s of that is loading the photo model, and there is no
-  live text for the photo check itself. I did not add one (that would be a new feature, outside this task).
+- The photo model still takes about 25 s to load on the first photo. The customer now sees "Checking your photo…"
+  during that time.
 - This branch and T35 (`feat/t35-react-photo`) are separate. The React chat shows these steps only after both are
   merged. I placed the README note away from T35's README line, so the two merges should not conflict.
 
 ## 5. Questions for the Brain
-- Should the photo check get its own live text (e.g. "Checking your photo…")? It is a small change in `live_text`,
-  but it is a new user-facing text, so I left it out.
+- None.
 
 ## 6. Next step
 Merge line for Yassine (after the Brain's review; core code, Dali's OK not needed):
