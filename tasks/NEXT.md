@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T27_ui_screens.md (missing UI screens: Promotions, Hotel deals, Check-now buttons, urgent flag, new C/D outcomes; built with the ui-ux-pro-max plugin) |
 | Approved by | Yassine — 2026-11-02 (screens required for the final version; T26 review done 11:02) |
 | Last done | T26 — merged into main (cb2b59e), 1767 tests pass on main |

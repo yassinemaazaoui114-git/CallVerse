@@ -11,7 +11,7 @@ Branch `feat/t27-ui-screens` (from main d467e14).
 | 4 Check now buttons | done |
 | 5 urgent flag | done |
 | 6 C/D outcomes in TicketDetail + Chat check | done (Chat needed no fix) |
-| 7 tests | webui api + vitest done; full pytest running |
-| 8 live browser check | todo |
-| 9 docs | todo |
-| 10 report | todo |
+| 7 tests | done: 1781 pytest, 96 webui api, 61 vitest, build OK |
+| 8 live browser check | done (headless Edge, fixture data; urgent not triggered live) |
+| 9 docs | done |
+| 10 report | done: tasks/T27_report.md |
