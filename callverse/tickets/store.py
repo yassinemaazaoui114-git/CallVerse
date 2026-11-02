@@ -18,6 +18,9 @@ Tables (docs/ui_design.md section 3):
               "Say OK." pings), so the Console can show them apart from the tokens per ticket.
 - pending_questions : T28 (step 09) the ONE open question of a conversation (B's "Please confirm ..." or C's offer),
               so a bare "yes" / "no" can answer it. Written and read by callverse/channels/conversation.py.
+- style_log : T30 (RL5) every reply style the style policy chose (or tried offline), the reply, and its reward once
+              known. `source` says where the reward comes from: real (team ratings), predicted (agent F) or synthetic
+              (made-up world for tests and demos). reward and source are empty until a reward exists.
 
 T19 (the Console): two clocks. The simulation clock does not move, so every ticket would have the same time.
 - created_at / updated_at / at = SIMULATION time: the company rules use it (the 3-day reopen window).
@@ -53,6 +56,7 @@ APPROVAL_STATUSES = ("pending", "approved", "refused")
 # T28: open = waiting for the client; used = a yes continued it; closed = a no; cleared = another message came;
 # expired = more than 30 minutes old.
 QUESTION_STATUSES = ("open", "used", "closed", "cleared", "expired")
+STYLE_REWARD_SOURCES = ("predicted", "real", "synthetic")   # T30: where a style_log reward comes from
 REOPEN_DAYS = 3   # a Solved ticket can be reopened for 3 days (simulation clock), then a new ticket starts
 # Ticket columns that update_ticket() may change (id, company, user_id, created_at never change).
 UPDATABLE = ("status", "main_reason", "priority", "lead_agent")
@@ -134,6 +138,18 @@ CREATE TABLE IF NOT EXISTS pending_questions (   -- T28: one open question per c
     status       TEXT NOT NULL CHECK (status IN {_in(QUESTION_STATUSES)}),
     created_real TEXT NOT NULL,              -- the computer's time (the 30-minute expiry)
     ended_real   TEXT
+);
+CREATE TABLE IF NOT EXISTS style_log (   -- T30 (RL5): style policy choices and rewards
+    id         INTEGER PRIMARY KEY,
+    ticket_id  TEXT,                        -- the ticket (NULL for offline training rows)
+    situation  TEXT NOT NULL,               -- JSON: callverse/learning/situation.py fields (+ situation_id offline)
+    grp        TEXT NOT NULL,               -- the policy group, e.g. "shopnova|approve|angry"
+    style      TEXT NOT NULL,               -- short / warm / warm_next_step
+    reply      TEXT,                        -- the reply text written in that style
+    reward     REAL,                        -- 0..1, NULL until a reward exists
+    source     TEXT CHECK (source IS NULL OR source IN {_in(STYLE_REWARD_SOURCES)}),
+    at         TEXT NOT NULL,               -- simulation time
+    at_real    TEXT                         -- the computer's time
 );
 CREATE TABLE IF NOT EXISTS system_tokens (
     id       INTEGER PRIMARY KEY,
@@ -452,3 +468,43 @@ def end_pending_question(question_id: int, status: str) -> bool:
                           (status, real_now(), int(question_id)))
         con.commit()
     return cur.rowcount == 1
+
+
+# --- T30 (RL5): the style log ---------------------------------------------------------------------------------
+
+def add_style_log(situation: dict, group: str, style: str, reply: str | None = None, reward: float | None = None,
+                  source: str | None = None, ticket_id: str | None = None) -> int:
+    """Save one style choice (and its reward if already known) and return the row id."""
+    if (reward is None) != (source is None):
+        raise ValueError("reward and source go together: both set or both empty")
+    if source is not None and source not in STYLE_REWARD_SOURCES:
+        raise ValueError(f"unknown reward source '{source}' (allowed: {', '.join(STYLE_REWARD_SOURCES)})")
+    with closing(connect()) as con:
+        cur = con.execute("INSERT INTO style_log (ticket_id, situation, grp, style, reply, reward, source, at, at_real)"
+                          " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                          (ticket_id, json.dumps(situation, ensure_ascii=False, default=str), group, style, reply,
+                           reward, source, now(), real_now()))
+        con.commit()
+    return cur.lastrowid
+
+
+def set_style_reward(log_id: int, reward: float, source: str) -> bool:
+    """Add the reward of an earlier choice (e.g. when a rating arrives). False if the row does not exist."""
+    if source not in STYLE_REWARD_SOURCES:
+        raise ValueError(f"unknown reward source '{source}' (allowed: {', '.join(STYLE_REWARD_SOURCES)})")
+    with closing(connect()) as con:
+        cur = con.execute("UPDATE style_log SET reward = ?, source = ? WHERE id = ?", (float(reward), source, int(log_id)))
+        con.commit()
+    return cur.rowcount == 1
+
+
+def style_log(source: str | None = None) -> list[dict]:
+    """All style_log rows (or only one reward source), oldest first; situation is parsed back from JSON."""
+    sql, args = "SELECT * FROM style_log", ()
+    if source is not None:
+        sql, args = sql + " WHERE source = ?", (source,)
+    with closing(connect()) as con:
+        rows = [dict(r) for r in con.execute(sql + " ORDER BY id", args).fetchall()]
+    for r in rows:
+        r["situation"] = json.loads(r["situation"])
+    return rows
