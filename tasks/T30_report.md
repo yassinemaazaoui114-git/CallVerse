@@ -3,7 +3,7 @@
 **Top line:** the style policy, its log, the offline training, the rating importer and the pipeline switch are built and
 tested. The switch is **OFF by default**, and with it off the output is byte-identical to main. Every learning result
 below uses a **SYNTHETIC** reward. Real learning starts once the team returns a valid ratings file.
-Tests: **1876/1876** (main 1848, +28). Regression with the switch OFF: __REG__.
+Tests: **1876/1876** (main 1848, +28). Regression with the switch OFF: **partial, 36/36 of 72** (the run was stopped by the system for low memory; see 3 and 4).
 
 ## 1. In plain words
 CallVerse can now learn how to word a reply (short, warm, or warm with a closing line). It cannot change what the reply
@@ -91,12 +91,23 @@ needed.
 - **Synthetic training run:** `--source synthetic --n 300 --seed 1 --db out/rl5_synthetic.db` writes 300 style_log rows
   labelled `synthetic`. The policy is copied to `out/rl5_policy_synthetic.json`. Angry groups learned warm /
   warm_next_step; calm groups learned short.
-- **Regression:** __REGDETAIL__
+- **Regression (switch OFF, local models, `out/t30_run72.sh`), stopped at 36 of 72.** The system stopped the run
+  for low memory (7.7 GB PC) while t14c_practice was running. Sets that finished:
+  - decline_practice 12/12, decline_heldout 12/12 and t14b_practice 12/12, with 0 wrong writes, 0 crashes, 0 leaks
+    and 0 Groq tokens (avg 17–20 s);
+  - output files `out/t30_<set>.json` / `.log`.
+  - **Not run:** t14c_practice (partial file only), t14c_heldout and t14d_heldout. The last two held-out files were
+    **not opened**, so they are still unspent.
+  - **Not run:** the 12-message spot check with the switch ON (`out/t30_spot_on.py`, ready).
+  - The DBs were backed up to `out/t30_dbbackup/` and put back (`cmp` identical).
 - **Held-out C/D file:** committed unchanged (git blob `eb994bf…`, the same before and after). It was never run and
   only read (step 1 below).
 - The diff has nothing under `models/` or `data/raw/`, and no secrets.
 
 ## 4. Problems
+- **The regression is incomplete** (36/72, low memory). The remaining 36 messages and the switch-ON spot check need
+  a re-run with other apps closed. For that, comment out the 3 finished lines of `out/t30_run72.sh` and run
+  `sh out/t30_run72.sh`. The compare script then needs all six files.
 - **No real reward yet.** Everything learned so far is synthetic. Agent F ignores the style, because its
   style-aware model (`stacker.pkl`) is not promoted.
 - **Thompson sampling is not "near-uniform" on the flat world** (the task asked for this). A style with bad early luck
