@@ -131,3 +131,47 @@ table.tickets td.id a:hover { text-decoration: underline; }
 }
 .kv dt { color: var(--cv-muted); }
 .kv dd { margin: 0; overflow-wrap: anywhere; }
+
+/* ---------- sign-in portals (ShopNova, Atlas Travel, Console) and the chooser ----------
+   One layout, three brands: a brand panel (the company's name, its colour, what the page is for) next to the
+   form; on a phone the panel becomes a short header and its list is hidden. Colours come from each theme. */
+:root { --portal-brand-bg: var(--cv-panel-2); --portal-brand-text: var(--cv-text); --portal-brand-muted: var(--cv-muted); --portal-mark-bg: var(--cv-primary-soft); --portal-mark-fg: var(--cv-primary); }
+:root[data-theme="shopnova"] { --portal-brand-bg: #1f2a44; --portal-brand-text: #ffffff; --portal-brand-muted: #d6dbe6; --portal-mark-bg: #ff6b4a; --portal-mark-fg: #1f2a44; }
+:root[data-theme="atlas"] { --portal-brand-bg: #0c4a6e; --portal-brand-text: #ffffff; --portal-brand-muted: #d3e9f6; --portal-mark-bg: #f97316; --portal-mark-fg: #0c4a6e; }
+
+.portal-wrap { min-height: 100dvh; display: grid; place-items: center; padding: var(--cv-gutter); background: var(--cv-bg); }
+.portal {
+  width: 100%; max-width: 920px; display: grid; grid-template-columns: minmax(0, 1fr);
+  background: var(--cv-panel); border: 1px solid var(--cv-border); border-radius: 16px; overflow: hidden;
+  box-shadow: var(--cv-shadow-dialog); animation: cv-page var(--cv-motion) var(--cv-ease);
+}
+@media (min-width: 768px) { .portal { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); min-height: 480px; } }
+.portal-brand { background: var(--portal-brand-bg); color: var(--portal-brand-text); padding: var(--cv-s5); display: flex; flex-direction: column; gap: var(--cv-s3); }
+@media (min-width: 768px) { .portal-brand { padding: var(--cv-s6); gap: var(--cv-s4); justify-content: center; } }
+.portal-mark { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--portal-mark-bg); color: var(--portal-mark-fg); flex: none; }
+.portal-logo { color: var(--portal-brand-text); font-size: var(--cv-text-xl); }
+@media (min-width: 768px) { .portal-logo { font-size: var(--cv-text-2xl); } }
+:root[data-theme="shopnova"] .portal-logo span, :root[data-theme="atlas"] .portal-logo span { color: var(--portal-mark-bg); }
+.portal-lead { color: var(--portal-brand-muted); font-size: var(--cv-text-md); max-width: 36ch; }
+.portal-points { list-style: none; margin: 0; padding: 0; display: none; gap: var(--cv-s2); font-size: var(--cv-text-sm); color: var(--portal-brand-muted); }
+.portal-points li { display: flex; align-items: center; gap: var(--cv-s2); }
+.portal-points svg { color: var(--portal-mark-bg); flex: none; }
+@media (min-width: 768px) { .portal-points { display: grid; } }
+.portal-form { padding: var(--cv-s5); display: flex; flex-direction: column; justify-content: center; gap: var(--cv-s4); min-width: 0; }
+@media (min-width: 768px) { .portal-form { padding: var(--cv-s7) var(--cv-s6); } }
+.portal-form h1 { font-size: var(--cv-text-xl); }
+.portal-submit { width: 100%; min-height: 44px; }
+.portal-form .input { min-height: 44px; }
+
+.chooser { width: 100%; max-width: 520px; display: grid; gap: var(--cv-s5); animation: cv-page var(--cv-motion) var(--cv-ease); }
+.chooser .logo { font-size: var(--cv-text-xl); }
+.chooser-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--cv-s3); }
+.chooser-card {
+  display: flex; align-items: center; gap: var(--cv-s3); padding: var(--cv-s4); min-height: 72px;
+  background: var(--cv-panel); border: 1px solid var(--cv-border); border-radius: var(--cv-radius-panel);
+  color: var(--cv-text); text-decoration: none; transition: border-color var(--cv-motion-fast) var(--cv-ease), background-color var(--cv-motion-fast) var(--cv-ease);
+}
+.chooser-card:hover { border-color: var(--cv-muted); background: var(--cv-panel-2); }
+.chooser-card .chooser-go { margin-left: auto; color: var(--cv-muted); }
+.chooser-shop .portal-mark { background: #ff6b4a; color: #1f2a44; }
+.chooser-atlas .portal-mark { background: #f97316; color: #0c4a6e; }

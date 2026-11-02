@@ -58,8 +58,9 @@ const query = (params) => {
 };
 
 export const api = {
-  login: (username, password) =>
-    request("/api/auth/login", { method: "POST", body: JSON.stringify({ username, password }) }),
+  // portal = the sign-in page (shop | atlas | console): the server signs in only the accounts of that portal
+  login: (username, password, portal) =>
+    request("/api/auth/login", { method: "POST", body: JSON.stringify({ username, password, portal }) }),
   logout: () => request("/api/auth/logout", { method: "POST" }),
   session: () => request("/api/auth/session"),
   company: (company) => request(`/api/company${query({ company })}`),

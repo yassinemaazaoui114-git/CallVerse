@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth.jsx";
+import { loginPathFor, portalOfSession } from "../portals.js";
 import Icon from "./Icon.jsx";
 
 export const AREAS = {
@@ -46,13 +47,15 @@ export default function Shell({ area = "console" }) {
     return () => { delete document.documentElement.dataset.theme; };
   }, [cfg.theme, cfg.brand]);
 
-  // Logout: the user stays logged in (and on this page) until the server confirmed the session is gone.
+  // Logout: the user stays logged in (and on this page) until the server confirmed the session is gone; then
+  // back to the sign-in page of the account's own portal (ShopNova, Atlas Travel or the Console).
   async function onLogout() {
     setLoggingOut(true);
     setLogoutError(null);
+    const signIn = loginPathFor(portalOfSession(session));
     try {
       await logout();
-      navigate("/login", { replace: true });
+      navigate(signIn, { replace: true });
     } catch (e) {
       setLogoutError(e);
     } finally {

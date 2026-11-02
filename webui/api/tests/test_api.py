@@ -23,7 +23,7 @@ def test_login_sets_httponly_cookie_and_session_route_works(client):
     r = login(client, "supervisor")
     assert r.status_code == 200
     assert r.json()["session"] == {"username": "supervisor", "name": "CallVerse Supervisor",
-                                   "role": "supervisor", "company": None}
+                                   "role": "supervisor", "company": None, "portal": "console"}
     assert "password" not in r.text
     cookie = r.headers["set-cookie"]
     assert settings.COOKIE_NAME in cookie and "HttpOnly" in cookie and "SameSite=strict" in cookie.lower().replace("samesite=strict", "SameSite=strict")
@@ -39,7 +39,7 @@ def test_invalid_login_is_refused(client):
 
 
 def test_login_without_csrf_header_is_refused(client):
-    r = client.post("/api/auth/login", json={"username": "supervisor", "password": "test-only"})
+    r = client.post("/api/auth/login", json={"username": "supervisor", "password": "test-only", "portal": "console"})
     assert r.status_code == 403 and r.json()["error"] == "csrf"
 
 

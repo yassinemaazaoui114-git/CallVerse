@@ -2,7 +2,8 @@
 (ShopNova under /api/shop, Atlas Travel under /api/atlas), the customer pages, the chat and the admin queue.
 
 Routes (all under /api, JSON):
-- POST /api/auth/login      {username, password} -> the session (sets the HttpOnly cookie)
+- POST /api/auth/login      {username, password, portal} -> the session (sets the HttpOnly cookie); portal =
+                            shop | atlas | console, checked against the account file before a session exists
 - POST /api/auth/logout     deletes the session and clears the cookie
 - GET  /api/auth/session    the logged-in account, or 401
 - GET  /api/company         the company profile (shopnova by default, ?company=atlas)
@@ -59,6 +60,7 @@ ERRORS = {
     "text_too_long": f"A message may have at most {chat.MAX_TEXT} characters.",
     "no_job": "No message is being processed.",
     "admin_only": "This page is for the ShopNova admin (permission approve_refunds) only.",
+    "bad_portal": "Unknown sign-in page (allowed: shop, atlas, console).",
     "decision_in_progress": "A decision on this approval is already being processed. Check its state in a moment.",
     "reason_required": "A reason is required to refuse.",
     "already_decided": "This approval was already decided.",
@@ -69,7 +71,7 @@ ERRORS = {
     "client_id_reused": "This request id was already used for a different request. Send the new one with a new id.",
     "setup_required": "ShopNova's data is not set up on this PC yet (shopnova.db is missing). Run the seed "
                       "command from docs/DEMO_RUNBOOK.md, then try again.",
-    "bad_login": "Wrong username or password.",
+    "bad_login": "Wrong username or password, or this account does not sign in on this page.",
     "no_accounts": accounts.NO_ACCOUNTS_MESSAGE,
     "csrf": f"Missing {settings.CSRF_HEADER} header.",
     "not_found": "Not found.",
@@ -90,6 +92,7 @@ class ApiError(Exception):
 class LoginIn(BaseModel):
     username: str
     password: str
+    portal: str = ""   # the sign-in page: shop | atlas | console (it limits WHO may sign in, it grants nothing)
 
 
 class ProductIn(BaseModel):
@@ -237,19 +240,28 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
     # ---------- auth ----------
 
     @app.post("/api/auth/login", dependencies=[Depends(csrf_checked)])
-    def login(body: LoginIn, response: Response):
+    def login(body: LoginIn, request: Request, response: Response):
+        """Sign in through one portal. Order: the portal name is known (else 400), the password is right, the
+        account (from the FILE: role + company) belongs to that portal. A wrong password, an unknown username and
+        an account of another portal get the SAME 401 `bad_login` (same words, a bcrypt check every time), so the
+        page never says which part was wrong nor that an account exists elsewhere. A refused attempt changes
+        nothing: an existing session stays as it was. A successful one replaces the browser's previous session
+        (that token is deleted on the server): one browser, one session, whichever page it came through."""
         if accounts.load_accounts() is None:
             raise ApiError(503, "no_accounts")
+        if body.portal not in auth.PORTALS:
+            raise ApiError(400, "bad_portal")
         username = body.username.strip()
         if not auth.verify_password(username, body.password):
             raise ApiError(401, "bad_login")
         info = auth.session_info(username)
-        if info is None:
+        if info is None or not auth.may_use_portal(info, body.portal):
             raise ApiError(401, "bad_login")
+        sessions.delete(request.cookies.get(settings.COOKIE_NAME))   # the previous session of this browser, if any
         token = sessions.create(username)
         response.set_cookie(settings.COOKIE_NAME, token, httponly=True, samesite="strict", secure=False,
                             max_age=int(settings.SESSION_HOURS * 3600), path="/api")
-        return {"session": info}
+        return {"session": {**info, "portal": body.portal}}
 
     @app.post("/api/auth/logout", dependencies=[Depends(csrf_checked)])
     def logout(request: Request, response: Response):
@@ -259,7 +271,9 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
 
     @app.get("/api/auth/session")
     def session(info: dict = Depends(logged_in)):
-        return {"session": info}
+        """The logged-in account and the portal it belongs to (from the file), so the browser can send a
+        logout or an expired session back to the right sign-in page."""
+        return {"session": {**info, "portal": auth.portal_of(info)}}
 
     # ---------- company ----------
 
