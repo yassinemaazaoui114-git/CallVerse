@@ -12,7 +12,9 @@ a rule, must_say or the rule check. The Coordinator decided those before the pol
 Situation groups: one bandit per group, kept COARSE on purpose (we will have few ratings):
     group = (company, outcome class, emotion class)
     outcome class = approve / decline / ask / info / other    (from situation["outcome"])
-    emotion class = angry / other    (angry = Intake emotion anger or disgust, or a negative sentiment)
+    emotion class = angry / other    (angry = Intake emotion anger or disgust)
+    Why not "or a negative sentiment"? Almost every complaint has a negative sentiment (24 of the 27 RL1 situations),
+    so the split would mean nothing; anger / disgust is 5 of 27. One constant (ANGRY_EMOTIONS) to change if needed.
 With fewer than MIN_OBS (5) observations in a group, the policy explores: it takes the least-tried style.
 
 Storage: a small JSON file (config.yaml learning.style_policy_file). The log of every choice and reward is the
@@ -44,8 +46,8 @@ def outcome_class(outcome) -> str:
 
 
 def emotion_class(situation: dict) -> str:
-    """angry (anger, disgust or a negative sentiment) or other."""
-    if situation.get("emotion") in ANGRY_EMOTIONS or situation.get("sentiment") == "negative":
+    """angry (Intake emotion anger or disgust) or other. The sentiment is not used (see the module text)."""
+    if situation.get("emotion") in ANGRY_EMOTIONS:
         return "angry"
     return "other"
 

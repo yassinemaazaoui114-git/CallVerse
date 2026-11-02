@@ -38,8 +38,10 @@ def test_group_key_is_coarse():
     assert group_of(CALM) == "shopnova|info|other"
     assert group_of({"company": "atlas", "outcome": "ask_proof", "emotion": "sadness"}) == "atlas|ask|other"
     assert group_of({"company": "atlas", "outcome": "escalate"}) == "atlas|other|other"
-    assert group_of({"company": "shopnova", "outcome": "decline", "emotion": "joy", "sentiment": "negative"}) == \
-        "shopnova|decline|angry"
+    # a negative sentiment alone is not "angry" (almost every complaint has one)
+    assert group_of({"company": "shopnova", "outcome": "decline", "emotion": "sadness", "sentiment": "negative"}) == \
+        "shopnova|decline|other"
+    assert group_of({"company": "shopnova", "outcome": "decline", "emotion": "disgust"}) == "shopnova|decline|angry"
 
 
 def test_explores_every_style_before_min_obs():
@@ -333,3 +335,86 @@ def test_style_log_error_never_breaks_the_reply(monkeypatch, tmp_path, tickets_d
     said, reply, _ = pipeline.final_reply(dict(tickets()[0]), None)
     assert reply and said["reply_style"] in STYLES
     assert "style_log" in events("style_policy_error")[0]["error"]
+
+
+# --- steps 5 and 6: offline training, importer, baselines (SYNTHETIC unless rated by a fake sheet) ----------------
+
+def fake_cases():
+    """6 hand-made situations (2 angry, 4 calm), each with a cached reply per style. Not real data."""
+    out = []
+    for n, (company, outcome, emotion) in enumerate([("shopnova", "info", "anger"), ("atlas", "decline", "anger"),
+                                                     ("shopnova", "info", "neutral"), ("shopnova", "decline", "sadness"),
+                                                     ("atlas", "info", "neutral"), ("atlas", "approve", "joy")]):
+        sit = {"company": company, "outcome": outcome, "emotion": emotion, "sentiment": "negative"}
+        out.append({"situation_id": f"x{n}", "situation": sit, "ticket": {"ticket_id": f"T-{n}", "text": "hi"},
+                    "decision": {"outcome": outcome}, "replies": {s: f"reply {s} {n}" for s in STYLES}})
+    return out
+
+
+def test_train_synthetic_logs_labelled_rows(tickets_db):
+    from scripts.train_style_policy import train
+    result = train(fake_cases(), "synthetic", 120, seed=2)
+    assert result["used"] == 120 and result["warning"] is None
+    rows = store.style_log()
+    assert len(rows) == 120 and {r["source"] for r in rows} == {"synthetic"}
+    assert rows[0]["reply"].startswith("reply ") and "situation_id" in rows[0]["situation"]
+    assert {c["source"] for c in result["curve"]} == {"synthetic"}
+
+
+def test_train_agent_f_warns_when_the_reward_ignores_the_style(tickets_db):
+    from scripts.train_style_policy import train
+    constant = lambda record: {"correctness": "PASS", "satisfaction": 3.4}   # like today's agent F: same for every style
+    result = train(fake_cases(), "agent_f", 60, seed=1, log=False, evaluate=constant)
+    assert "nothing to learn" in result["warning"]
+    assert store.style_log() == []   # log=False
+
+
+def test_import_then_train_on_ratings(monkeypatch, tmp_path, tickets_db):
+    import scripts.import_ratings as importer
+    from scripts.train_style_policy import train
+    cases = [{**c, "situation_id": sid} for c, sid in zip(fake_cases(), ("p01", "a06"))]
+    monkeypatch.setattr(importer, "load_situations", lambda: cases)
+    sheet, key = tmp_path / "filled.xlsx", tmp_path / "key.json"
+    key.write_text(json.dumps(KEY))
+    write_xlsx(sheet, {"Ann": rater(("5", "3", "1"), ("2", "4")), "Bob": rater(("4", "4", "2"), ("1", "5"))})
+    result = importer.import_file(sheet, key)
+    assert result["saved"] == 12 and result["raters"] == {"Ann": 6, "Bob": 6}
+    real = store.style_log("real")
+    assert len(real) == 12 and {r["situation"]["situation_id"] for r in real} == {"p01", "a06"}
+    trained = train(cases, "ratings", 200, seed=1, log=False)
+    assert trained["used"] > 0 and {c["source"] for c in trained["curve"]} == {"real"}
+
+
+def test_import_rejects_identical_tabs_and_saves_nothing(monkeypatch, tmp_path, tickets_db):
+    import scripts.import_ratings as importer
+    monkeypatch.setattr(importer, "load_situations", lambda: fake_cases())
+    sheet, key = tmp_path / "copied.xlsx", tmp_path / "key.json"
+    key.write_text(json.dumps(KEY))
+    same = rater(("4", "3", "2"), ("1", "5"))
+    write_xlsx(sheet, {n: same for n in ("A1", "A2", "A3")})
+    with pytest.raises(rewards.RatingSheetError):
+        importer.import_file(sheet, key)
+    assert store.style_log() == []
+
+
+def test_train_on_ratings_without_ratings_stops(tickets_db):
+    from scripts.train_style_policy import train
+    with pytest.raises(SystemExit, match="import_ratings"):
+        train(fake_cases(), "ratings", 10, seed=1, log=False)
+
+
+def test_bandit_beats_random_and_the_worst_fixed_style():
+    """SYNTHETIC world, 300 rounds x 3 seeds (the T30 baseline table)."""
+    from scripts.train_style_policy import baselines
+    rows = {r["strategy"]: r for r in baselines(fake_cases(), 300, seeds=(1, 2, 3))}
+    assert all(r["source"] == "synthetic" for r in rows.values())
+    worst_fixed = min(rows[s]["mean_reward"] for s in STYLES)
+    assert rows["bandit"]["mean_reward"] > rows["random"]["mean_reward"]
+    assert rows["bandit"]["mean_reward"] > worst_fixed
+    assert rows["bandit"]["regret"] < rows["random"]["regret"]
+
+
+def test_baselines_on_a_flat_world_do_not_break():
+    from scripts.train_style_policy import baselines
+    rows = baselines(fake_cases(), 300, seeds=(1, 2, 3), means=rewards.FLAT_MEANS)
+    assert all(abs(r["mean_reward"] - 0.6) < 0.07 for r in rows)
