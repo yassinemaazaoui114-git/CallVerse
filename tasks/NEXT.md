@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Status | DONE |
-| Task file | tasks/T29_polish.md (money-back words widened with tests, Agent C "no later flight" check, eval bench fix + refund-on-unpaid-order check, optional "client" → "users" wording) |
-| Approved by | Yassine — 2026-11-02 13:32 ("if there is still tasks lets do it now, until the limit hit") |
+| Status | READY |
+| Task file | tasks/T30_rl5_skeleton.md (RL5: style policy bandit + style_log + offline training + rating importer + OFF-by-default switch, synthetic reward until real ratings arrive; also commits the Brain's held-out C/D file) |
+| Approved by | Yassine — 2026-11-02 14:32 ("approved") |
 | Last done | T29 — merged into main (56cc268), 1848 tests pass on main |
 
-Next after T29: RL5 (needs the team's real ratings and a style-dependent reward source). Held-out C/D cases: the Brain writes them.
+Next after T30: when the team's real ratings arrive: import them and train (no new code expected). Held-out C/D final check: once, at the end, with Yassine's OK.
 
 Status values: READY · IN PROGRESS · WAITING FOR REVIEW · DONE
 Roadmap (Notion): CallVerse — Full Version Roadmap (finished tasks in its "Done" table) · Dali's lane: tasks/NEXT_PLATFORM.md · Semah's lane: tasks/NEXT_VOICE.md
