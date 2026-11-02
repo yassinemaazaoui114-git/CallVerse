@@ -36,6 +36,17 @@ function renderAt(path, routePath, element) {
 }
 
 describe("Promotions page (ShopNova admin)", () => {
+  it("T28: says 'No sales in the last 30 days' instead of 9,999 days", async () => {
+    const net = installFakeFetch();
+    renderAt("/admin/promotions", "/admin/promotions", <OwnerProposals company="shopnova" />);
+    (await net.waitFor("/api/auth/session")).respond(200, { session: SHOP_ADMIN });
+    const list = await net.waitFor(/\/api\/admin\/promotions\?status=pending$/);
+    await act(async () => { list.respond(200, listBody([promo(1, { facts: { stock: 120, units_sold_30d: 0, days_of_cover: 9999 } })])); });
+    const card = screen.getByRole("article", { name: /Promotion 1 · 10% on Phone Case/ });
+    expect(within(card).getByText("Days of cover").nextSibling).toHaveTextContent("No sales in the last 30 days");
+    expect(within(card).queryByText(/9,999/)).toBeNull();
+  });
+
   it("shows Agent D's facts, approves after the confirmation, and a double click sends one decision", async () => {
     const net = installFakeFetch();
     renderAt("/admin/promotions", "/admin/promotions", <OwnerProposals company="shopnova" />);

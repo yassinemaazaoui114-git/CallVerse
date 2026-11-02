@@ -112,6 +112,14 @@ def record_proposal(proposal: dict) -> dict:
     return _done("record_proposal", args, {"id": proposal_id})
 
 
+def get_proposal(proposal_id: str) -> dict | None:
+    """T28: one proposal as a dict (JSON columns turned back into values), or None. A read: it changes nothing.
+    Used by a bare "yes": the proposal the client says yes to is read back from here, never from a text."""
+    with closing(connect()) as con:
+        row = con.execute("SELECT * FROM proposals WHERE id = ?", (str(proposal_id),)).fetchone()
+    return _proposal_row(row) if row else None
+
+
 def record_decision(proposal_id: str, decision: str, reason: str) -> dict:
     """Store the Coordinator's decision on a proposal and return the updated proposals row.
 

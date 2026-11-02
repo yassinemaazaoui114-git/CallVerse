@@ -47,7 +47,7 @@ reason, not only the status.
 
 from callverse import trace
 from callverse.config import load_config
-from callverse.coordinator.negation import money_back_asked, negated_request
+from callverse.coordinator.negation import money_back_asked, negated_request, yes_confirmation
 from callverse.intake.request_words import cancels_order
 from callverse.coordinator import special
 from callverse.data.layer3 import layer3_decide, layer3_mode
@@ -369,6 +369,11 @@ def review(proposal: dict, case: dict) -> dict:
     if (action == "refund" and isinstance(proposal, dict) and proposal.get("user_confirmed") is True
             and not money_back_asked(case.get("user_message"))):
         confirmation = (False, "the client's words do not ask for money back")
+    # T28 (step 09): a bare "yes" to our own question. "yes" has no quote and no money-back words, so the checks of the
+    # FIRST message were made by code when the question was asked (case["yes_answer"] = those flags). Every other
+    # check below is the same.
+    if case.get("yes_answer") is not None:
+        confirmation = yes_confirmation(action, case["yes_answer"])
     if confirmation:
         proposal = {**proposal, "user_confirmed": confirmation[0]}
     if isinstance(proposal, dict):

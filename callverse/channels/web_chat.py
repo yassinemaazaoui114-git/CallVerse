@@ -29,6 +29,13 @@ check uses the company's data (at Atlas: the booking must be this user's), the p
 and the ticket keeps its company. T22: the Atlas Travel app calls send(company="atlas"), and its "Ask about this booking"
 adds " (booking N)" the same way as ShopNova's " (order N)".
 
+T28 (step 09, callverse/channels/conversation.py, docs/step09_design.md): the conversation is remembered inside ONE
+ticket. (a) A message that names no order but refers back ("and what about it?") gets the newest id the user typed in
+the last 6 messages, then the same identity check. (b) One pending question per ticket ("Please confirm ..."): a bare
+"yes" continues exactly that proposal through the normal Coordinator (no agent, no model decides), a bare "no" closes
+it; any other message clears it; it expires after 30 minutes. (c) One decision per message: with two or more different
+ids, the money part goes through the pipeline and the other parts get one sentence each by code.
+
 One message at a time (a lock): the pipeline has one trace and one set of local models; a demo has few users.
 """
 
@@ -37,6 +44,7 @@ import time
 
 from callverse import companies, pipeline, trace
 from callverse import quota
+from callverse.channels import conversation
 from callverse.coordinator.coordinator import user_words
 from callverse.data.atlas import reads as atlas_reads
 from callverse.intake import extract, intake
@@ -57,7 +65,8 @@ QUOTA_CACHE_SECONDS = 300   # B's quota is checked at most once per 5 minutes (o
 # escalate: a human colleague must look, so the ticket is "Escalated" (T19; it was Open before).
 STATUS_BY_OUTCOME = {"approve": "Solved", "info": "Solved", "layer3_refused": "Solved", "decline": "Solved",   # T14a
                      "ask_user": "Waiting for user", "ask_proof": "Waiting for user", "escalate": "Escalated",
-                     "layer3_pending": "Waiting for finance"}   # T18
+                     "layer3_pending": "Waiting for finance",   # T18
+                     "closed_by_user": "Solved"}                # T28: a bare "no" to our question
 
 # Trace step -> kind of step saved in the tickets store (docs/ui_design.md section 3; "llm" added for the
 # tokens per ticket of the Console, "quota" / "identity" for the two checks of this channel).
@@ -74,6 +83,7 @@ STEP_KINDS = {
     "slm_call": "slm", "slm_check": "slm", "slm_template": "slm", "final_reply": "slm",
     "llm_call": "llm", "llm_fallback": "llm", "llm_daily_limit": "llm", "llm_skip": "llm", "llm_wait": "llm",
     "pipeline_error": "error",
+    "pending_question": "memory", "yes_answer": "memory",   # T28
 }
 ORDER_TOOLS = ("get_order", "get_tracking", "get_refunds", "get_user")
 BOOKING_TOOLS = ("get_hotel_booking", "get_flight_booking", "get_flight")
@@ -192,6 +202,7 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
     tid = ticket["id"]
     message_id = store.add_message(tid, "user", text)
     records, shown = [], []
+    extras: list[str] = []   # T28: sentences for the other requests of the message (one decision per message)
 
     def listen(record):
         records.append(record)
@@ -214,6 +225,8 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
 
     def finish(reply, status, outcome, source, **fields):
         flush()
+        if extras and outcome not in ("busy", "escalate"):
+            reply = " ".join([reply.rstrip(), *extras])
         seconds = round(time.perf_counter() - start, 2)   # T19: saved with the reply (the Console's reply time)
         store.add_message(tid, "assistant", reply, seconds=seconds)
         updated = store.update_ticket(tid, status=status, **fields)
@@ -232,6 +245,73 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
         pending_reply = BOOKING_ALREADY_PENDING_REPLY if company == "atlas" else ALREADY_PENDING_REPLY
         return finish(pending_reply.format(order_id=waiting["order_id"]),
                       "Waiting for finance" if same else "Solved", "approval_pending", "channel", **fields)
+
+    def queue_for_finance(decision, urgent=False):
+        """T18: the refund / compensation waits for the company's admin (Refund approvals page)."""
+        approval = store.create_approval(tid, decision["order_id"], decision["facts"]["amount_tnd"],
+                                         decision["proposal_id"], company, decision.get("booking_type"),
+                                         "compensation" if decision.get("action") == "compensation" else "refund",
+                                         urgent=urgent)
+        channel_step("approval", {"approval_id": approval["id"], "order_id": approval["order_id"],
+                                  "amount": approval["amount"], "proposal_id": approval["proposal_id"],
+                                  "status": "pending"})
+
+    def resume_question(question):
+        """T28: the bare "yes" continues the stored proposal through the Coordinator (no agent, no model decides)."""
+        trace.add_listener(listen)
+        try:
+            resumed = conversation.resume(question, text, tid, slm_chat_fn)
+            decision = resumed["decision"]
+            if decision["outcome"] == "layer3_pending":
+                queue_for_finance(decision)
+        except AssertionError:
+            raise
+        except Exception as e:
+            reason = f"error in the channel: {type(e).__name__}: {e}"
+            channel_step("error", {"error": reason})
+            reply = _escalate_reply({"ticket_id": tid, "order_id": question["order_id"], "company": company}, reason,
+                                    slm_chat_fn)
+            return finish(reply, STATUS_BY_OUTCOME["escalate"], "escalate", "channel")
+        outcome = decision["outcome"]
+        return finish(resumed["final_reply"], STATUS_BY_OUTCOME.get(outcome, "Open"), outcome, resumed["reply_source"],
+                      main_reason=question["main_reason"], lead_agent=question["asked_by"])
+
+    # 0. T28: the pending question ends at this message (a bare yes / no answers it, anything else clears it).
+    answer = conversation.bare_answer(text)
+    question = conversation.open_question(tid, user_id, company)
+    if question is not None:
+        if answer == "no":
+            conversation.end_question(question, "closed")
+            channel_step("pending_question", {"question_id": question["id"], "status": "closed"})
+            return finish(conversation.CLOSED_REPLY, "Solved", "closed_by_user", "channel")
+        if answer == "yes" and question["asked_by"] in ("A", "B"):
+            if conversation.end_question(question, "used"):   # one SQL step: a second "yes" finds nothing open
+                guarded = already_pending(question["order_id"])
+                if guarded:
+                    return guarded
+                try:
+                    return resume_question(question)
+                finally:
+                    flush()
+        elif answer == "yes":
+            conversation.end_question(question, "used")   # Agent C's offer: the P20 path below (C runs again)
+        else:
+            conversation.end_question(question, "cleared")
+
+    # 0b. T28: several requests in one message: one decision per message. `text` from here on = the part handled.
+    parts = conversation.split_requests(text, company)
+    if parts:
+        main = conversation.main_part(parts)
+        extras.extend(conversation.other_parts_sentences(
+            parts, main, lambda oid: not _not_users_order(oid, user_id, company), company))
+        channel_step("several_requests", {"parts": parts, "handled": main["order_id"], "added": list(extras)})
+        text = main["text"]
+    # 0c. T28: no id, but the message refers back ("and what about it?"): the id the user typed earlier in this chat.
+    elif answer is None and extract.extract(text, company)["order_id"] is None and conversation.refers_back(text):
+        earlier = conversation.earlier_order_id(tid, company, message_id)
+        if earlier is not None and not _not_users_order(earlier, user_id, company):
+            channel_step("memory_order", {"order_id": earlier})
+            text = with_order(text, earlier, company)
 
     # 1b. T18 follow-up: the duplicate guard comes BEFORE the quota check (it needs no agent and no model). The
     # order number is read with the plain extractor (no model); only the user's OWN order gets this reply, so it
@@ -281,13 +361,7 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
             decision = out["decision"]
             if decision["outcome"] == "layer3_pending":
                 # T18: the refund waits for the ShopNova admin (Refund approvals page).
-                approval = store.create_approval(tid, decision["order_id"], decision["facts"]["amount_tnd"],
-                                                 decision["proposal_id"], company, decision.get("booking_type"),
-                                                 "compensation" if decision.get("action") == "compensation" else "refund",
-                                                 urgent=bool(intake_ticket.get("urgent")))
-                channel_step("approval", {"approval_id": approval["id"], "order_id": approval["order_id"],
-                                          "amount": approval["amount"], "proposal_id": approval["proposal_id"],
-                                          "status": "pending"})
+                queue_for_finance(decision, urgent=bool(intake_ticket.get("urgent")))
         except AssertionError:
             raise   # an assert in a test's fake LLM: a failing test must stay visible
         except Exception as e:
@@ -300,6 +374,8 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
         outcome = out["decision"]["outcome"]
         lead = out["handover"] if out["handover"] in ("B", "C") else out["route"]["agent"]
         lead = None if lead == "escalate" else lead   # T21: no agent worked on it, a colleague takes it
+        # T28: "Please confirm ..." -> remember the question, so a bare "yes" / "no" can answer it.
+        conversation.remember_question(tid, user_id, company, out["decision"], lead, intake_ticket, message_id)
         return finish(out["final_reply"], STATUS_BY_OUTCOME.get(outcome, "Open"), outcome, out["reply_source"],
                       main_reason=intake_ticket["main_reason"], priority=intake_ticket.get("priority_label"),
                       lead_agent=lead)
