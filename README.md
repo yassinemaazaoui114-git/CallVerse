@@ -336,6 +336,11 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   B's "Please confirm ..." through the normal Coordinator (a refund still needs the client's money-back words in the
   first message) and "no" closes it; one decision per message (a second order gets its status or "send it as a new
   message"); "no refund please" is read as negative. Report [tasks/T28_report.md](tasks/T28_report.md).
+- **T29** Small follow-ups: more money-back words ("money returned to me", "reimbursed", "repay me", negation kept;
+  `callverse/intake/request_words.py`); Atlas Agent C with no later flight hands the case to a colleague by code
+  with one fixed sentence (F6, `atlas_c_tools.py`, `pipeline.run_c`); a refund of an unpaid order (4514) is refused
+  at the proposal step (`proposal_tools.nothing_paid`); the eval bench puts fake facts into `ask_agent` too.
+  Report [tasks/T29_report.md](tasks/T29_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,
