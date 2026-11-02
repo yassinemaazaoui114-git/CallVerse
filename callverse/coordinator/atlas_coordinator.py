@@ -41,7 +41,7 @@ from datetime import date
 from callverse import companies, trace
 from callverse.config import load_config, sim_today
 from callverse.coordinator.coordinator import INTERNAL_OUTCOMES, RECORDED_AS, _check
-from callverse.coordinator.negation import money_back_asked, negated_request
+from callverse.coordinator.negation import money_back_asked, negated_request, yes_confirmation
 from callverse.intake.request_words import asks_for_expenses
 from callverse.data.atlas import reads, writes
 from callverse.data.atlas.schema import BOOKING_TYPES
@@ -379,6 +379,14 @@ def confirmation(proposal: dict, case: dict) -> tuple[bool, str]:
     quote, reason = proposal.get("user_quote"), case.get("main_reason")
     if reason not in CONFIRMING_REASONS:
         return False, "the message asks for no action"
+    action = proposal.get("action")
+    if case.get("yes_answer") is not None:
+        # T28 (step 09): a bare "yes" to our own question: the reason (Intake's, of the first message) must still fit
+        # the action, and the first message's checks (money-back words, negative, costs around the trip) were stored
+        # as flags when the question was asked. The quote check is the only one a "yes" cannot pass, so it is replaced.
+        if action in ACTION_REASONS and reason not in ACTION_REASONS[action]:
+            return False, f"the client asked for a {reason.replace('_', ' ')}, not {ACTION_WORDS.get(action, action)}"
+        return yes_confirmation(action, case["yes_answer"])
     if not isinstance(quote, str) or not quote.strip():
         return False, "no quote"
     sentence = quoted_sentence(quote.strip().lower(), (case.get("user_message") or "").lower())
@@ -386,7 +394,6 @@ def confirmation(proposal: dict, case: dict) -> tuple[bool, str]:
         return False, "quote not in the message"
     if negated_request(sentence):
         return False, "negative sentence"
-    action = proposal.get("action")
     if action in ACTION_REASONS and reason not in ACTION_REASONS[action]:
         return False, f"the client asked for a {reason.replace('_', ' ')}, not {ACTION_WORDS.get(action, action)}"
     if action in ("refund", "cancel_hotel") and asks_for_expenses(sentence):

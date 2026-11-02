@@ -17,7 +17,13 @@ The rule now, in two steps:
    between (want, to, a, my, the, order, ...): "do not want to return", "don't cancel", "never asked for a refund",
    "no longer want a refund", "should be rerouted NOT refunded". Other words in between break the link, so
    "didn't arrive so please cancel" stays a request ("arrive", "so", "please" are not filler words).
+3. T28 (T14f follow-up): a plain "no" right before the action, said as a wish: "no refund please", "no refund
+   needed", "no cancellation, thanks". Not when it is a complaint: "still no refund", "I got no refund", "no refund
+   yet" (a "please" / "needed" / "thanks" must follow, and "still / got / received / yet / there is" must not come
+   before; "no refund please help" stays a request).
 Plain code, no model: the same sentence always gives the same answer, and each case is a unit test.
+
+T28 also adds the confirmation of a bare "yes" (question_flags, yes_confirmation): see the end of this file.
 """
 
 import re
@@ -54,12 +60,21 @@ FILLER = (r"(?:want|wanna|wish|need|like|would|to|get|getting|a|an|any|my|the|it
           r"order|booking|flight|ticket|for|me|ask|asked|asking|request|requested|requesting|looking|going)")
 NEGATED_RE = re.compile(rf"\b{NEGATIVE}(?:\s+{FILLER}){{0,4}}\s+{ACTION}", re.IGNORECASE)
 
+# Step 3 (T28): "no refund please", "no cancellation needed", "no refund, thanks". The word before "no" must not make
+# it a complaint ("still no refund", "got no refund"), and a request word after it keeps it a request
+# ("no refund please help").
+NO_WISH_RE = re.compile(rf"(?<!still )(?<!got )(?<!received )(?<!there is )(?<!there's )(?<!yet )"
+                        rf"\bno\s+{ACTION},?\s+(?:please|pls|needed|necessary|required|wanted|thanks|thank\s+you)\b"
+                        rf"(?!\s+(?:help|check|look|advise|fix|tell|explain|send|refund|reply))", re.IGNORECASE)
+
 
 def negated_request(sentence: str | None) -> bool:
     """True when the sentence says the client does NOT want the action (see the two steps above)."""
     text = (sentence or "").replace("’", "'").replace("/", " ")   # "return/refund" -> two words
     text = REQUEST_RE.sub(" ", text)                                    # step 1: requests are not negations
     text = COMPLAINT_RE.sub(" ", text)                                  # step 1c (T14d): "not refunded till date"
+    if NO_WISH_RE.search(text):                                         # step 3 (T28): "no refund please"
+        return True
     return NEGATED_RE.search(text) is not None                          # step 2
 
 
@@ -76,3 +91,55 @@ def money_back_asked(message: str | None) -> bool:
     for mark in SENTENCE_ENDS[1:]:
         text = text.replace(mark, SENTENCE_ENDS[0])
     return any(asks_for_money_back(s) and not negated_request(s) for s in text.split(SENTENCE_ENDS[0]))
+
+
+# ---------- T28 (step 09): the confirmation of a bare "yes" ----------
+# When the Coordinator asked "Please confirm that you want a refund of 59.90 TND for order 4512." and the client answers
+# only "yes", the yes has no quote and no money-back words. So the checks of the FIRST message are made by code when the
+# question is asked, and stored with it (flags). The yes then counts only if those flags allow this action.
+
+def _sentences(message: str | None) -> list[str]:
+    text = (message or "").lower()
+    for mark in SENTENCE_ENDS[1:]:
+        text = text.replace(mark, SENTENCE_ENDS[0])
+    return [s for s in text.split(SENTENCE_ENDS[0]) if s.strip()]
+
+
+def question_flags(message: str | None) -> dict:
+    """The facts about the client's FIRST message that a later bare "yes" needs (all by code, no model):
+    money_back  : the client's own money-back words, not negative (money_back_asked, T14f);
+    negated     : a sentence says they do NOT want an action ("I don't want a refund", "no refund please");
+    expenses    : they ask for costs around the trip (Atlas: a compensation question, not a refund);
+    cancel_order: a non-negative sentence cancels the ORDER (ShopNova, request_words.cancels_order);
+    cancel_any  : a non-negative sentence has a cancel word (Atlas hotel cancellation)."""
+    from callverse.intake.request_words import CANCEL_WORD_RE, asks_for_expenses, cancels_order
+    sentences = _sentences(message)
+    lower = (message or "").lower()
+    return {"money_back": money_back_asked(message),
+            "negated": any(negated_request(s) for s in sentences),
+            "expenses": any(asks_for_expenses(s) for s in sentences),
+            "cancel_order": any(CANCEL_WORD_RE.search(s) and not negated_request(s) and cancels_order(s, lower)
+                                for s in sentences),
+            "cancel_any": any(CANCEL_WORD_RE.search(s) and not negated_request(s) for s in sentences)}
+
+
+def yes_confirmation(action: str | None, flags: dict | None) -> tuple[bool, str]:
+    """(confirmed, reason) for a bare "yes" to the Coordinator's question about this action, from the stored flags.
+    A refund still needs the client's own money-back words in the first message (T14f): a "yes" alone never makes a
+    refund out of a message that did not ask for money."""
+    flags = flags or {}
+    if action == "refund":
+        ok = bool(flags.get("money_back")) and not flags.get("expenses")
+        return ok, "yes + money-back words in the first message" if ok else "the first message did not ask for money back"
+    if action == "cancel":
+        ok = bool(flags.get("cancel_order"))
+        return ok, "yes + the first message cancels the order" if ok else "the first message does not cancel the order"
+    if action == "cancel_hotel":
+        ok = bool(flags.get("cancel_any")) and not flags.get("expenses")
+        return ok, "yes + the first message asks to cancel" if ok else "the first message does not ask to cancel"
+    if action == "compensation":
+        ok = not flags.get("negated")
+        return ok, "yes to the compensation question" if ok else "the first message said no"
+    if action == "subscribe":
+        return True, "yes to the notification question"
+    return False, f"a bare yes cannot confirm '{action}'"

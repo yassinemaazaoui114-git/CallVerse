@@ -16,6 +16,8 @@ Tables (docs/ui_design.md section 3):
               `action` (refund / compensation). `order_id` is the number of the case: the booking at Atlas.
 - system_tokens : tokens CallVerse spent for itself, not for a ticket (T17 follow-up Q5: the quota check's
               "Say OK." pings), so the Console can show them apart from the tokens per ticket.
+- pending_questions : T28 (step 09) the ONE open question of a conversation (B's "Please confirm ..." or C's offer),
+              so a bare "yes" / "no" can answer it. Written and read by callverse/channels/conversation.py.
 
 T19 (the Console): two clocks. The simulation clock does not move, so every ticket would have the same time.
 - created_at / updated_at / at = SIMULATION time: the company rules use it (the 3-day reopen window).
@@ -48,6 +50,9 @@ _db_path = DEFAULT_DB_PATH
 STATUSES = ("New", "Open", "Waiting for user", "Waiting for finance", "Escalated", "Solved", "Closed")   # T19: Escalated
 SENDERS = ("user", "assistant", "system")
 APPROVAL_STATUSES = ("pending", "approved", "refused")
+# T28: open = waiting for the client; used = a yes continued it; closed = a no; cleared = another message came;
+# expired = more than 30 minutes old.
+QUESTION_STATUSES = ("open", "used", "closed", "cleared", "expired")
 REOPEN_DAYS = 3   # a Solved ticket can be reopened for 3 days (simulation clock), then a new ticket starts
 # Ticket columns that update_ticket() may change (id, company, user_id, created_at never change).
 UPDATABLE = ("status", "main_reason", "priority", "lead_agent")
@@ -112,6 +117,23 @@ CREATE TABLE IF NOT EXISTS approvals (
     booking_type TEXT,                              -- T21: hotel / flight (Atlas)
     action       TEXT NOT NULL DEFAULT 'refund',    -- T21: refund / compensation
     urgent       INTEGER NOT NULL DEFAULT 0         -- P20: 1 = handed over by Agent C ("urgent refund"): top of the list
+);
+CREATE TABLE IF NOT EXISTS pending_questions (   -- T28: one open question per conversation
+    id           INTEGER PRIMARY KEY,
+    ticket_id    TEXT NOT NULL REFERENCES tickets(id),
+    user_id      INTEGER NOT NULL,           -- who was asked (a yes of another user never counts)
+    company      TEXT NOT NULL,
+    asked_by     TEXT NOT NULL,              -- "A", "B" or "C"
+    order_id     INTEGER,                    -- the order (ShopNova) or booking (Atlas) of the question
+    booking_type TEXT,                       -- Atlas: hotel / flight
+    proposal_id  TEXT,                       -- the proposal in the company's DB (P-0001 / AP-0001)
+    action       TEXT,                       -- refund, cancel, compensation, replace, ...
+    main_reason  TEXT,                       -- Intake's reason of the message that led to the question
+    flags        TEXT NOT NULL,              -- JSON, by code from that message: money_back, negated, ...
+    message_id   INTEGER,                    -- that user message
+    status       TEXT NOT NULL CHECK (status IN {_in(QUESTION_STATUSES)}),
+    created_real TEXT NOT NULL,              -- the computer's time (the 30-minute expiry)
+    ended_real   TEXT
 );
 CREATE TABLE IF NOT EXISTS system_tokens (
     id       INTEGER PRIMARY KEY,
@@ -387,3 +409,46 @@ def current_ticket(company: str, user_id: int) -> dict | None:
     if row is None or not can_continue(dict(row)):
         return None
     return dict(row)
+
+
+# ---------- pending questions (T28: step 09) ----------
+
+def add_pending_question(ticket_id: str, user_id: int, company: str, asked_by: str, order_id, booking_type,
+                         proposal_id, action, main_reason, flags: dict, message_id, created_real: str | None = None) -> dict:
+    """Save the ticket's open question. An older open question of the same ticket is cleared first (only ONE)."""
+    with closing(connect()) as con:
+        con.execute("UPDATE pending_questions SET status = 'cleared', ended_real = ? WHERE ticket_id = ? AND status = 'open'",
+                    (real_now(), str(ticket_id)))
+        cur = con.execute("INSERT INTO pending_questions (ticket_id, user_id, company, asked_by, order_id, booking_type,"
+                          " proposal_id, action, main_reason, flags, message_id, status, created_real)"
+                          " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', ?)",
+                          (str(ticket_id), int(user_id), company, asked_by, order_id, booking_type, proposal_id, action,
+                           main_reason, json.dumps(flags), message_id, created_real or real_now()))
+        con.commit()
+    return get_pending_question(cur.lastrowid)
+
+
+def get_pending_question(question_id: int) -> dict | None:
+    with closing(connect()) as con:
+        row = con.execute("SELECT * FROM pending_questions WHERE id = ?", (int(question_id),)).fetchone()
+    return {**dict(row), "flags": json.loads(row["flags"])} if row else None
+
+
+def open_pending_question(ticket_id: str) -> dict | None:
+    """The ticket's open question (status "open"), or None. Expiry and user checks: conversation.py."""
+    with closing(connect()) as con:
+        row = con.execute("SELECT * FROM pending_questions WHERE ticket_id = ? AND status = 'open' ORDER BY id DESC"
+                          " LIMIT 1", (str(ticket_id),)).fetchone()
+    return {**dict(row), "flags": json.loads(row["flags"])} if row else None
+
+
+def end_pending_question(question_id: int, status: str) -> bool:
+    """Close an OPEN question as used / closed / cleared / expired. False if it was not open any more: the
+    "WHERE status = 'open'" makes the check and the change one step, so two "yes" cannot both use it."""
+    if status not in QUESTION_STATUSES or status == "open":
+        raise ValueError(f"a question ends as used, closed, cleared or expired, not '{status}'")
+    with closing(connect()) as con:
+        cur = con.execute("UPDATE pending_questions SET status = ?, ended_real = ? WHERE id = ? AND status = 'open'",
+                          (status, real_now(), int(question_id)))
+        con.commit()
+    return cur.rowcount == 1
