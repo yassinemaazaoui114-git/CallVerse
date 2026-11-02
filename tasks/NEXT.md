@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Status | WAITING FOR REVIEW |
+| Status | DONE |
 | Task file | tasks/T29_polish.md (money-back words widened with tests, Agent C "no later flight" check, eval bench fix + refund-on-unpaid-order check, optional "client" → "users" wording) |
 | Approved by | Yassine — 2026-11-02 13:32 ("if there is still tasks lets do it now, until the limit hit") |
-| Last done | T28 — merged into main (fdb6fac), 1811 tests pass on main |
+| Last done | T29 — merged into main (56cc268), 1848 tests pass on main |
 
 Next after T29: RL5 (needs the team's real ratings and a style-dependent reward source). Held-out C/D cases: the Brain writes them.
 
