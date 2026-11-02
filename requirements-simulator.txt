@@ -1,0 +1,6 @@
+# Client Simulator (client_simulator/, Mahmoud): only what the core does not already have. Install with:
+#   pip install -r requirements-simulator.txt
+# The core requirements stay unchanged. Versions as in client_simulator/requirements.txt (Mahmoud's frozen list).
+-r requirements.txt
+onnxruntime==1.31.0      # the CPU satisfaction scorer (client_simulator/models/scorer/scorer_int8.onnx)
+pyspellchecker==0.9.1    # typo noise only on messages that have no typo yet (without it: no noise is added)
