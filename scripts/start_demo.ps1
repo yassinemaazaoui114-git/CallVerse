@@ -15,14 +15,32 @@
 $root = Split-Path -Parent $PSScriptRoot   # the project folder (this script is in scripts\)
 Set-Location -Path $root
 
-# 1. Ollama and the local models.
-try {
-    $tags = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 5
-    Write-Host "Ollama answers."
-} catch {
-    Write-Host "Ollama does not answer on http://localhost:11434. Start Ollama first, then start the demo again."
-    exit 1
+# 1. Ollama and the local models. If Ollama is not running, start it (T28: no typed command needed).
+function Get-OllamaTags {
+    try { return Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 3 } catch { return $null }
 }
+$tags = Get-OllamaTags
+if ($null -eq $tags) {
+    # The usual install places of Ollama on Windows; else the "ollama" command on the PATH.
+    $ollamaExe = @("$env:LOCALAPPDATA\Programs\Ollama\ollama.exe", "$env:ProgramFiles\Ollama\ollama.exe") |
+        Where-Object { Test-Path $_ } | Select-Object -First 1
+    if (-not $ollamaExe) {
+        $cmd = Get-Command ollama -ErrorAction SilentlyContinue
+        if ($cmd) { $ollamaExe = $cmd.Source }
+    }
+    if (-not $ollamaExe) {
+        Write-Host "Ollama is not installed (ollama.exe not found). Install it from https://ollama.com, then start again."
+        exit 1
+    }
+    Write-Host "Starting Ollama ($ollamaExe serve)..."
+    Start-Process -FilePath $ollamaExe -ArgumentList "serve" -WindowStyle Minimized
+    for ($i = 0; $i -lt 60 -and $null -eq $tags; $i++) { Start-Sleep -Seconds 1; $tags = Get-OllamaTags }
+    if ($null -eq $tags) {
+        Write-Host "Ollama did not answer within 60 seconds on http://localhost:11434."
+        exit 1
+    }
+}
+Write-Host "Ollama answers."
 $names = @($tags.models | ForEach-Object { $_.name })
 foreach ($model in @("callverse-m2-v3", "qwen2.5:1.5b")) {
     if (-not ($names | Where-Object { $_ -eq $model -or $_ -eq "$model`:latest" })) {
