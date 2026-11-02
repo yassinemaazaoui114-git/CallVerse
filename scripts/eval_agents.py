@@ -23,6 +23,9 @@ without changing the demo's model chains. It replaces the model list of the agen
 the real data, so for those cases only the agent's proposal is scored.
 
 The held-out file (tests/data/...) is refused unless --heldout is given (final check only, CLAUDE.md rule 2).
+
+--summarize RUNS.json (T32): print the summary again from a saved runs file, with NO model call (no case is run).
+    python -m scripts.eval_agents --file tests/data/agents_heldout_cd.json --heldout --summarize out/t31_heldout_cd.json
 """
 
 import argparse
@@ -249,20 +252,59 @@ def run_case(case: dict, tmp: Path) -> dict:
     return run
 
 
+def wrong_proposals(cases: list[dict], runs: list[dict]) -> dict:
+    """T32: the runs where the agent proposed something it should not have, counted two ways.
+    acted     = the case expects no action ("acted_wrongly": a proposal where none was due, or a forbidden promotion);
+    forbidden = the agent called a tool from the case's must_not_call list (e.g. propose_replacement when stock is 0).
+    total     = runs with at least one of the two (a run with both counts once)."""
+    by_id = {c["id"]: c for c in cases}
+    acted = {r["id"] for r in runs if "acted_wrongly" in r["fails"]}
+    forbidden = {r["id"] for r in runs
+                 if any(t in r.get("tools", []) for t in by_id.get(r["id"], {}).get("must_not_call", []))}
+    return {"total": len(acted | forbidden), "acted": len(acted), "forbidden": len(forbidden),
+            "forbidden_ids": sorted(forbidden)}
+
+
+def print_summary(model: str, cases: list[dict], runs: list[dict]) -> None:
+    print(f"\nModel {model}")
+    for agent in sorted({r["agent"] for r in runs}):
+        mine = [r for r in runs if r["agent"] == agent]
+        print(f"  Agent {agent}: {sum(r['pass'] for r in mine)}/{len(mine)} pass, "
+              f"avg {sum(r['seconds'] for r in mine) / len(mine):.1f}s")
+    print(f"  Total: {sum(r['pass'] for r in runs)}/{len(runs)} pass")
+    wrong = wrong_proposals(cases, runs)
+    print(f"  Wrong proposals: {wrong['total']} (acted when it should not: {wrong['acted']}, "
+          f"called a forbidden tool: {wrong['forbidden']}{' ' + str(wrong['forbidden_ids']) if wrong['forbidden'] else ''})")
+    d_runs = [r for r in runs if r["agent"] == "D"]
+    if d_runs:
+        print(f"  Agent D owner notes worded by the model: {sum(r['notes_by_model'] for r in d_runs)}, "
+              f"by the template: {sum(r['notes_by_template'] for r in d_runs)}")
+    other = sorted({m for r in runs for m in r["models"] if not m.startswith("ollama/")})
+    print(f"  Non-local model calls: {other or 'none'}")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--file", required=True)
-    ap.add_argument("--model", required=True, help="Ollama model used for every agent")
+    ap.add_argument("--model", help="Ollama model used for every agent (required unless --summarize)")
     ap.add_argument("--agent", choices=list(AGENTS) + ["all"], default="all")
     ap.add_argument("--heldout", action="store_true", help="allow a tests/data/ file (final check only)")
     ap.add_argument("--out", help="write all runs as JSON here (default: traces/eval_<model>.json)")
+    ap.add_argument("--summarize", help="saved runs JSON: print its summary again, no model call (T32)")
     args = ap.parse_args(argv)
+    if not args.model and not args.summarize:
+        ap.error("--model is required (unless --summarize)")
 
     if "tests/data" in args.file.replace("\\", "/") and not args.heldout:
         print("Refused: held-out file. Use --heldout only for the final check (CLAUDE.md rule 2).")
         return 2
     cases = json.loads(Path(args.file).read_text(encoding="utf-8"))["cases"]
     cases = [c for c in cases if args.agent in ("all", c["agent"])]
+    if args.summarize:
+        runs = json.loads(Path(args.summarize).read_text(encoding="utf-8"))
+        models = sorted({m for r in runs for m in r["models"]})
+        print_summary(args.model or ", ".join(models) or "?", cases, runs)
+        return 0
     force_local_model(args.model)
     tmp = Path(tempfile.mkdtemp(prefix="callverse_eval_"))
 
@@ -277,20 +319,7 @@ def main(argv=None) -> int:
     finally:
         db.use_db(db.DEFAULT_DB_PATH)
 
-    print(f"\nModel {args.model}")
-    for agent in sorted({r["agent"] for r in runs}):
-        mine = [r for r in runs if r["agent"] == agent]
-        print(f"  Agent {agent}: {sum(r['pass'] for r in mine)}/{len(mine)} pass, "
-              f"avg {sum(r['seconds'] for r in mine) / len(mine):.1f}s")
-    print(f"  Total: {sum(r['pass'] for r in runs)}/{len(runs)} pass")
-    wrong = sum("acted_wrongly" in r["fails"] for r in runs)
-    print(f"  Wrong proposals (acted when it should not): {wrong}")
-    d_runs = [r for r in runs if r["agent"] == "D"]
-    if d_runs:
-        print(f"  Agent D owner notes worded by the model: {sum(r['notes_by_model'] for r in d_runs)}, "
-              f"by the template: {sum(r['notes_by_template'] for r in d_runs)}")
-    other = sorted({m for r in runs for m in r["models"] if not m.startswith("ollama/")})
-    print(f"  Non-local model calls: {other or 'none'}")
+    print_summary(args.model, cases, runs)
 
     out = Path(args.out or f"traces/eval_{args.model.replace(':', '_').replace('/', '_')}.json")
     out.parent.mkdir(exist_ok=True)

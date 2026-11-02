@@ -37,6 +37,35 @@ def test_pass_and_failure_types():
     assert ev.score(A11, run(handover="C")) == [] and ev.score(A11, run()) == ["wrong_handover"]
 
 
+def test_wrong_proposals_count_both_kinds():
+    """T32: the summary counts "acted when it should not" AND "called a forbidden tool" (must_not_call), apart."""
+    cases = [{**B02, "id": "B02"},
+             {"id": "C14", "agent": "C", "must_call": [], "must_not_call": ["propose_replacement"],
+              "expect": {"act": "any"}},
+             {**C01, "id": "C01"}]
+    runs = [run(id="B02", tools=["get_order", "propose_refund"], proposals=[GOOD], fails=["wrong_tool", "acted_wrongly"]),
+            run(id="C14", tools=["get_order", "propose_replacement"], proposals=[REPLACE], fails=["wrong_tool"]),
+            run(id="C01", tools=["get_order", "propose_replacement"], proposals=[REPLACE], fails=[])]
+    wrong = ev.wrong_proposals(cases, runs)
+    assert (wrong["acted"], wrong["forbidden"], wrong["total"]) == (1, 2, 2)   # B02 is both: counted once in total
+    assert wrong["forbidden_ids"] == ["B02", "C14"]                          # C01 may propose: not counted
+
+
+def test_summarize_saved_runs_without_a_model(tmp_path, monkeypatch, capsys):
+    """T32: --summarize prints the summary from a saved runs file and never runs a case or forces a model."""
+    cases_file, runs_file = tmp_path / "cases.json", tmp_path / "runs.json"
+    cases_file.write_text(json.dumps({"cases": [{"id": "C14", "agent": "C", "must_call": [],
+                                                 "must_not_call": ["propose_replacement"], "expect": {"act": "any"}}]}))
+    runs_file.write_text(json.dumps([run(id="C14", agent="C", seconds=1.0, fails=["wrong_tool"],
+                                         tools=["propose_replacement"], models=["ollama/x"]) | {"pass": False}]))
+    monkeypatch.setattr(ev, "run_case", lambda *a: (_ for _ in ()).throw(AssertionError("no case may run")))
+    monkeypatch.setattr(ev, "force_local_model", lambda *a: (_ for _ in ()).throw(AssertionError("no model")))
+    assert ev.main(["--file", str(cases_file), "--summarize", str(runs_file)]) == 0
+    out = capsys.readouterr().out
+    assert "Total: 0/1 pass" in out
+    assert "Wrong proposals: 1 (acted when it should not: 0, called a forbidden tool: 1 ['C14'])" in out
+
+
 def test_outcome_is_scored_for_c():
     assert ev.score(C01, run(tools=["get_order"], proposals=[REPLACE], outcome="ask_user")) == []
     assert ev.score(C01, run(tools=["get_order"], proposals=[REPLACE], outcome="approve")) == ["wrong_outcome"]
