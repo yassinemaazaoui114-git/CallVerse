@@ -356,3 +356,112 @@ def test_registry_expires_and_bounds_records():
             assert str(e) == "busy_user"
     assert ("shopnova", 1, "run") in reg._by_client
     assert len(runs) == 5
+
+
+# ---------- T35: a photo with the message (base64 in the same JSON send) ----------
+
+import base64  # noqa: E402
+
+JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 60          # first bytes of a JPEG file (the API checks only those)
+PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 60
+WEBP = b"RIFF\x00\x00\x00\x00WEBPVP8 " + b"\x00" * 60
+
+
+def b64(data: bytes) -> str:
+    return base64.b64encode(data).decode("ascii")
+
+
+def photo_fake(seen: list):
+    """A fake channel that records the photo bytes it was given (None = no photo, as before T35)."""
+    inner = make_fake()
+
+    def fake_send(user_id, company, text, ticket_id=None, on_step=None, about_order=None, image=None, **kwargs):
+        seen.append({"text": text, "image": image, "kwargs_has_image": "image" in kwargs})
+        return inner(user_id, company, text or "[Photo attached]", ticket_id=ticket_id, on_step=on_step,
+                     about_order=about_order)
+    return fake_send
+
+
+def test_photo_is_passed_to_the_channel_then_dropped_from_the_job(client):
+    seen = []
+    chat.use_send_fn(photo_fake(seen))
+    login(client, "sara")
+    r = send(client, "My order 4509 arrived damaged, see the photo.", client_id="p1", image_b64=b64(JPEG))
+    assert r.status_code == 200 and parse_sse(r.text)[-1][0] == "done"
+    assert seen == [{"text": "My order 4509 arrived damaged, see the photo.", "image": JPEG,
+                     "kwargs_has_image": False}]
+    job = client.get("/api/shop/chat/job").json()["job"]
+    assert job["has_photo"] is True and "image" not in job and "image_b64" not in job
+    # the saved conversation never holds the photo
+    assert all(b64(JPEG) not in json.dumps(m) for m in client.get("/api/shop/chat").json()["messages"])
+
+
+def test_job_drops_the_photo_bytes_when_it_ends():
+    job = chat.Job(1, "shopnova", "x", None, None, "c", image=PNG)
+    assert job.image == PNG and job.photo_sha256 == chat.photo_hash(PNG)
+    chat.use_send_fn(lambda *a, **k: {"outcome": "info"})
+    try:
+        chat.run_job(job)
+    finally:
+        chat.use_send_fn(None)
+    assert job.image is None and job.status == "done" and job.photo_sha256 is not None
+    failing = chat.Job(1, "shopnova", "x", None, None, "c2", image=PNG)
+    chat.use_send_fn(lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+    try:
+        chat.run_job(failing)
+    finally:
+        chat.use_send_fn(None)
+    assert failing.image is None and failing.status == "failed"
+
+
+def test_no_photo_calls_the_channel_exactly_as_before(client):
+    seen = []
+    chat.use_send_fn(photo_fake(seen))
+    login(client, "sara")
+    assert send(client, "Where is my order 4512?", client_id="n1").status_code == 200
+    assert seen == [{"text": "Where is my order 4512?", "image": None, "kwargs_has_image": False}]
+    assert client.get("/api/shop/chat/job").json()["job"]["has_photo"] is False
+
+
+def test_photo_only_message_is_allowed_but_empty_text_without_photo_is_not(client):
+    seen = []
+    chat.use_send_fn(photo_fake(seen))
+    login(client, "sara")
+    r = send(client, "   ", client_id="po", image_b64="data:image/webp;base64," + b64(WEBP))   # FileReader form
+    assert r.status_code == 200 and seen[-1]["text"] == "" and seen[-1]["image"] == WEBP
+    r = send(client, "   ", client_id="none")
+    assert r.status_code == 400 and r.json()["error"] == "empty_text"
+
+
+def test_photo_too_large_or_wrong_type_is_refused_before_any_job(client):
+    seen = []
+    chat.use_send_fn(photo_fake(seen))
+    login(client, "sara")
+    big = JPEG + b"\x00" * chat.MAX_PHOTO_BYTES
+    r = send(client, "see photo", client_id="big", image_b64=b64(big))
+    assert r.status_code == 400 and r.json()["error"] == "photo_too_large"
+    for bad in (b"GIF89a" + b"\x00" * 40, b"%PDF-1.7 not an image"):
+        r = send(client, "see photo", client_id="bad", image_b64=b64(bad))
+        assert r.status_code == 400 and r.json()["error"] == "photo_type"
+    r = send(client, "see photo", client_id="notb64", image_b64="this is not base64!!")
+    assert r.status_code == 400 and r.json()["error"] == "photo_type"
+    assert seen == [] and client.get("/api/shop/chat/job").json()["job"] is None
+
+
+def test_photo_limit_matches_the_photo_model():
+    from callverse.vision import model as vision_model
+    assert chat.MAX_PHOTO_BYTES == vision_model.MAX_IMAGE_BYTES
+
+
+def test_same_client_id_same_photo_is_the_same_job_other_photo_is_409(client):
+    seen = []
+    chat.use_send_fn(photo_fake(seen))
+    login(client, "sara")
+    assert send(client, "see photo", client_id="dup", image_b64=b64(JPEG)).status_code == 200
+    again = send(client, "see photo", client_id="dup", image_b64=b64(JPEG))
+    assert again.status_code == 200 and parse_sse(again.text)[-1][0] == "done"
+    assert len(seen) == 1
+    for other in ({"image_b64": b64(PNG)}, {}):   # another photo, or the same text without the photo
+        r = send(client, "see photo", client_id="dup", **other)
+        assert r.status_code == 409 and r.json()["error"] == "client_id_reused", other
+    assert len(seen) == 1

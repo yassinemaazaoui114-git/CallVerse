@@ -21,6 +21,10 @@ module adds only transport around it; no pipeline logic is copied:
   after a disconnect, even a replay of A after B ran), never a second channel run; the same id with another
   payload is refused (409 `client_id_reused`). A send while the customer's job is still running is refused
   (409 `busy_user`);
+- a photo (T35): the browser sends it as base64 inside the same JSON (`image_b64`). `decode_photo` checks it
+  (JPEG / PNG / WebP by its first bytes, at most MAX_PHOTO_BYTES) BEFORE a job starts; the job hands the bytes to
+  the channel (`send(image=...)`) and drops them as soon as the run ends. The photo is never stored: only its
+  sha256 is kept, for the duplicate rule (same client_id + another photo = another request);
 - the channel is imported lazily (`send_fn()`), so a Console-only API process never loads the pipeline, the
   models or the channel. Tests set `send_fn` to a fake.
 
@@ -28,6 +32,9 @@ Transport state (`job.status`: running / done / failed) is separate from the bus
 approve, busy, not_your_order, …): a `done` job may carry the channel's "busy" reply, which is a normal result.
 """
 
+import base64
+import binascii
+import hashlib
 import json
 import threading
 import time
@@ -37,6 +44,44 @@ from datetime import datetime
 PING_SECONDS = 15        # keep-alive comment on an idle stream
 KEEP_SECONDS = 15 * 60   # a finished job stays in memory this long (recovery and duplicate protection window)
 MAX_TEXT = 2000
+MAX_PHOTO_BYTES = 5 * 1024 * 1024   # same limit as the photo model (callverse/vision/model.py MAX_IMAGE_BYTES)
+
+
+def photo_kind(data: bytes) -> str | None:
+    """'jpeg' / 'png' / 'webp' from the file's first bytes (its "magic number"), else None. The file name and
+    the browser's type are not trusted: only the bytes are checked."""
+    if data[:3] == b"\xff\xd8\xff":
+        return "jpeg"
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return "png"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp"
+    return None
+
+
+def decode_photo(image_b64: str | None) -> bytes | None:
+    """The photo bytes from the browser's base64 text, or None when no photo was sent.
+    Raises ValueError("photo_too_large") or ValueError("photo_type") (also for text that is not base64).
+    A "data:image/...;base64," prefix (what the browser's FileReader gives) is accepted and removed."""
+    if not image_b64:
+        return None
+    raw = image_b64.split(",", 1)[1] if image_b64.startswith("data:") else image_b64
+    if len(raw) > (MAX_PHOTO_BYTES * 4) // 3 + 8:   # cheap size check before decoding (base64 = 4 chars / 3 bytes)
+        raise ValueError("photo_too_large")
+    try:
+        data = base64.b64decode(raw, validate=True)
+    except (binascii.Error, ValueError):
+        raise ValueError("photo_type") from None
+    if len(data) > MAX_PHOTO_BYTES:
+        raise ValueError("photo_too_large")
+    if photo_kind(data) is None:
+        raise ValueError("photo_type")
+    return data
+
+
+def photo_hash(image: bytes | None) -> str | None:
+    """The photo's sha256 (what the duplicate rule compares), never the bytes."""
+    return hashlib.sha256(image).hexdigest() if image is not None else None
 
 _send_fn = None
 
@@ -64,10 +109,12 @@ class Job:
     """One message being handled by the channel, and everything the browser may ask about it."""
 
     def __init__(self, user_id: int, company: str, text: str, ticket_id: str | None, about_order: int | None,
-                 client_id: str | None):
+                 client_id: str | None, image: bytes | None = None):
         self.id = uuid.uuid4().hex
         self.user_id, self.company = int(user_id), company
         self.text, self.ticket_id, self.about_order, self.client_id = text, ticket_id, about_order, client_id
+        self.image = image                      # the photo bytes, ONLY while the run lasts (see drop_image)
+        self.photo_sha256 = photo_hash(image)   # kept for the duplicate rule; the bytes are not
         self.status = "running"           # running | done | failed   (transport state)
         self.result: dict | None = None   # the channel's result (business outcome inside)
         self.error: dict | None = None
@@ -85,6 +132,10 @@ class Job:
     def on_step(self, text: str) -> None:
         self._push("step", {"text": str(text), "at": _now()})
 
+    def drop_image(self) -> None:
+        """Forget the photo bytes (the run is over): a finished job never holds a photo."""
+        self.image = None
+
     def finish(self, result: dict) -> None:
         self.result, self.status, self.finished = result, "done", time.monotonic()
         self._push("done", result)
@@ -97,7 +148,7 @@ class Job:
     @property
     def payload(self) -> tuple:
         """What a client_id is bound to: the same id may only ever mean this message on this ticket / order."""
-        return (self.text, self.ticket_id, self.about_order)
+        return (self.text, self.ticket_id, self.about_order, self.photo_sha256)
 
     @property
     def steps(self) -> list[dict]:
@@ -106,7 +157,8 @@ class Job:
     def view(self) -> dict:
         """What GET /api/shop/chat/job returns: enough to recover a conversation without re-sending."""
         return {"job_id": self.id, "status": self.status, "client_id": self.client_id, "ticket_id": self.ticket_id,
-                "text": self.text, "about_order": self.about_order, "started_at": self.started_at,
+                "text": self.text, "about_order": self.about_order, "has_photo": self.photo_sha256 is not None,
+                "started_at": self.started_at,
                 "steps": self.steps, "result": self.result, "error": self.error}
 
     def wait_events(self, index: int, timeout: float) -> list[dict]:
@@ -163,10 +215,10 @@ class Registry:
             return self._current.get(self._key(company, user_id))
 
     def start(self, user_id: int, company: str, text: str, ticket_id: str | None, about_order: int | None,
-              client_id: str | None, run) -> tuple[Job, bool]:
+              client_id: str | None, run, image: bytes | None = None) -> tuple[Job, bool]:
         """(job, created).
         - a known client_id with the SAME payload: that job again, whatever came after it (no second run);
-        - a known client_id with ANOTHER payload: ValueError("client_id_reused");
+        - a known client_id with ANOTHER payload (text, ticket, order or photo hash): ValueError("client_id_reused");
         - another job of this customer still running: ValueError("busy_user");
         - otherwise a new job, run by `run(job)` in a thread."""
         with self._lock:
@@ -175,13 +227,13 @@ class Registry:
             if client_id:
                 known = self._by_client.get((company, int(user_id), client_id))
                 if known is not None:
-                    if known.payload != (text, ticket_id, about_order):
+                    if known.payload != (text, ticket_id, about_order, photo_hash(image)):
                         raise ValueError("client_id_reused")
                     return known, False
             running = self._current.get(key)
             if running is not None and running.status == "running":
                 raise ValueError("busy_user")
-            job = Job(user_id, company, text, ticket_id, about_order, client_id)
+            job = Job(user_id, company, text, ticket_id, about_order, client_id, image)
             self._current[key] = job
             if client_id:
                 self._by_client[(company, int(user_id), client_id)] = job
@@ -196,12 +248,16 @@ class Registry:
 
 
 def run_job(job: Job) -> None:
-    """The worker: the channel, with its lock and rules exactly as the Streamlit page calls it."""
+    """The worker: the channel, with its lock and rules exactly as the Streamlit page calls it.
+    The photo (if any) goes to the channel and is dropped from the job before the result is published."""
     try:
+        kwargs = {"image": job.image} if job.image is not None else {}   # no photo: the same call as before T35
         result = send_fn()(job.user_id, job.company, job.text, ticket_id=job.ticket_id, on_step=job.on_step,
-                           about_order=job.about_order)
+                           about_order=job.about_order, **kwargs)
+        job.drop_image()
         job.finish(result)
     except BaseException as e:   # noqa: BLE001 — a worker must report, never die silently
+        job.drop_image()
         job.fail(e)
 
 

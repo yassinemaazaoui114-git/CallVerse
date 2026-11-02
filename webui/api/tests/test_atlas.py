@@ -348,3 +348,26 @@ def test_atlas_refund_refuse_duplicate_and_uncertain(client, monkeypatch):
     retry = decide(client, b["id"], True, "ok", client_id="ru1")
     assert retry.status_code == 409 and retry.json()["error"] == "already_decided"    # the core refuses: paid once
     assert len(atlas_core_reads.get_refunds("flight", 7006)["refunds"]) == 1
+
+
+def test_atlas_chat_passes_a_photo_to_the_channel(client):
+    """T35: the shared register_chat gives Atlas the same photo field and checks."""
+    import base64
+    seen = []
+    inner = make_fake([])
+
+    def fake_send(user_id, company, text, ticket_id=None, on_step=None, about_order=None, image=None, **kwargs):
+        seen.append((company, image))
+        return inner(user_id, company, text, ticket_id=ticket_id, on_step=on_step, about_order=about_order)
+
+    chat.use_send_fn(fake_send)
+    login(client, "hedi")
+    png = b"\x89PNG\r\n\x1a\n" + b"\x00" * 40
+    r = client.post("/api/atlas/chat/send", json={"text": "The room was dirty, see photo.", "client_id": "ph1",
+                                                   "image_b64": base64.b64encode(png).decode()}, headers=CSRF)
+    assert r.status_code == 200 and "event: done" in r.text
+    assert seen == [("atlas", png)]
+    r = client.post("/api/atlas/chat/send", json={"text": "x", "client_id": "ph2",
+                                                   "image_b64": base64.b64encode(b"GIF89a....").decode()}, headers=CSRF)
+    assert r.status_code == 400 and r.json()["error"] == "photo_type"
+    assert len(seen) == 1
