@@ -131,6 +131,11 @@ table.records td, table.records th { white-space: nowrap; max-width: 320px; over
 .notice-list { display: grid; gap: var(--cv-s2); }
 .context-chip { display: inline-flex; align-items: center; gap: var(--cv-s1); padding: var(--cv-s1) var(--cv-s2); border-radius: 999px; background: var(--cv-primary-soft); color: var(--cv-primary-text); font-size: var(--cv-text-sm); font-weight: 600; }
 .context-chip .btn { min-height: 24px; padding: 0 var(--cv-s1); }
+/* T35: the photo chosen for the next message (small preview + remove) */
+.photo-preview { display: inline-flex; align-items: center; gap: var(--cv-s2); padding: var(--cv-s1); border: 1px solid var(--cv-border); border-radius: var(--cv-radius-control); max-width: 100%; }
+.photo-preview img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--cv-radius-control); }
+.photo-preview .small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.photo-error { color: var(--cv-danger); font-weight: 600; margin: 0; }
 
 /* ---------- admin approvals ---------- */
 .confirm-backdrop { position: fixed; inset: 0; background: rgba(11, 18, 32, 0.55); display: grid; place-items: center; padding: var(--cv-gutter); z-index: var(--cv-z-toast); animation: cv-fade-in var(--cv-motion-fast) var(--cv-ease); }

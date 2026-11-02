@@ -14,6 +14,10 @@
 // - after a disconnect NOTHING is sent again: the screen says the request may still be running, offers
 //   "Check status" (GET /api/shop/chat/job, and re-attach to the live stream when it still runs) and shows the
 //   saved conversation once the job is done;
+// - a photo (T35): one JPEG / PNG / WebP of at most 5 MB, chosen with the photo button, shown as a small
+//   preview with a remove x, and sent as base64 (`image_b64`) inside the same JSON send. The size and type are
+//   checked here first (plain error text, nothing sent) and again by the API. The photo lives only in this
+//   screen's memory until the send is settled: it is never saved (the conversation shows "[Photo attached]");
 // - the "New reply on T-00NN" notices (finance's decision on another ticket): opening one shows that ticket and
 //   marks it read on the server (owned tickets only, checked there).
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -26,6 +30,25 @@ import { useGuardedLoad, words } from "../hooks.js";
 import { readSSE } from "../sse.js";
 
 const BUSY_OUTCOME = "busy";   // the channel's own "assistant is busy" result (quota): a normal outcome
+const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];   // the same three formats as the photo model
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;                          // the same 5 MB limit as the API
+
+// A chosen file -> {ok} or {error}. The browser's type and size are a first check only: the API checks the bytes.
+function checkPhoto(file) {
+  if (!PHOTO_TYPES.includes(file.type)) return { error: "Please choose a JPEG, PNG or WebP photo." };
+  if (file.size > MAX_PHOTO_BYTES) return { error: "This photo is too large. Please choose a photo under 5 MB." };
+  return { ok: true };
+}
+
+// The file as a "data:image/...;base64,..." text (the API accepts this form and removes the prefix).
+function readAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 
 function newClientId() {
   return (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : `c-${Date.now()}-${Math.random()}`;
@@ -44,6 +67,9 @@ export default function Chat({ company = "shopnova" }) {
   const { data: convo, error, loading, reload } = useGuardedLoad((signal) => api.chat(ticketParam || undefined, signal), [ticketParam, company]);
 
   const [draft, setDraft] = useState("");
+  const [photo, setPhoto] = useState(null);             // {name, dataUrl} of the photo to send, or null
+  const [photoError, setPhotoError] = useState(null);   // a plain text when the chosen file was refused here
+  const photoInputRef = useRef(null);
   // transport: {status: idle | sending | attached | uncertain | failed, reason, steps, message}
   //   sending   = our POST stream is open          attached  = re-attached to the running job's stream
   //   uncertain = we do not know how the submission ended (reason: "disconnected" | "busy_user"): the server
@@ -52,7 +78,7 @@ export default function Chat({ company = "shopnova" }) {
   const [tx, setTx] = useState({ status: "idle", reason: null, steps: [], message: null });
   // the submission whose outcome is uncertain: its request id and its payload stay together, so a recovery
   // or a resend is exactly that request, and a NEW message always gets a new id
-  const [pending, setPending] = useState(null);   // {clientId, text, ticketId, aboutOrder} | null
+  const [pending, setPending] = useState(null);   // {clientId, text, ticketId, aboutOrder, imageB64} | null
   const [lastResult, setLastResult] = useState(null);   // the `done` data of the last send (business outcome)
   const [fresh, setFresh] = useState(false);             // "New chat" pressed: show an empty conversation
   const streamSeq = useRef(0);          // the number of the stream in progress: events of an older one are dropped
@@ -143,9 +169,11 @@ export default function Chat({ company = "shopnova" }) {
       const body = { text: sub.text, client_id: sub.clientId };
       if (sub.ticketId) body.ticket_id = sub.ticketId;
       if (sub.aboutOrder) body[co.contextField] = sub.aboutOrder;
+      if (sub.imageB64) body.image_b64 = sub.imageB64;
       const response = await api.chatSend(body, ctrl.signal);
       if (!live(seq)) return;
       setDraft("");
+      setPhoto(null);   // accepted by the server: the photo leaves the screen too
       const ended = await consume(response, seq, ctrl);
       finish(ended, seq);
     } catch (err) {
@@ -167,8 +195,9 @@ export default function Chat({ company = "shopnova" }) {
   async function send(e) {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || busy || uncertain) return;
-    const sub = { clientId: newClientId(), text, ticketId: ticket ? ticket.id : null, aboutOrder: orderParam ? Number(orderParam) : null };
+    if ((!text && !photo) || busy || uncertain) return;   // a photo with no text is allowed
+    const sub = { clientId: newClientId(), text, ticketId: ticket ? ticket.id : null, aboutOrder: orderParam ? Number(orderParam) : null,
+                  imageB64: photo ? photo.dataUrl : null };
     setPending(sub);
     await submit(sub);
   }
@@ -215,6 +244,27 @@ export default function Chat({ company = "shopnova" }) {
     }
   }
 
+  // The photo button: check the file, then keep it (as base64) for the next send. Nothing is uploaded here.
+  async function choosePhoto(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";   // the same file can be chosen again after a remove
+    if (!file) return;
+    const check = checkPhoto(file);
+    if (check.error) { setPhoto(null); setPhotoError(check.error); return; }
+    try {
+      setPhoto({ name: file.name, dataUrl: await readAsDataUrl(file) });
+      setPhotoError(null);
+    } catch {
+      setPhoto(null);
+      setPhotoError("This photo could not be read. Please choose another one.");
+    }
+  }
+
+  function removePhoto() {
+    setPhoto(null);
+    setPhotoError(null);
+  }
+
   function resetTx() {
     setTx({ status: "idle", reason: null, steps: [], message: null });
   }
@@ -224,6 +274,7 @@ export default function Chat({ company = "shopnova" }) {
     setFresh(true);
     setLastResult(null);
     setPending(null);
+    removePhoto();
     resetTx();
     setParams(new URLSearchParams(), { replace: true });
     if (inputRef.current) inputRef.current.focus();
@@ -341,7 +392,7 @@ export default function Chat({ company = "shopnova" }) {
                     ? `${tx.message || ""} Check its status below; your new message is kept and NOT sent until you choose to.`
                     : "The link to CallVerse dropped while it was working. That does not cancel your request: it may still be running and its reply will be saved. Your message is NOT sent again unless you choose to resend it."}
                 </span>
-                {pending && <span className="muted xs">Waiting submission: “{pending.text.length > 60 ? `${pending.text.slice(0, 60)}…` : pending.text}”</span>}
+                {pending && <span className="muted xs">Waiting submission: “{pending.text.length > 60 ? `${pending.text.slice(0, 60)}…` : pending.text}”{pending.imageB64 ? " + photo" : ""}</span>}
               </div>
               <div className="actions row">
                 <button type="button" className="btn btn-sm" onClick={checkStatus}><Icon name="refresh" size={14} />Check status</button>
@@ -367,11 +418,23 @@ export default function Chat({ company = "shopnova" }) {
               <label htmlFor="chat-text">Your message</label>
               <textarea id="chat-text" ref={inputRef} className="input" value={draft} onChange={(e) => setDraft(e.target.value)}
                 placeholder={orderParam ? `About ${co.contextWord} ${orderParam}…` : "Type your message…"} disabled={busy} maxLength={2000}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!busy && !uncertain && draft.trim()) send(e); } }} />
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!busy && !uncertain && (draft.trim() || photo)) send(e); } }} />
               <span className="muted xs">Enter sends · Shift+Enter for a new line</span>
             </div>
+            {photo && (
+              <div className="photo-preview">
+                <img src={photo.dataUrl} alt={`Photo to send: ${photo.name}`} />
+                <span className="small muted">{photo.name}</span>
+                <button type="button" className="btn btn-ghost btn-sm" aria-label="Remove the photo" onClick={removePhoto} disabled={busy}><Icon name="x" size={12} /></button>
+              </div>
+            )}
+            {photoError && <p className="small photo-error" role="alert">{photoError}</p>}
             <div className="actions">
-              <button type="submit" className="btn btn-primary" disabled={busy || uncertain || !draft.trim() || !!runningOnServer}>
+              <input ref={photoInputRef} id="chat-photo" type="file" accept="image/jpeg,image/png,image/webp" className="visually-hidden"
+                aria-label="Add a photo" onChange={choosePhoto} disabled={busy} />
+              <button type="button" className="btn btn-sm" onClick={() => photoInputRef.current && photoInputRef.current.click()} disabled={busy}
+                title="Add a photo (JPEG, PNG or WebP, at most 5 MB)"><Icon name="image" size={16} />{photo ? "Change photo" : "Photo"}</button>
+              <button type="submit" className="btn btn-primary" disabled={busy || uncertain || (!draft.trim() && !photo) || !!runningOnServer}>
                 {busy ? <span className="spinner" aria-hidden="true" /> : <Icon name="chat" size={16} />}{busy ? "Sending…" : "Send"}
               </button>
               {ticket && <span className="muted xs">Replies to ticket {ticket.id}</span>}
