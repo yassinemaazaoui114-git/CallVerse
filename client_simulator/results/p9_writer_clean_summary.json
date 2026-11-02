@@ -1,0 +1,31 @@
+{
+  "before": {
+    "distance_mean": 0.1496458333333333,
+    "breaks_role_rate": 0.0,
+    "empty_rate": 0.08888888888888889
+  },
+  "after": {
+    "distance_mean": 0.12252083333333333,
+    "breaks_role_rate": 0.0,
+    "empty_rate": 0.022222222222222223
+  },
+  "test1_before": {
+    "realism": 6,
+    "role": 5
+  },
+  "test1_after": {
+    "realism": 6,
+    "role": 6,
+    "judged_by": "Claude Code, not blind"
+  },
+  "rule_counts_after": {
+    "calls": 96,
+    "meta_stripped": 0,
+    "retried_empty": 2,
+    "retried_assistant": 0,
+    "retried_opener": 12,
+    "typo_noise": 21,
+    "returned_empty": 2
+  },
+  "note": "same 30 cards x 3 turns, same real examples and agent turns, seed 42; intermediate runs rp1-ex5-clean (noise on every clean message: realism 0.153, overshoot) and rp1-ex5-clean2 (noise never fired: seeding bug) kept in the cache"
+}

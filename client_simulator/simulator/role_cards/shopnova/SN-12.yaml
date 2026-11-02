@@ -1,0 +1,12 @@
+id: SN-12
+company: shopnova
+reason: other
+mood: formal
+typo_level: low
+persona:
+  description: Small business owner.
+  language: English
+goal: You need a VAT invoice for your last order for your accounting.
+facts:
+  order_id: 4525
+patience_turns: 4

@@ -1,0 +1,16 @@
+id: SN-05
+company: shopnova
+reason: late_delivery
+mood: angry
+typo_level: high
+persona:
+  description: Ordered a speaker and a power bank at the end of August.
+  language: English
+goal: The parcel never came; it has been more than a month. You want a full refund
+  now.
+facts:
+  order_id: 4516
+  ordered_on: 28 August
+  amount: 94.80 EUR
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-SN-05.yaml

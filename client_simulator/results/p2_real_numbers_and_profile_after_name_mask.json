@@ -1,0 +1,263 @@
+{
+  "counts": {
+    "first_messages": 165742,
+    "by_company": {
+      "atlas": 130639,
+      "shopnova": 35103
+    },
+    "by_brand": {
+      "Delta": 24893,
+      "AmericanAir": 24797,
+      "SouthwestAir": 20573,
+      "AmazonHelp": 19440,
+      "British_Airways": 15987,
+      "VirginTrains": 14084,
+      "GWRHelp": 10315,
+      "UPSHelp": 7055,
+      "AlaskaAir": 5118,
+      "AirAsiaSupport": 4966,
+      "JetBlue": 4840,
+      "ArgosHelpers": 3553,
+      "AskeBay": 3054,
+      "VirginAtlantic": 2618,
+      "AirbnbHelp": 2448,
+      "AskTarget": 2001
+    },
+    "later_turns": 196650,
+    "dropped_as_not_english_or_too_short": 5592
+  },
+  "realism_profile": {
+    "shopnova": {
+      "n": 3000,
+      "words_median": 21.0,
+      "words_q1": 15.0,
+      "words_q3": 26.0,
+      "words_iqr": 11.0,
+      "share_spelling_error": 0.286,
+      "share_all_lowercase": 0.11233333333333333,
+      "share_exclaim": 0.15866666666666668,
+      "share_question": 0.4553333333333333,
+      "share_caps_word": 0.094,
+      "share_emoji": 0.07566666666666666,
+      "share_several_reasons": 0.07066666666666667
+    },
+    "shopnova_later_turns": {
+      "n": 3000,
+      "words_median": 17.0,
+      "words_q1": 9.0,
+      "words_q3": 25.0,
+      "words_iqr": 16.0,
+      "share_spelling_error": 0.22366666666666668,
+      "share_all_lowercase": 0.05533333333333333,
+      "share_exclaim": 0.12766666666666668,
+      "share_question": 0.168,
+      "share_caps_word": 0.06,
+      "share_emoji": 0.05333333333333334,
+      "share_several_reasons": 0.029333333333333333
+    },
+    "atlas": {
+      "n": 3000,
+      "words_median": 20.0,
+      "words_q1": 14.0,
+      "words_q3": 24.0,
+      "words_iqr": 10.0,
+      "share_spelling_error": 0.2996666666666667,
+      "share_all_lowercase": 0.06333333333333334,
+      "share_exclaim": 0.25733333333333336,
+      "share_question": 0.3373333333333333,
+      "share_caps_word": 0.18666666666666668,
+      "share_emoji": 0.119,
+      "share_several_reasons": 0.065
+    },
+    "atlas_later_turns": {
+      "n": 3000,
+      "words_median": 16.0,
+      "words_q1": 8.0,
+      "words_q3": 24.0,
+      "words_iqr": 16.0,
+      "share_spelling_error": 0.20533333333333334,
+      "share_all_lowercase": 0.045,
+      "share_exclaim": 0.194,
+      "share_question": 0.23766666666666666,
+      "share_caps_word": 0.07733333333333334,
+      "share_emoji": 0.07833333333333334,
+      "share_several_reasons": 0.03666666666666667
+    },
+    "all_first": {
+      "n": 3000,
+      "words_median": 20.0,
+      "words_q1": 15.0,
+      "words_q3": 25.0,
+      "words_iqr": 10.0,
+      "share_spelling_error": 0.2926666666666667,
+      "share_all_lowercase": 0.08533333333333333,
+      "share_exclaim": 0.211,
+      "share_question": 0.3923333333333333,
+      "share_caps_word": 0.14466666666666667,
+      "share_emoji": 0.10366666666666667,
+      "share_several_reasons": 0.06766666666666667
+    }
+  },
+  "realism_profile_note": "3,000 random first messages per company (seed 42); tweets are capped at 140/280 characters",
+  "reason_mix_twitter_keyword_rules": {
+    "atlas": {
+      "other": 0.6138,
+      "booking_status": 0.1643,
+      "delay_disruption": 0.1095,
+      "refund_request": 0.0401,
+      "cancellation": 0.0395,
+      "rebooking": 0.0198,
+      "special_assistance": 0.0129
+    },
+    "shopnova": {
+      "other": 0.6522,
+      "order_status": 0.1418,
+      "late_delivery": 0.0859,
+      "refund_request": 0.0482,
+      "damaged_item": 0.0366,
+      "return_item": 0.0353
+    }
+  },
+  "arrivals_share_by_hour_utc": {
+    "0": 0.0395,
+    "1": 0.0356,
+    "2": 0.0321,
+    "3": 0.0283,
+    "4": 0.023,
+    "5": 0.0203,
+    "6": 0.0223,
+    "7": 0.0261,
+    "8": 0.0274,
+    "9": 0.029,
+    "10": 0.0329,
+    "11": 0.0379,
+    "12": 0.045,
+    "13": 0.0494,
+    "14": 0.0533,
+    "15": 0.0576,
+    "16": 0.0612,
+    "17": 0.0617,
+    "18": 0.0598,
+    "19": 0.0582,
+    "20": 0.0557,
+    "21": 0.0528,
+    "22": 0.0477,
+    "23": 0.0432
+  },
+  "arrivals_share_by_weekday_utc": {
+    "Friday": 0.1666,
+    "Thursday": 0.1571,
+    "Wednesday": 0.1531,
+    "Monday": 0.1425,
+    "Tuesday": 0.1421,
+    "Sunday": 0.1243,
+    "Saturday": 0.1144
+  },
+  "twitter_time_span": [
+    "2010-07-05 02:00:34+00:00",
+    "2017-12-03 23:03:48+00:00"
+  ],
+  "first_response_minutes": {
+    "atlas": {
+      "n": 125750,
+      "median": 10.133333333333333,
+      "p25": 3.466666666666667,
+      "p75": 37.61666666666667,
+      "p90": 155.50500000000028
+    },
+    "shopnova": {
+      "n": 33646,
+      "median": 14.316666666666666,
+      "p25": 6.566666666666666,
+      "p75": 35.045833333333334,
+      "p90": 275.45833333333337
+    }
+  },
+  "unanswered_share_proxy": {
+    "atlas": 0.0374,
+    "shopnova": 0.0415
+  },
+  "us_airline_negative_reason_mix": {
+    "Customer Service Issue": 0.3171,
+    "Late Flight": 0.1814,
+    "Can't Tell": 0.1297,
+    "Cancelled Flight": 0.0923,
+    "Lost Luggage": 0.0789,
+    "Bad Flight": 0.0632,
+    "Flight Booking Problems": 0.0576,
+    "Flight Attendant Complaints": 0.0524,
+    "longlines": 0.0194,
+    "Damaged Luggage": 0.0081
+  },
+  "us_airline_sentiment_mix": {
+    "negative": 0.6269,
+    "neutral": 0.2117,
+    "positive": 0.1614
+  },
+  "flipkart_reason_mix_mapped": {
+    "return_item": 0.4039,
+    "other": 0.3222,
+    "late_delivery": 0.0973,
+    "order_status": 0.0863,
+    "refund_request": 0.053,
+    "damaged_item": 0.0374
+  },
+  "flipkart_arrivals_share_by_hour_local": {
+    "0": 0.0177,
+    "1": 0.0048,
+    "2": 0.0016,
+    "3": 0.001,
+    "4": 0.0009,
+    "5": 0.0019,
+    "6": 0.0108,
+    "7": 0.0254,
+    "8": 0.0405,
+    "9": 0.052,
+    "10": 0.0639,
+    "11": 0.0687,
+    "12": 0.0682,
+    "13": 0.0632,
+    "14": 0.0626,
+    "15": 0.0545,
+    "16": 0.0653,
+    "17": 0.069,
+    "18": 0.0673,
+    "19": 0.0684,
+    "20": 0.0656,
+    "21": 0.0562,
+    "22": 0.0423,
+    "23": 0.0279
+  },
+  "flipkart_arrivals_share_by_weekday_local": {
+    "Tuesday": 0.1662,
+    "Thursday": 0.1607,
+    "Wednesday": 0.1587,
+    "Monday": 0.1403,
+    "Sunday": 0.1274,
+    "Saturday": 0.1237,
+    "Friday": 0.123
+  },
+  "flipkart_first_response_minutes": {
+    "n": 82779,
+    "median": 6.0,
+    "p25": 2.0,
+    "p75": 39.0,
+    "p90": 432.0
+  },
+  "medi_cal_abandonment_raw_value": {
+    "n_county_months": 180,
+    "median": 0.28,
+    "p25": 0.2,
+    "p75": 0.37,
+    "periods": [
+      "April 2026",
+      "February 2026",
+      "January 2026",
+      "June 2026",
+      "March 2026",
+      "May 2026"
+    ],
+    "unit_note": "fraction 0-1 per the source data dictionary (0.5 = 50%); abandoned after entering the queue / entered the queue"
+  },
+  "medi_cal_after_hours_share_of_calls": 0.08954285664686944
+}

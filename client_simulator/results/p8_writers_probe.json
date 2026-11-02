@@ -1,0 +1,97 @@
+{
+  "gemma3:1b": {
+    "sec_per_message": 2.58,
+    "vram_mib": 841,
+    "size_mib": 841,
+    "nvidia_smi_mib": 949,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "999.89M",
+      "quantization_level": "Q4_K_M"
+    },
+    "context": 4096,
+    "style": "ex5",
+    "seconds": 141
+  },
+  "llama3.2:1b": {
+    "sec_per_message": 2.45,
+    "vram_mib": 1448,
+    "size_mib": 1448,
+    "nvidia_smi_mib": 1465,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "llama",
+      "families": [
+        "llama"
+      ],
+      "parameter_size": "1.2B",
+      "quantization_level": "Q8_0"
+    },
+    "context": 4096,
+    "style": "ex5",
+    "seconds": 139
+  },
+  "smollm2:1.7b": {
+    "sec_per_message": 2.61,
+    "vram_mib": 2570,
+    "size_mib": 2570,
+    "nvidia_smi_mib": 2585,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "llama",
+      "families": [
+        "llama"
+      ],
+      "parameter_size": "1.7B",
+      "quantization_level": "Q8_0"
+    },
+    "context": 4096,
+    "style": "ex5",
+    "seconds": 161
+  },
+  "granite4:350m": {
+    "sec_per_message": 2.34,
+    "vram_mib": 804,
+    "size_mib": 804,
+    "nvidia_smi_mib": 817,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "granite",
+      "families": [
+        "granite"
+      ],
+      "parameter_size": "352.38M",
+      "quantization_level": "BF16"
+    },
+    "context": 4096,
+    "style": "ex5",
+    "seconds": 137
+  },
+  "gemma3:270m": {
+    "sec_per_message": 2.52,
+    "vram_mib": 309,
+    "size_mib": 309,
+    "nvidia_smi_mib": 336,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "268.10M",
+      "quantization_level": "Q8_0"
+    },
+    "context": 4096,
+    "style": "ex5",
+    "seconds": 136
+  }
+}

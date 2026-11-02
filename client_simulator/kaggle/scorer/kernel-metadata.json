@@ -1,0 +1,1 @@
+{"id": "<kaggle-user>/callverse-scorer-ft", "title": "callverse-scorer-ft", "code_file": "scorer_ft.py", "language": "python", "kernel_type": "script", "is_private": true, "enable_gpu": true, "enable_internet": true, "dataset_sources": ["<kaggle-user>/callverse-memberb-train"], "machine_shape": "NvidiaTeslaT4"}

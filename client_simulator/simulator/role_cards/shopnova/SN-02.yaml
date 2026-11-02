@@ -1,0 +1,16 @@
+id: SN-02
+company: shopnova
+reason: refund_request
+mood: calm, decided
+typo_level: low
+persona:
+  description: Lives in a small flat; bought an air purifier a week ago.
+  language: English
+goal: The Smart Air Purifier Mini is far too loud for your bedroom. You want to send
+  it back and get a refund of 104.99 EUR.
+facts:
+  order_id: 4513
+  delivered_on: 8 October
+  price: 104.99 EUR
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-SN-02.yaml

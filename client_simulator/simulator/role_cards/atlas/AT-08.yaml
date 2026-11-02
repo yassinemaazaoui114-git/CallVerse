@@ -1,0 +1,12 @@
+id: AT-08
+company: atlas
+reason: booking_status
+mood: calm
+typo_level: low
+persona:
+  description: Booked a family holiday to Crete.
+  language: English
+goal: You never received the confirmation email and want to check the booking exists.
+facts:
+  booking_ref: BK-7740
+patience_turns: 4

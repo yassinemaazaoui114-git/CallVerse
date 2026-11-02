@@ -1,0 +1,13 @@
+id: AT-10
+company: atlas
+reason: cancellation
+mood: formal
+typo_level: low
+persona:
+  description: Retired teacher.
+  language: English
+goal: You must cancel your Rome hotel because of a hospital appointment and ask about
+  the fee.
+facts:
+  booking_ref: BK-7742
+patience_turns: 4

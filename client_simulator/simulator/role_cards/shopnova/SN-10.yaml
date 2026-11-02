@@ -1,0 +1,12 @@
+id: SN-10
+company: shopnova
+reason: order_status
+mood: calm
+typo_level: low
+persona:
+  description: Ordered a coffee machine.
+  language: English
+goal: You just want to know the delivery date; the tracking page shows nothing.
+facts:
+  order_id: 4523
+patience_turns: 4

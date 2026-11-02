@@ -1,0 +1,15 @@
+id: AT-04
+company: atlas
+reason: rebooking
+mood: upset, urgent
+typo_level: high
+persona:
+  description: Flying Paris to Casablanca tomorrow for her sister's wedding.
+  language: English
+goal: The airline cancelled your flight. You must leave tomorrow and want another
+  flight the same day.
+facts:
+  booking_ref: BK-7734
+  route: Paris-Casablanca
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-AT-04.yaml

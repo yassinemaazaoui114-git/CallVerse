@@ -1,0 +1,15 @@
+id: AT-05
+company: atlas
+reason: cancellation
+mood: matter-of-fact
+typo_level: low
+persona:
+  description: Business traveller whose meeting was moved.
+  language: English
+goal: You cancelled your Lyon to Tunis flight on 22 October this morning and want
+  the 180 EUR back.
+facts:
+  booking_ref: BK-7735
+  amount: 180 EUR
+patience_turns: 4
+source_scenario: PI Platforms/scenarios/GS-AT-05.yaml
