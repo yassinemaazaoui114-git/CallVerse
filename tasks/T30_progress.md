@@ -9,11 +9,11 @@ Branch `feat/t30-rl5` (from main 8db7e8d).
 | 3 `style_log` table (store.py) | done, tests |
 | 4 `callverse/learning/rewards.py` (agent F, ratings, synthetic) | done, tests |
 | 7 pipeline switch (OFF by default, `learning.style_policy`) | done, tests |
-| 5 `scripts/train_style_policy.py`, `scripts/import_ratings.py` | todo |
-| 6 baselines (synthetic) | todo |
-| 8 regression | todo |
-| 1 held-out C/D read-only check | todo |
-| 10 docs + report | todo |
-| 9 Console page (optional) | todo |
+| 5 `scripts/train_style_policy.py`, `scripts/import_ratings.py` | done, tests |
+| 6 baselines (synthetic) | done (`out/rl5_baselines.md`) |
+| 8 regression | full suite 1876/1876; 72-message run + spot check running |
+| 1 held-out C/D read-only check | done (D07 problem, C12 weak) |
+| 10 docs + report | README, runbook done; report drafted |
+| 9 Console page (optional) | skipped (time) |
 
-Tests: `tests/test_t30_style_policy.py` 21/21.
+Tests: `tests/test_t30_style_policy.py` 28/28.
