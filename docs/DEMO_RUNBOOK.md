@@ -53,6 +53,8 @@ detail, and first in the admin's Approvals).
   that path (a message with money words goes straight to Agent B). The badge is shown by the vitest and unit tests.
 - T28: one decision per message. "Refund order 4512 and where is order 4509?" → the refund is handled, 4509 gets its
   status in one sentence; a second money request gets "Please send your request about order N as a new message".
+- T30 (RL5): the reply-style policy is OFF for the demo (`learning.style_policy: false`): replies are as before. It has
+  only been trained on a SYNTHETIC reward so far; the team's real ratings are still missing.
 - Agent D has no seats (flights): it checks hotel rooms only at Atlas.
 - F6 cannot complete a rebooking: the real flight data has no later flight on that route. Since T29 Agent C cannot
   propose a flight then (refused by code at the tool step); the case goes to a colleague with one fixed sentence.

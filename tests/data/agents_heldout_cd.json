@@ -1,0 +1,239 @@
+{
+ "about": "HIDDEN (held-out) cases for agents C and D, ShopNova only (the bench has no Atlas C cases). Do NOT run, read for tuning, or use to choose prompts, models or training data (CLAUDE.md rule 2). Only the final check runs this file, once (python -m scripts.eval_agents --file tests/data/agents_heldout_cd.json --model callverse-m2-v3 --heldout). Same format as tests/dev/agents_cases.json. Facts: seeded ShopNova data (orders 4505-4515, products 1-6, clock 2026-10-09). Expectations were written from the seed data and the P20 rules by the Brain WITHOUT running anything; T30 checks them by reading only (never by running the agents).",
+ "written_by": "Brain (Claude), 2026-11-02, draft for the team to review before the final check",
+ "cases": [
+  {
+   "id": "C08",
+   "agent": "C",
+   "split": "heldout",
+   "source": "very late, urgent date, 2 watches",
+   "order_id": 4515,
+   "reason": "late_delivery",
+   "message": "Two watches from order 4515 never arrived and my brother's wedding is on Friday. Please send me a replacement now.",
+   "must_call": [
+    "get_order",
+    "check_availability_with_d"
+   ],
+   "must_not_call": [],
+   "expect": {
+    "act": "propose",
+    "action": "replace",
+    "rule_id": "R-RPL-01",
+    "params": {
+     "order_id": 4515,
+     "product_id": 4
+    }
+   }
+  },
+  {
+   "id": "C09",
+   "agent": "C",
+   "split": "heldout",
+   "source": "NOT late yet (promised 2026-10-10): no replacement",
+   "order_id": 4510,
+   "reason": "late_delivery",
+   "message": "Order 4510 has not arrived and I leave for a trip tomorrow. Can you send another pair of earbuds?",
+   "must_call": [
+    "get_order"
+   ],
+   "must_not_call": [
+    "propose_replacement"
+   ],
+   "expect": {
+    "act": "any"
+   }
+  },
+  {
+   "id": "C10",
+   "agent": "C",
+   "split": "heldout",
+   "source": "hold, 3 days",
+   "order_id": 4511,
+   "reason": "other",
+   "message": "Please keep 2 USB-C chargers for me for 3 days, I am waiting for my order 4511 to be prepared.",
+   "must_call": [
+    "check_availability_with_d"
+   ],
+   "must_not_call": [
+    "propose_replacement"
+   ],
+   "expect": {
+    "act": "propose",
+    "action": "hold",
+    "rule_id": "R-HLD-01",
+    "params": {
+     "product_id": 3,
+     "hold_days": 3
+    }
+   }
+  },
+  {
+   "id": "C11",
+   "agent": "C",
+   "split": "heldout",
+   "source": "dispute -> colleague (Layer 2)",
+   "order_id": 4513,
+   "reason": "other",
+   "message": "Your last answer about order 4513 is wrong and I am not happy. I want to speak to a real person.",
+   "must_call": [],
+   "must_not_call": [
+    "propose_replacement",
+    "propose_hold"
+   ],
+   "expect": {
+    "act": "propose",
+    "action": "assistance",
+    "rule_id": "R-AST-01",
+    "params": {
+     "order_id": 4513
+    }
+   }
+  },
+  {
+   "id": "C12",
+   "agent": "C",
+   "split": "heldout",
+   "source": "hold longer than 3 days is not allowed (R-HLD-01)",
+   "order_id": 4513,
+   "reason": "other",
+   "message": "Can you hold a Smart Watch for me for 10 days? I get paid at the end of the month.",
+   "must_call": [
+    "check_availability_with_d"
+   ],
+   "must_not_call": [
+    "propose_replacement"
+   ],
+   "expect": {
+    "act": "any"
+   }
+  },
+  {
+   "id": "C13",
+   "agent": "C",
+   "split": "heldout",
+   "source": "no order number: ask or nothing, no tool",
+   "order_id": null,
+   "reason": "other",
+   "message": "Help! My package is late and the party is today!",
+   "must_call": [],
+   "must_not_call": [
+    "propose_replacement",
+    "propose_hold",
+    "get_order"
+   ],
+   "expect": {
+    "act": "none"
+   }
+  },
+  {
+   "id": "C14",
+   "agent": "C",
+   "split": "heldout",
+   "source": "Smart Watch out of stock (stock set to 0): no replacement",
+   "order_id": 4515,
+   "reason": "late_delivery",
+   "message": "Order 4515 is very late, I need the watches by Saturday, please send a replacement.",
+   "must_call": [
+    "get_order",
+    "check_availability_with_d"
+   ],
+   "must_not_call": [
+    "propose_replacement"
+   ],
+   "expect": {
+    "act": "any"
+   },
+   "stock": {
+    "4": 0
+   }
+  },
+  {
+   "id": "D05",
+   "agent": "D",
+   "split": "heldout",
+   "source": "USB-C Charger almost gone: warn A (order 4511 has one)",
+   "order_id": null,
+   "reason": null,
+   "message": "(stock scan)",
+   "stock": {
+    "3": 2
+   },
+   "expect": {
+    "shortage": [
+     3
+    ],
+    "not_promote": [
+     3
+    ],
+    "warn_order": {
+     "order_id": 4511,
+     "warned": true
+    }
+   }
+  },
+  {
+   "id": "D06",
+   "agent": "D",
+   "split": "heldout",
+   "source": "Laptop Backpack at 5 units: shortage by the 5-unit rule",
+   "order_id": null,
+   "reason": null,
+   "message": "(stock scan)",
+   "stock": {
+    "6": 5
+   },
+   "expect": {
+    "shortage": [
+     6
+    ],
+    "not_promote": [
+     6
+    ]
+   }
+  },
+  {
+   "id": "D07",
+   "agent": "D",
+   "split": "heldout",
+   "source": "Smart Watch heavily overstocked (60 units, ~3 sold in 30 days): promotion proposed, no shortage",
+   "order_id": null,
+   "reason": null,
+   "message": "(stock scan)",
+   "stock": {
+    "4": 60
+   },
+   "expect": {
+    "promote": [
+     4
+    ],
+    "not_shortage": [
+     4
+    ]
+   }
+  },
+  {
+   "id": "D08",
+   "agent": "D",
+   "split": "heldout",
+   "source": "Bluetooth Speaker almost gone: warn A (order 4514 has one)",
+   "order_id": null,
+   "reason": null,
+   "message": "(stock scan)",
+   "stock": {
+    "5": 4
+   },
+   "expect": {
+    "shortage": [
+     5
+    ],
+    "not_promote": [
+     5
+    ],
+    "warn_order": {
+     "order_id": 4514,
+     "warned": true
+    }
+   }
+  }
+ ]
+}

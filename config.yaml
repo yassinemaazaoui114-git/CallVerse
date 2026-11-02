@@ -240,6 +240,14 @@ slm:
   # the RL policy (RL5) will set it per reply later. It changes wording only, never a decision.
   reply_style: null
 
+# T30 (RL5): the style policy (callverse/learning/style_policy.py), a bandit that picks the reply style per situation
+# group. OFF by default: with false, every reply is exactly as before. With true, and no style already set (decision,
+# env var, slm.reply_style), the policy sets decision["reply_style"] and the choice is saved in style_log. It changes
+# wording only, never a decision. style_policy_file: the trained policy (scripts/train_style_policy.py); missing = explore.
+learning:
+  style_policy: false
+  style_policy_file: out/rl5_policy.json
+
 # Local platform server (P05, P09). The demo screen (/demo: type a message, run the stories, see every step)
 # runs the real pipeline and can reset the demo data, so it is OFF by default: turn it on only for a live demo.
 server:

@@ -172,7 +172,8 @@ callverse/          the code
   kb/                 ShopNova's policies and the policy search (RAG); Atlas Travel's rules (policies_atlas.json)
   coordinator/        the Coordinator (rules); Atlas Travel's gate (atlas_coordinator.py: amounts by code)
   slm/                the reply writer, its rule check, templates and reply styles (reply_styles.py)
-  learning/           RL pieces: the situation features of a reply (situation.py)
+  learning/           RL pieces: the situation of a reply (situation.py), the style policy (style_policy.py, RL5),
+                      its reward sources (rewards.py: real ratings, agent F, synthetic)
   notifier/           delivery notifications (story S3)
   data/               ShopNova data: seed, read views, the ONLY write functions (writes.py), clock, Layer 3
     atlas/            Atlas Travel data: schema, seed, database access, read functions, its write functions,
@@ -341,6 +342,15 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   with one fixed sentence (F6, `atlas_c_tools.py`, `pipeline.run_c`); a refund of an unpaid order (4514) is refused
   at the proposal step (`proposal_tools.nothing_paid`); the eval bench puts fake facts into `ask_agent` too.
   Report [tasks/T29_report.md](tasks/T29_report.md).
+- **T30 (RL5)** The reply-style policy: a Thompson-sampling bandit per situation group (company, outcome class, angry /
+  other) that picks `short` / `warm` / `warm_next_step` (`callverse/learning/style_policy.py`). It sets only
+  `decision["reply_style"]`, never a decision. **OFF by default** (`config.yaml` `learning.style_policy: false`: replies
+  byte-identical to before). Every choice and reward goes to the `style_log` table of the tickets DB with its source
+  (`real` / `predicted` / `synthetic`). So far trained only on a **synthetic** reward (agent F ignores the style, the
+  first ratings file had 6 identical tabs). When the team's ratings arrive:
+  `python -m scripts.import_ratings <filled file.xlsx>` (rejects identical tabs or one value everywhere), then
+  `python -m scripts.train_style_policy --source ratings` (writes `out/rl5_policy.json`, `out/rl5_curve.csv`).
+  Baselines: `python -m scripts.train_style_policy --baselines`. Report [tasks/T30_report.md](tasks/T30_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,

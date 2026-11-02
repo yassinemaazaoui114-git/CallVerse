@@ -154,14 +154,56 @@ def final_reply(ticket: dict, decision: dict | None, slm_chat_fn=None) -> tuple[
         # T14a: the rules may say "no" (decline, with the reason); otherwise the status, as before.
         said = no_proposal_decision(ticket.get("main_reason"), ticket.get("order_id")) or info_decision(ticket.get("order_id"))
     said = {**said, "style": reply_style(ticket)}
+    said, chosen = policy_style(ticket, said)   # T30 (RL5): OFF by default -> said unchanged, chosen None
     # T10: the client's own message is NOT given to the SLM (in T10's dev set it copied an insult back word
     # for word). The tone comes from Intake's style profile; the content only from the decision.
     written = write_reply(said, None, chat_fn=slm_chat_fn)
     source = "template" if written["used_template"] else ("slm" if written["attempts"] == 1 else "slm_retry")
+    if chosen:
+        log_policy_style(ticket, chosen, written["reply"])
     trace.log("final_reply", "pipeline", {"ticket_id": ticket["ticket_id"], "outcome": said["outcome"],
                                           "reply": written["reply"], "reply_source": source,
                                           "seconds": written["seconds"]})
     return said, written["reply"], source
+
+
+def policy_style(ticket: dict, said: dict, rng=None) -> tuple[dict, dict | None]:
+    """T30 (RL5): let the style policy pick the reply style. Returns (decision for the SLM, the choice or None).
+
+    Only when config.yaml learning.style_policy is true AND no style is already set (decision, env var, slm.reply_style)
+    AND the reply is not the fixed off-topic redirect. The policy sets ONLY decision["reply_style"]: every other key of
+    the decision stays as the Coordinator wrote it. Any error inside the policy -> no style (today's behaviour), traced."""
+    if not load_config().get("learning", {}).get("style_policy", False):
+        return said, None   # OFF (default): nothing is read, nothing is traced, the decision is untouched
+    try:
+        from callverse.learning.situation import situation
+        from callverse.learning.style_policy import ROOT, StylePolicy, group_of
+        from callverse.slm import reply_styles, templates
+        if templates.is_redirect(said) or reply_styles.of(said) is not None:
+            return said, None
+        sit = situation(ticket, said)
+        path = load_config()["learning"].get("style_policy_file") or "out/rl5_policy.json"
+        policy = StylePolicy.load(ROOT / path)
+        style = policy.choose(sit, rng)
+        chosen = {"situation": sit, "group": group_of(sit), "style": style,
+                  "group_observations": policy.observations(group_of(sit))}
+    except Exception as e:   # noqa: BLE001  the policy must never break a reply
+        trace.log("style_policy_error", "pipeline", {"ticket_id": ticket.get("ticket_id"),
+                                                     "error": f"{type(e).__name__}: {e}"})
+        return said, None
+    trace.log("style_policy", "pipeline", {"ticket_id": ticket.get("ticket_id"), **chosen})
+    return {**said, "reply_style": style}, chosen
+
+
+def log_policy_style(ticket: dict, chosen: dict, reply: str) -> None:
+    """T30: save the policy's choice in style_log (reward empty until a rating exists). An error is traced, never raised."""
+    try:
+        from callverse.tickets import store
+        store.add_style_log(chosen["situation"], chosen["group"], chosen["style"], reply=reply,
+                            ticket_id=ticket.get("ticket_id"))
+    except Exception as e:   # noqa: BLE001
+        trace.log("style_policy_error", "pipeline", {"ticket_id": ticket.get("ticket_id"),
+                                                     "error": f"style_log: {type(e).__name__}: {e}"})
 
 
 def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=None) -> tuple[dict, list, dict | None]:
