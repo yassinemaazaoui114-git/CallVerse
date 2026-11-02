@@ -17,3 +17,5 @@ Branch `feat/t30-rl5` (from main 8db7e8d).
 | 9 Console page (optional) | skipped (time) |
 
 Tests: `tests/test_t30_style_policy.py` 28/28.
+
+Real ratings: `out/CallVerse_reply_rating_filled.xlsx` imported (483/483, 6 raters, source = real; DB backup `out/t30_dbbackup/`), trained `--source ratings` -> `out/rl5_policy.json`. warm_next_step best in 11/13 groups, warm in 2. Report section 7.

@@ -143,3 +143,32 @@ Then compare with the baselines on the real rows. Then decide on the Brain's ans
 held-out C/D run. Optional later: the Console "Learning" page (step 9).
 
 Merge line for Yassine (after the Brain's review): `git checkout main && git merge --no-ff feat/t30-rl5`
+
+## 7. Update — real ratings imported and trained (2 Nov, after 15:40)
+The team's new file `out/CallVerse_reply_rating_filled.xlsx` passed the importer's checks (tabs differ, values spread).
+- Import: **483 of 483** ratings saved in `style_log` with `source = real`. Raters: Yassine 80, Dali 81, Semah 81,
+  Mahmoud 81, Molka 81, Ayoub 79. The tickets DB was backed up first (`out/t30_dbbackup/callverse.db`).
+- Training: `python -m scripts.train_style_policy --source ratings`, 300 rounds, seed 1, 27 situations, 13 groups.
+  The policy is in `out/rl5_policy.json` (git-ignored).
+- **REAL** result (mean reward per style, 0..1 = (stars − 1) / 4):
+
+| Group | n | short | warm | warm_next_step | Best |
+|---|---|---|---|---|---|
+| atlas / approve / other | 9 | 0.25 | 0.583 | 0.75 | warm_next_step |
+| atlas / ask / other | 17 | 0.333 | 0.688 | 0.583 | warm |
+| atlas / decline / angry | 8 | 0.25 | 0.75 | 1.0 | warm_next_step |
+| atlas / decline / other | 77 | 0.312 | 0.6 | 0.801 | warm_next_step |
+| atlas / info / other | 11 | 0.0 | 0.312 | 0.6 | warm_next_step |
+| atlas / other / other | 10 | 0.375 | 0.8 | 0.667 | warm |
+| shopnova / approve / other | 22 | 0.333 | 0.75 | 0.956 | warm_next_step |
+| shopnova / ask / angry | 15 | 0.125 | 0.625 | 0.679 | warm_next_step |
+| shopnova / ask / other | 33 | 0.125 | 0.583 | 0.607 | warm_next_step |
+| shopnova / decline / angry | 18 | 0.333 | 0.438 | 0.75 | warm_next_step |
+| shopnova / decline / other | 23 | 0.0 | 0.583 | 0.833 | warm_next_step |
+| shopnova / info / angry | 11 | 0.083 | 0.5 | 1.0 | warm_next_step |
+| shopnova / info / other | 46 | 0.25 | 0.5 | 0.868 | warm_next_step |
+
+- What it says: the team prefers `warm_next_step` in 11 of 13 groups and `warm` in 2 (Atlas ask, Atlas other).
+  `short` is last in every group. The groups are small (8–77 rows): read the 2 `warm` groups as weak evidence.
+- The pipeline switch stays **OFF** by default; turning it on is a decision for the Brain / Yassine.
+- Still open from section 3/4: the 72-message regression (36/72 done, all pass) and the switch-ON spot check.
