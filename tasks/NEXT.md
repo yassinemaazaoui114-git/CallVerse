@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Status | WAITING FOR REVIEW |
+| Status | DONE |
 | Task file | tasks/T35_react_photo.md (photo upload in the React Help chat: `image_b64` in the chat API passed to `web_chat.send(image=...)`, file input + preview in Chat.jsx, ShopNova + Atlas; photo never stored) — on branch feat/t35-react-photo |
 | Approved by | Yassine — 2026-11-02 22:14 ("tell claude code to fix it in the react") |
-| Last done | T34 — merged into main (44b6152; README note 01a1836). Vision is in the back end and the Streamlit chats, not yet in the React UI. |
+| Last done | T35 — merged into main (75b53c8; 2013 Python tests + 82 Vitest pass on main, build OK). T35b merged before it (66f7b4d). Photo upload now works in the React Help chat (ShopNova + Atlas). |
 
 **T35b** (approved by Yassine 2026-11-02: "yes, fix it in T35b") — DONE: merged into main (66f7b4d, 2005 tests pass on main); branch feat/t35b-photo-steps: a photo message keeps its live steps and saved steps (`web_chat.channel_step`). Report tasks/T35b_report.md. Core code: no Dali OK needed; merge order with T35 does not matter.
 
