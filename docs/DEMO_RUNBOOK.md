@@ -40,11 +40,15 @@ detail, and first in the admin's Approvals).
 
 ### Optional flows (T34 integration branch)
 - **Photo (vision)**: needs `requirements-vision.txt`, `bitsandbytes` and the CUDA build of torch (4-bit on the GPU,
-  about 2.2 GB VRAM). In the **Streamlit** Help chat (ShopNova 8501 / Atlas 8503), attach one photo to the message,
+  about 2.2 GB VRAM). In the **web UI** Help chat (5173, ShopNova or Atlas; since T35) press **Photo**, choose one
+  JPEG / PNG / WebP under 5 MB (a preview appears, × removes it), then send it with the message (the Streamlit Help
+  chats 8501 / 8503 still work too),
   e.g. `My order 4509 arrived damaged, see the photo. I want a refund.` with a photo of a cracked phone. The first
   photo takes about 25 s (model load), then about 4 s per photo. T34 live result: the photo check saw the damage, but
   Agent B still asked for a photo, so the pipeline passed the case to a colleague (no refund written). Say: the photo
-  is evidence only; the rules decide. Without the packages the chat answers "The photo check is not available right now…".
+  is evidence only; the rules decide. T35 live (web API): same result, 70 s with the model load; while the photo
+  message runs the chat shows only "Sending…" (no live steps: see tasks/T35_report.md). Close other apps first: VRAM
+  peak 5.9 GB of 6 GB, free RAM went down to 0.1 GB. Without the packages the chat answers "The photo check is not available right now…".
 - **Client Simulator**: `python -m scripts.run_client_simulator` (needs `requirements-simulator.txt`, Ollama with
   `gemma3:1b`). Three simulated clients write to the center and score the chat 1-5 (results in `out/t34_simulator.md`).
   It reseeds the demo data: run **Reset** afterwards.

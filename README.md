@@ -398,6 +398,9 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
     `bitsandbytes` and the CUDA build of torch for 4-bit on the GPU. Without the packages a photo gets "The photo check
     is not available right now…"; with no photo nothing changes. Check: `python -m scripts.t34_photo_check`.
   Report [tasks/T34_report.md](tasks/T34_report.md).
+- **T35** Photo upload in the React Help chat (ShopNova + Atlas, port 5173): a Photo button, a small preview with a
+  remove x, sent as base64 (`image_b64`) in the same chat send; the API checks type and size (JPEG / PNG / WebP, 5 MB)
+  and passes the photo to `web_chat.send(image=...)`. The photo is never stored. Report [tasks/T35_report.md](tasks/T35_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,
