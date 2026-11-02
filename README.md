@@ -382,6 +382,19 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   [docs/findings_agent_c.md](docs/findings_agent_c.md). Report [tasks/T32_report.md](tasks/T32_report.md).
 - **T33** Style policy demo check: `python -m scripts.style_demo_check` runs 5 demo messages with the policy OFF and ON
   (switch patched in memory only; `config.yaml` stays OFF). 5/5 decisions unchanged. Report [tasks/T33_report.md](tasks/T33_report.md).
+- **T34** Integration branch `feat/t34-integrate` (main + the team's finished branches; main's reviewed code wins):
+  - Agent F extras (`feature/agent-f-rlhf-e2e`): docs `docs/agent_f.md`, `docs/agent_f_style_reward.md` and result files
+    only. The branch's RL code (old style names, own style policy) stays on its branch.
+  - New login (Dali, `new-login`): separate sign-in pages `/shop/login`, `/atlas/login`, `/console/login` (chooser at
+    `/login`) and the ShopNova admin **Manage** page, next to the T27 Promotions / Hotel deals screens.
+  - Client Simulator (Mahmoud, `client_simulator/`, copied from `feature/client-simulator-with-real-data`): it plays
+    the client (gemma3:1b) and scores the chat (CPU MiniLM). `python -m scripts.run_client_simulator` (needs
+    `pip install -r requirements-simulator.txt`); it talks to the center only through `web_chat.send`.
+  - Vision (Semah's QLoRA adapter + Molka's channel, `claude/magical-albattani-ktcgao`): a photo in the Help chat is
+    checked by Qwen3-VL-2B + adapter (`callverse/vision`). Optional: `pip install -r requirements-vision.txt` plus
+    `bitsandbytes` and the CUDA build of torch for 4-bit on the GPU. Without the packages a photo gets "The photo check
+    is not available right now…"; with no photo nothing changes. Check: `python -m scripts.t34_photo_check`.
+  Report [tasks/T34_report.md](tasks/T34_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,
