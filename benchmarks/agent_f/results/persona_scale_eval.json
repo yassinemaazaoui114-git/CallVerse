@@ -1,0 +1,151 @@
+{
+  "note": "SIMULATED; 40-persona sets",
+  "personas": {
+    "val40": 40,
+    "eval40": 40
+  },
+  "policies": {
+    "always_short": {
+      "val40": {
+        "avg_rating_mean": 3.2005,
+        "avg_rating_std": 0.0087,
+        "per_eval_seed": [
+          3.2087,
+          3.1884,
+          3.2043
+        ]
+      },
+      "eval40": {
+        "avg_rating_mean": 3.181,
+        "avg_rating_std": 0.0071,
+        "per_eval_seed": [
+          3.1859,
+          3.171,
+          3.1862
+        ]
+      }
+    },
+    "always_apology_first": {
+      "val40": {
+        "avg_rating_mean": 3.2789,
+        "avg_rating_std": 0.0115,
+        "per_eval_seed": [
+          3.2837,
+          3.263,
+          3.2899
+        ]
+      },
+      "eval40": {
+        "avg_rating_mean": 3.2673,
+        "avg_rating_std": 0.0049,
+        "per_eval_seed": [
+          3.2681,
+          3.2609,
+          3.2728
+        ]
+      }
+    },
+    "always_apology_next_step": {
+      "val40": {
+        "avg_rating_mean": 3.4952,
+        "avg_rating_std": 0.0103,
+        "per_eval_seed": [
+          3.5004,
+          3.4808,
+          3.5043
+        ]
+      },
+      "eval40": {
+        "avg_rating_mean": 3.5527,
+        "avg_rating_std": 0.0122,
+        "per_eval_seed": [
+          3.5598,
+          3.5355,
+          3.5627
+        ]
+      }
+    },
+    "rule_based": {
+      "val40": {
+        "avg_rating_mean": 3.6107,
+        "avg_rating_std": 0.0118,
+        "per_eval_seed": [
+          3.621,
+          3.5942,
+          3.617
+        ]
+      },
+      "eval40": {
+        "avg_rating_mean": 3.4919,
+        "avg_rating_std": 0.0056,
+        "per_eval_seed": [
+          3.4924,
+          3.4848,
+          3.4986
+        ]
+      }
+    },
+    "rule_by_mood_from_train": {
+      "val40": {
+        "avg_rating_mean": 3.6156,
+        "avg_rating_std": 0.01,
+        "per_eval_seed": [
+          3.6232,
+          3.6014,
+          3.6221
+        ]
+      },
+      "eval40": {
+        "avg_rating_mean": 3.5637,
+        "avg_rating_std": 0.008,
+        "per_eval_seed": [
+          3.5649,
+          3.5533,
+          3.5728
+        ]
+      }
+    },
+    "gaussian_thompson_train12": {
+      "val40": {
+        "avg_rating_mean": 3.6084,
+        "avg_rating_std": 0.0012
+      },
+      "eval40": {
+        "avg_rating_mean": 3.5567,
+        "avg_rating_std": 0.005
+      }
+    }
+  },
+  "archetype_mix": {
+    "val40": {
+      "warm": 9,
+      "neutral": 13,
+      "busy": 10,
+      "practical": 8
+    },
+    "eval40": {
+      "busy": 9,
+      "practical": 14,
+      "neutral": 8,
+      "warm": 9
+    },
+    "train12": {
+      "busy": 4,
+      "warm": 1,
+      "practical": 4,
+      "neutral": 3
+    },
+    "val6": {
+      "neutral": 3,
+      "practical": 1,
+      "busy": 1,
+      "warm": 1
+    },
+    "eval6": {
+      "warm": 3,
+      "practical": 1,
+      "neutral": 1,
+      "busy": 1
+    }
+  }
+}

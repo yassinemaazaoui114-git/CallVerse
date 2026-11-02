@@ -26,3 +26,4 @@ data/raw/
 config/accounts.yaml
 callverse/data/callverse.db
 models/
+data/simulated/
