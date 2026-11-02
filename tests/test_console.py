@@ -104,7 +104,7 @@ def refund_ticket(user_id, order_id, amount, tokens, reply_seconds, text):
                                                                 "amount": amount, "rule_id": "R-REF-03"})
     store.add_step(t["id"], mid, "coordinator", "coordinator", {"trace_step": "coordinator_check", "check": "rule_condition",
                                                                 "rule_id": "R-REF-03", "result": "pass", "detail": "ok"})
-    decision = review(proposal, new_case(t["id"]))
+    decision = review(proposal, {**new_case(t["id"]), "user_message": "My order is late, I want my money back."})
     assert decision["outcome"] == "approve", decision
     store.add_step(t["id"], mid, "coordinator", "coordinator", {"trace_step": "coordinator_decision", **decision})
     llm_step(t["id"], mid, "slm", "ollama", "qwen2.5:1.5b", 100)
@@ -355,7 +355,7 @@ def test_admin_decision_reply_keeps_its_seconds(monkeypatch):
     monkeypatch.setenv("CALLVERSE_LAYER3_MODE", "queue")
     decision = review({"agent": "B", "action": "refund", "params": {"order_id": 4515, "amount": 378.0},
                        "rule_id": "R-REF-03", "facts_used": {"days_late": 8}, "user_confirmed": True},
-                      new_case("T-0001"))
+                      {**new_case("T-0001"), "user_message": "My order is late, I want my money back."})
     assert decision["outcome"] == "layer3_pending"
     ticket = store.create_ticket("shopnova", 2)
     store.add_message(ticket["id"], "user", "My order 4515 is very late, I want a refund please.")

@@ -61,3 +61,18 @@ def negated_request(sentence: str | None) -> bool:
     text = REQUEST_RE.sub(" ", text)                                    # step 1: requests are not negations
     text = COMPLAINT_RE.sub(" ", text)                                  # step 1c (T14d): "not refunded till date"
     return NEGATED_RE.search(text) is not None                          # step 2
+
+
+# The marks that end a sentence (the same as in both Coordinators).
+SENTENCE_ENDS = ".!?\n"
+
+
+def money_back_asked(message: str | None) -> bool:
+    """T14e (Atlas), T14f (ShopNova too): True when one sentence of the message asks for money back in the client's
+    own words (request_words.asks_for_money_back) and that sentence is not a negative one ("I do not want a refund").
+    One function for both companies' Coordinators, so a refund needs the same words at ShopNova and at Atlas."""
+    from callverse.intake.request_words import asks_for_money_back   # here, so this file stays light to import
+    text = (message or "").lower()
+    for mark in SENTENCE_ENDS[1:]:
+        text = text.replace(mark, SENTENCE_ENDS[0])
+    return any(asks_for_money_back(s) and not negated_request(s) for s in text.split(SENTENCE_ENDS[0]))

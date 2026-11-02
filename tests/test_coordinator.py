@@ -21,6 +21,11 @@ def refund(order_id=4512, amount=59.90, rule_id="R-REF-03", confirmed=True, fact
             "user_quote": "I want my money back."}
 
 
+def refund_case(case_id):
+    """T14f: a ShopNova refund also needs the client's money-back words, so the case carries the client's message."""
+    return {**new_case(case_id), "user_message": "My order is late, I want my money back."}
+
+
 def subscribe(order_id=4512, event="out_for_delivery", rule_id="R-NOT-01"):
     return {"agent": "A", "action": "subscribe", "params": {"order_id": order_id, "event": event},
             "rule_id": rule_id, "facts_used": {}, "user_confirmed": True, "user_quote": "Tell me when it comes."}
@@ -31,7 +36,7 @@ def steps():
 
 
 def test_s1_refund_is_approved_and_written():
-    d = review(refund(), new_case("T-1"))
+    d = review(refund(), refund_case("T-1"))
     assert d["outcome"] == "approve" and d["proposal_id"] == "P-0001"
     assert d["facts"] == {"order_status": "refunded", "days_late": 6, "amount_tnd": 59.90}   # SLM format (T08)
     assert d["must_say"] == ["Your refund of 59.90 TND is approved."]
@@ -46,42 +51,42 @@ def test_s1_refund_is_approved_and_written():
 
 
 def test_amount_above_paid_is_sent_back_with_r_ref_05():
-    case = new_case("T-2")
+    case = refund_case("T-2")
     d = review(refund(amount=70.00), case)
     assert d["outcome"] == "send_back" and "R-REF-05" in d["reason"] and case["send_backs"] == 1
     assert get_refunds(4512)["refunds"] == []          # nothing written
 
 
 def test_already_refunded_is_sent_back():
-    assert review(refund(), new_case("T-3a"))["outcome"] == "approve"
-    d = review(refund(amount=10.0), new_case("T-3b"))   # 59.90 already refunded
+    assert review(refund(), refund_case("T-3a"))["outcome"] == "approve"
+    d = review(refund(amount=10.0), refund_case("T-3b"))   # 59.90 already refunded
     assert d["outcome"] == "send_back" and "R-REF-05" in d["reason"]
 
 
 def test_rule_condition_false_is_sent_back_even_if_the_agent_says_otherwise():
     # 4510 is not late; the agent claims 9 days late: the Coordinator re-reads the data itself.
-    d = review(refund(order_id=4510, amount=10.0, facts={"days_late": 9, "delivered": False}), new_case("T-4"))
+    d = review(refund(order_id=4510, amount=10.0, facts={"days_late": 9, "delivered": False}), refund_case("T-4"))
     assert d["outcome"] == "send_back" and "R-REF-03 does not apply" in d["reason"]
     assert d["facts"]["days_late"] == 0
 
 
 def test_rule_that_cannot_justify_a_refund_is_sent_back():
-    d = review(refund(rule_id="R-REF-05"), new_case("T-4b"))
+    d = review(refund(rule_id="R-REF-05"), refund_case("T-4b"))
     assert d["outcome"] == "send_back" and "cannot justify" in d["reason"]
 
 
 def test_not_confirmed_asks_the_user():
-    d = review(refund(confirmed=False), new_case("T-5"))
+    d = review(refund(confirmed=False), refund_case("T-5"))
     assert d["outcome"] == "ask_user" and get_refunds(4512)["refunds"] == []
 
 
 def test_damaged_without_proof_asks_for_proof():
-    d = review(refund(order_id=4507, amount=10.0, rule_id="R-DMG-01"), new_case("T-5b"))
+    d = review(refund(order_id=4507, amount=10.0, rule_id="R-DMG-01"), refund_case("T-5b"))
     assert d["outcome"] == "ask_proof"
 
 
 def test_4515_goes_to_layer3_and_is_approved():
-    d = review(refund(order_id=4515, amount=378.00), new_case("T-6"))
+    d = review(refund(order_id=4515, amount=378.00), refund_case("T-6"))
     assert d["outcome"] == "approve" and d["facts"]["layer3_decision"] == "approved"
     assert d["facts"]["threshold_tnd"] == 300.0
     assert d["must_say"] == ["Your refund of 378.00 TND is approved after a check by our finance team."]
@@ -92,12 +97,12 @@ def test_600_is_refused_by_layer3():
     with closing(db.connect()) as con:     # temp test DB only: make 600 TND possible under R-REF-05
         con.execute("UPDATE orders SET paid = 650 WHERE id = 4515")
         con.commit()
-    d = review(refund(order_id=4515, amount=600.00), new_case("T-7"))
+    d = review(refund(order_id=4515, amount=600.00), refund_case("T-7"))
     assert d["outcome"] == "layer3_refused" and get_refunds(4515)["refunds"] == []
 
 
 def test_third_send_back_becomes_escalate():
-    case = new_case("T-8")
+    case = refund_case("T-8")
     outcomes = [review(refund(amount=70.00), case)["outcome"] for _ in range(3)]
     assert outcomes == ["send_back", "send_back", "escalate"]
 
@@ -113,8 +118,8 @@ def test_subscribe_is_approved_and_written():
 
 def test_a_proposal_decided_twice_is_refused():
     proposal = {**refund(), "proposal_id": record_proposal(refund())["id"]}
-    assert review(proposal, new_case("T-10"))["outcome"] == "approve"
-    again = review(proposal, new_case("T-10"))
+    assert review(proposal, refund_case("T-10"))["outcome"] == "approve"
+    again = review(proposal, refund_case("T-10"))
     assert again["outcome"] == "refused" and "already decided" in again["reason"]
     assert len(get_refunds(4512)["refunds"]) == 1      # still only one refund
 

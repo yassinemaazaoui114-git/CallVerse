@@ -20,7 +20,8 @@ ASKABLE = ("A",)
 ASKER_ROLE_KEY = "agent_b"
 
 
-def ask_agent(agent: str, question: str, chat_fn=None, company: str = companies.DEFAULT) -> dict:
+def ask_agent(agent: str, question: str, chat_fn=None, company: str = companies.DEFAULT,
+              booking_type: str | None = None) -> dict:
     """Run `agent` on `question`; return {agent, answer, facts}. chat_fn = fake LLM in tests (given by the registry)."""
     if agent not in ASKABLE:
         return {"error": f"agent {agent} cannot be asked; ask one of {list(ASKABLE)}"}
@@ -28,7 +29,7 @@ def ask_agent(agent: str, question: str, chat_fn=None, company: str = companies.
         return {"error": "give a non-empty question"}
 
     from callverse.agents.agent_a import AgentA   # imported here: agent_a -> registry -> this file
-    agent_a = AgentA(chat_fn=chat_fn, company=company)
+    agent_a = AgentA(chat_fn=chat_fn, company=company, booking_type=booking_type)
     agent_a.role_key = ASKER_ROLE_KEY            # this instance only; Agent A's own turns keep "agent_a"
     result = agent_a.run(question)
     facts = atlas_facts(result["tool_calls"]) if company == "atlas" else compact_facts(result["tool_calls"])

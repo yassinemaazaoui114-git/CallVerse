@@ -292,6 +292,12 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   the Coordinator asks first ("Please confirm that you want a refund of X TND for booking N.") and writes nothing.
   A hotel cancellation of a confirmed booking and a compensation keep their own path. Tests: `tests/test_t14e.py`.
   Report: `tasks/T14e_report.md`.
+- **T14f** ShopNova refunds need the same money-back words (one shared function: `negation.money_back_asked`, used by
+  both Coordinators). The agent's `user_confirmed` is still needed too; without the words the client is asked first
+  and nothing is written (also before Layer 3). A cancellation keeps its own path. Atlas `search_policy` now puts the
+  rules of the ticket's booking type first (flight: AT-FLT / AT-AST / AT-REF / AT-ESC; hotel: AT-HOT / AT-REF / AT-ESC);
+  the booking type comes from Intake's look-up through the registry, never from the model (the tool schema is
+  unchanged). Tests: `tests/test_t14f.py`. Report: `tasks/T14f_report.md`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 

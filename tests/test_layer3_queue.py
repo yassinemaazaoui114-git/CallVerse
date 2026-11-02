@@ -79,7 +79,7 @@ def no_llm(role_key, messages, tools=None):
 
 def pending_approval() -> dict:
     """A pending approval as the channel makes it: Coordinator in queue mode + a ticket + the approvals row."""
-    decision = review(refund_4515(), new_case("T-0001"))
+    decision = review(refund_4515(), {**new_case("T-0001"), "user_message": "My order is late, I want my money back."})
     ticket = store.create_ticket("shopnova", 2)
     store.add_message(ticket["id"], "user", "My order 4515 is very late, I want a refund please.")
     store.add_step(ticket["id"], None, "intake", "intake",
@@ -103,7 +103,7 @@ def test_mode_comes_from_the_env_var_else_config(monkeypatch):
 def test_queue_mode_gives_layer3_pending_and_writes_nothing(monkeypatch):
     monkeypatch.setattr("callverse.coordinator.coordinator.layer3_decide",
                         lambda *a, **k: pytest.fail("the stub must not be called in queue mode"))
-    d = review(refund_4515(), new_case("T-1"))
+    d = review(refund_4515(), {**new_case("T-1"), "user_message": "My order is late, I want my money back."})
     assert d["outcome"] == "layer3_pending" and d["facts"]["layer3_decision"] == "pending"
     assert d["must_say"] == [PENDING_SENTENCE]
     assert d["next_step"] == "We will reply here as soon as it has been reviewed."
@@ -113,13 +113,13 @@ def test_queue_mode_gives_layer3_pending_and_writes_nothing(monkeypatch):
 
 
 def test_queue_mode_leaves_small_refunds_alone():
-    d = review({**refund_4515(), "params": {"order_id": 4512, "amount": 59.90}}, new_case("T-2"))
+    d = review({**refund_4515(), "params": {"order_id": 4512, "amount": 59.90}}, {**new_case("T-2"), "user_message": "My order is late, I want my money back."})
     assert d["outcome"] == "approve" and get_refunds(4512)["refunded_total"] == 59.90
 
 
 def test_stub_mode_is_unchanged(monkeypatch):
     monkeypatch.setenv("CALLVERSE_LAYER3_MODE", "stub")
-    d = review(refund_4515(), new_case("T-3"))
+    d = review(refund_4515(), {**new_case("T-3"), "user_message": "My order is late, I want my money back."})
     assert d["outcome"] == "approve" and d["facts"]["layer3_decision"] == "approved"
     assert d["must_say"] == ["Your refund of 378.00 TND is approved after a check by our finance team."]
     assert proposal_row(d["proposal_id"])["decision"] == "approve"

@@ -28,9 +28,19 @@ def get_company_profile() -> dict:
         return {"error": f"company profile not available: {type(e).__name__}"}
 
 
-def search_policy(query: str) -> dict:
-    """Find Atlas's rules by meaning, in Atlas's own index (never in another company's)."""
-    return search.company_search_tool(COMPANY, query)
+# T14f: the rules that fit each booking type (rule id prefixes). Refund limit and finance approval fit both.
+BOOKING_TYPE_RULES = {"flight": ("AT-FLT-", "AT-AST-", "AT-REF-", "AT-ESC-"),
+                      "hotel": ("AT-HOT-", "AT-REF-", "AT-ESC-")}
+
+
+def search_policy(query: str, booking_type: str | None = None) -> dict:
+    """Find Atlas's rules by meaning, in Atlas's own index (never in another company's).
+
+    T14f (dev t05): for a ticket about a flight booking, "Cancelled ticket 2 months back and still no refund" found
+    only hotel rules (AT-HOT-03 / 02), so Agent B made no proposal. So the rules of the ticket's booking type come
+    first, by meaning among themselves. `booking_type` is given by the registry from Intake's look-up of the booking,
+    never by the model (it is not in the schema). None (no booking named) = plain search by meaning."""
+    return search.company_search_tool(COMPANY, query, prefer=BOOKING_TYPE_RULES.get(booking_type))
 
 
 # Name -> Python function, used by the registry to actually run a tool.

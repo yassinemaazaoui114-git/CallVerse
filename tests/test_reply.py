@@ -142,7 +142,7 @@ def test_s2_like_flow_gives_one_reply_after_the_approval(monkeypatch):
 def test_rule_not_searched_is_a_warning_only():
     proposal = {"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.9},
                 "rule_id": "R-REF-03", "facts_used": {}, "user_confirmed": True}
-    case = {**new_case("T-W"), "searched_rules": {"R-DEL-02"}}
+    case = {**new_case("T-W"), "searched_rules": {"R-DEL-02"}, "user_message": "My order is late, I want my money back."}
     assert review(proposal, case)["outcome"] == "approve"        # not refused
     assert "rule_not_searched" in steps()
 

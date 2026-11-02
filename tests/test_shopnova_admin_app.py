@@ -126,7 +126,7 @@ def test_manage_adds_a_product_and_shows_a_refused_write():
 def test_refund_approvals_page_approves_a_pending_refund():
     decision = review({"agent": "B", "action": "refund", "params": {"order_id": 4515, "amount": 378.0},
                        "rule_id": "R-REF-03", "facts_used": {"days_late": 8}, "user_confirmed": True},
-                      new_case("T-0001"))
+                      {**new_case("T-0001"), "user_message": "My order is late, I want my money back."})
     ticket = store.create_ticket("shopnova", 2)
     approval = store.create_approval(ticket["id"], 4515, 378.0, decision["proposal_id"])
     at = run(ADMIN_PAGES["approvals"], "admin")

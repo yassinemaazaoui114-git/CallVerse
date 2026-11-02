@@ -687,7 +687,8 @@ def test_a_negative_request_asks_the_client_and_pays_nothing(queue):
 def test_a_shopnova_negative_sentence_still_uses_the_agents_flag():
     args = {"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90}, "rule_id": "R-REF-03",
             "facts_used": {"days_late": 6}, "user_confirmed": True, "user_quote": "I do not want to wait, refund me"}
-    assert shopnova_review(args, new_case("T-1"))["outcome"] == "approve"
+    case = {**new_case("T-1"), "user_message": "I do not want to wait, refund me."}   # T14f: the client's words
+    assert shopnova_review(args, case)["outcome"] == "approve"
 
 
 def test_a_case_without_a_message_confirms_nothing():
@@ -697,8 +698,9 @@ def test_a_case_without_a_message_confirms_nothing():
 def test_shopnova_still_uses_the_agents_flag():
     args = {"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90}, "rule_id": "R-REF-03",
             "facts_used": {"days_late": 6}, "user_quote": "words the client never wrote"}
-    assert shopnova_review({**args, "user_confirmed": False}, new_case("T-1"))["outcome"] == "ask_user"
-    assert shopnova_review({**args, "user_confirmed": True}, new_case("T-2"))["outcome"] == "approve"
+    money = {"user_message": "I want my money back."}   # T14f: a ShopNova refund also needs money-back words
+    assert shopnova_review({**args, "user_confirmed": False}, {**new_case("T-1"), **money})["outcome"] == "ask_user"
+    assert shopnova_review({**args, "user_confirmed": True}, {**new_case("T-2"), **money})["outcome"] == "approve"
 
 
 def test_a_shopnova_case_gets_no_atlas_confirmation(queue):
@@ -1331,7 +1333,8 @@ def shopnova_refund_ticket() -> dict:
     message_id = store.add_message(ticket["id"], "user", "My order 4512 is late, I want a refund.")
     decision = shopnova_review({"agent": "B", "action": "refund", "params": {"order_id": 4512, "amount": 59.90},
                                 "rule_id": "R-REF-03", "facts_used": {"days_late": 6}, "user_confirmed": True,
-                                "user_quote": "I want a refund"}, new_case(ticket["id"]))
+                                "user_quote": "I want a refund"},
+                               {**new_case(ticket["id"]), "user_message": "My order 4512 is late, I want a refund."})
     store.add_step(ticket["id"], message_id, "coordinator", "coordinator", {"trace_step": "coordinator_decision", **decision})
     return decision
 

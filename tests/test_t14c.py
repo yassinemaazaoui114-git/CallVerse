@@ -344,7 +344,8 @@ def damaged_refund(amount=350.0):
 
 
 def test_the_proof_is_stored_with_the_proposal_and_reused_at_approval(queue):
-    case = {**new_case("T-1"), "proof_received": True}
+    case = {**new_case("T-1"), "proof_received": True,
+            "user_message": "It arrived broken. I want a refund."}   # T14f: money-back words
     decision = coordinator.review(damaged_refund(), case)
     assert decision["outcome"] == "layer3_pending"
     stored = admin_reads.proposal(decision["proposal_id"])

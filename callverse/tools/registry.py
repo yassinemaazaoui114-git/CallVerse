@@ -105,7 +105,8 @@ def schemas_for(agent: str, company: str = "shopnova") -> list[dict]:
     return [schemas[name] for name in allow_lists.get(agent, [])]
 
 
-def run_tool(agent: str, name: str, args: dict, chat_fn=None, company: str = "shopnova") -> dict:
+def run_tool(agent: str, name: str, args: dict, chat_fn=None, company: str = "shopnova",
+             booking_type: str | None = None) -> dict:
     """Run tool `name` for `agent` if it is on the agent's allow-list for this company; otherwise refuse.
 
     The result (or the refusal) is logged to the trace and returned as a dict,
@@ -123,6 +124,11 @@ def run_tool(agent: str, name: str, args: dict, chat_fn=None, company: str = "sh
     if name in RUNS_AN_AGENT:
         call_args["chat_fn"] = chat_fn   # set by our code, so the model cannot choose it
         call_args["company"] = company   # the same: the agent asked works for the same company
+        call_args["booking_type"] = booking_type
+    if company == "atlas" and name == "search_policy":
+        # T14f (t05): the rules of the ticket's booking type come first (flight -> AT-FLT ...). Set by our code from
+        # Intake's look-up, so the model cannot get it wrong. Any model argument of that name is replaced.
+        call_args["booking_type"] = booking_type
     try:
         result = functions[name](**call_args)
         if company == "shopnova" and name in shopnova_tools.FUNCTIONS:

@@ -13,7 +13,8 @@ the agent's facts_used and RE-READS the facts itself (get_order, get_refunds, ge
      condition is true on the re-read facts (check_condition, no eval);
   3. refund: R-REF-05 (amount <= paid - refunded_total) is ALWAYS checked;
      subscribe: R-NOT-01 (the event is a notification event) is ALWAYS checked;
-  4. the client confirmed (user_confirmed), else ask the client;
+  4. the client confirmed (user_confirmed), else ask the client; T14f: a refund also needs the client's own
+     money-back words in a sentence that is not negative (negation.money_back_asked, shared with Atlas);
   5. refund above R-ESC-01's threshold (300 TND): finance (Layer 3) must approve first.
 T14a, a cancel proposal (rule R-CAN-01): it must be about the ticket's own order; an order that is not "processing"
 gets a decline, not a send-back; the amount is computed here (paid - refunded_total); the confirmation is decided by
@@ -44,7 +45,7 @@ reason, not only the status.
 
 from callverse import trace
 from callverse.config import load_config
-from callverse.coordinator.negation import negated_request
+from callverse.coordinator.negation import money_back_asked, negated_request
 from callverse.intake.request_words import cancels_order
 from callverse.data.layer3 import layer3_decide, layer3_mode
 from callverse.data.writes import (cancel_order_by_user, create_refund, create_subscription, is_valid_amount,
@@ -358,6 +359,11 @@ def review(proposal: dict, case: dict) -> dict:
 
     # T14a: for a cancellation the code decides whether the client asked (the proposal is stored with the result).
     confirmation = cancel_confirmed(proposal, case) if action == "cancel" else None
+    # T14f: a refund (any rule: R-REF-03, R-DMG-01, R-RET-01 ...) also needs the client's own money-back words, like
+    # Atlas in T14e. The agent's user_confirmed alone is not enough: it is the model's conclusion, not the client's words.
+    if (action == "refund" and isinstance(proposal, dict) and proposal.get("user_confirmed") is True
+            and not money_back_asked(case.get("user_message"))):
+        confirmation = (False, "the client's words do not ask for money back")
     if confirmation:
         proposal = {**proposal, "user_confirmed": confirmation[0]}
     if isinstance(proposal, dict):

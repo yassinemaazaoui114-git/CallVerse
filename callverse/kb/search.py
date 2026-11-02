@@ -87,15 +87,24 @@ TOOL_K = 2
 TOOL_TEXT_CHARS = 300
 
 
-def company_search_tool(company: str, query: str, k: int = TOOL_K) -> dict:
+def prefer_first(results: list[dict], prefer: tuple[str, ...] | None) -> list[dict]:
+    """T14f: the rules whose id starts with one of `prefer` first, each group still best score first. None = as is."""
+    if not prefer:
+        return results
+    return sorted(results, key=lambda r: not r["id"].startswith(prefer))   # sorted() keeps the order inside a group
+
+
+def company_search_tool(company: str, query: str, k: int = TOOL_K, prefer: tuple[str, ...] | None = None) -> dict:
     """The tool for another company than ShopNova: the same search, in that company's own rules and index.
-    `company` is set by our code (atlas_tools.py): the model never chooses it."""
+    `company` is set by our code (atlas_tools.py): the model never chooses it.
+    `prefer` (T14f): rule id prefixes that come first (the rules of the ticket's booking type), also set by our code."""
     if not isinstance(query, str) or not query.strip():
         return {"error": "give a non-empty query"}
     rules = load_policies(companies.path(company, "rules_file"))
     k = max(1, min(int(k), len(rules)))
-    results = rank(embed_query(query), policy_vectors(company), rules, k)
-    trace.log("policy_search", "kb", {"company": company, "query": query, "k": k,
+    ranked = rank(embed_query(query), policy_vectors(company), rules, len(rules))   # every rule, best first
+    results = prefer_first(ranked, prefer)[:k]
+    trace.log("policy_search", "kb", {"company": company, "query": query, "k": k, "prefer": list(prefer or []),
                                       "results": [{"id": r["id"], "score": r["score"]} for r in results]})
     return {"results": [{**r, "text": r["text"][:TOOL_TEXT_CHARS]} for r in results]}
 

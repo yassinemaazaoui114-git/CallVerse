@@ -29,10 +29,13 @@ class BaseAgent:
     role_key = "agents"   # which models of config.yaml this agent uses (M2)
     max_steps = MAX_STEPS # most model calls in one turn
 
-    def __init__(self, chat_fn=None, company: str = companies.DEFAULT):
+    def __init__(self, chat_fn=None, company: str = companies.DEFAULT, booking_type: str | None = None):
         # chat_fn lets the tests plug in a fake LLM; normally it is the shared llm.chat.
         self.chat = chat_fn or llm.chat
         self.company = company
+        # T14f: Atlas only, "hotel" / "flight" from Intake's look-up of the ticket's booking (None = not known).
+        # The registry gives it to search_policy, so the rules of that booking type come first.
+        self.booking_type = booking_type
 
     @property
     def actor(self) -> str:
@@ -90,7 +93,8 @@ class BaseAgent:
                     args = None
                 if isinstance(args, dict):
                     # chat_fn is passed on only to tools that run another agent (ask_agent).
-                    output = run_tool(self.agent_id, tc.function.name, args, chat_fn=self.chat, company=self.company)
+                    output = run_tool(self.agent_id, tc.function.name, args, chat_fn=self.chat, company=self.company,
+                                      booking_type=self.booking_type)
                 else:
                     output = {"error": "tool arguments were not valid JSON"}
                 tool_calls_made.append({"tool": tc.function.name, "args": args, "result": output})

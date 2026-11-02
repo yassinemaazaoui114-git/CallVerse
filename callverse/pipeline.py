@@ -127,7 +127,7 @@ def run_agent_with_coordinator(agent_cls, message: str, ticket: dict, chat_fn=No
     check = review if company == companies.DEFAULT else gate(ticket).review
 
     def new_agent():
-        return agent_cls(chat_fn=chat_fn, company=company)
+        return agent_cls(chat_fn=chat_fn, company=company, booking_type=ticket.get("booking_type"))
 
     case = new_case(ticket["ticket_id"])
     # The gate checks that a proposal is about the ticket's own booking / order, and confirms from the client's words.

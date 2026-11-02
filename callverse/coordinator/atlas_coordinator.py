@@ -41,8 +41,8 @@ from datetime import date
 from callverse import companies, trace
 from callverse.config import load_config, sim_today
 from callverse.coordinator.coordinator import INTERNAL_OUTCOMES, RECORDED_AS, _check
-from callverse.coordinator.negation import negated_request
-from callverse.intake.request_words import asks_for_expenses, asks_for_money_back
+from callverse.coordinator.negation import money_back_asked, negated_request
+from callverse.intake.request_words import asks_for_expenses
 from callverse.data.atlas import reads, writes
 from callverse.data.atlas.schema import BOOKING_TYPES
 from callverse.data.layer3 import atlas_layer3_decide, layer3_mode
@@ -395,16 +395,6 @@ def confirmation(proposal: dict, case: dict) -> tuple[bool, str]:
         # T14e (held-out t02): Intake's reason comes from the meaning; a refund also needs the client's own words.
         return False, "the client's words do not ask for money back"
     return True, f"{reason.replace('_', ' ')} + quote found"
-
-
-def money_back_asked(message: str | None) -> bool:
-    """T14e: True when one sentence of the message asks for money back in the client's own words
-    (request_words.asks_for_money_back) and that sentence is not a negative one ("I do not want a refund").
-    Only for a ticket or hotel REFUND: a hotel cancellation of a confirmed booking (T21) keeps its own path."""
-    text = (message or "").lower()
-    for mark in SENTENCE_ENDS[1:]:
-        text = text.replace(mark, SENTENCE_ENDS[0])
-    return any(asks_for_money_back(s) and not negated_request(s) for s in text.split(SENTENCE_ENDS[0]))
 
 
 def client_confirmed(proposal: dict, case: dict) -> bool:
