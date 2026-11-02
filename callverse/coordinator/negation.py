@@ -30,7 +30,9 @@ import re
 
 # The actions a client can ask for (any ending: cancel, cancelled, cancelling, cancellation, refunded, returns ...).
 # "cancle": a typo seen in real tweets.
-ACTION = r"(?:cancel\w*|cancle\w*|refund\w*|return\w*|compensat\w*|money\s+back)"
+# T29: "(be) reimbursed / reimbursement" and "(be) paid back" too: "I do not want to be reimbursed" is negative.
+ACTION = (r"(?:cancel\w*|cancle\w*|refund\w*|return\w*|compensat\w*|money\s+back|"
+          r"(?:be\s+)?reimburs\w*|(?:be\s+)?paid\s+back)")
 
 # Step 1a: "I tried / I cannot / how do I / the app does not let me ..." + (up to 3 words) + the action:
 # the client asks US to do it.

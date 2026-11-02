@@ -30,7 +30,7 @@ Log in as the customer, open the order or booking ("Ask about this order / booki
 | F3 | nizar | `My flight 7004 was very delayed. I want compensation.` | Compensation 839.50 TND waits (18 s); `atlas_admin` approves it | Same center, second company, its own rules. |
 | F4 | amira | `Hi, where is my order 4511?` | "Your order 4511 is being prepared." (9 s) | Agent A only reads; facts come from tools. |
 | F5 | sara (after a reset) | `Order 4512 is late and I need it tomorrow, it's a birthday gift!` then `Yes` | Agent C offers a free replacement and asks (25 s); after "Yes" the Coordinator approves: new order 12001 (22 s) | Agent C handles urgent needs; nothing changes before the client says yes. |
-| F6 | hedi | `My flight 7005 was cancelled. Please put me on the next flight.` | **Escalated** to a colleague (40 s) | Agent C looks for a later flight; the real 2015 schedule has none, so the Coordinator refuses C's proposal and passes the case on. Show this as a safety example. |
+| F6 | hedi | `My flight 7005 was cancelled. Please put me on the next flight.` | **Escalated** to a colleague; the reply says "There is no later flight on this route for your booking 7005, so a colleague will contact you about your options." | Agent C looks for a later flight; the real 2015 schedule has none. T29: by code C cannot propose a flight then (the tool refuses), and the pipeline hands the case to a colleague with that fixed sentence. Nothing is written. Show this as a safety example. |
 | F7 | `admin`, then `atlas_admin` | Web UI: ShopNova admin → Dashboard → "Check stock now" → Promotions → approve one; Atlas admin → Dashboard → "Check rooms now" → Hotel deals → approve one | ShopNova: 42 short products, 3 promotions proposed (pending for the owner). Atlas: 2 low-occupancy hotels, 2 hotel deals proposed (pending) | Agent D is rules, not an LLM: the same numbers give the same answer. It only proposes; the owner decides. |
 
 F7 runs in the web UI since T27 (the Streamlit pages still work too). After F5, log in as `supervisor`: Live tickets
@@ -42,13 +42,20 @@ detail, and first in the admin's Approvals).
 - T28: a bare "Yes" / "No" answers only the ONE open question of this chat (Agent B's "Please confirm …" or Agent C's
   offer), for 30 minutes and only as the very next message. With nothing open, "Yes" goes the normal way (re-asked).
   A refund confirmed by "Yes" still needs money-back words in the client's first message ("I want my money back").
+  Money-back words (T14e, T14f, T29): "refund", "money back", "my money", "pay me back" / "paid back", "chargeback",
+  "reimburse my ticket", "reimbursed" / "reimbursement", "money returned / refunded", "returned to me" (with a money
+  word close by), "repay me". Not: "return the item", "returned my order", "non-reimbursable". Said in the negative
+  ("I do not want to be reimbursed") they count for nothing. At Atlas a bare "reimbursement" next to hotel costs stays
+  a compensation question (T14d).
+- T29: a refund for an order with nothing paid (cash on delivery, not delivered: 4514) is refused already at Agent B's
+  proposal step, not only by the Coordinator.
 - F5b (the Urgent badge live, A → C → B) is not in this list: in T28, 7 candidate messages were run live and none took
   that path (a message with money words goes straight to Agent B). The badge is shown by the vitest and unit tests.
 - T28: one decision per message. "Refund order 4512 and where is order 4509?" → the refund is handled, 4509 gets its
   status in one sentence; a second money request gets "Please send your request about order N as a new message".
 - Agent D has no seats (flights): it checks hotel rooms only at Atlas.
-- F6 cannot complete a rebooking: the real flight data has no later flight on that route. Agent C still proposes a
-  flight that does not exist; the Coordinator catches it every time (no wrong write).
+- F6 cannot complete a rebooking: the real flight data has no later flight on that route. Since T29 Agent C cannot
+  propose a flight then (refused by code at the tool step); the case goes to a colleague with one fixed sentence.
 - The C/D practice cases are Claude-written drafts and have no held-out set (P20).
 - Local models are slow on this PC (9-40 s per message). If Ollama is slow or stops, the backups are Groq models
   (daily limits).

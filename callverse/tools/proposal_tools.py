@@ -11,6 +11,7 @@ policy, and is the only part allowed to write.
 
 What is checked here is only the SHAPE of the proposal. Whether the rule really applies
 (days_late > 5, amount <= paid - refunded_total, ...) is the Coordinator's job, not this tool's.
+One exception (T29): a refund of an order with nothing paid is refused here already (nothing_paid).
 
 T21: Atlas's proposal tools are at the end of this file. They take NO amount at all: the Atlas Coordinator computes it
 from the rules, so a wrong or invented amount cannot even be written down by an agent.
@@ -57,13 +58,25 @@ def propose_refund(order_id=None, amount=None, rule_id=None, facts_used=None,
     fields = {"order_id": order_id, "amount": amount, "rule_id": rule_id, "facts_used": facts_used,
               "user_confirmed": user_confirmed, "user_quote": user_quote}
 
-    problems = _problems(**fields)
+    problems = _problems(**fields) or nothing_paid(order_id)
     if problems:
         trace.log("proposal_refused", "proposal_tools", {"fields": fields, "problems": problems})
         return {"error": "proposal refused: " + "; ".join(problems)}
 
     trace.log("proposal", "proposal_tools", fields)
     return {"status": "submitted to Coordinator"}
+
+
+def nothing_paid(order_id) -> list[str]:
+    """T29: one fact check already here, not only in the Coordinator: a refund of an order with NOTHING paid (cash on
+    delivery, not delivered yet: order 4514) gives no money back. Refused by code with a clear reason, so the agent
+    does not propose it again and again (T26 bench B06: 89.00 proposed 3 times). The Coordinator still checks it too."""
+    from callverse.tools.shopnova_tools import get_order
+    order = get_order(order_id)
+    if "error" in order or (order.get("paid") or 0) > 0:
+        return []
+    return [f"nothing was paid for order {order_id} (paid 0.00, status {order.get('status')}): there is no money "
+            "to give back, so do not propose a refund"]
 
 
 # --- T09: Agent A proposes a delivery notification (story S3) -------------------------------------------

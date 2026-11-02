@@ -73,8 +73,22 @@ def with_overrides(overrides: dict):
         result = real_run_tool(agent, name, args, chat_fn=chat_fn, company=company, **kwargs)
         if name in overrides and isinstance(result, dict) and "error" not in result:
             result = {**result, **overrides[name]}
+        if name == "ask_agent":
+            result = override_facts(result, overrides)
         return result
     return run_tool
+
+
+def override_facts(result: dict, overrides: dict) -> dict:
+    """T29: Agent B gets the delivery facts through ask_agent (Agent A's get_tracking, ask.compact_facts), so a fake
+    tracking field ("days_late": 3 in B02) is also put into ask_agent's "facts": the bench then measures what the
+    pipeline would see with that data. Only fields the facts already have are changed."""
+    facts = result.get("facts") if isinstance(result, dict) else None
+    if not isinstance(facts, dict) or "error" in facts:
+        return result
+    source = overrides.get(facts.get("source"), {})
+    changed = {k: v for k, v in source.items() if k in facts}
+    return {**result, "facts": {**facts, **changed}} if changed else result
 
 
 def set_stock(stock: dict) -> None:

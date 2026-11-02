@@ -22,7 +22,7 @@ asks_for_expenses(sentence) - Atlas: the client asks to be paid back for costs A
   "reimburse my ticket / my booking" is still a refund.
 
 asks_for_money_back(text) - Atlas (T14e): the client's own words ask for money back: "refund", "money back", "my money",
-  "pay me back", "reimburse my ticket", "chargeback". Why? In T14d's held-out t02 ("cancelled flight ... no confirmation
+  "pay me back", "reimburse my ticket", "chargeback"; T29 adds "reimbursed", "money returned to me", "repay me". Why? In T14d's held-out t02 ("cancelled flight ... no confirmation
   from BA to hotel. Help") Intake found refund_request BY MEANING, and a 690 TND refund nobody asked for was paid.
   The meaning says what the message is about; only the client's words say they want the money. Without them the
   Coordinator asks first.
@@ -97,13 +97,29 @@ MONEY_BACK_RE = re.compile(
     # "I want something back" (atlas practice a08: a different room was given): some of the money back.
     r"|\b(?:something|anything)\s+back\b"
     r"|\b(?:pay|pays|paid|paying|give|gave|send|sent)\s+(?:(?:me|us|it|that|this)\s+)?back\b"
-    r"|\bcharge\s*backs?\b",
+    r"|\bcharge\s*backs?\b"
+    # T29: "reimbursed / reimbursement" ("reimbursable" is removed first: it describes a fare, it asks for nothing),
+    # "money returned / refunded", "repay me". At Atlas a bare "reimburse" is still also a cost around the trip
+    # (asks_for_expenses, T14d h03): the Atlas Coordinator checks that first, so hotel costs never become a ticket refund.
+    r"|\breimburs(?:e|es|ed|ing|ement|ements)\b"
+    r"|\b(?:money|payment|amount|funds|cash)\s+(?:to\s+be\s+|be\s+|being\s+)?(?:returned|refunded|reimbursed|repaid)\b"
+    r"|\brepa(?:y|ys|id|ying)\s+(?:me|us)\b",
     re.IGNORECASE)
+# T29: "returned to me" asks for money back only with a money word close by (up to 6 words before or after it):
+# "I'd rather have the money returned to me" is a money-back request, "the parcel was returned to me" is not.
+MONEY_NEAR = r"(?:money|payments?|amount|funds|cash|price|paid)"
+RETURNED_TO_ME_RE = re.compile(
+    rf"\b{MONEY_NEAR}\b(?:\W+\w+){{0,6}}?\W+returned\s+(?:back\s+)?to\s+(?:me|us)\b"
+    rf"|\breturned\s+(?:back\s+)?to\s+(?:me|us)\b(?:\W+\w+){{0,6}}?\W+{MONEY_NEAR}\b",
+    re.IGNORECASE)
+# "non-reimbursable", "reimbursable": a word that describes, removed before the money-back check (T29).
+DESCRIBES_RE = re.compile(r"\b(?:non[- ]?)?reimbursable\b", re.IGNORECASE)
 
 
 def asks_for_money_back(text: str) -> bool:
     """True when the words of `text` ask for money back (see the top): a refund word, "money back", "my money",
     "pay me back", "chargeback", or "reimburse" + the ticket / booking / flight itself. Negative sentences ("I do not
     want a refund") are the Coordinator's job (negation.py), not this word check."""
-    text = (text or "").replace("’", "'")
-    return MONEY_BACK_RE.search(text) is not None or REIMBURSE_TICKET_RE.search(text) is not None
+    text = DESCRIBES_RE.sub(" ", (text or "").replace("’", "'"))
+    return (MONEY_BACK_RE.search(text) is not None or REIMBURSE_TICKET_RE.search(text) is not None
+            or RETURNED_TO_ME_RE.search(text) is not None)
