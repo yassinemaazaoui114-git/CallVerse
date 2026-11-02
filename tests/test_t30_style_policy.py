@@ -385,6 +385,23 @@ def test_import_then_train_on_ratings(monkeypatch, tmp_path, tickets_db):
     assert trained["used"] > 0 and {c["source"] for c in trained["curve"]} == {"real"}
 
 
+def test_training_on_ratings_never_writes_style_log_rows(monkeypatch, tmp_path, tickets_db):
+    """T31 (replay fix): ratings training replays rows that are already in style_log; it must not log them again as
+    "real", or a second training would count them twice. log=True on purpose: the "ratings" source ignores it."""
+    import scripts.import_ratings as importer
+    from scripts.train_style_policy import train
+    cases = [{**c, "situation_id": sid} for c, sid in zip(fake_cases(), ("p01", "a06"))]
+    monkeypatch.setattr(importer, "load_situations", lambda: cases)
+    sheet, key = tmp_path / "filled.xlsx", tmp_path / "key.json"
+    key.write_text(json.dumps(KEY))
+    write_xlsx(sheet, {"Ann": rater(("5", "3", "1"), ("2", "4")), "Bob": rater(("4", "4", "2"), ("1", "5"))})
+    imported = importer.import_file(sheet, key)["saved"]
+    for seed in (1, 2):   # train twice
+        assert train(cases, "ratings", 200, seed=seed, log=True)["used"] > 0
+        assert len(store.style_log("real")) == imported == 12
+    assert len(store.style_log()) == imported   # no row of any other source either
+
+
 def test_import_rejects_identical_tabs_and_saves_nothing(monkeypatch, tmp_path, tickets_db):
     import scripts.import_ratings as importer
     monkeypatch.setattr(importer, "load_situations", lambda: fake_cases())
