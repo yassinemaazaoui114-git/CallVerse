@@ -162,7 +162,8 @@ def pending_approval(user_id: int = 2, order_id: int = 4515, amount: float = 378
                 "rule_id": "R-REF-03", "facts_used": {"days_late": 8, "delivered": False, "paid": amount,
                                                        "refunded_total": 0.0},
                 "user_confirmed": True, "user_quote": "I want a refund please."}
-    decision = review(proposal, new_case("T-0001"))
+    # T26: since T14f the Coordinator needs the client's own message (money-back words) in the case.
+    decision = review(proposal, {**new_case("T-0001"), "user_message": f"My order {order_id} is very late, I want a refund please."})
     assert decision["outcome"] == "layer3_pending", decision
     ticket = store.create_ticket("shopnova", user_id)
     store.add_message(ticket["id"], "user", f"My order {order_id} is very late, I want a refund please.")

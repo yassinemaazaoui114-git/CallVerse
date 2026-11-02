@@ -141,7 +141,8 @@ def pending_shop_refund(user_id: int = 2, order_id: int = 4515) -> dict:
     proposal = {"agent": "B", "action": "refund", "params": {"order_id": order_id, "amount": amount},
                 "rule_id": "R-REF-03", "facts_used": {"days_late": 8, "delivered": False, "paid": amount, "refunded_total": 0.0},
                 "user_confirmed": True, "user_quote": "I want a refund please."}
-    decision = review(proposal, new_case(t["id"]))
+    # T26: since T14f the Coordinator needs the client's own message (money-back words) in the case.
+    decision = review(proposal, {**new_case(t["id"]), "user_message": text})
     assert decision["outcome"] == "layer3_pending", decision
     store.add_message(t["id"], "assistant", "Your request is with our finance team.", seconds=2.1)
     store.update_ticket(t["id"], status="Waiting for finance", main_reason="refund_request", priority="high", lead_agent="B")
