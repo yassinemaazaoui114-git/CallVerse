@@ -78,11 +78,14 @@ models:
     - {provider: groq,       model: "openai/gpt-oss-20b",  options: {reasoning_effort: low}}
     - {provider: google,     model: "gemini-3.5-flash"}
   agent_b_local: *agents_local   # the same entries as agents_local, so the two can never drift
-  # P20: Agent C (Urgent & Special Help) has its own list, like B: Groq for now, local with CALLVERSE_AGENT_C_SET=local.
-  # Goal (team, 2026-10-28): every agent on local Qwen; the switch waits for the C/D eval (tasks/P20_report.md).
+  # P20: Agent C (Urgent & Special Help) has its own list, like B (CALLVERSE_AGENT_C_SET=local -> agent_c_local).
+  # T26 (approved by Yassine 2026-11-02): like A and B, Dali's local model first (P20 eval: v3 C 5/7, 0 wrong
+  # proposals); the Groq chain is the backup, then Gemini, exactly as B's list.
   agent_c:
+    - {provider: ollama,     model: "callverse-m2-v3", temperature: 0, seed: 42}
     - {provider: groq,       model: "openai/gpt-oss-120b", options: {reasoning_effort: low}}
     - {provider: groq,       model: "openai/gpt-oss-20b",  options: {reasoning_effort: low}}
+    - {provider: google,     model: "gemini-3.5-flash"}
   agent_c_local: *agents_local
   # P20: Agent D (Availability & Supply) is rules; the model only words the note to the owner (template if it fails).
   # A small local model is enough for one sentence, so D is local by default.
