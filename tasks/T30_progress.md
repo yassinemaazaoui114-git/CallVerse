@@ -11,7 +11,7 @@ Branch `feat/t30-rl5` (from main 8db7e8d).
 | 7 pipeline switch (OFF by default, `learning.style_policy`) | done, tests |
 | 5 `scripts/train_style_policy.py`, `scripts/import_ratings.py` | done, tests |
 | 6 baselines (synthetic) | done (`out/rl5_baselines.md`) |
-| 8 regression | full suite 1876/1876; 72-message run STOPPED by the system (low memory) at 36/72 (all pass); left: t14c_practice, t14c_heldout, t14d_heldout + switch-ON spot check |
+| 8 regression | done: full suite 1876/1876; 72-message run 72/72 (0 wrong writes, 0 crashes, 0 leaks, 0 Groq; second half re-run after the low-memory stop); switch-ON spot check 12/12, decision unchanged 12/12 |
 | 1 held-out C/D read-only check | done (D07 problem, C12 weak) |
 | 10 docs + report | README, runbook done; report drafted |
 | 9 Console page (optional) | skipped (time) |

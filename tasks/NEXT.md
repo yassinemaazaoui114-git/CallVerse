@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T30_rl5_skeleton.md (RL5: style policy bandit + style_log + offline training + rating importer + OFF-by-default switch, synthetic reward until real ratings arrive; also commits the Brain's held-out C/D file) |
 | Approved by | Yassine — 2026-11-02 14:32 ("approved") |
 | Last done | T29 — merged into main (56cc268), 1848 tests pass on main |

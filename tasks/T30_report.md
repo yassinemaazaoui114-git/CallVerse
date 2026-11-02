@@ -3,7 +3,7 @@
 **Top line:** the style policy, its log, the offline training, the rating importer and the pipeline switch are built and
 tested. The switch is **OFF by default**, and with it off the output is byte-identical to main. Every learning result
 below uses a **SYNTHETIC** reward. Real learning starts once the team returns a valid ratings file.
-Tests: **1876/1876** (main 1848, +28). Regression with the switch OFF: **partial, 36/36 of 72** (the run was stopped by the system for low memory; see 3 and 4).
+Tests: **1876/1876** (main 1848, +28). Regression with the switch OFF: **72/72**, 0 wrong writes, 0 leaks (bar ≥ 70/72). Switch-ON spot check: 12/12, decisions unchanged.
 
 ## 1. In plain words
 CallVerse can now learn how to word a reply (short, warm, or warm with a closing line). It cannot change what the reply
@@ -91,23 +91,41 @@ needed.
 - **Synthetic training run:** `--source synthetic --n 300 --seed 1 --db out/rl5_synthetic.db` writes 300 style_log rows
   labelled `synthetic`. The policy is copied to `out/rl5_policy_synthetic.json`. Angry groups learned warm /
   warm_next_step; calm groups learned short.
-- **Regression (switch OFF, local models, `out/t30_run72.sh`), stopped at 36 of 72.** The system stopped the run
-  for low memory (7.7 GB PC) while t14c_practice was running. Sets that finished:
-  - decline_practice 12/12, decline_heldout 12/12 and t14b_practice 12/12, with 0 wrong writes, 0 crashes, 0 leaks
-    and 0 Groq tokens (avg 17–20 s);
-  - output files `out/t30_<set>.json` / `.log`.
-  - **Not run:** t14c_practice (partial file only), t14c_heldout and t14d_heldout. The last two held-out files were
-    **not opened**, so they are still unspent.
-  - **Not run:** the 12-message spot check with the switch ON (`out/t30_spot_on.py`, ready).
-  - The DBs were backed up to `out/t30_dbbackup/` and put back (`cmp` identical).
+- **Regression (switch OFF, local models, `out/t30_run72.sh`): 72/72. Bar (≥ 70/72, 0 wrong writes, 0 leaks) met.**
+  The first run was stopped by the system for low memory after 36 messages. The other 36 were re-run later
+  (the 3 finished lines commented out in `out/t30_run72.sh`). `out/t30_compare.py` compares all six files with T29:
+
+  | set | now | T29 |
+  |---|---|---|
+  | decline_practice | 12/12 | 12 |
+  | decline_heldout | 12/12 | 12 |
+  | t14b_practice | 12/12 | 12 |
+  | t14c_practice | 12/12 | 12 |
+  | t14c_heldout | 12/12 | 12 |
+  | t14d_heldout | 12/12 | 12 |
+
+  - `TOTAL 72/72 wrong_writes=0 crashes=0 leaks=0 api_calls=0 avg=18.9s max=25.7s` (`out/t30_compare.txt`).
+  - No message changed decision or pass state against T29. Groq tokens 0 (local models only).
+  - Output files `out/t30_<set>.json` / `.log`.
+- **Spot check with the switch ON** (`out/t30_spot_on.py`, synthetic policy `out/rl5_policy_synthetic.json`, the 12
+  t14b_practice messages; `config.yaml` stays OFF):
+  - `12/12 passed · crashes 0 · leaks 0 · wrong writes 0 · Groq tokens 0`.
+  - `policy calls 12, styles set 10, decision unchanged 12/12` (`out/t30_spot_on_checks.json`). The policy changed only
+    `reply_style`. The 2 calls without a style (T-0011, T-0012) already had no group.
+  - Styles chosen: short 6, warm_next_step 4 (the 2 angry groups, approve and other/other).
+  - Decisions are the same as the switch-OFF run of the same 12 messages: 12/12.
+- **DBs:** `shopnova.db` and `atlas.db` were put back from `out/t30_dbbackup/` after the runs (`cmp` identical).
+  `callverse.db` was not put back: it holds the imported ratings (section 7).
 - **Held-out C/D file:** committed unchanged (git blob `eb994bf…`, the same before and after). It was never run and
   only read (step 1 below).
 - The diff has nothing under `models/` or `data/raw/`, and no secrets.
 
 ## 4. Problems
-- **The regression is incomplete** (36/72, low memory). The remaining 36 messages and the switch-ON spot check need
-  a re-run with other apps closed. For that, comment out the 3 finished lines of `out/t30_run72.sh` and run
-  `sh out/t30_run72.sh`. The compare script then needs all six files.
+- **Low memory (7.7 GB PC).** The 72-message run had to be split in two because the system stopped the first run.
+  Close other apps before model runs.
+- **`style_log` has 783 rows labelled `real`, not 483.** The 300 extra rows (written 17:07, before the step 8 runs)
+  seem to come from the `--source ratings` training run. If a later training reads all `real` rows, these replay rows
+  could be counted twice (see Q5).
 - **No real reward yet.** Everything learned so far is synthetic. Agent F ignores the style, because its
   style-aware model (`stacker.pkl`) is not promoted.
 - **Thompson sampling is not "near-uniform" on the flat world** (the task asked for this). A style with bad early luck
@@ -135,6 +153,9 @@ needed.
 4. Minor: C08 says "wedding is on Friday", and sim_today (2026-10-09) is a Friday: today or the 16th? This is not
    scored. `tests/dev/agents_cases.json` `about` calls the file `agents_heldout.json`, not `agents_heldout_cd.json`.
    The other 9 cases (C08–C11, C13, C14, D05, D06, D08) match the seed data, the P20 rules and the scorer format.
+5. **Replay rows labelled `real`.** Training with `--source ratings` appears to add its 300 replay rounds to
+   `style_log` as `real` (483 → 783 rows). Should these rows get their own label (e.g. `replay`) so only true ratings
+   count as `real`? I did not change this (outside step 8).
 
 ## 6. Next step
 When the team returns a ratings file with one tab per rater, run:
