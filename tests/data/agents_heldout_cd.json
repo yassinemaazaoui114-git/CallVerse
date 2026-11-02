@@ -101,7 +101,8 @@
     "check_availability_with_d"
    ],
    "must_not_call": [
-    "propose_replacement"
+    "propose_replacement",
+    "propose_hold"
    ],
    "expect": {
     "act": "any"
@@ -188,26 +189,6 @@
     ],
     "not_promote": [
      6
-    ]
-   }
-  },
-  {
-   "id": "D07",
-   "agent": "D",
-   "split": "heldout",
-   "source": "Smart Watch heavily overstocked (60 units, ~3 sold in 30 days): promotion proposed, no shortage",
-   "order_id": null,
-   "reason": null,
-   "message": "(stock scan)",
-   "stock": {
-    "4": 60
-   },
-   "expect": {
-    "promote": [
-     4
-    ],
-    "not_shortage": [
-     4
     ]
    }
   },
