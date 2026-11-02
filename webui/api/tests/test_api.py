@@ -122,7 +122,7 @@ def test_tickets_list_and_filters(supervisor):
     assert body["count"] == 3 and body["has_tickets"] is True
     assert [t["id"] for t in body["tickets"]] == ["T-0003", "T-0002", "T-0001"]   # newest first
     row = body["tickets"][2]
-    assert set(row) == {"id", "company", "user", "reason", "priority", "status", "lead agent", "age"}
+    assert set(row) == {"id", "company", "user", "reason", "priority", "status", "lead agent", "age", "urgent"}   # T27: urgent
     assert row["user"] in ("user 1", "Sara Ben Ali (1)")   # the name if the company data exists, else the id
 
     assert supervisor.get("/api/console/tickets", params={"company": "atlas"}).json()["count"] == 1

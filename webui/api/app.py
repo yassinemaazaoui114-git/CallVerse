@@ -21,6 +21,9 @@ Routes (all under /api, JSON):
 - Atlas admin (company atlas): the same approval routes under /api/atlas/admin/approvals (permission
   approve_refunds; refunds AND compensations) and the read-only Records under /api/atlas/admin/records/{table}
   (permission view_dashboard).
+- Agent D's owner screens (T27, permission approve_refunds of the company):
+  GET  /api/admin/promotions?status=pending|decided, POST /api/admin/promotions/{id}/decision, POST /api/admin/stock-check
+  GET  /api/atlas/admin/deals?status=pending|decided,  POST /api/atlas/admin/deals/{id}/decision,  POST /api/atlas/admin/room-check
 
 Protection: every route except login reads the session cookie; the role, the permission AND the company are
 checked on the server through callverse.auth.accounts (never trusted from the browser), so an Atlas account
@@ -44,7 +47,7 @@ from callverse.config import PROJECT_ROOT
 from callverse.tickets import store
 from callverse.tools.shopnova_tools import get_company_profile   # the function behind the platform's GET /company
 
-from webui.api import admin, atlas_reads, auth, chat, console_reads, settings, shop_reads
+from webui.api import admin, atlas_reads, auth, chat, console_reads, owner, settings, shop_reads
 
 ATLAS = "atlas"
 COMPANY_NAMES = {companies.DEFAULT: "ShopNova", ATLAS: "Atlas Travel"}
@@ -72,6 +75,8 @@ ERRORS = {
     "no_accounts": accounts.NO_ACCOUNTS_MESSAGE,
     "csrf": f"Missing {settings.CSRF_HEADER} header.",
     "not_found": "Not found.",
+    "scan_in_progress": "A check is already running. Wait for its result.",
+    "scan_failed": "The check could not run. Nothing new was proposed.",
 }
 
 
@@ -111,6 +116,7 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
     sessions = sessions or auth.SessionStore()
     jobs = jobs or chat.Registry()
     decisions = decisions or admin.Decisions()
+    scans = owner.Scans()   # T27: one Agent D scan at a time per company
     app = FastAPI(title="CallVerse web API", docs_url="/api/docs", openapi_url="/api/openapi.json")
     app.state.sessions = sessions
     app.state.jobs = jobs
@@ -526,6 +532,81 @@ def create_app(sessions: auth.SessionStore | None = None, jobs: chat.Registry | 
 
     register_admin("/api/admin/approvals", companies.DEFAULT)
     register_admin("/api/atlas/admin/approvals", ATLAS)
+
+    # ---------- Agent D's owner screens: Promotions (ShopNova), Hotel deals (Atlas), Check now (T27) ----------
+    # The rows, the decisions and the scan are the core's (owner.py calls callverse.channels.approvals). A
+    # decision uses the same guard as the approvals above (admin.Decisions, in its own slot per kind), so a
+    # double click decides once and a lost answer asked again with the same client_id gets the recorded result.
+
+    def register_owner(prefix: str, company: str, slot: str, word: str, read_list, read_one, decide):
+        admin_dep = admin_of(company, "approve_refunds")
+
+        @app.get(prefix)
+        def list_rows(status: str = "pending", _: dict = Depends(admin_dep)):
+            data_ready(company)
+            if status not in ("pending", "decided"):
+                raise ApiError(400, "bad_status", "status must be pending or decided")
+            rows = read_list(status)
+            return {"company": company, "status": status, "items": rows, "count": len(rows),
+                    "server_time": datetime.now().isoformat(timespec="seconds")}
+
+        @app.post(f"{prefix}/{{row_id}}/decision", dependencies=[Depends(csrf_checked)])
+        def decide_row(row_id: int, body: DecisionIn, who: dict = Depends(admin_dep)):
+            """Approve / refuse one pending row. The admin's username comes from the account, never the browser."""
+            data_ready(company)
+            reason = body.reason.strip()
+            if len(reason) > 1000:
+                raise ApiError(400, "reason_too_long", "A reason may have at most 1000 characters.")
+            kind, recorded = decisions.recorded(slot, who["username"], row_id, body.client_id, body.approve, reason)
+            if kind == "mismatch":
+                raise ApiError(409, "client_id_reused")
+            if kind == "same":
+                return {**recorded, "recorded": True}
+            current = read_one(row_id)
+            if current is None:
+                raise ApiError(404, "not_found", f"{word.capitalize()} {row_id} does not exist.")
+            if current["status"] != "pending":
+                raise ApiError(409, "already_decided", f"{word.capitalize()} {row_id} is already {current['status']} "
+                               f"(by {current.get('decided_by') or '—'} on {current.get('decided_at') or '—'}).")
+            if not body.approve and not reason:
+                raise ApiError(400, "reason_required")
+            if not decisions.begin(slot, row_id, {"admin": who["username"], "client_id": body.client_id,
+                                                  "approve": body.approve, "reason": reason}):
+                raise ApiError(409, "decision_in_progress", f"A decision on this {word} is already being processed.")
+            try:
+                out = decide(who["username"], row_id, body.approve, reason)
+                if "error" in out:   # the core refused: by its contract nothing was written
+                    status, code = owner.classify(out)
+                    raise ApiError(status, code, str(out["error"]))
+                result = {"item": read_one(row_id) or out}
+                decisions.record(slot, who["username"], row_id, body.client_id, body.approve, reason, result)
+                return result
+            finally:
+                decisions.end(slot, row_id)
+
+    register_owner("/api/admin/promotions", companies.DEFAULT, owner.PROMOTION_SLOT, "promotion",
+                   owner.promotions, owner.one_promotion, lambda *a: owner.decide_promotion(*a))
+    register_owner("/api/atlas/admin/deals", ATLAS, owner.DEAL_SLOT, "deal",
+                   owner.deals, owner.one_deal, lambda *a: owner.decide_deal(*a))
+
+    def register_scan(path: str, company: str):
+        @app.post(path, dependencies=[Depends(csrf_checked)])
+        def check_now(_: dict = Depends(admin_of(company, "approve_refunds"))):
+            """Agent D's scan once (the Streamlit "Check now" button): counts of what it found and proposed."""
+            data_ready(company)
+            if not scans.begin(company):
+                raise ApiError(409, "scan_in_progress")
+            try:
+                try:
+                    counts = owner.run_scan(company)
+                except Exception as e:   # noqa: BLE001 — shown as an error state on the dashboard
+                    raise ApiError(500, "scan_failed", f"The check could not run ({type(e).__name__}: {e})"[:300])
+                return {"company": company, "counts": counts, "read_at": datetime.now().isoformat(timespec="seconds")}
+            finally:
+                scans.end(company)
+
+    register_scan("/api/admin/stock-check", companies.DEFAULT)
+    register_scan("/api/atlas/admin/room-check", ATLAS)
 
     # ---------- Atlas admin: Records (read only, permission view_dashboard; step 5) ----------
 
