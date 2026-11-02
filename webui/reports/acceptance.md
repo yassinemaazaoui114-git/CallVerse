@@ -41,7 +41,7 @@ Second terminal:
 npm --prefix webui/frontend run dev
 ```
 
-Open <http://127.0.0.1:5173>. Password of every demo account in the fixture: `demo-only`.
+Open the sign-in page of the account: <http://127.0.0.1:5173/shop/login> (ShopNova customers and `admin`), <http://127.0.0.1:5173/atlas/login> (Atlas travellers and `atlas_admin`) or <http://127.0.0.1:5173/console/login> (`supervisor`); <http://127.0.0.1:5173/login> lists them. An account signs in only on its own page. Password of every demo account in the fixture: `demo-only`.
 
 **One approval cannot be both approved and refused.** The fixture gives three pending cases; the walkthrough
 below approves two and refuses one. To see the ShopNova refusal too, run `dev_fixture` into a **second fresh
