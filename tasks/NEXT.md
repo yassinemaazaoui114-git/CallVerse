@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Status | WAITING FOR REVIEW |
+| Status | DONE |
 | Task file | tasks/T14f_shopnova_refund_words_and_search.md (ShopNova refund only with the user's money-back words; Atlas rule search by booking type for t05; check on 72 dev messages, local) |
 | Approved by | Yassine — 2026-11-02 00:32 (all ⭐) |
-| Last done | T14e — merged into main (f190ec5), 1381 tests pass on main: an Atlas refund needs the client's money-back words |
+| Last done | T14f — merged into main (e449b38), 1429 tests pass on main: ShopNova refunds need the money-back words; Atlas rule search by booking type (t05 passes, 72/72) |
 
 Next: RL1 merge (after the team's real ratings) → RL5 → step 09 → agent C (port Dali's P20) → agent D.
 
