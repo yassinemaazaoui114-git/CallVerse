@@ -88,12 +88,20 @@ def ticket(score, reason="late_delivery", order_id=4512):
             "reasons": [{"reason": reason, "score": score, "sentence": "x"}]}
 
 
-def test_low_confidence_cases_go_to_c():
+def test_low_confidence_cases_go_to_c(monkeypatch):
+    # T26: the switch is OFF in config.yaml (null); this test turns it on with P20's value to check the routing.
+    from callverse.config import load_config
+    monkeypatch.setitem(load_config()["queues"], "low_confidence_margin", 0.02)
     assert confidence_margin(ticket(0.70)) == 0.01                        # ShopNova threshold 0.69
     assert route(ticket(0.70))["agent"] == "C" and route(ticket(0.70))["layer"] == "L2"
     assert route(ticket(0.80))["agent"] == "A"                            # sure enough: normal route
     assert route(ticket(0.70, order_id=None))["agent"] == "A"             # no case number: not a case for C
     assert route(ticket(0.70, reason="other"))["agent"] == "A"            # "other" has no score
+
+
+def test_low_confidence_routing_is_off_in_the_demo_config():
+    # T26: OFF until reviewed (2 wrong outcomes in the 72-message check): the normal route is kept.
+    assert route(ticket(0.70))["agent"] == "A" and route(ticket(0.70))["layer"] == "L1"
 
 
 def test_owner_buttons_go_through_the_channel():

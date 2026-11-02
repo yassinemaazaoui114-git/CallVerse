@@ -154,7 +154,10 @@ queues:
   layer: L1
   # P20: a ticket whose main reason passed Intake's reason_threshold by less than this goes to Agent C (Layer 2,
   # "low confidence"). 0.02 = 2 points of cosine score. NOT tuned on any test set: a first value, to review.
-  low_confidence_margin: 0.02
+  # T26: OFF (null). With 0.02, the 72-message check (T14f set) sent h10 (margin 0.018, a cancel that must be declined)
+  # and s02 (margin -0.007, a damaged item that needs a photo) to C instead of B: 2 wrong outcomes that main had right.
+  # Negative margins (reason under the threshold) were caught too. Set a number again to turn it on.
+  low_confidence_margin: null
   routes: &shopnova_routes
     order_status: A
     late_delivery: A
