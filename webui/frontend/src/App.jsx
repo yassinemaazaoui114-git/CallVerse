@@ -11,6 +11,7 @@ import { homeFor } from "./hooks.js";
 import AskAboutOrder from "./screens/AskAboutOrder.jsx";
 import AdminApprovals from "./screens/AdminApprovals.jsx";
 import AtlasAdminDashboard from "./screens/AtlasAdminDashboard.jsx";
+import OwnerProposals from "./screens/OwnerProposals.jsx";
 import ConsoleAgents from "./screens/ConsoleAgents.jsx";
 import ConsoleDashboard from "./screens/ConsoleDashboard.jsx";
 import ShopAdminDashboard from "./screens/ShopAdminDashboard.jsx";
@@ -61,6 +62,7 @@ export default function App() {
           </Route>
           <Route element={<RequireLogin><Shell area="shopnova-admin" /></RequireLogin>}>
             <Route path="/admin/approvals" element={<AdminApprovals />} />
+            <Route path="/admin/promotions" element={<OwnerProposals company="shopnova" />} />
             <Route path="/admin/dashboard" element={<ShopAdminDashboard />} />
           </Route>
           <Route element={<RequireLogin><Shell area="atlas" /></RequireLogin>}>
@@ -70,6 +72,7 @@ export default function App() {
           </Route>
           <Route element={<RequireLogin><Shell area="atlas-admin" /></RequireLogin>}>
             <Route path="/atlas/admin/approvals" element={<AdminApprovals company="atlas" />} />
+            <Route path="/atlas/admin/deals" element={<OwnerProposals company="atlas" />} />
             <Route path="/atlas/admin/records" element={<Records />} />
             <Route path="/atlas/admin/dashboard" element={<AtlasAdminDashboard />} />
           </Route>

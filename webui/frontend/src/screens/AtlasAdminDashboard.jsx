@@ -4,6 +4,7 @@
 import { api } from "../api.js";
 import { BarChart, Stat, fmt } from "../components/Chart.jsx";
 import PeriodPicker, { StalePeriodNote, labelOf, usePeriod } from "../components/Period.jsx";
+import CheckNow from "../components/CheckNow.jsx";
 import Icon from "../components/Icon.jsx";
 import { ApiErrorView, Loading } from "../components/States.jsx";
 import { tnd, useGuardedLoad, words } from "../hooks.js";
@@ -23,6 +24,7 @@ export default function AtlasAdminDashboard() {
         </div>
         <button type="button" className="btn btn-sm" onClick={reload} disabled={loading}><Icon name="refresh" size={14} />Refresh</button>
       </div>
+      <div style={{ marginBottom: "var(--cv-s3)" }}><CheckNow company="atlas" /></div>
       <PeriodPicker options={options} value={days} onChange={setDays} clock={d ? `${d.start ? `from ${d.start}` : "all dates"} to ${d.today} (simulation clock)` : null} />
       {data && !isCurrent && <StalePeriodNote loading={loading} error={error} shownLabel={labelOf(options, data.days === null ? "all" : String(data.days))} selectedLabel={labelOf(options, days)} onRetry={reload} />}
       {error && !data && <ApiErrorView error={error} onRetry={reload} />}

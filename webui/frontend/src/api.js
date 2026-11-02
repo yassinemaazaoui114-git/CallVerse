@@ -103,6 +103,15 @@ export function adminScope(prefix) {
   };
 }
 
+// T27: Agent D's owner screens (Promotions at ShopNova, Hotel deals at Atlas) and the "Check now" scan.
+export function ownerScope(prefix, scanPath) {
+  return {
+    list: (status, signal) => request(`${prefix}${query({ status })}`, { signal }),
+    decide: (id, body) => request(`${prefix}/${encodeURIComponent(id)}/decision`, { method: "POST", body: JSON.stringify(body) }),
+    scan: () => request(scanPath, { method: "POST" }),
+  };
+}
+
 // What differs between the two companies' screens: words, routes and API prefixes. Everything else is shared.
 export const COMPANIES = {
   shopnova: {
@@ -110,12 +119,14 @@ export const COMPANIES = {
     contextParam: "order", contextWord: "order", contextField: "about_order",
     home: "/shop/orders", chatPath: "/shop/chat", adminPath: "/admin/approvals",
     listLabel: "My orders", caseWord: "order",
+    owner: ownerScope("/api/admin/promotions", "/api/admin/stock-check"), ownerPath: "/admin/promotions",
   },
   atlas: {
     key: "atlas", name: "Atlas Travel", chat: chatScope("/api/atlas"), admin: adminScope("/api/atlas/admin/approvals"),
     contextParam: "booking", contextWord: "booking", contextField: "about_booking",
     home: "/atlas/bookings", chatPath: "/atlas/chat", adminPath: "/atlas/admin/approvals",
     listLabel: "My bookings", caseWord: "booking",
+    owner: ownerScope("/api/atlas/admin/deals", "/api/atlas/admin/room-check"), ownerPath: "/atlas/admin/deals",
   },
 };
 

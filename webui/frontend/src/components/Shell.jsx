@@ -18,7 +18,7 @@ export const AREAS = {
   },
   "shopnova-admin": {
     theme: "shopnova", home: "/admin/approvals", brand: ["Shop", "Nova admin"],
-    nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }, { to: "/admin/dashboard", label: "Dashboard", icon: "chart" }],
+    nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }, { to: "/admin/promotions", label: "Promotions", icon: "tag" }, { to: "/admin/dashboard", label: "Dashboard", icon: "chart" }],
   },
   atlas: {
     theme: "atlas", home: "/atlas/bookings", brand: ["Atlas ", "Travel"],
@@ -26,7 +26,7 @@ export const AREAS = {
   },
   "atlas-admin": {
     theme: "atlas", home: "/atlas/admin/approvals", brand: ["Atlas ", "Travel admin"],
-    nav: [{ to: "/atlas/admin/approvals", label: "Approvals", icon: "bank" }, { to: "/atlas/admin/dashboard", label: "Dashboard", icon: "chart" }, { to: "/atlas/admin/records", label: "Records", icon: "file" }],
+    nav: [{ to: "/atlas/admin/approvals", label: "Approvals", icon: "bank" }, { to: "/atlas/admin/deals", label: "Hotel deals", icon: "tag" }, { to: "/atlas/admin/dashboard", label: "Dashboard", icon: "chart" }, { to: "/atlas/admin/records", label: "Records", icon: "file" }],
   },
   none: { theme: "console", home: "/workspace", brand: ["Call", "Verse"], nav: [] },
 };

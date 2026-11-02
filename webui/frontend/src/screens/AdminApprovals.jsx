@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { ApiError, COMPANIES } from "../api.js";
 import { useAuth } from "../auth.jsx";
 import Icon from "../components/Icon.jsx";
+import { UrgentBadge } from "../components/Outcomes.jsx";
 import { ApiErrorView, Empty, Loading } from "../components/States.jsx";
 import { tnd, useGuardedLoad, words } from "../hooks.js";
 
@@ -195,7 +196,8 @@ export default function AdminApprovals({ company = "shopnova" }) {
     }
   }
 
-  const rows = data ? data.approvals : [];
+  // T27: urgent cases first (Agent C's "urgent refund"); the API already sorts them so, this keeps it on screen.
+  const rows = data ? [...data.approvals].sort((x, y) => (y.urgent ? 1 : 0) - (x.urgent ? 1 : 0)) : [];
 
   return (
     <>
@@ -248,7 +250,7 @@ export default function AdminApprovals({ company = "shopnova" }) {
                 <span id={`appr-${a.id}`} style={{ fontFamily: "var(--cv-font-heading)", fontWeight: 600, fontSize: "var(--cv-text-lg)" }}>
                   Approval {a.id} · {actionOf(a)} of <span className="tabular">{tnd(a.amount)}</span>
                 </span>
-                <span className={`badge ${statusClass(a.status)}`}>{words(a.status)}</span>
+                <span className="row" style={{ gap: "var(--cv-s1)" }}>{a.urgent ? <UrgentBadge /> : null}<span className={`badge ${statusClass(a.status)}`}>{words(a.status)}</span></span>
               </div>
               <dl className="kv">
                 <dt>{company === "atlas" ? "Booking" : "Order"}</dt><dd>{caseOf(a, company)} · {f.user_name || "unknown client"}</dd>

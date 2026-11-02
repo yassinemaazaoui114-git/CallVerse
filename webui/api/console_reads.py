@@ -6,9 +6,11 @@ Nothing is computed here that reads.py does not already compute. The only additi
 - a `kind` per step (reads.kind_of), the Coordinator's decision pulled out per turn (so the page can highlight
   it), and the tool calls / policy searches listed per turn;
 - JSON-safe values (datetime -> text).
+- T27: an `urgent` flag per ticket (read-only, see urgent_ticket_ids).
 New step kinds or outcomes are passed through as they are: the browser shows them as plain text.
 """
 
+import json
 from datetime import datetime
 from typing import Any
 
@@ -34,10 +36,28 @@ def filter_values() -> dict:
     return reads.filter_values()
 
 
+def urgent_ticket_ids() -> set[str]:
+    """T27: the tickets the pipeline marked URGENT (P20, pipeline.run_c: Agent C passed a money request to Agent B,
+    "urgent refund"). Two read-only signs, both written by the core: an approval row with urgent = 1, or the
+    ticket's "handover" step that carries urgent: true (a ticket can be urgent before any approval exists)."""
+    db = store.db_path()
+    ids = {r["ticket_id"] for r in reads._read(db, "SELECT ticket_id FROM approvals WHERE urgent = 1")}
+    for r in reads._read(db, "SELECT ticket_id, data FROM steps WHERE step = 'route'"):
+        try:
+            data = json.loads(r["data"])
+        except ValueError:
+            continue
+        if data.get("trace_step") == "handover" and data.get("urgent") is True:
+            ids.add(r["ticket_id"])
+    return ids
+
+
 def live_tickets(company: str | None, status: str | None, priority: str | None, agent: str | None) -> dict:
     """The Live tickets table + whether any ticket exists at all (to tell "no tickets yet" from "no match")."""
     has_tickets = bool(reads.ticket_ids())
     rows = reads.live_tickets(company, status, priority, agent) if has_tickets else []
+    urgent = urgent_ticket_ids() if rows else set()
+    rows = [{**r, "urgent": r["id"] in urgent} for r in rows]
     return {"tickets": _json_safe(rows), "count": len(rows), "has_tickets": has_tickets,
             "no_tickets_message": reads.NO_TICKETS, "statuses": list(store.STATUSES),
             "server_time": datetime.now().isoformat(timespec="seconds")}
@@ -92,5 +112,6 @@ def ticket_detail(ticket_id: str) -> dict | None:
         "age": reads.age(ticket.get("created_real")),
         "turns": [_turn_view(t) for t in detail["turns"]],
         "approvals": detail["approvals"],
+        "urgent": ticket["id"] in urgent_ticket_ids(),
         "server_time": datetime.now().isoformat(timespec="seconds"),
     })
