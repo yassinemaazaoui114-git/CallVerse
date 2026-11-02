@@ -220,6 +220,9 @@ python -m scripts.run_web                 # http://127.0.0.1:8080/
 ```
 Docker / Hugging Face Spaces deployment, API, security and limits: [docs/voice_channel.md](docs/voice_channel.md).
 
+Voice website (Molka): not tested live (T34: it came in with the vision branch; the voice extras are not installed on
+the demo PC, so its tests are skipped).
+
 ## Data and licences
 
 `callverse/data/shopnova.db` (rebuilt by `python -m callverse.data.seed`) holds two kinds of data, and every row says
