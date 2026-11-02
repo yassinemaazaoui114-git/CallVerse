@@ -1,0 +1,62 @@
+/* Design tokens of the CallVerse Console (the approved dark control room). Components use ONLY these variables:
+   no raw colour, size or font in a component file. Change a value here and the whole UI follows. */
+:root {
+  /* colours */
+  --cv-bg: #0b1220;            /* page background */
+  --cv-panel: #152033;         /* cards, tables, sidebar */
+  --cv-panel-2: #1b2840;       /* a row that is hovered / a nested panel */
+  --cv-border: #253349;        /* 1px lines */
+  --cv-text: #e2e8f0;          /* main text */
+  --cv-muted: #94a3b8;         /* secondary text (4.6:1 on the panel colour) */
+  --cv-primary: #2dd4bf;       /* the one primary action, links, focus ring */
+  --cv-on-primary: #0b1220;    /* text on the primary colour */
+  --cv-primary-soft: #134e4a;  /* badge background */
+  --cv-primary-text: #99f6e4;  /* badge text */
+  --cv-ok: #4ade80;
+  --cv-warn: #fbbf24;
+  --cv-danger: #f87171;
+  --cv-danger-soft: #3f1d24;
+  --cv-info-soft: #1e293b;
+
+  /* type */
+  --cv-font-body: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cv-font-heading: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cv-font-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  --cv-text-xs: 12px;
+  --cv-text-sm: 14px;   /* table text */
+  --cv-text-md: 16px;   /* body */
+  --cv-text-lg: 18px;
+  --cv-text-xl: 24px;   /* page title (phone) */
+  --cv-text-2xl: 28px;  /* page title (desktop) */
+  --cv-line: 1.5;
+
+  /* spacing scale (4 / 8 px) */
+  --cv-s1: 4px;
+  --cv-s2: 8px;
+  --cv-s3: 12px;
+  --cv-s4: 16px;
+  --cv-s5: 24px;
+  --cv-s6: 32px;
+  --cv-s7: 48px;
+
+  /* shape */
+  --cv-radius-control: 8px;
+  --cv-radius-panel: 12px;
+  --cv-control-h: 40px;     /* min height of inputs and buttons (touch targets) */
+
+  /* motion */
+  --cv-motion: 150ms;
+  --cv-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* layers */
+  --cv-z-sticky: 10;
+  --cv-z-toast: 100;
+
+  /* layout */
+  --cv-content-max: 1440px;
+  --cv-gutter: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --cv-motion: 0ms; }
+}
