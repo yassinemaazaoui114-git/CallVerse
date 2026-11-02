@@ -40,10 +40,12 @@ export function labelOf(options, value) {
 export default function PeriodPicker({ options, value, onChange, clock }) {
   return (
     <div className="period" role="group" aria-label="Period">
-      {options.map((o) => (
-        <button key={o.value} type="button" className={`btn btn-sm ${String(value) === String(o.value) ? "btn-primary" : ""}`}
-          aria-pressed={String(value) === String(o.value)} onClick={() => onChange(o.value)}>{o.label}</button>
-      ))}
+      <span className="segmented">
+        {options.map((o) => (
+          <button key={o.value} type="button" className={`btn btn-sm ${String(value) === String(o.value) ? "btn-primary" : ""}`}
+            aria-pressed={String(value) === String(o.value)} onClick={() => onChange(o.value)}>{o.label}</button>
+        ))}
+      </span>
       {clock && <span className="muted xs" style={{ marginLeft: "var(--cv-s2)" }}>{clock}</span>}
     </div>
   );

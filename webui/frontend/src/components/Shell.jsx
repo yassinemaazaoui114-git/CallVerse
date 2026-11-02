@@ -3,8 +3,9 @@
 //   console  = the CallVerse Console (dark control room, supervisor)
 //   shopnova = the ShopNova customer site (light, coral accent)
 import { useEffect, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth.jsx";
+import { loginPathFor, portalOfSession } from "../portals.js";
 import Icon from "./Icon.jsx";
 
 export const AREAS = {
@@ -18,7 +19,7 @@ export const AREAS = {
   },
   "shopnova-admin": {
     theme: "shopnova", home: "/admin/approvals", brand: ["Shop", "Nova admin"],
-    nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }, { to: "/admin/promotions", label: "Promotions", icon: "tag" }, { to: "/admin/dashboard", label: "Dashboard", icon: "chart" }],
+    nav: [{ to: "/admin/approvals", label: "Refund approvals", icon: "bank" }, { to: "/admin/promotions", label: "Promotions", icon: "tag" }, { to: "/admin/dashboard", label: "Dashboard", icon: "chart" }, { to: "/admin/manage", label: "Manage", icon: "pen" }],
   },
   atlas: {
     theme: "atlas", home: "/atlas/bookings", brand: ["Atlas ", "Travel"],
@@ -34,6 +35,7 @@ export const AREAS = {
 export default function Shell({ area = "console" }) {
   const { session, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [logoutError, setLogoutError] = useState(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const cfg = AREAS[area] || AREAS.console;   // a fixed object per area, so the effect below runs once per area
@@ -45,13 +47,15 @@ export default function Shell({ area = "console" }) {
     return () => { delete document.documentElement.dataset.theme; };
   }, [cfg.theme, cfg.brand]);
 
-  // Logout: the user stays logged in (and on this page) until the server confirmed the session is gone.
+  // Logout: the user stays logged in (and on this page) until the server confirmed the session is gone; then
+  // back to the sign-in page of the account's own portal (ShopNova, Atlas Travel or the Console).
   async function onLogout() {
     setLoggingOut(true);
     setLogoutError(null);
+    const signIn = loginPathFor(portalOfSession(session));
     try {
       await logout();
-      navigate("/login", { replace: true });
+      navigate(signIn, { replace: true });
     } catch (e) {
       setLogoutError(e);
     } finally {
@@ -103,7 +107,11 @@ export default function Shell({ area = "console" }) {
         )}
       </header>
       <main id="main" className="content" tabIndex={-1}>
-        <Outlet />
+        {/* keyed by the path: the page content rises in once per navigation; a refresh of the data on the same
+            page changes nothing here, so the entrance never replays */}
+        <div className="page-enter" key={location.pathname}>
+          <Outlet />
+        </div>
       </main>
     </div>
   );

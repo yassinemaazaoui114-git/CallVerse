@@ -91,7 +91,7 @@ Frontend dev server (127.0.0.1:5173; it proxies `/api` to the API, so the browse
 npm --prefix webui/frontend run dev
 ```
 
-Open <http://127.0.0.1:5173> and log in. `supervisor` lands in the Console; a ShopNova customer (`sara` …
+Open <http://127.0.0.1:5173/login> and pick a sign-in page: <http://127.0.0.1:5173/shop/login> (ShopNova customers and admin), <http://127.0.0.1:5173/atlas/login> (Atlas customers and admin) or <http://127.0.0.1:5173/console/login> (supervisor). `supervisor` lands in the Console; a ShopNova customer (`sara` …
 `leila`) in My orders; `admin` in Refund approvals; `hedi` … (Atlas customers) in My bookings; `atlas_admin` in
 the Atlas approvals. The approval queue is only filled when Layer 3 runs in queue mode (`CALLVERSE_LAYER3_MODE=queue`, see the
 main README); `CALLVERSE_WEBUI_FAKE_CHAT=1` also makes the decision's customer reply a fake, marked one.
@@ -124,7 +124,7 @@ model library or Streamlit is imported. The existing Console tests still pass: `
 
 | Route | Who | What |
 |---|---|---|
-| `POST /api/auth/login` | anyone | `{username, password}` → `{session}`; sets the HttpOnly cookie |
+| `POST /api/auth/login` | anyone | `{username, password, portal}` → `{session}`; portal `shop` / `atlas` / `console` is checked against the account file before a session exists (else 401 `bad_login`, same as a wrong password); sets the HttpOnly cookie |
 | `POST /api/auth/logout` | anyone | deletes the session, clears the cookie |
 | `GET /api/auth/session` | logged in | `{session: {username, name, role, company}}` or 401 |
 | `GET /api/company?company=shopnova\|atlas` | logged in | the company profile (same function as the platform's `/company`) |
@@ -151,6 +151,8 @@ model library or Streamlit is imported. The existing Console tests still pass: `
 | `GET /api/console/groq` | supervisor | `reads.groq_today()`: tokens used today out of the configured quota, as the core counts them |
 | `GET /api/admin/dashboard?days=7\|30\|90` | ShopNova admin (`view_dashboard`) | `admin_reads.dashboard(days)` (simulation clock) |
 | `GET /api/atlas/admin/dashboard?days=7\|30\|all` | Atlas admin (`view_dashboard`) | `atlas_app_reads.dashboard(days)` (simulation clock) |
+| `GET /api/admin/manage/options` · `GET /api/admin/manage/{products\|orders\|users\|refunds\|log}?search=&page=` | ShopNova admin, the table's permission | `admin_reads.*_page`, `admin_log`; orders carry the allowed `moves` |
+| `POST /api/admin/manage/products[/{id}[/deactivate\|/reactivate]]` · `POST …/orders/{id}/status` · `POST …/users[/{id}]` | ShopNova admin (`edit_catalogue` / `edit_orders` / `edit_users`) | `writes.create_product` / `update_product` / `deactivate_product` / `reactivate_product` / `admin_set_order_status` / `create_user` / `update_user`, with `client_id` |
 | `GET /api/health` | anyone | `{ok: true}` |
 
 Errors always look like `{"error": "<code>", "message": "<words>"}` (`not_logged_in` 401, `forbidden` 403,

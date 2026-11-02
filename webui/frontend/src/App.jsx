@@ -1,13 +1,16 @@
-// Routes: /login, the Console pages (supervisor) and the ShopNova customer pages behind a login guard, and
-// /workspace for the accounts whose pages are not built yet. The guard only checks "is someone logged in";
-// the ROLE is checked by the API on every request (a wrong role sees "Not available for your account").
-// After login an account goes to its own home (hooks.homeFor): supervisor → Console, ShopNova customer →
-// My orders, ShopNova admin → Refund approvals, Atlas customer → My bookings, Atlas admin → Approvals.
+// Routes. Three sign-in pages (/shop/login, /atlas/login, /console/login), a chooser at /login, and the pages
+// of each area behind a login guard. The guard only checks "is someone signed in"; the ROLE, permission and
+// company are checked by the API on every request (a wrong role sees "Not available for your account").
+// A visitor who is not signed in is sent to the sign-in page of the portal the link belongs to, with the path as
+// ?next= (validated again on the sign-in page and after sign-in, see portals.js). After sign-in an account goes to
+// its own home (hooks.homeFor): supervisor -> Console, ShopNova customer -> My orders, ShopNova admin -> Refund
+// approvals, Atlas customer -> My bookings, Atlas admin -> Approvals.
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./auth.jsx";
 import Shell from "./components/Shell.jsx";
 import { ApiErrorView, Loading } from "./components/States.jsx";
 import { homeFor } from "./hooks.js";
+import { loginRedirect } from "./portals.js";
 import AskAboutOrder from "./screens/AskAboutOrder.jsx";
 import AdminApprovals from "./screens/AdminApprovals.jsx";
 import AtlasAdminDashboard from "./screens/AtlasAdminDashboard.jsx";
@@ -20,9 +23,11 @@ import MyBookings from "./screens/MyBookings.jsx";
 import Records from "./screens/Records.jsx";
 import Chat from "./screens/Chat.jsx";
 import LiveTickets from "./screens/LiveTickets.jsx";
-import Login from "./screens/Login.jsx";
+import Manage from "./screens/Manage.jsx";
 import MyOrders from "./screens/MyOrders.jsx";
 import OrderDetail from "./screens/OrderDetail.jsx";
+import PortalChooser from "./screens/PortalChooser.jsx";
+import PortalLogin from "./screens/PortalLogin.jsx";
 import TicketDetail from "./screens/TicketDetail.jsx";
 import Workspace from "./screens/Workspace.jsx";
 
@@ -33,7 +38,7 @@ function RequireLogin({ children }) {
   if (status === "unavailable") {
     return <div className="login-wrap"><div className="login-card"><ApiErrorView error={{ code: "unavailable" }} onRetry={refresh} /></div></div>;
   }
-  if (!session) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
+  if (!session) return <Navigate to={loginRedirect(location.pathname, location.search)} replace />;
   return children;
 }
 
@@ -42,45 +47,57 @@ function Home() {
   return <Navigate to={homeFor(session)} replace />;
 }
 
+// The route tree on its own, so tests can render it inside a MemoryRouter.
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<PortalChooser />} />
+      <Route path="/shop/login" element={<PortalLogin portal="shop" />} />
+      <Route path="/atlas/login" element={<PortalLogin portal="atlas" />} />
+      <Route path="/console/login" element={<PortalLogin portal="console" />} />
+      <Route path="/console" element={<Navigate to="/tickets" replace />} />
+      <Route element={<RequireLogin><Shell area="console" /></RequireLogin>}>
+        <Route path="/tickets" element={<LiveTickets />} />
+        <Route path="/tickets/:ticketId" element={<TicketDetail />} />
+        <Route path="/agents" element={<ConsoleAgents />} />
+        <Route path="/dashboard" element={<ConsoleDashboard />} />
+      </Route>
+      <Route element={<RequireLogin><Shell area="shopnova" /></RequireLogin>}>
+        <Route path="/shop/orders" element={<MyOrders />} />
+        <Route path="/shop/orders/:orderId" element={<OrderDetail />} />
+        <Route path="/shop/orders/:orderId/ask" element={<AskAboutOrder />} />
+        <Route path="/shop/chat" element={<Chat />} />
+      </Route>
+      <Route element={<RequireLogin><Shell area="shopnova-admin" /></RequireLogin>}>
+        <Route path="/admin/approvals" element={<AdminApprovals />} />
+        <Route path="/admin/promotions" element={<OwnerProposals company="shopnova" />} />
+        <Route path="/admin/dashboard" element={<ShopAdminDashboard />} />
+        <Route path="/admin/manage" element={<Manage />} />
+      </Route>
+      <Route element={<RequireLogin><Shell area="atlas" /></RequireLogin>}>
+        <Route path="/atlas/bookings" element={<MyBookings />} />
+        <Route path="/atlas/bookings/:kind/:bookingId" element={<BookingDetail />} />
+        <Route path="/atlas/chat" element={<Chat company="atlas" />} />
+      </Route>
+      <Route element={<RequireLogin><Shell area="atlas-admin" /></RequireLogin>}>
+        <Route path="/atlas/admin/approvals" element={<AdminApprovals company="atlas" />} />
+        <Route path="/atlas/admin/deals" element={<OwnerProposals company="atlas" />} />
+        <Route path="/atlas/admin/records" element={<Records />} />
+        <Route path="/atlas/admin/dashboard" element={<AtlasAdminDashboard />} />
+      </Route>
+      <Route element={<RequireLogin><Shell area="none" /></RequireLogin>}>
+        <Route path="/workspace" element={<Workspace />} />
+      </Route>
+      <Route path="*" element={<RequireLogin><Home /></RequireLogin>} />
+    </Routes>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route element={<RequireLogin><Shell area="console" /></RequireLogin>}>
-            <Route path="/tickets" element={<LiveTickets />} />
-            <Route path="/tickets/:ticketId" element={<TicketDetail />} />
-            <Route path="/agents" element={<ConsoleAgents />} />
-            <Route path="/dashboard" element={<ConsoleDashboard />} />
-          </Route>
-          <Route element={<RequireLogin><Shell area="shopnova" /></RequireLogin>}>
-            <Route path="/shop/orders" element={<MyOrders />} />
-            <Route path="/shop/orders/:orderId" element={<OrderDetail />} />
-            <Route path="/shop/orders/:orderId/ask" element={<AskAboutOrder />} />
-            <Route path="/shop/chat" element={<Chat />} />
-          </Route>
-          <Route element={<RequireLogin><Shell area="shopnova-admin" /></RequireLogin>}>
-            <Route path="/admin/approvals" element={<AdminApprovals />} />
-            <Route path="/admin/promotions" element={<OwnerProposals company="shopnova" />} />
-            <Route path="/admin/dashboard" element={<ShopAdminDashboard />} />
-          </Route>
-          <Route element={<RequireLogin><Shell area="atlas" /></RequireLogin>}>
-            <Route path="/atlas/bookings" element={<MyBookings />} />
-            <Route path="/atlas/bookings/:kind/:bookingId" element={<BookingDetail />} />
-            <Route path="/atlas/chat" element={<Chat company="atlas" />} />
-          </Route>
-          <Route element={<RequireLogin><Shell area="atlas-admin" /></RequireLogin>}>
-            <Route path="/atlas/admin/approvals" element={<AdminApprovals company="atlas" />} />
-            <Route path="/atlas/admin/deals" element={<OwnerProposals company="atlas" />} />
-            <Route path="/atlas/admin/records" element={<Records />} />
-            <Route path="/atlas/admin/dashboard" element={<AtlasAdminDashboard />} />
-          </Route>
-          <Route element={<RequireLogin><Shell area="none" /></RequireLogin>}>
-            <Route path="/workspace" element={<Workspace />} />
-          </Route>
-          <Route path="*" element={<RequireLogin><Home /></RequireLogin>} />
-        </Routes>
+        <AppRoutes />
       </AuthProvider>
     </BrowserRouter>
   );

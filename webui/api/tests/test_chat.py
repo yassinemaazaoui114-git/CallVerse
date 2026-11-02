@@ -10,7 +10,7 @@ import threading
 import time
 
 import pytest
-from conftest import CSRF, login
+from conftest import CSRF, login, portal_for
 
 from callverse.tickets import store
 
@@ -159,7 +159,7 @@ def live_login(base: str, username: str):
     """An httpx client logged in on the live server (cookie jar kept)."""
     import httpx
     c = httpx.Client(base_url=base, timeout=20)
-    r = c.post("/api/auth/login", json={"username": username, "password": "test-only"}, headers=CSRF)
+    r = c.post("/api/auth/login", json={"username": username, "password": "test-only", "portal": portal_for(username)}, headers=CSRF)
     assert r.status_code == 200
     return c
 

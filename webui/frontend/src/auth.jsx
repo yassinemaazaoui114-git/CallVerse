@@ -1,6 +1,7 @@
 // Who is logged in, for the whole app (React context). The truth is the API's session cookie: on start the app
-// asks GET /api/auth/session; a 401 anywhere later (session expired) sends the user back to the login page
-// with a "session expired" note. The role is never decided here: the API checks it on every request.
+// asks GET /api/auth/session; a 401 anywhere later (session expired) sends the user back to the sign-in page of
+// the portal they were in, with a "session expired" note. The role is never decided here: the API checks it on
+// every request. ONE session per browser, whichever of the three sign-in pages it came through.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { api, ApiError } from "./api.js";
 
@@ -24,8 +25,8 @@ export function AuthProvider({ children }) {
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  const login = useCallback(async (username, password) => {
-    const body = await api.login(username, password);
+  const login = useCallback(async (username, password, portal) => {
+    const body = await api.login(username, password, portal);
     setSession(body.session);
     setNotice(null);
     return body.session;

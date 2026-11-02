@@ -81,8 +81,16 @@ def client():
         yield c
 
 
-def login(client: TestClient, username: str, password: str = PASSWORD):
-    return client.post("/api/auth/login", json={"username": username, "password": password}, headers=CSRF)
+def portal_for(username: str) -> str:
+    """The sign-in page a demo account uses: the supervisor the Console, Atlas accounts Atlas, the rest ShopNova."""
+    if username == "supervisor":
+        return "console"
+    return "atlas" if username in accounts.ATLAS_ACCOUNTS else "shop"
+
+
+def login(client: TestClient, username: str, password: str = PASSWORD, portal: str | None = None):
+    return client.post("/api/auth/login", headers=CSRF,
+                       json={"username": username, "password": password, "portal": portal or portal_for(username)})
 
 
 @pytest.fixture
