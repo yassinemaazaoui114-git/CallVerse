@@ -4,7 +4,15 @@ Why rules? The ticket already carries a main_reason (Intake). Mapping a reason t
 fixed lookup: a rule is instant, free, always gives the same answer and is easy to show the teacher.
 
 T21: each company has its own routes (config.yaml companies:). A route can be "escalate" instead of an agent: the
-ticket goes to a human colleague, no agent runs (Atlas: rebooking and assistance, until agent C exists).
+ticket goes to a human colleague, no agent runs.
+
+P20 (spec: "C = Layer 2 for urgent, low-confidence, disputed, unresolved tickets"): a LOW-CONFIDENCE ticket goes to
+Agent C (layer L2). Confidence is not a new model: it is the score Intake already gives the main reason (the best
+cosine score of its sentences, ticket["reasons"]) minus the company's reason_threshold. A ticket about a case (it has
+an order / booking number) whose main reason passed the threshold by less than queues.low_confidence_margin is "low
+confidence": the reason may be wrong, so C, which combines A, B and D, takes it.
+T26: switched OFF (low_confidence_margin: null). In the 72-message check it sent 2 tickets that main answered right
+(a cancel decline, a damaged-item photo request) to C instead; the code stays, to turn on again after a review.
 """
 
 from callverse import companies, trace
@@ -22,5 +30,19 @@ def route(ticket: dict) -> dict:
         "reason": reason,
         "priority_label": ticket["priority_label"],
     }
+    margin = confidence_margin(ticket)
+    limit = cfg.get("low_confidence_margin")   # T26: null (or missing) = switched off
+    if limit is not None and margin is not None and margin < limit and ticket.get("order_id") is not None:
+        decision.update(agent="C", layer="L2", confidence_margin=margin)   # P20: low confidence -> Agent C
     trace.log("route", "router", {"ticket_id": ticket.get("ticket_id"), **decision})
     return decision
+
+
+def confidence_margin(ticket: dict) -> float | None:
+    """How far the main reason's Intake score is above the company's reason threshold (None: no score, e.g. the
+    reason came from the LLM fallback or is "other")."""
+    scores = [r.get("score") for r in ticket.get("reasons") or []
+              if r.get("reason") == ticket.get("main_reason") and isinstance(r.get("score"), (int, float))]
+    if not scores or ticket.get("main_reason") == "other":
+        return None
+    return round(max(scores) - companies.get(companies.of(ticket))["reason_threshold"], 3)

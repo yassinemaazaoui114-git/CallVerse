@@ -22,7 +22,8 @@
     {"id": "a10", "user_id": 2, "text": "Cancel hotel booking 7012 please and give me my money back.",
      "expect": {"booking_status_after": "cancelled", "refund_rows": 0}},
     {"id": "a11", "user_id": 5, "text": "I use a wheelchair, I need help at the airport for my flight 7010.",
-     "expect": {"outcome": "escalate", "refund_rows": 0, "compensation_rows": 0}},
+     "note": "P20: Agent C now takes special assistance (spec); it asks the client to confirm first (was: escalate)",
+     "expect": {"outcome": "ask_user", "refund_rows": 0, "compensation_rows": 0}},
     {"id": "a12", "user_id": 1, "text": "What is the status of booking 7004?",
      "expect": {"outcome": "not_your_order", "refund_rows": 0, "reply_contains_any": ["not on your account"]}}
   ]

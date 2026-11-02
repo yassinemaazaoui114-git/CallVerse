@@ -96,5 +96,19 @@
     "text": "A refund above 1,500 TND, and every compensation, must be approved by the Atlas Travel finance team (Layer 3) before it is paid. Do not promise the client such an amount; say that it needs approval.",
     "condition": "action == 'compensation' or amount > 1500",
     "ai_generated": true
+  },
+  {
+    "id": "AT-CAP-01",
+    "title": "Hotel overbooking risk",
+    "text": "A hotel is at risk of overbooking when a coming night has more rooms booked than the most rooms it ever had occupied on one night. The availability team then warns the status team, so clients of that night are not promised a room they may not get.",
+    "condition": "max_rooms_booked > capacity",
+    "ai_generated": true
+  },
+  {
+    "id": "AT-DEAL-01",
+    "title": "Deal for empty rooms",
+    "text": "When a hotel has coming nights at 30 percent occupancy or less, the availability team may propose a deal of at most 20 percent on those nights. The owner must approve every deal before it starts; a deal never changes a price by itself.",
+    "condition": "min_occupancy_pct <= 30 and 0 < discount_pct <= 20",
+    "ai_generated": true
   }
 ]

@@ -78,6 +78,18 @@ models:
     - {provider: groq,       model: "openai/gpt-oss-20b",  options: {reasoning_effort: low}}
     - {provider: google,     model: "gemini-3.5-flash"}
   agent_b_local: *agents_local   # the same entries as agents_local, so the two can never drift
+  # P20: Agent C (Urgent & Special Help) has its own list, like B (CALLVERSE_AGENT_C_SET=local -> agent_c_local).
+  # T26 (approved by Yassine 2026-11-02): like A and B, Dali's local model first (P20 eval: v3 C 5/7, 0 wrong
+  # proposals); the Groq chain is the backup, then Gemini, exactly as B's list.
+  agent_c:
+    - {provider: ollama,     model: "callverse-m2-v3", temperature: 0, seed: 42}
+    - {provider: groq,       model: "openai/gpt-oss-120b", options: {reasoning_effort: low}}
+    - {provider: groq,       model: "openai/gpt-oss-20b",  options: {reasoning_effort: low}}
+    - {provider: google,     model: "gemini-3.5-flash"}
+  agent_c_local: *agents_local
+  # P20: Agent D (Availability & Supply) is rules; the model only words the note to the owner (template if it fails).
+  # A small local model is enough for one sentence, so D is local by default.
+  agent_d: *agents_local
   simulator: # M1, different family (used in task 4)
     # T08 (approved 2026-10-21): gemini-3.5-flash, the Flash model this key accepts that answers fast
     # (gemini-3.8-flash took 47-76 s per call in T07).
@@ -140,6 +152,12 @@ intake:
 # main_reason -> agent. Layer L1 = the first-line agents A and B.
 queues:
   layer: L1
+  # P20: a ticket whose main reason passed Intake's reason_threshold by less than this goes to Agent C (Layer 2,
+  # "low confidence"). 0.02 = 2 points of cosine score. NOT tuned on any test set: a first value, to review.
+  # T26: OFF (null). With 0.02, the 72-message check (T14f set) sent h10 (margin 0.018, a cancel that must be declined)
+  # and s02 (margin -0.007, a damaged item that needs a photo) to C instead of B: 2 wrong outcomes that main had right.
+  # Negative margins (reason under the threshold) were caught too. Set a number again to turn it on.
+  low_confidence_margin: null
   routes: &shopnova_routes
     order_status: A
     late_delivery: A
@@ -155,6 +173,8 @@ queues:
     return_item: "Your request is passed on for a returns check."
     damaged_item: "Your request is passed on for a damage check."
     cancel_order: "Your request is passed on for a cancellation check."
+    # P20: Agent A hands an urgent need / special help over to Agent C.
+    urgent_help: "Your request is passed on to our special help team."
 
 # Coordinator (task T07): rules only, no LLM. It checks every agent proposal before anything is written.
 coordinator:
@@ -173,6 +193,12 @@ pipeline:
   # OFF by default (Brain review 2026-10-28): in T13c it fired mostly on "no proposal needed" sentences and
   # never helped. Turn on with true to test it again.
   proposal_claim_retry: false
+  # P20 Layer 2 (spec: "C = Layer 2 escalation"): when Agent A or B ends in "escalate" (e.g. sent back twice, a dispute),
+  # Agent C gets the case once: it may offer a replacement / hold, or pass it to a human colleague (Layer 3). ON.
+  layer2_agent_c: true
+  # P20: Agent C named an offer in its text but called no proposal tool -> one more run with a note (C only).
+  # ON: base Qwen did this in 5 of 7 C practice cases (tasks/P20_report.md). The net itself writes nothing.
+  c_offer_retry: true
 
 # SLM reply writer (tasks T05, T05b): rule-check settings and the calm openers added by code.
 slm:
@@ -209,6 +235,10 @@ slm:
     formal: "Please accept our apologies for the trouble."
     casual: "I'm really sorry for the trouble."
     neutral: "I'm sorry for the trouble."
+  # RL1 / RL1b: reply style (callverse/slm/reply_styles.py): short | warm | warm_next_step. null = the writer as it was
+  # (calm opener only for an upset client). The env var CALLVERSE_REPLY_STYLE and decision["reply_style"] override this;
+  # the RL policy (RL5) will set it per reply later. It changes wording only, never a decision.
+  reply_style: null
 
 # Local platform server (P05, P09). The demo screen (/demo: type a message, run the stories, see every step)
 # runs the real pipeline and can reset the demo data, so it is OFF by default: turn it on only for a live demo.
@@ -276,7 +306,7 @@ companies:
         other: 0.2
       # [hours before departure / arrival, time pressure]: the first line that fits wins, else 0 (past trips: 0).
       time_pressure_hours: [[24, 1.0], [72, 0.5]]
-    # escalate = no agent: the ticket goes to a human colleague (rebooking and assistance wait for agent C).
+    # escalate = no agent: the ticket goes to a human colleague. P20: rebooking and special assistance go to Agent C.
     routes:
       booking_status: A
       delay_disruption: A
@@ -284,12 +314,13 @@ companies:
       refund_request: B
       compensation_request: B
       cancellation: B
-      rebooking: escalate
-      special_assistance: escalate
+      rebooking: C
+      special_assistance: C
     handover_texts:
       refund_request: "Your request is passed on for a refund check."
       compensation_request: "Your request is passed on for a compensation check."
       cancellation: "Your request is passed on for a cancellation check."
+      urgent_help: "Your request is passed on to our special help team."
     finance_rule: AT-ESC-01
     # Finance stub (tests only, layer3 mode "stub"): a refund above AT-ESC-01's limit is approved up to this amount
     # and refused above it. Its own value: ShopNova's 500 is below Atlas's 1,500 limit, so nothing could be approved.

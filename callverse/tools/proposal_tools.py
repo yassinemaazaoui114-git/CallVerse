@@ -270,3 +270,133 @@ SCHEMA = {
         },
     },
 }
+
+
+# --- P20: Agent C's proposals (Urgent & Special Help) -----------------------------------------------------
+# Each C action has exactly ONE rule (replace R-RPL-01, hold R-HLD-01, assistance R-AST-01), so the tool sets it:
+# fewer fields for a small local model to get wrong. The Coordinator still checks that rule's condition on the
+# facts it re-reads itself. user_confirmed is REQUIRED: false = the client has not said yes yet, and then the
+# Coordinator only asks the client to confirm (nothing changes until the client says yes).
+
+C_RULES = {"replace": "R-RPL-01", "hold": "R-HLD-01", "assistance": "R-AST-01"}
+C_ACTIONS = {"propose_replacement": "replace", "propose_hold": "hold", "propose_assistance": "assistance"}
+
+
+def _int_id(value) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _c_problems(fields: dict) -> list[str]:
+    problems = []
+    if "order_id" in fields and fields["order_id"] is not None and not _int_id(fields["order_id"]):
+        problems.append("order_id must be an integer")
+    for name in ("product_id", "qty", "hold_days"):
+        if name in fields and not _int_id(fields[name]):
+            problems.append(f"{name} must be an integer")
+    if "reason" in fields and (not isinstance(fields["reason"], str) or not fields["reason"].strip()):
+        problems.append("reason must say why a colleague is needed")
+    if not isinstance(fields.get("user_confirmed"), bool):
+        problems.append("user_confirmed must be true or false (true only if the client said yes)")
+    if not isinstance(fields.get("user_quote"), str) or not fields["user_quote"].strip():
+        problems.append("user_quote must quote the client's own words")
+    return problems
+
+
+def order_product(order_id):
+    """The product of an order that has ONE product (its id), else None. A read, used when C gives no product_id."""
+    from callverse.tools.shopnova_tools import get_order
+    if not _int_id(order_id):
+        return None
+    order = get_order(order_id)
+    ids = {i.get("product_id") for i in order.get("items", [])} if "error" not in order else set()
+    return ids.pop() if len(ids) == 1 else None
+
+
+def _with_product(fields: dict) -> dict:
+    """No product_id given: the order's only product (traced in the proposal, so nothing is hidden)."""
+    if fields.get("product_id") is None and "product_id" in fields:
+        fields = {**fields, "product_id": order_product(fields.get("order_id"))}
+    return fields
+
+
+def _propose_c(action: str, fields: dict) -> dict:
+    fields = _with_product(fields)
+    problems = _c_problems(fields)
+    if action in ("replace", "hold") and fields.get("order_id") is None:
+        problems.insert(0, "order_id is required")
+    if problems:
+        trace.log("proposal_refused", "proposal_tools", {"action": action, "fields": fields, "problems": problems})
+        return {"error": "proposal refused: " + "; ".join(problems)}
+    trace.log("proposal", "proposal_tools", {"action": action, "rule_id": C_RULES[action], **fields})
+    return {"status": "submitted to Coordinator"}
+
+
+def propose_replacement(order_id=None, product_id=None, qty=1, user_confirmed=None, user_quote=None,
+                        facts_used=None) -> dict:
+    """Propose sending a new unit of an order's item (R-RPL-01). Sends nothing, writes nothing."""
+    return _propose_c("replace", {"order_id": order_id, "product_id": product_id, "qty": qty,
+                                  "user_confirmed": user_confirmed, "user_quote": user_quote})
+
+
+def propose_hold(order_id=None, product_id=None, qty=1, hold_days=3, user_confirmed=None, user_quote=None,
+                 facts_used=None) -> dict:
+    """Propose keeping units of a product for the client for 1-3 days (R-HLD-01). Keeps nothing, writes nothing."""
+    return _propose_c("hold", {"order_id": order_id, "product_id": product_id, "qty": qty, "hold_days": hold_days,
+                               "user_confirmed": user_confirmed, "user_quote": user_quote})
+
+
+def propose_assistance(order_id=None, reason=None, user_confirmed=None, user_quote=None, facts_used=None) -> dict:
+    """Propose passing a hard or disputed case to a human colleague (R-AST-01). Writes nothing."""
+    return _propose_c("assistance", {"order_id": order_id, "reason": reason, "user_confirmed": user_confirmed,
+                                     "user_quote": user_quote})
+
+
+def c_proposal(agent: str, tool: str, args: dict) -> dict:
+    """The proposal in the platform's shape, from one of C's proposal tools and its (accepted) arguments."""
+    action = C_ACTIONS[tool]
+    keys = {"replace": ("order_id", "product_id", "qty"), "hold": ("order_id", "product_id", "qty", "hold_days"),
+            "assistance": ("order_id", "reason")}[action]
+    defaults = {"qty": 1, "hold_days": 3, "order_id": None}
+    params = {k: args.get(k, defaults.get(k)) for k in keys}
+    if "product_id" in params and params["product_id"] is None:
+        params["product_id"] = order_product(params["order_id"])
+    facts = args.get("facts_used") if isinstance(args.get("facts_used"), dict) else {}
+    return {"agent": agent, "action": action, "params": params, "rule_id": C_RULES[action], "facts_used": facts,
+            "user_confirmed": args["user_confirmed"], "user_quote": args["user_quote"]}
+
+
+_CONFIRM = {"type": "boolean", "description": "true only if the client already said yes to this"}
+C_SCHEMAS = {
+    "propose_replacement": {"type": "function", "function": {
+        "name": "propose_replacement",
+        "description": "Propose a free replacement of an order's item from stock (rule R-RPL-01). Sends nothing.",
+        "parameters": {"type": "object", "properties": {
+            "order_id": {"type": "integer"}, "product_id": {"type": "integer", "description": "leave out: the order's item"},
+            "qty": {"type": "integer"}, "user_confirmed": _CONFIRM, "user_quote": {"type": "string"}},
+            "required": ["order_id", "user_confirmed", "user_quote"]}}},
+    "propose_hold": {"type": "function", "function": {
+        "name": "propose_hold",
+        "description": "Propose keeping units of a product for the client, 1 to 3 days (rule R-HLD-01).",
+        "parameters": {"type": "object", "properties": {
+            "order_id": {"type": "integer"}, "product_id": {"type": "integer"}, "qty": {"type": "integer"},
+            "hold_days": {"type": "integer"}, "user_confirmed": _CONFIRM, "user_quote": {"type": "string"}},
+            "required": ["order_id", "product_id", "user_confirmed", "user_quote"]}}},
+    "propose_assistance": {"type": "function", "function": {
+        "name": "propose_assistance",
+        "description": "Propose passing a hard or disputed case to a human colleague (rule R-AST-01).",
+        "parameters": {"type": "object", "properties": {
+            "order_id": {"type": "integer"}, "reason": {"type": "string"}, "user_confirmed": _CONFIRM,
+            "user_quote": {"type": "string"}},
+            "required": ["reason", "user_confirmed", "user_quote"]}}},
+}
+C_FUNCTIONS = {"propose_replacement": propose_replacement, "propose_hold": propose_hold,
+               "propose_assistance": propose_assistance}
+
+
+# --- P20: Agent D's promotion proposal (built by D's rules, not by a model) -------------------------------
+
+def promotion_proposal(product_id: int, discount_pct: float, facts: dict, note: str) -> dict:
+    """D's promotion PROPOSAL in the platform's shape. user_confirmed is False: no client is involved; the OWNER
+    decides (Coordinator outcome owner_pending). note = D's sentence for the owner."""
+    return {"agent": "D", "action": "promotion", "params": {"product_id": product_id, "discount_pct": discount_pct},
+            "rule_id": "R-PRM-01", "facts_used": facts, "user_confirmed": False, "user_quote": "", "note": note}

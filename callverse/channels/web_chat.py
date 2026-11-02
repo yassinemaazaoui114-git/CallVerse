@@ -64,7 +64,7 @@ STATUS_BY_OUTCOME = {"approve": "Solved", "info": "Solved", "layer3_refused": "S
 STEP_KINDS = {
     "intake_ticket": "intake",
     "route": "route", "handover": "route", "handover_ignored": "route", "agent_retry": "route",
-    "proposal_claim_retry": "route",
+    "proposal_claim_retry": "route", "c_offer_retry": "route", "layer2": "route", "stock_warning": "route",
     "tool_call": "tool_call", "tool_refused": "tool_call", "ask_agent": "tool_call",
     "proposal": "proposal", "proposal_refused": "proposal",
     "coordinator_check": "coordinator", "coordinator_decision": "coordinator", "rule_not_searched": "coordinator",
@@ -109,6 +109,8 @@ def live_text(record: dict) -> str | None:
     if (step == "tool_call" and data.get("tool") == "search_policy") or step in ("coordinator_check",
                                                                                  "layer3_decision"):
         return "Checking the rules…"
+    if step == "handover" and data.get("to") == "C":   # P20
+        return "Checking with our special help team…"
     if step == "handover":
         return "Checking with our refund team…"
     if step == "coordinator_decision" and data.get("outcome") != "send_back":
@@ -128,6 +130,22 @@ def step_row(record: dict) -> tuple[str, str | None, dict] | None:
         kind = "layer3"
     agent = data.get("agent") or (data.get("role") if kind == "llm" else None) or record.get("actor")
     return kind, agent, {"trace_step": record["step"], **data}
+
+
+C_QUESTION_ACTIONS = ("replace", "hold", "assistance", "rebook")   # P20: Agent C's actions (ShopNova, Atlas)
+
+
+def c_waiting_order(ticket: dict) -> tuple[bool, int | None]:
+    """P20: (True, order id) when this ticket waits for the user's yes to a question Agent C asked (its last decision
+    was ask_user on a replace / hold / assistance proposal), so the next message goes back to Agent C."""
+    if ticket.get("status") != "Waiting for user":
+        return False, None
+    for step in reversed(store.steps(ticket["id"])):
+        data = step["data"]
+        if data.get("trace_step") == "coordinator_decision" and data.get("outcome") != "send_back":
+            ok = data.get("outcome") == "ask_user" and data.get("action") in C_QUESTION_ACTIONS
+            return ok, data.get("order_id") if ok else None
+    return False, None
 
 
 def _escalate_reply(ticket: dict, reason: str, slm_chat_fn=None) -> str:
@@ -252,6 +270,12 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
                                       priority=intake_ticket.get("priority_label"))
             if guarded:
                 return guarded
+            # P20: the user answers Agent C's question ("yes, please"): Agent C takes the message again, with the order.
+            waiting_c, c_order = c_waiting_order(ticket)
+            if waiting_c:
+                intake_ticket["continue_agent"] = "C"
+                if intake_ticket["order_id"] is None:
+                    intake_ticket["order_id"] = c_order
             # 4. The pipeline, as it is.
             out = pipeline.handle_ticket(intake_ticket, chat_fn=chat_fn, slm_chat_fn=slm_chat_fn)
             decision = out["decision"]
@@ -259,7 +283,8 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
                 # T18: the refund waits for the ShopNova admin (Refund approvals page).
                 approval = store.create_approval(tid, decision["order_id"], decision["facts"]["amount_tnd"],
                                                  decision["proposal_id"], company, decision.get("booking_type"),
-                                                 "compensation" if decision.get("action") == "compensation" else "refund")
+                                                 "compensation" if decision.get("action") == "compensation" else "refund",
+                                                 urgent=bool(intake_ticket.get("urgent")))
                 channel_step("approval", {"approval_id": approval["id"], "order_id": approval["order_id"],
                                           "amount": approval["amount"], "proposal_id": approval["proposal_id"],
                                           "status": "pending"})
@@ -273,7 +298,7 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn) -> d
             return finish(reply, STATUS_BY_OUTCOME["escalate"], "escalate", "channel")
 
         outcome = out["decision"]["outcome"]
-        lead = "B" if out["handover"] == "B" else out["route"]["agent"]
+        lead = out["handover"] if out["handover"] in ("B", "C") else out["route"]["agent"]
         lead = None if lead == "escalate" else lead   # T21: no agent worked on it, a colleague takes it
         return finish(out["final_reply"], STATUS_BY_OUTCOME.get(outcome, "Open"), outcome, out["reply_source"],
                       main_reason=intake_ticket["main_reason"], priority=intake_ticket.get("priority_label"),

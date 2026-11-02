@@ -9,10 +9,12 @@ from callverse.kb.policies import (check_condition, get_policy, layer3_threshold
 from callverse.tools.shopnova_tools import get_order, get_refunds, get_tracking
 
 EXPECTED_IDS = ["R-DEL-01", "R-DEL-02", "R-REF-03", "R-REF-05",
-                "R-RET-01", "R-DMG-01", "R-ESC-01", "R-NOT-01", "R-CAN-01"]
+                "R-RET-01", "R-DMG-01", "R-ESC-01", "R-NOT-01", "R-CAN-01",
+                # P20: Agents C (replacement, hold, special help) and D (low stock, promotion)
+                "R-RPL-01", "R-HLD-01", "R-AST-01", "R-STK-01", "R-PRM-01"]
 
 
-def test_all_9_rules_load_with_the_4_fields():
+def test_all_14_rules_load_with_the_4_fields():
     rules = load_policies()
     assert [r["id"] for r in rules] == EXPECTED_IDS
     for r in rules:

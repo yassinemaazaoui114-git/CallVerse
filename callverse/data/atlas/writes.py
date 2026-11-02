@@ -349,3 +349,162 @@ def admin_decide(admin: str, proposal_id: str, approve: bool, reason: str = "", 
         return _refuse(function, args, f"nothing was written: {type(e).__name__}: {e}")
     return _done(function, args, {"proposal_id": str(proposal_id), "decision": decision, "refund": refund,
                                   "compensation": compensation, "booking_status": status, "log": log})
+
+
+# ---------------------------------------------------------------------------
+# P20: Agent C (Urgent & Special Help) at Atlas. Called ONLY by callverse/coordinator/atlas_special.py after its
+# checks. Same safety nets: an approved proposal of the same action on the same booking, same params, used once.
+# ---------------------------------------------------------------------------
+
+REBOOKINGS_TABLE = """
+CREATE TABLE IF NOT EXISTS rebookings (    -- P20: a cancelled flight booking moved to a new flight (rule AT-FLT-01)
+    id                INTEGER PRIMARY KEY,
+    flight_booking_id INTEGER NOT NULL REFERENCES flight_bookings(id),
+    old_flight_id     INTEGER NOT NULL REFERENCES flights(id),
+    new_flight_id     INTEGER NOT NULL REFERENCES flights(id),
+    proposal_id       TEXT NOT NULL,
+    created_at        TEXT NOT NULL
+);"""
+
+
+def ensure_c_tables(con) -> None:
+    """Create Agent C's table if this atlas.db does not have it yet (no rebuild needed)."""
+    con.executescript(REBOOKINGS_TABLE)
+
+
+def rebook_flight(booking_id: int, new_flight_id: int, proposal_id: str) -> dict:
+    """AT-FLT-01: move a cancelled flight booking to the new flight the client said yes to. One transaction: the booking
+    gets the new flight and status "confirmed", and a rebookings row keeps the old flight. Returns the rebookings row."""
+    function, args = "atlas.rebook_flight", {"booking_id": booking_id, "new_flight_id": new_flight_id,
+                                             "proposal_id": proposal_id}
+    with closing(connect()) as con:
+        ensure_c_tables(con)
+        con.execute("BEGIN IMMEDIATE")
+        proposal, reason = _approved_proposal(con, proposal_id, "rebook", "flight", booking_id)
+        if not reason and proposal["params"].get("new_flight_id") != new_flight_id:
+            reason = f"safety net: flight {new_flight_id} is not the approved flight of proposal {proposal_id}"
+        if reason:
+            return _refuse(function, args, reason)
+        if con.execute("SELECT 1 FROM rebookings WHERE proposal_id = ? OR flight_booking_id = ?",
+                       (str(proposal_id), booking_id)).fetchone():
+            return _refuse(function, args, f"safety net: booking {booking_id} was already rebooked")
+        booking = con.execute("SELECT flight_id FROM flight_bookings WHERE id = ?", (booking_id,)).fetchone()
+        con.execute("UPDATE flight_bookings SET flight_id = ?, status = 'confirmed', notice_days = NULL WHERE id = ?",
+                    (new_flight_id, booking_id))
+        cur = con.execute("INSERT INTO rebookings (flight_booking_id, old_flight_id, new_flight_id, proposal_id,"
+                          " created_at) VALUES (?, ?, ?, ?, ?)",
+                          (booking_id, booking["flight_id"], new_flight_id, str(proposal_id), sim_today().isoformat()))
+        row = dict(con.execute("SELECT * FROM rebookings WHERE id = ?", (cur.lastrowid,)).fetchone())
+        con.commit()
+    return _done(function, args, row)
+
+
+def request_assistance(booking_id: int, kind: str, proposal_id: str) -> dict:
+    """AT-AST-01: a special assistance request (e.g. a wheelchair) for a flight booking, status "requested".
+    Only after the client's explicit yes (mobility needs are sensitive). One request of a kind per booking."""
+    function, args = "atlas.request_assistance", {"booking_id": booking_id, "kind": kind, "proposal_id": proposal_id}
+    with closing(connect()) as con:
+        con.execute("BEGIN IMMEDIATE")
+        proposal, reason = _approved_proposal(con, proposal_id, "assistance", "flight", booking_id)
+        if not reason and proposal["params"].get("kind") != kind:
+            reason = f"safety net: '{kind}' is not the approved kind of proposal {proposal_id}"
+        if reason:
+            return _refuse(function, args, reason)
+        if con.execute("SELECT 1 FROM assistance_requests WHERE flight_booking_id = ? AND kind = ?",
+                       (booking_id, kind)).fetchone():
+            return _refuse(function, args, f"a {kind} is already requested for booking {booking_id}")
+        cur = con.execute("INSERT INTO assistance_requests (flight_booking_id, kind, status, created_at, source,"
+                          " ai_generated, scripted) VALUES (?, ?, 'requested', ?, NULL, 0, 0)",
+                          (booking_id, kind, sim_today().isoformat()))
+        row = dict(con.execute("SELECT * FROM assistance_requests WHERE id = ?", (cur.lastrowid,)).fetchone())
+        con.commit()
+    return _done(function, args, row)
+
+
+# ---------------------------------------------------------------------------
+# P20: Agent D (Availability & Supply) at Atlas: a DEAL for a hotel's empty nights (rule AT-DEAL-01). Pending until
+# the OWNER decides (Approvals page, Deals part). Called by atlas_special.py (pending row) and by the owner's decision.
+# ---------------------------------------------------------------------------
+
+HOTEL_DEALS_TABLE = """
+CREATE TABLE IF NOT EXISTS hotel_deals (   -- P20: Agent D's deal proposal for a hotel's low-occupancy nights
+    id           INTEGER PRIMARY KEY,
+    hotel_id     INTEGER NOT NULL REFERENCES hotels(id),
+    nights       TEXT NOT NULL,          -- JSON list of ISO dates the deal is for
+    discount_pct REAL NOT NULL,
+    status       TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'refused')),
+    note         TEXT,
+    proposal_id  TEXT NOT NULL,
+    decided_by   TEXT,
+    decided_at   TEXT,
+    reason       TEXT,
+    created_at   TEXT NOT NULL
+);"""
+
+
+def create_hotel_deal(hotel_id: int, nights: list, discount_pct: float, note: str, proposal_id: str) -> dict:
+    """A PENDING deal for the owner. The proposal must be an undecided "hotel_deal" for this hotel and discount;
+    one open deal per hotel. Changes no price."""
+    function, args = "atlas.create_hotel_deal", {"hotel_id": hotel_id, "discount_pct": discount_pct,
+                                                 "proposal_id": proposal_id}
+    with closing(connect()) as con:
+        con.executescript(HOTEL_DEALS_TABLE)
+        row = con.execute("SELECT * FROM proposals WHERE id = ?", (str(proposal_id),)).fetchone()
+        if row is None or row["action"] != "hotel_deal" or row["decision"] is not None:
+            return _refuse(function, args, f"safety net: proposal {proposal_id} is not an undecided hotel deal")
+        params = json.loads(row["params"])
+        if params.get("hotel_id") != hotel_id or params.get("discount_pct") != discount_pct:
+            return _refuse(function, args, f"safety net: hotel / discount do not match proposal {proposal_id}")
+        if con.execute("SELECT 1 FROM hotel_deals WHERE proposal_id = ? OR (hotel_id = ? AND status != 'refused')",
+                       (str(proposal_id), hotel_id)).fetchone():
+            return _refuse(function, args, f"hotel {hotel_id} already has an open deal")
+        cur = con.execute("INSERT INTO hotel_deals (hotel_id, nights, discount_pct, status, note, proposal_id, created_at)"
+                          " VALUES (?, ?, ?, 'pending', ?, ?, ?)",
+                          (hotel_id, json.dumps(nights), discount_pct, note, str(proposal_id), sim_today().isoformat()))
+        out = dict(con.execute("SELECT * FROM hotel_deals WHERE id = ?", (cur.lastrowid,)).fetchone())
+        con.commit()
+    return _done(function, args, out)
+
+
+def hotel_deals(status: str | None = None) -> list[dict]:
+    """The deals (all, or one status), with the hotel's name. A read."""
+    with closing(connect()) as con:
+        con.executescript(HOTEL_DEALS_TABLE)
+        sql = "SELECT d.*, h.name AS hotel_name FROM hotel_deals d JOIN hotels h ON h.id = d.hotel_id"
+        rows = (con.execute(sql + " WHERE d.status = ? ORDER BY d.id", (status,)) if status
+                else con.execute(sql + " ORDER BY d.status != 'pending', d.id DESC")).fetchall()
+    return [{**dict(r), "nights": json.loads(r["nights"])} for r in rows]
+
+
+def admin_decide_deal(admin: str, deal_id: int, approve: bool, reason: str = "") -> dict:
+    """The owner's decision on a pending deal, ONE transaction: proposal decision ("approve", or "layer3" = refused by
+    the owner) + the deal's status + the admin_actions row. Refuse needs a reason. No price changes."""
+    function, args = "atlas.admin_decide_deal", {"admin": admin, "deal_id": deal_id, "approve": approve, "reason": reason}
+    reason = (reason or "").strip()
+    if not isinstance(admin, str) or not admin.strip():
+        return _refuse(function, args, "admin username required")
+    if not approve and not reason:
+        return _refuse(function, args, "a reason is required to refuse")
+    status, decision = ("approved", "approve") if approve else ("refused", "layer3")
+    try:
+        with closing(connect()) as con:
+            con.executescript(HOTEL_DEALS_TABLE)
+            con.execute("BEGIN IMMEDIATE")
+            before = con.execute("SELECT * FROM hotel_deals WHERE id = ?", (int(deal_id),)).fetchone()
+            if before is None:
+                return _refuse(function, args, f"deal {deal_id} not found")
+            before = dict(before)
+            if before["status"] != "pending":
+                return _refuse(function, args, f"deal {deal_id} is already {before['status']}")
+            con.execute("UPDATE proposals SET decision = ?, decision_reason = ?, decided_at = ? WHERE id = ?"
+                        " AND decision IS NULL",
+                        (decision, f"AT-DEAL-01: {status} by the owner ({admin})", sim_today().isoformat(),
+                         before["proposal_id"]))
+            con.execute("UPDATE hotel_deals SET status = ?, decided_by = ?, decided_at = ?, reason = ? WHERE id = ?",
+                        (status, admin, sim_today().isoformat(), reason or None, int(deal_id)))
+            after = dict(con.execute("SELECT * FROM hotel_deals WHERE id = ?", (int(deal_id),)).fetchone())
+            _log_action(con, admin, f"{'approve' if approve else 'refuse'}_deal", "hotel_deals", deal_id, before, after)
+            con.commit()
+    except Exception as e:
+        return _refuse(function, args, f"nothing was written: {type(e).__name__}: {e}")
+    return _done(function, args, after)

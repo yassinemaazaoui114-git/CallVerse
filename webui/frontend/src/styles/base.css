@@ -1,0 +1,151 @@
+/* Base styles + the shared component classes. Every value comes from tokens.css. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { color-scheme: dark; }
+
+body {
+  margin: 0;
+  background: var(--cv-bg);
+  color: var(--cv-text);
+  font-family: var(--cv-font-body);
+  font-size: var(--cv-text-md);
+  line-height: var(--cv-line);
+  -webkit-font-smoothing: antialiased;
+  text-size-adjust: 100%;
+}
+
+h1, h2, h3 {
+  font-family: var(--cv-font-heading);
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+h1 { font-size: var(--cv-text-xl); }
+h2 { font-size: var(--cv-text-lg); }
+h3 { font-size: var(--cv-text-md); }
+@media (min-width: 768px) { h1 { font-size: var(--cv-text-2xl); } }
+
+p { margin: 0; }
+a { color: var(--cv-primary); text-underline-offset: 3px; }
+code, .mono { font-family: var(--cv-font-mono); font-size: 0.92em; }
+
+/* one visible focus style for everything (keyboard users) */
+:focus-visible {
+  outline: 2px solid var(--cv-primary);
+  outline-offset: 2px;
+  border-radius: var(--cv-radius-control);
+}
+:focus:not(:focus-visible) { outline: none; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute; left: var(--cv-s4); top: -100px;
+  background: var(--cv-primary); color: var(--cv-on-primary);
+  padding: var(--cv-s2) var(--cv-s4); border-radius: var(--cv-radius-control); z-index: var(--cv-z-toast);
+  font-weight: 600; text-decoration: none;
+}
+.skip-link:focus { top: var(--cv-s4); }
+
+/* ---------- controls ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--cv-s2);
+  min-height: var(--cv-control-h); padding: 0 var(--cv-s4);
+  border-radius: var(--cv-radius-control); border: 1px solid var(--cv-border);
+  background: var(--cv-panel-2); color: var(--cv-text);
+  font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
+  transition: background-color var(--cv-motion) var(--cv-ease), border-color var(--cv-motion) var(--cv-ease);
+  touch-action: manipulation;
+}
+.btn:hover { border-color: var(--cv-muted); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background: var(--cv-primary); color: var(--cv-on-primary); border-color: var(--cv-primary); }
+.btn-primary:hover { filter: brightness(1.08); border-color: var(--cv-primary); }
+.btn-ghost { background: transparent; border-color: transparent; }
+.btn-ghost:hover { background: var(--cv-panel-2); border-color: transparent; }
+.btn-sm { min-height: 32px; padding: 0 var(--cv-s3); font-size: var(--cv-text-sm); }
+
+.field { display: flex; flex-direction: column; gap: var(--cv-s1); }
+.field > label { font-size: var(--cv-text-sm); font-weight: 600; color: var(--cv-muted); }
+.input, .select {
+  min-height: var(--cv-control-h); width: 100%;
+  padding: 0 var(--cv-s3);
+  border-radius: var(--cv-radius-control); border: 1px solid var(--cv-border);
+  background: var(--cv-bg); color: var(--cv-text); font: inherit;
+  transition: border-color var(--cv-motion) var(--cv-ease);
+}
+.input:hover, .select:hover { border-color: var(--cv-muted); }
+.select { cursor: pointer; }
+
+/* ---------- panels, badges, alerts ---------- */
+.panel {
+  background: var(--cv-panel); border: 1px solid var(--cv-border);
+  border-radius: var(--cv-radius-panel); padding: var(--cv-s4);
+}
+.panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--cv-s3); flex-wrap: wrap; margin-bottom: var(--cv-s3); }
+
+.badge {
+  display: inline-flex; align-items: center; gap: var(--cv-s1);
+  padding: 2px var(--cv-s2); border-radius: 999px;
+  background: var(--cv-primary-soft); color: var(--cv-primary-text);
+  font-size: var(--cv-text-xs); font-weight: 600; white-space: nowrap;
+}
+.badge-neutral { background: var(--cv-info-soft); color: var(--cv-text); }
+.badge-warn { background: #3b2f0b; color: var(--cv-warn); }
+.badge-danger { background: var(--cv-danger-soft); color: var(--cv-danger); }
+.badge-ok { background: #0f3b23; color: var(--cv-ok); }
+
+.alert {
+  display: flex; gap: var(--cv-s3); align-items: flex-start;
+  padding: var(--cv-s3) var(--cv-s4); border-radius: var(--cv-radius-control);
+  border: 1px solid var(--cv-border); background: var(--cv-info-soft); color: var(--cv-text);
+}
+.alert svg { flex: none; margin-top: 2px; }
+.alert-danger { border-color: var(--cv-danger); background: var(--cv-danger-soft); }
+.alert-warn { border-color: var(--cv-warn); }
+.alert .actions { margin-left: auto; }
+
+.muted { color: var(--cv-muted); }
+.small { font-size: var(--cv-text-sm); }
+.xs { font-size: var(--cv-text-xs); }
+.stack { display: flex; flex-direction: column; gap: var(--cv-s3); }
+.row { display: flex; align-items: center; gap: var(--cv-s2); flex-wrap: wrap; }
+.tabular { font-variant-numeric: tabular-nums; }
+.wrap-any { overflow-wrap: anywhere; }
+
+/* the "empty / loading" block used by every screen */
+.state-block {
+  padding: var(--cv-s6) var(--cv-s4); text-align: center; color: var(--cv-muted);
+  display: flex; flex-direction: column; align-items: center; gap: var(--cv-s3);
+}
+
+.spinner {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--cv-border); border-top-color: var(--cv-primary);
+  animation: cv-spin 0.8s linear infinite;
+}
+@keyframes cv-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; border-top-color: var(--cv-primary); }
+  * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+
+details.disclosure { border: 1px solid var(--cv-border); border-radius: var(--cv-radius-control); background: var(--cv-bg); }
+details.disclosure > summary {
+  cursor: pointer; padding: var(--cv-s2) var(--cv-s3); font-size: var(--cv-text-sm); font-weight: 600;
+  color: var(--cv-muted); list-style: none; display: flex; align-items: center; gap: var(--cv-s2);
+  border-radius: var(--cv-radius-control);
+}
+details.disclosure > summary::-webkit-details-marker { display: none; }
+details.disclosure > summary .chev { transition: transform var(--cv-motion) var(--cv-ease); }
+details.disclosure[open] > summary .chev { transform: rotate(90deg); }
+details.disclosure > .disclosure-body { padding: 0 var(--cv-s3) var(--cv-s3); }
+pre.raw {
+  margin: 0; padding: var(--cv-s3); overflow: auto; max-height: 360px;
+  background: var(--cv-bg); border-radius: var(--cv-radius-control); border: 1px solid var(--cv-border);
+  font-size: var(--cv-text-xs); line-height: 1.45; color: var(--cv-text);
+}
