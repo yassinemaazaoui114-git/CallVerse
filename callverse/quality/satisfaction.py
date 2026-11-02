@@ -19,7 +19,7 @@ MODEL_DIR = Path(__file__).resolve().parents[2] / "models" / "agent_f"
 TEXT_MODEL = MODEL_DIR / "satisfaction.pkl"
 STACKER = MODEL_DIR / "stacker.pkl"  # promoted model ONLY; trainer writes stacker_candidate.pkl
 DELAY_TABLE = [(0, 4.22), (2, 3.07), (5, 2.5), (10, 1.57), (10_000, 1.4)]
-STYLES = ["short", "apology_first", "apology_next_step"]
+STYLES = ["short", "warm", "warm_next_step"]
 EMOTIONS = ["anger", "disgust", "fear", "joy", "neutral", "sadness", "surprise"]
 
 
@@ -82,7 +82,7 @@ def features(record: dict, model=None) -> list[float]:
     """Fixed schema: text, delay, missing flag, style, emotion, style x emotion, reply features (v3, 44 dims).
 
     The interaction features matter: additive style and emotion terms alone cannot
-    express that apology_first may help an angry customer but not a neutral one.
+    express that the warm style may help an angry customer but not a neutral one.
     This function is used *identically* in training and serving.
     """
     sit = record.get("situation") or {}

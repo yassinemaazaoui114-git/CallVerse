@@ -39,7 +39,7 @@ def test_stacker_uses_style():
     X = [F.features(rec("ok fine", 0, s), MODEL) for s in F.STYLES]
     st = Ridge().fit(X, [2.0, 4.0, 3.0])
     a = F.predict_satisfaction(rec("ok fine", 0, "short"), model=MODEL, stacker=st)["score"]
-    b = F.predict_satisfaction(rec("ok fine", 0, "apology_first"), model=MODEL, stacker=st)["score"]
+    b = F.predict_satisfaction(rec("ok fine", 0, "warm"), model=MODEL, stacker=st)["score"]
     assert a < b
 
 

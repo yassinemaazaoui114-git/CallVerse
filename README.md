@@ -163,7 +163,8 @@ callverse/          the code
   tools/              read tools, proposal tools, per-agent allow-lists (registry.py)
   kb/                 ShopNova's policies and the policy search (RAG); Atlas Travel's rules (policies_atlas.json)
   coordinator/        the Coordinator (rules); Atlas Travel's gate (atlas_coordinator.py: amounts by code)
-  slm/                the reply writer, its rule check and templates
+  slm/                the reply writer, its rule check, templates and reply styles (reply_styles.py)
+  learning/           RL pieces: the situation features of a reply (situation.py)
   notifier/           delivery notifications (story S3)
   data/               ShopNova data: seed, read views, the ONLY write functions (writes.py), clock, Layer 3
     atlas/            Atlas Travel data: schema, seed, database access, read functions, its write functions,
@@ -301,6 +302,18 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   rules of the ticket's booking type first (flight: AT-FLT / AT-AST / AT-REF / AT-ESC; hotel: AT-HOT / AT-REF / AT-ESC);
   the booking type comes from Intake's look-up through the registry, never from the model (the tool schema is
   unchanged). Tests: `tests/test_t14f.py`. Report: `tasks/T14f_report.md`.
+- **RL1 / RL1b / RL1c** Reply styles for the writer (`callverse/slm/reply_styles.py`; default none = unchanged). RL1b: `short` =
+  greeting + the decision only; `warm` = greeting + ONE empathy sentence written by the SLM about the client's problem (no
+  number, date, promise or decision: own small check, else retry / template) + the decision; `warm_next_step` = `warm` + one
+  closing line chosen by code from the outcome (approved list). The greeting ("Dear customer," formal, else "Hello,") is by
+  code, the same for all 3 styles. The decision, `must_say` and the rule check stay the same; each style has its own template. Set it with
+  `decision["reply_style"]`, the env var `CALLVERSE_REPLY_STYLE` or `slm.reply_style` in `config.yaml`. New
+  `callverse/learning/situation.py` (`situation(ticket, decision)`, the RL spec fields). Rating sheet for the team (27 real
+  situations x 3 styles, local SLM only; RL1b: without h03 / h12, with p04 / p06; RL1c: without h08 / a07 / p08):
+  `python -m scripts.make_rl1_rating_sheet` -> `out/rl1_rating_sheet.csv` (+ key, samples, stats). RL1c: a word like
+  "team," / "guys," left after the greeting is removed; an empathy sentence that copies the prompt's example fails (retry /
+  template); rows where two styles wrote the same text show only the distinct replies (`n_replies` column, the key lists
+  every style per letter). Reports: `tasks/RL1_report.md`, `tasks/RL1b_report.md`, `tasks/RL1c_report.md`.
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,

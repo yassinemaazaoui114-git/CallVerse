@@ -27,6 +27,10 @@ number is where the Coordinator's sentences have it); it sees only the facts the
 "write in <language>" line for a client who does not write English; and layer3_pending has its own guide.
 
 T14c: the off-topic redirect (both companies) is a fixed text, with no SLM call; Atlas declines get their own guide.
+
+RL1 / RL1b: a reply style (reply_styles.py: short / warm / warm_next_step) changes the wording only. With a style set,
+the greeting and the closing line are written by code (finish_styled), the model writes the decision text and, for the
+warm styles, one empathy sentence first, which has its own small check. No style = everything above, unchanged.
 """
 
 import json
@@ -34,7 +38,7 @@ import re
 import time
 
 from callverse import companies, llm, trace
-from callverse.slm import templates
+from callverse.slm import reply_styles, templates
 from callverse.slm.check import check_reply
 from callverse.slm.templates import case_word, decision_opener, is_upset
 
@@ -131,6 +135,14 @@ def style_guide(style: dict | None, order_first: bool = True, calm: bool = True)
     return f"Tone: {tone} Length: {size}"
 
 
+def styled_guide(decision: dict, name: str) -> str:
+    """RL1b: the tone and style lines for a reply style. The tone word follows the client (formal / casual / neutral);
+    the greeting is added by code, so the model is told not to write one (reply_styles.prompt_for)."""
+    tone = {"formal": "Formal and polite, no slang.", "casual": "Friendly and relaxed, simple words, still respectful."
+            }.get((decision.get("style") or {}).get("formality"), "Neutral and polite.")
+    return f"Tone: {tone} {reply_styles.prompt_for(name)}"
+
+
 LANGUAGE_NAMES = {"fr": "French", "es": "Spanish", "it": "Italian", "de": "German", "ar": "Arabic"}
 
 
@@ -191,8 +203,10 @@ def build_messages(decision: dict, history: list[dict] | None = None, problems: 
                  else decision.get("outcome"))
     if guide_key == "decline" and not is_shopnova(decision):
         guide_key = "decline_atlas"   # T14c
+    name = reply_styles.of(decision)
     content = [OUTCOME_GUIDE.get(guide_key, OUTCOME_GUIDE["info"]),
                "What you may say (nothing else):\n" + json.dumps(allowed, ensure_ascii=False, indent=1),
+               styled_guide(decision, name) if name else
                style_guide(decision.get("style"), order_first=not is_shopnova(decision),
                            calm=decision_opener(decision) is not None)]
     if language_name(decision):
@@ -212,7 +226,10 @@ def build_messages(decision: dict, history: list[dict] | None = None, problems: 
     if problems:
         content.append("Your previous reply was rejected because: " + "; ".join(problems)
                        + ". Write a new reply that fixes these problems.")
-    content.append("Write the reply now.")
+    if name and reply_styles.REPLY_STYLES[name]["empathy"]:
+        content.append(reply_styles.EMPATHY_LAST_LINE)   # RL1b: the small model follows the last line best
+    else:
+        content.append("Write the reply now.")
     return [{"role": "system", "content": system_prompt(decision)}, {"role": "user", "content": "\n\n".join(content)}]
 
 
@@ -420,11 +437,135 @@ def polish(reply: str, decision: dict) -> str:
 
 def finish(raw: str | None, decision: dict) -> str:
     """Model text -> final reply: clean-up, then the parts written by code (calm opener, order reference,
-    T08 fixes: punctuation, must_say once, formal greeting)."""
+    T08 fixes: punctuation, must_say once, formal greeting). With a reply style: finish_styled (RL1b)."""
+    name = reply_styles.of(decision)
+    if name:
+        return finish_styled(raw, decision, name)
     reply = drop_repeated_sentences(clean(raw))
     reply = must_say_once(fix_punctuation(reply), decision) if reply else reply
     reply = ensure_order_reference(add_calm_opener(reply, decision), decision)
     return add_formal_greeting(reply, decision)
+
+
+# --- RL1b: replies with a reply style ------------------------------------------------------------------------
+
+# RL1b: words of a sentence about feelings (an apology or empathy), not about the decision.
+FEELING_WORDS = APOLOGY_WORDS + ("stress", "upset", "annoy", "worr", "disappoint", "difficult", "hard to", "hard when",
+                                 "unpleasant", "feel", "concern", "patience", "thank", "hear that", "imagine", "wait")
+
+
+def _is_feeling_sentence(sentence: str, decision: dict) -> bool:
+    """A sentence with an apology / feeling word that carries none of the decision (no order number, no must_say,
+    not the next step)."""
+    low = sentence.lower()
+    keep = ([str(decision.get("order_id") or "\0")] + [str(x).lower() for x in decision.get("must_say") or []]
+            + [str(decision.get("next_step") or "\0").lower()])
+    return any(w in low for w in FEELING_WORDS) and not any(k in low for k in keep)
+
+
+# The model's own greeting, also "Hello there," (styled replies only; the default path keeps GREETING_RE as it was).
+STYLED_GREETING_RE = re.compile(
+    r"^\s*(?:(?:hi|hello|hey|dear (?:customer|client|sir|madam|valued customer))(?:\s+there)?\b[,!.]?\s*)+", re.IGNORECASE)
+# RL1c: a word that speaks to someone, left at the start after the greeting ("Dear customer, team, ...",
+# "Hello, guys, ...", "Hello team, ..."). The greeting is by code, so the model's text must start with a real sentence.
+# Only these words followed by a comma (or ! . :) are removed: "Unfortunately, ..." or "Sure, ..." stay.
+LEFTOVER_VOCATIVE_RE = re.compile(
+    r"^\s*(?:(?:dear|hi|hello|hey)\s+)?(?:(?:the|our|shopnova|atlas|atlas travel|support|customer service)\s+)?"
+    r"(?:team|guys|folks|all|everyone|everybody|sir|madam|ma'am|friend|friends|there|mate|customer|client|"
+    r"valued customer|support)\s*[,!.:]\s*", re.IGNORECASE)
+
+
+def drop_leftover_vocative(text: str) -> str:
+    """Remove words like "team," / "guys," / "sir," at the start of the text (several in a row too)."""
+    while (m := LEFTOVER_VOCATIVE_RE.match(text)) and m.end() < len(text):
+        text = text[m.end():]
+    return text
+
+
+CONTENT_WORD_RE = re.compile(r"[a-z]{4,}")
+
+
+def _about_decision(sentence: str, decision: dict) -> bool:
+    """A sentence of the decision: it has a must_say sentence, or at least 3/4 of its words (4+ letters) come from the
+    decision's own text (must_say, next step, facts). The order number alone is not enough: the RL1b run had
+    "Your hotel booking 7008 is also cancelled." (an invented fact) next to the real sentence."""
+    low = " ".join(sentence.lower().split())
+    if any(" ".join(str(x).lower().split()) in low for x in decision.get("must_say") or [] if str(x).strip()):
+        return True
+    own = " ".join([str(decision.get("next_step") or "")] + [str(x) for x in decision.get("must_say") or []]
+                   + [str(v) for v in (decision.get("facts") or {}).values()]).lower().replace("_", " ")
+    allowed = set(CONTENT_WORD_RE.findall(own))
+    words = CONTENT_WORD_RE.findall(low)
+    return bool(words) and sum(w in allowed for w in words) / len(words) >= 0.75
+
+
+def _is_bare_apology(sentence: str) -> bool:
+    """"I'm so sorry." / "We apologise!": a short apology that says nothing about the problem."""
+    return len(sentence.split()) <= 6 and re.search(r"sorry|apolog", sentence, re.IGNORECASE) is not None
+
+
+def split_styled(reply: str, decision: dict) -> tuple[str, str]:
+    """A styled reply without its greeting -> (empathy sentence, decision text). The empathy sentence is the first
+    sentence in the warm styles, "" in short. Used by the check in write_reply (styled_problems)."""
+    body = GREETING_RE.sub("", reply or "").strip()
+    name = reply_styles.of(decision)
+    if not name or not reply_styles.REPLY_STYLES[name]["empathy"]:
+        return "", body
+    sentences = [s for s in SENTENCE_SPLIT_RE.split(body) if s]
+    if not sentences:
+        return "", ""
+    return sentences[0], " ".join(sentences[1:])
+
+
+def finish_styled(raw: str | None, decision: dict, name: str) -> str:
+    """RL1b: model text -> final styled reply. The same clean-up as finish() (repeats, punctuation, must_say once), then:
+    - the model's greeting is removed; the style's greeting is put first (by code, the same for every style);
+    - warm styles: ONE feeling sentence of the model becomes the empathy sentence and goes first (the small model often
+      writes it after the decision); one about the problem is preferred to a bare "I'm so sorry." None = "" (the check
+      then fails: retry / template). The empathy sentence is checked in write_reply (styled_problems);
+    - the decision text keeps only sentences about the decision (must_say, the order number, or mostly the decision's
+      own words): other feeling sentences, filler ("let me know if you need further assistance") and words copied from
+      the client are removed. It only deletes or moves the model's sentences, it never writes new ones;
+    - Atlas: the booking number is added if missing; warm_next_step: the closing line of the outcome is put last."""
+    spec = reply_styles.REPLY_STYLES[name]
+    reply = drop_repeated_sentences(clean(raw))
+    reply = must_say_once(fix_punctuation(reply), decision) if reply else reply
+    body = drop_leftover_vocative(STYLED_GREETING_RE.sub("", reply).strip())   # RL1c: no "team," after the greeting
+    if not spec["empathy"]:
+        body = SORRY_PREFIX_RE.sub("", body).strip() or body   # short: "Sorry, order 4512 ..." -> "order 4512 ..."
+    sentences = [drop_leftover_vocative(s) for s in SENTENCE_SPLIT_RE.split(body) if s]
+    empathy = ""
+    if spec["empathy"]:
+        feelings = [s for s in sentences if _is_feeling_sentence(s, decision)]
+        about_problem = [s for s in feelings if not _is_bare_apology(s)]
+        empathy = (about_problem or feelings or [""])[0]
+    text = " ".join(s for s in sentences if s != empathy and _about_decision(s, decision))
+    order = decision.get("order_id")
+    if text and not is_shopnova(decision) and order is not None and str(order) not in text:
+        text = f"About your {case_word(decision)} {order}: {_lower_first_word(text)}"   # Atlas names its booking
+    if text and spec["closing"] and reply_styles.closing_line(decision):
+        text = reply_styles.put_last(text, reply_styles.closing_line(decision))
+    if empathy:
+        text = f"{empathy[:1].upper()}{empathy[1:]} {text[:1].upper()}{text[1:]}".strip()
+    if not text:
+        return ""   # nothing written: the check rejects the empty reply
+    return f"{reply_styles.greeting(decision)} {_lower_first_word(text)}"
+
+
+def styled_problems(reply: str, decision: dict) -> list[str]:
+    """RL1b: problems specific to the style, added to the rule check's problems (check.py is unchanged).
+    warm styles: the empathy sentence (reply_styles.empathy_problems) and a decision after it.
+    short: no apology outside the sentences to copy."""
+    name = reply_styles.of(decision)
+    if not name or not reply or templates.is_redirect(decision):
+        return []
+    empathy, body = split_styled(reply, decision)
+    if reply_styles.REPLY_STYLES[name]["empathy"]:
+        return reply_styles.empathy_problems(empathy, decision) + ([] if body else ["the decision is missing"])
+    approved = " ".join(str(x).lower() for x in decision.get("must_say") or [])
+    if re.search(r"sorry|apolog", reply, re.IGNORECASE) and not re.search(r"sorry|apolog", approved):
+        return ["this reply must have no apology"]
+    return []
 
 
 def warm_up(chat_fn=None) -> dict:
@@ -475,6 +616,9 @@ def write_reply(decision: dict, history: list[dict] | None = None, chat_fn=None)
                                       "order_id": decision.get("order_id"), "reply": reply, "error": error,
                                       "seconds": round(time.perf_counter() - call_start, 3)})
         check = check_reply(reply, decision)
+        extra = styled_problems(reply, decision)   # RL1b: empty when no reply style is set
+        if extra:
+            check = {"passed": False, "problems": check["problems"] + extra}
         trace.log("slm_check", "slm", {"attempt": attempt, **check})
         if check["passed"]:
             return {"reply": reply, "check": check, "attempts": attempt, "used_template": False,
