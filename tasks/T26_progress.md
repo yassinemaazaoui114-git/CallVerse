@@ -10,10 +10,10 @@ Branch: `feat/t26-demo-ready` (from main b5addd3). Started 2026-11-02.
 | 3 models + switches | done | agent_c = callverse-m2-v3 -> Groq 120b -> 20b -> Gemini; low-confidence routing OFF (step 4); layer2_agent_c ON (no fail traced to it so far) |
 | 4 regression check | done (2026-11-02 session 2) | 72-set: 70/72 as run, s02 re-run with switch OFF = PASS -> 71/72; h10 is held-out, NOT re-run (rule 9: open once). 0 wrong writes, 0 leaks, 0 Groq tokens. Bench fixed (**kwargs), 26 cases = 22/26 (A 8/8, B 5/7, C 5/7, D 4/4), 2 wrong proposals: B02 bench artifact (override on get_tracking, B now reads tracking via ask_agent), B06 model error (refund on unpaid COD 4514, Coordinator escalated, nothing written). Earlier notes: | 4 of 6 sets done: decline_practice 12/12, decline_heldout 11/12 (h10), t14b_practice 12/12, t14c_practice 11/12 (s02) = 46/48, 0 wrong writes seen. Both fails = P20 low-confidence routing to C -> switched OFF (null). Left: t14c_heldout, t14d_heldout, eval_agents 26 cases, and rerun h10 + s02 with the switch off. Script: out/t26_* names, same runners as T14f |
 | 5 merge rl1-styles | done | README conflict only, both kept; reply_style null (default unchanged); suite 1765/1765 |
-| 6 one-click start + reset | done (not yet run live) | scripts/start_demo.ps1, Demo.bat, scripts/reset_demo.ps1, shortcut |
-| 7 live demo flows | todo | |
-| 8 docs | todo | |
-| 9 report | todo | |
+| 6 one-click start + reset | done, run live once (exit 0, 7 s) | scripts/start_demo.ps1, Demo.bat, scripts/reset_demo.ps1, shortcut |
+| 7 live demo flows | done | F1-F5 + F7 pass, F6 safe escalation (no later flight in real data); 0 wrong writes | |
+| 8 docs | done | docs/DEMO_RUNBOOK.md (old runbook kept as appendix), README | |
+| 9 report | done | tasks/T26_report.md (copy in out/), suite 1767/1767 | |
 
 ## Notes for the next session
 - Step 7 driver (not in git): drive the REAL API with a temporary accounts file (password demo-only), real DBs,

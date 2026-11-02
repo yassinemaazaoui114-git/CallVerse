@@ -1,4 +1,54 @@
-# CallVerse — demo day runbook (Yassine's PC)
+# CallVerse demo runbook (T26)
+
+How to start, run and repeat the live demo with the new web UI and the real models.
+Every message below was run live on 2026-11-02 (T26 step 7) with `callverse-m2-v3` (agents A, B, C) and
+`qwen2.5:1.5b` (SLM, the reply writer), in queue mode, with 0 Groq tokens.
+
+## 1. Before the demo
+- Ollama is running, with `callverse-m2-v3` and `qwen2.5:1.5b` (the start script checks both).
+- `config/accounts.yaml` exists (if not: `python -m scripts.create_demo_accounts`; Yassine sets the passwords).
+- Close heavy apps: the PC has about 8 GB RAM and the local model needs about 3 GB.
+
+## 2. Start and reset
+- **Start**: double-click `Demo.bat` (or the "CallVerse Demo" Desktop shortcut). It checks Ollama, the models and the
+  accounts, opens two windows (API on http://127.0.0.1:8610, web UI on http://127.0.0.1:5173) and the browser.
+  Measured: ready in about 7 seconds. Close the two windows to stop.
+- **Reset** (to repeat the demo): close the two windows first, then run `scripts\reset_demo.ps1` and type `YES`.
+  It rebuilds the ShopNova and Atlas data and deletes all tickets, chats and approvals.
+- Reset between flows that use the same order (F1 and F5 both use order 4512).
+
+## 3. Demo flows, in order (exact messages)
+Log in as the customer, open the order or booking ("Ask about this order / booking"), type the message.
+
+| Flow | Account | Message | What happens (live result) | What to say |
+|---|---|---|---|---|
+| F1 | sara | `Hi, my order 4512 is very late. I want my money back please.` | Refund 59.90 TND approved by code, ticket **Solved** (38 s) | Agent B proposes, the Coordinator's rules approve; the model never writes to the database. |
+| F2 | youssef | `My order 4515 never arrived. I want a refund.` | 378.00 TND is above the limit: **Waiting for finance** (23 s). Then log in as `admin`, Approvals, Approve: refund written once, ticket Solved, reply sent | Big money waits for a human (Layer 3); the decision is one transaction. |
+| F3 | nizar | `My flight 7004 was very delayed. I want compensation.` | Compensation 839.50 TND waits (18 s); `atlas_admin` approves it | Same center, second company, its own rules. |
+| F4 | amira | `Hi, where is my order 4511?` | "Your order 4511 is being prepared." (9 s) | Agent A only reads; facts come from tools. |
+| F5 | sara (after a reset) | `Order 4512 is late and I need it tomorrow, it's a birthday gift!` then `Yes` | Agent C offers a free replacement and asks (25 s); after "Yes" the Coordinator approves: new order 12001 (22 s) | Agent C handles urgent needs; nothing changes before the client says yes. |
+| F6 | hedi | `My flight 7005 was cancelled. Please put me on the next flight.` | **Escalated** to a colleague (40 s) | Agent C looks for a later flight; the real 2015 schedule has none, so the Coordinator refuses C's proposal and passes the case on. Show this as a safety example. |
+| F7 | (owner) | Streamlit apps: ShopNova "Refund approvals" page, "Check now"; Atlas "Approvals" page, "Check now" | ShopNova: 42 short products, 3 promotions proposed (pending for the owner). Atlas: 2 low-occupancy hotels, 2 hotel deals proposed (pending) | Agent D is rules, not an LLM: the same numbers give the same answer. It only proposes; the owner decides. |
+
+F7 runs in the Streamlit apps (`ShopNova.bat`, `Atlas.bat`) because the new web UI has no Promotions / Hotel deals
+pages yet (task T27 adds them).
+
+## 4. Known limits (say them if asked)
+- A bare "Yes" re-asks, except when it answers Agent C's own question (F5).
+- The new web UI has no Promotions, Hotel deals or urgent-flag pages yet: T27 adds them. Use the Streamlit apps for D.
+- Agent D has no seats (flights): it checks hotel rooms only at Atlas.
+- F6 cannot complete a rebooking: the real flight data has no later flight on that route. Agent C still proposes a
+  flight that does not exist; the Coordinator catches it every time (no wrong write).
+- The C/D practice cases are Claude-written drafts and have no held-out set (P20).
+- Local models are slow on this PC (9-40 s per message). If Ollama is slow or stops, the backups are Groq models
+  (daily limits).
+
+---
+
+## Appendix: the older demo (T14d / T19, `/demo` page and stories S0-S4)
+Kept as it was before T26 (still valid as a backup if the new web UI does not start).
+
+### CallVerse — demo day runbook (Yassine's PC)
 
 > **T19 (2026-10-30): the `/demo` page is replaced by the CallVerse Console** (`Console.bat`, http://127.0.0.1:8502, see README). Its files will be removed after Dali's OK; until then this runbook still works as written.
 

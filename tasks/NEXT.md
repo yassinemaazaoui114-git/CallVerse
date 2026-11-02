@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T26_demo_ready.md (demo-ready platform: merge Dali's web UI, agents C and D (P20), RL1; one-click start + reset; live demo flows F1–F7 with the real models; demo runbook) |
 | Approved by | Yassine — 2026-11-02 08:04 (all ⭐; "don't forget agents C and D") |
 | Last done | T14f — merged into main (e449b38), 1429 tests pass on main |

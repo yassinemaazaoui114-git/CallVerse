@@ -62,6 +62,12 @@ python -m callverse.data.seed   # builds the ShopNova database (callverse/data/s
 
 ## Start the apps
 
+**Live demo with the new web UI (T26)**: start Ollama, then double-click `Demo.bat` (or the "CallVerse Demo" Desktop
+shortcut). It checks Ollama, `callverse-m2-v3`, `qwen2.5:1.5b` and `config/accounts.yaml`, opens the API
+(http://127.0.0.1:8610) and the web UI (http://127.0.0.1:5173) in two windows (queue mode, local models) and the browser.
+To repeat the demo from clean data: close the two windows, run `scriptseset_demo.ps1` and type `YES`.
+Accounts, exact messages and known limits: [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md).
+
 **ShopNova app** (the company's website, <http://127.0.0.1:8501>, this PC only). Start Ollama first, then:
 - **Desktop shortcut**: run `powershell -ExecutionPolicy Bypass -File .\scripts\make_desktop_shortcut.ps1` once, then
   double-click **ShopNova** on the Desktop. It runs `ShopNova.bat`, which checks Ollama (if it does not answer, the
@@ -314,6 +320,10 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   "team," / "guys," left after the greeting is removed; an empathy sentence that copies the prompt's example fails (retry /
   template); rows where two styles wrote the same text show only the distinct replies (`n_replies` column, the key lists
   every style per letter). Reports: `tasks/RL1_report.md`, `tasks/RL1b_report.md`, `tasks/RL1c_report.md`.
+- **T26** Demo-ready platform: merged Dali's web UI (`callverse-UI`), agents C and D (P20, `m2-finetuned`) and RL1
+  reply styles (default unchanged) on one branch; Agent C runs on `callverse-m2-v3` first (Groq backup); low-confidence
+  routing to C switched off (it caused 2 wrong outcomes). One-click `Demo.bat` + `scripts/reset_demo.ps1`. Live flows
+  F1-F7 run with the real models: [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md), report [tasks/T26_report.md](tasks/T26_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,
