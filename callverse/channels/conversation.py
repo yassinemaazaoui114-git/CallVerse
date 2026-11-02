@@ -182,14 +182,28 @@ def resume(question: dict, text: str, ticket_id: str, slm_chat_fn=None) -> dict:
 CUT_RE = re.compile(r"[.!?\n;]+\s*|,\s+|\s+(?:and also|and then|and|also|plus|but)\s+", re.IGNORECASE)
 
 
+def _exists(number: int, company: str) -> bool:
+    """True when the number is an order (ShopNova) or a booking (Atlas) in the company's data. A read only."""
+    if company == "atlas":
+        from callverse.data.atlas.reads import find_booking
+        return "error" not in find_booking(number)
+    from callverse.tools.shopnova_tools import get_order
+    return "error" not in get_order(number)
+
+
 def _ids(text: str, company: str) -> list[int]:
     """Every order / booking number in the text, in order, without repeats (amounts and dates are skipped, as in
-    Intake's extractor)."""
+    Intake's extractor). A number WITHOUT an order word before it ("order", "booking", "#", ...) counts only if it is
+    not a year (1900-2099: "May 2018 flights", found in the T28 regression, practice a05) and it exists in the data."""
+    context = extract.CONTEXT_WORDS.get(company, extract.ORDER_CONTEXT_RE)
     found = []
     for m in extract.ORDER_RE.finditer(text):
         if extract.CURRENCY_AFTER_RE.match(text[m.end():]):
             continue
         number = int(m.group(1))
+        announced = m.group(0).startswith("#") or bool(context.search(text[:m.start()]))
+        if not announced and (1900 <= number <= 2099 or not _exists(number, company)):
+            continue
         if number not in found:
             found.append(number)
     return found

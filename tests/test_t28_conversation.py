@@ -286,3 +286,11 @@ def test_draft_twcs_tweets_without_money_words_never_confirm_a_refund_by_yes(tex
 @pytest.mark.parametrize("text", DRAFT_TWCS_MONEY_WORDS)
 def test_draft_twcs_tweets_with_money_words_let_a_yes_confirm(text):
     assert yes_confirmation("refund", question_flags(text))[0]
+
+
+def test_a_year_or_an_unknown_number_is_not_a_second_request():
+    # T28 regression find (practice a05, real TWCS tweet): "May 2018" was read as a second booking.
+    assert conversation.split_requests("cxld confirmed May 2018 flights to Kos. Booking 7008.", "atlas") == []
+    assert conversation.split_requests("Refund order 4512, my code is 98765.", "shopnova") == []
+    parts = conversation.split_requests("Refund 4512 and where is 4509?", "shopnova")   # no order words, both exist
+    assert [p["order_id"] for p in parts] == [4512, 4509]

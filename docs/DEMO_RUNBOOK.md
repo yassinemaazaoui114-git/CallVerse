@@ -10,11 +10,14 @@ Every message below was run live on 2026-11-02 (T26 step 7) with `callverse-m2-v
 - Close heavy apps: the PC has about 8 GB RAM and the local model needs about 3 GB.
 
 ## 2. Start and reset
-- **Start**: double-click `Demo.bat` (or the "CallVerse Demo" Desktop shortcut). It checks Ollama, the models and the
-  accounts, opens two windows (API on http://127.0.0.1:8610, web UI on http://127.0.0.1:5173) and the browser.
-  Measured: ready in about 7 seconds. Close the two windows to stop.
-- **Reset** (to repeat the demo): close the two windows first, then run `scripts\reset_demo.ps1` and type `YES`.
-  It rebuilds the ShopNova and Atlas data and deletes all tickets, chats and approvals.
+- **Start**: double-click the **"CallVerse Demo"** shortcut on the Desktop (or `Demo.bat`). No command to type: it
+  starts Ollama if it is not running (T28), checks the models and the accounts, opens two windows (API on
+  http://127.0.0.1:8610, web UI on http://127.0.0.1:5173), waits until both answer and opens the login page.
+  Measured (T28): Ollama stopped → ready in 12 seconds. Close the two windows to stop.
+- **Reset** (to repeat the demo): close the two windows first, then double-click **"CallVerse Reset"** (or `Reset.bat`,
+  which runs `scripts\reset_demo.ps1`) and type `YES`. It rebuilds the ShopNova and Atlas data and deletes all
+  tickets, chats and approvals.
+- The two shortcuts are made (again) by `powershell -ExecutionPolicy Bypass -File .\scripts\make_shortcuts.ps1`.
 - Reset between flows that use the same order (F1 and F5 both use order 4512).
 
 ## 3. Demo flows, in order (exact messages)
@@ -36,7 +39,13 @@ order …"). A ticket Agent C passes to Agent B as an urgent refund shows the re
 detail, and first in the admin's Approvals).
 
 ## 4. Known limits (say them if asked)
-- A bare "Yes" re-asks, except when it answers Agent C's own question (F5).
+- T28: a bare "Yes" / "No" answers only the ONE open question of this chat (Agent B's "Please confirm …" or Agent C's
+  offer), for 30 minutes and only as the very next message. With nothing open, "Yes" goes the normal way (re-asked).
+  A refund confirmed by "Yes" still needs money-back words in the client's first message ("I want my money back").
+- F5b (the Urgent badge live, A → C → B) is not in this list: in T28, 7 candidate messages were run live and none took
+  that path (a message with money words goes straight to Agent B). The badge is shown by the vitest and unit tests.
+- T28: one decision per message. "Refund order 4512 and where is order 4509?" → the refund is handled, 4509 gets its
+  status in one sentence; a second money request gets "Please send your request about order N as a new message".
 - Agent D has no seats (flights): it checks hotel rooms only at Atlas.
 - F6 cannot complete a rebooking: the real flight data has no later flight on that route. Agent C still proposes a
   flight that does not exist; the Coordinator catches it every time (no wrong write).

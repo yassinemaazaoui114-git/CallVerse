@@ -59,6 +59,25 @@ SCENARIOS = [
     {"id": "U4", "what": "urgent candidate", "user_id": 1, "order_id": 4512,
      "messages": ["Urgent: order 4512 was for my daughter's birthday today and it never came. Please return my "
                   "money."]},
+    # Second try for step 9 (S1's B approved at once, so no "Please confirm" was asked): softer money words.
+    {"id": "P1", "what": "B may ask first, then a bare yes", "user_id": 1, "order_id": 4512,
+     "messages": ["Order 4512 is so late. Maybe I should just ask for my money back?", "yes"]},
+    {"id": "P3", "what": "B may ask first, then a bare yes", "user_id": 1, "order_id": 4512,
+     "messages": ["If order 4512 does not come this week, I would like my money back.", "yes"]},
+    # Third try for step 9: U5's text made B ask "Please confirm" live; then the bare yes.
+    {"id": "P5", "what": "B asks Please confirm, then a bare yes, then yes again", "user_id": 1, "order_id": 4512,
+     "messages": ["Order 4512 is late and I need it tomorrow for a birthday. If it can't arrive in time, I'd rather "
+                  "have the money returned to me.", "yes", "yes"]},
+    # Second try for step 7b: urgency first, softer money words, so Intake may route to A (then A -> C -> B).
+    {"id": "U5", "what": "urgent candidate", "user_id": 1, "order_id": 4512,
+     "messages": ["Order 4512 is late and I need it tomorrow for a birthday. If it can't arrive in time, I'd rather "
+                  "have the money returned to me."]},
+    {"id": "U6", "what": "urgent candidate", "user_id": 1, "order_id": 4512,
+     "messages": ["My order 4512 was supposed to be a birthday gift tomorrow and it is still stuck! It is urgent, "
+                  "please help me, otherwise I want it reimbursed."]},
+    {"id": "U7", "what": "urgent candidate", "user_id": 1, "order_id": 4512,
+     "messages": ["Order 4512 is late and I need it by tomorrow, it is urgent. No replacement please, money back "
+                  "instead."]},
 ]
 
 
