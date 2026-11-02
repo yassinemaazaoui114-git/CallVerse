@@ -264,3 +264,25 @@ def test_bare_yes_with_nothing_open_goes_the_normal_way():
     out = web_chat.send(1, "shopnova", "yes", chat_fn=any_text_llm)
     assert out["outcome"] != "approve" and refunded(4512) == 0
     assert not any(s["step"] == "memory" for s in store.steps(out["ticket_id"]))
+
+
+# ---------- T14f follow-up: TWCS-style tweets (Claude-written drafts in the style of real support tweets) ----------
+# Draft messages, written for this test only (not real tweets, not from a test set): a complaint without the client's
+# own money-back words must never let a bare "yes" confirm a refund.
+DRAFT_TWCS_NO_MONEY_WORDS = ["@ShopNova order 4512 still not here after a week. this is ridiculous",
+                             "hey my package 4512 is stuck at the depot since monday?? help",
+                             "@ShopNova worst delivery ever, order 4512, nobody answers",
+                             "no refund please, I just want my order 4512 to arrive"]
+DRAFT_TWCS_MONEY_WORDS = ["@ShopNova order 4512 never came. I want my money back",
+                          "can i get a refund for 4512 pls, it's a week late",
+                          "still no refund for order 4512 please help"]
+
+
+@pytest.mark.parametrize("text", DRAFT_TWCS_NO_MONEY_WORDS)
+def test_draft_twcs_tweets_without_money_words_never_confirm_a_refund_by_yes(text):
+    assert not yes_confirmation("refund", question_flags(text))[0]
+
+
+@pytest.mark.parametrize("text", DRAFT_TWCS_MONEY_WORDS)
+def test_draft_twcs_tweets_with_money_words_let_a_yes_confirm(text):
+    assert yes_confirmation("refund", question_flags(text))[0]

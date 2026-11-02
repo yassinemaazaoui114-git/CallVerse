@@ -28,6 +28,13 @@ function statusClass(status) {
 const STATUS_ICON = { approved: "check", refused: "x", pending: "clock" };
 const pct = (v) => (v === null || v === undefined ? "—" : `${Number(v).toLocaleString("en-US", { maximumFractionDigits: 1 })}%`);
 const num = (v) => (v === null || v === undefined ? "—" : Number(v).toLocaleString("en-US", { maximumFractionDigits: 1 }));
+// T28: the backend says 9999 days of cover when nothing was sold (stock_tools.NO_SALES_COVER): say it in words.
+const NO_SALES_COVER = 9999;
+const cover = (f) => {
+  if (!f || f.days_of_cover == null) return "—";
+  if (f.days_of_cover >= NO_SALES_COVER || f.units_sold_30d === 0) return "No sales in the last 30 days";
+  return `${num(f.days_of_cover)} days`;
+};
 
 // What differs between the two pages: words and which facts a card shows.
 const KINDS = {
@@ -40,7 +47,7 @@ const KINDS = {
       ["Product", `${p.product_name} (product ${p.product_id})${p.price != null ? ` · price ${tnd(p.price)}` : ""}`],
       ["Stock now", num(p.stock)],
       ["Sold in the last 30 days", num(p.facts && p.facts.units_sold_30d)],
-      ["Days of cover", p.facts && p.facts.days_of_cover != null ? `${num(p.facts.days_of_cover)} days` : "—"],
+      ["Days of cover", cover(p.facts)],
       ["Discount", pct(p.discount_pct)],
     ],
     confirmLine: (p) => `${num(p.discount_pct)}% on ${p.product_name}`,
