@@ -114,6 +114,9 @@ def agent_b_ready() -> bool:
     return ok
 
 
+PHOTO_STEP_TEXT = "Checking your photo…"   # T35b: said by the channel itself, before the photo model runs
+
+
 def live_text(record: dict) -> str | None:
     """The short text shown to the user while waiting for this trace line, or None (item 10)."""
     step, data = record["step"], record.get("data") or {}
@@ -235,23 +238,35 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn, imag
     records, shown = [], []
     extras: list[str] = []   # T28: sentences for the other requests of the message (one decision per message)
 
-    def listen(record):
-        records.append(record)
-        said = live_text(record)
+    def say(said):
         if said and on_step and said not in shown:   # F5: each text once per message
             shown.append(said)
             on_step(said)
 
-    def flush():
-        """Stop listening and save the trace lines heard so far as steps (in order). Safe to call twice."""
-        trace.remove_listener(listen)
+    def listen(record):
+        records.append(record)
+        say(live_text(record))
+
+    def save_heard():
+        """Save the trace lines heard so far as steps (in order), and keep listening."""
         while records:
             row = step_row(records.pop(0))
             if row:
                 store.add_step(tid, message_id, *row)
 
-    def channel_step(kind, data):
-        flush()   # the pipeline's steps first, so the steps stay in time order
+    def flush():
+        """Stop listening and save the trace lines heard so far as steps (in order). Safe to call twice."""
+        trace.remove_listener(listen)
+        save_heard()
+
+    def channel_step(kind, data, keep_listening=False):
+        """Save a channel step after the pipeline's steps heard so far (time order). Most channel steps come at the
+        end of a message, so listening stops here. keep_listening=True is for a step that comes BEFORE the pipeline
+        (the photo check, T35b): stopping there hid every live step and saved step of a photo message."""
+        if keep_listening:
+            save_heard()
+        else:
+            flush()
         store.add_step(tid, message_id, kind, "channel", data)
 
     def finish(reply, status, outcome, source, **fields):
@@ -368,11 +383,14 @@ def _send(user_id, company, text, ticket_id, on_step, chat_fn, slm_chat_fn, imag
     try:
         intake_ticket = None
         # 2b. Vision: the photo is checked on its own (visual evidence only), before and apart from the text.
+        # No trace line comes before the photo model has loaded (~25 s the first time), so the channel says it here.
+        if image is not None:
+            say(PHOTO_STEP_TEXT)
         photo, file_error = check_photo(image)
         if image is not None:
             channel_step("photo_check", {"file_error": file_error,
                                          **({k: photo[k] for k in ("checked", "error", "assessment", "backend")}
-                                            if photo else {})})
+                                            if photo else {})}, keep_listening=True)
         if file_error and not has_text:
             return finish(PHOTO_ERROR_REPLY, "Waiting for user", "photo_invalid", "channel")
         if photo and photo["error"] == "vision_unavailable" and not has_text:

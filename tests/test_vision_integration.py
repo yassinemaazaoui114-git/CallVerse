@@ -223,6 +223,30 @@ def test_damaged_phone_photo_is_the_proof_and_the_coordinator_approves(dmg_rule)
     assert msgs[0]["text"].endswith("[Photo attached]")                       # the photo bytes are never stored
 
 
+def test_photo_message_keeps_live_steps_and_saves_the_pipeline_steps(dmg_rule):
+    """T35b: the photo_check step used to stop the step listener before the pipeline ran, so a photo message showed
+    no live steps and saved only photo_check. Now the pipeline's steps are live AND saved, after photo_check."""
+    from callverse import trace
+    fake_vision(answer("cracked_screen"))
+    said = []
+    out = web_chat.send(1, "shopnova", "My phone from order 4509 arrived with a cracked screen, I want a refund.",
+                        chat_fn=damaged_refund_llm([]), image=photo_bytes(), on_step=said.append)
+    assert out["outcome"] == "approve", out
+    assert len(said) >= 2, said                                 # live texts while the pipeline ran
+    assert said[0] == web_chat.PHOTO_STEP_TEXT == "Checking your photo…"   # first, before the photo model runs
+    kinds = [s["step"] for s in store.steps(out["ticket_id"])]
+    assert "photo_check" in kinds and "route" in kinds and "coordinator" in kinds, kinds
+    assert kinds.index("photo_check") < kinds.index("route")   # time order kept
+    assert not trace._listeners                                 # listening stopped when the message ended
+
+
+def test_no_photo_no_photo_step_text(dmg_rule):
+    said = []
+    web_chat.send(1, "shopnova", "My phone from order 4509 arrived with a cracked screen, I want a refund.",
+                  chat_fn=damaged_refund_llm([]), on_step=said.append)
+    assert said and web_chat.PHOTO_STEP_TEXT not in said
+
+
 def test_same_request_without_photo_still_asks_for_one(dmg_rule):
     out = web_chat.send(1, "shopnova", "My phone from order 4509 arrived with a cracked screen, I want a refund.",
                         chat_fn=damaged_refund_llm([]))
