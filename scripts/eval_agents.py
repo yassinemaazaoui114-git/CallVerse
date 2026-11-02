@@ -68,8 +68,9 @@ def with_overrides(overrides: dict):
     """A run_tool that merges the case's fake fields into the real tool result (allow-list check still first)."""
     real_run_tool = registry.run_tool
 
-    def run_tool(agent, name, args, chat_fn=None, company="shopnova"):
-        result = real_run_tool(agent, name, args, chat_fn=chat_fn, company=company)
+    # **kwargs: extra keywords of the real run_tool (e.g. booking_type, added in T14f) pass through unchanged.
+    def run_tool(agent, name, args, chat_fn=None, company="shopnova", **kwargs):
+        result = real_run_tool(agent, name, args, chat_fn=chat_fn, company=company, **kwargs)
         if name in overrides and isinstance(result, dict) and "error" not in result:
             result = {**result, **overrides[name]}
         return result

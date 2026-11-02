@@ -65,3 +65,16 @@ def test_d_cases_pass_with_the_template_wording(tmp_path, monkeypatch):
         out = ev.run_case(case, tmp_path)
         assert out["pass"], (case["id"], out["fails"])
         assert out["notes_by_model"] == 0
+
+
+def test_override_wrapper_passes_extra_keywords(monkeypatch):
+    """T26: the real run_tool takes booking_type (T14f); the bench wrapper must pass it through, not crash."""
+    seen = {}
+
+    def fake_run_tool(agent, name, args, chat_fn=None, company="shopnova", **kwargs):
+        seen.update(kwargs)
+        return {"status": "ok"}
+    monkeypatch.setattr(ev.registry, "run_tool", fake_run_tool)
+    wrapped = ev.with_overrides({"get_order": {"status": "late"}})
+    out = wrapped("B", "get_order", {"order_id": 1}, company="atlas", booking_type="flight")
+    assert seen == {"booking_type": "flight"} and out == {"status": "late"}
