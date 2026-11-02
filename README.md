@@ -65,7 +65,8 @@ python -m callverse.data.seed   # builds the ShopNova database (callverse/data/s
 **Live demo with the new web UI (T26)**: start Ollama, then double-click `Demo.bat` (or the "CallVerse Demo" Desktop
 shortcut). It checks Ollama, `callverse-m2-v3`, `qwen2.5:1.5b` and `config/accounts.yaml`, opens the API
 (http://127.0.0.1:8610) and the web UI (http://127.0.0.1:5173) in two windows (queue mode, local models) and the browser.
-To repeat the demo from clean data: close the two windows, run `scriptseset_demo.ps1` and type `YES`.
+To repeat the demo from clean data: close the two windows, run `scripts
+eset_demo.ps1` and type `YES`.
 Accounts, exact messages and known limits: [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md).
 
 **ShopNova app** (the company's website, <http://127.0.0.1:8501>, this PC only). Start Ollama first, then:
@@ -324,6 +325,9 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   reply styles (default unchanged) on one branch; Agent C runs on `callverse-m2-v3` first (Groq backup); low-confidence
   routing to C switched off (it caused 2 wrong outcomes). One-click `Demo.bat` + `scripts/reset_demo.ps1`. Live flows
   F1-F7 run with the real models: [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md), report [tasks/T26_report.md](tasks/T26_report.md).
+- **T27** Missing web UI screens: Promotions (ShopNova admin) and Hotel deals (Atlas admin) with Approve / Refuse,
+  "Check now" on both admin dashboards (Agent D's scan), the Urgent badge, and Agent C/D's outcomes in Ticket detail.
+  Thin API wrappers of the existing functions only (`webui/api/owner.py`); report [tasks/T27_report.md](tasks/T27_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,

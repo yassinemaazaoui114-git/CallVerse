@@ -28,14 +28,15 @@ Log in as the customer, open the order or booking ("Ask about this order / booki
 | F4 | amira | `Hi, where is my order 4511?` | "Your order 4511 is being prepared." (9 s) | Agent A only reads; facts come from tools. |
 | F5 | sara (after a reset) | `Order 4512 is late and I need it tomorrow, it's a birthday gift!` then `Yes` | Agent C offers a free replacement and asks (25 s); after "Yes" the Coordinator approves: new order 12001 (22 s) | Agent C handles urgent needs; nothing changes before the client says yes. |
 | F6 | hedi | `My flight 7005 was cancelled. Please put me on the next flight.` | **Escalated** to a colleague (40 s) | Agent C looks for a later flight; the real 2015 schedule has none, so the Coordinator refuses C's proposal and passes the case on. Show this as a safety example. |
-| F7 | (owner) | Streamlit apps: ShopNova "Refund approvals" page, "Check now"; Atlas "Approvals" page, "Check now" | ShopNova: 42 short products, 3 promotions proposed (pending for the owner). Atlas: 2 low-occupancy hotels, 2 hotel deals proposed (pending) | Agent D is rules, not an LLM: the same numbers give the same answer. It only proposes; the owner decides. |
+| F7 | `admin`, then `atlas_admin` | Web UI: ShopNova admin → Dashboard → "Check stock now" → Promotions → approve one; Atlas admin → Dashboard → "Check rooms now" → Hotel deals → approve one | ShopNova: 42 short products, 3 promotions proposed (pending for the owner). Atlas: 2 low-occupancy hotels, 2 hotel deals proposed (pending) | Agent D is rules, not an LLM: the same numbers give the same answer. It only proposes; the owner decides. |
 
-F7 runs in the Streamlit apps (`ShopNova.bat`, `Atlas.bat`) because the new web UI has no Promotions / Hotel deals
-pages yet (task T27 adds them).
+F7 runs in the web UI since T27 (the Streamlit pages still work too). After F5, log in as `supervisor`: Live tickets
+shows the ticket; Ticket detail lists "What was done" (waiting for the user's yes, then "Replacement created: new
+order …"). A ticket Agent C passes to Agent B as an urgent refund shows the red "Urgent" badge (Live tickets, Ticket
+detail, and first in the admin's Approvals).
 
 ## 4. Known limits (say them if asked)
 - A bare "Yes" re-asks, except when it answers Agent C's own question (F5).
-- The new web UI has no Promotions, Hotel deals or urgent-flag pages yet: T27 adds them. Use the Streamlit apps for D.
 - Agent D has no seats (flights): it checks hotel rooms only at Atlas.
 - F6 cannot complete a rebooking: the real flight data has no later flight on that route. Agent C still proposes a
   flight that does not exist; the Coordinator catches it every time (no wrong write).

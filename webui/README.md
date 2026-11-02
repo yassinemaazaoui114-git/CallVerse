@@ -11,7 +11,11 @@ and routes as ShopNova's, under `/api/atlas`, with the company taken from the ac
 **step 6** = the dashboards: the Console's **Dashboard** and **Agents** (plus Groq today) for the supervisor, and
 the two admin dashboards (ShopNova, Atlas), all read-only wrappers of the core's own functions;
 **step 7** = the review pass: every account and flow checked in the browser on desktop and on a 375 px phone,
-keyboard and screen-reader fixes, the final screenshot set and the handoff report (`reports/step-7.md`).
+keyboard and screen-reader fixes, the final screenshot set and the handoff report (`reports/step-7.md`);
+**step 8 (T27)** = Agent D's owner screens: **Promotions** (ShopNova admin, `/admin/promotions`) and **Hotel deals**
+(Atlas admin, `/atlas/admin/deals`) with Approve / Refuse, a **Check now** panel on both admin dashboards, the red
+**Urgent** badge (Live tickets, Ticket detail, Approvals sorted urgent first) and Agent C/D's outcomes in plain words
+in Ticket detail ("What was done"). Design note: `reports/step-8.md`.
 The Console and the order pages stay read only and load no model; the chat loads the channel (and so the
 pipeline) on the first message only.
 
@@ -153,6 +157,24 @@ Errors always look like `{"error": "<code>", "message": "<words>"}` (`not_logged
 `csrf` 403, `customer_only` 403, `bad_login` 401, `no_accounts` 503, `not_found` 404, `setup_required` 503,
 `busy_user` 409, `empty_text` / `text_too_long` 400, `no_job` 404, `admin_only` 403, `already_decided` 409,
 `decision_in_progress` 409, `recheck_refused` 409, `reason_required` 400, `write_refused` 409).
+
+## Agent D's owner screens (step 8, T27)
+
+| Route | Who | What |
+|---|---|---|
+| `GET /api/admin/promotions?status=pending\|decided` | ShopNova admin (`approve_refunds`) | `approvals.promotions()` + Agent D's facts (stock, sold in 30 days, days of cover) |
+| `POST /api/admin/promotions/{id}/decision` `{approve, reason, client_id}` | same | `approvals.decide_promotion()` |
+| `POST /api/admin/stock-check` | same | `approvals.run_stock_scan("shopnova")` → `{counts: {short, over, proposed}}` |
+| `GET /api/atlas/admin/deals?status=` | Atlas admin (`approve_refunds`) | `approvals.atlas_deals()` + capacity / lowest occupancy, first / last night |
+| `POST /api/atlas/admin/deals/{id}/decision` | same | `approvals.decide_atlas_deal()` |
+| `POST /api/atlas/admin/room-check` | same | `approvals.run_stock_scan("atlas")` → `{counts: {overbooked, low, proposed}}` |
+
+`webui/api/owner.py` only calls these existing functions. Decisions use the same guard as the approvals
+(`admin.Decisions`): one at a time per row (409 `decision_in_progress`), an identical request sent again with the
+same `client_id` gets the recorded answer, a decided row gives 409 `already_decided`, refuse without a reason 400
+`reason_required`. One scan at a time per company (409 `scan_in_progress`; a crash is 500 `scan_failed`). The
+Console's ticket rows and ticket detail carry `urgent` (an approval with `urgent = 1`, or the "urgent refund"
+handover step of Agent C). Tests: `webui/api/tests/test_owner.py`, `src/test/T27.test.jsx`.
 
 ## Dashboards (step 6)
 
