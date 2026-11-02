@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | IN PROGRESS |
+| Status | WAITING FOR REVIEW |
 | Task file | tasks/T29_polish.md (money-back words widened with tests, Agent C "no later flight" check, eval bench fix + refund-on-unpaid-order check, optional "client" → "users" wording) |
 | Approved by | Yassine — 2026-11-02 13:32 ("if there is still tasks lets do it now, until the limit hit") |
 | Last done | T28 — merged into main (fdb6fac), 1811 tests pass on main |
