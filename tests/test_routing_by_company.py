@@ -143,7 +143,9 @@ def test_shopnova_prompts_are_byte_identical_to_main():
     """Fingerprints taken on main (1a1c6ee) before T21 touched any code; B and the fallback: new in T14a (cancel).
     T14b changed the ShopNova WRITER on purpose (no forced order opener, placeholder example): its fingerprint was renewed;
     the Atlas writer is checked against the old code's fingerprints in tests/test_t14b.py."""
-    assert sha(agent_a.SYSTEM_PROMPT) == "3b102f36fb9db23facab8bd358a10f731f28e454ade59c49e84e66fbda2bc2dc"
+    # T26 (P20 merge): Agent A got ONE new rule line, the [HANDOVER: C] for an urgent need (Agent C). New
+    # fingerprint; the old one was 3b102f36fb9db23facab8bd358a10f731f28e454ade59c49e84e66fbda2bc2dc.
+    assert sha(agent_a.SYSTEM_PROMPT) == "1fcc2acc130f7fff1d6dbdaf92b4f850f336e2272e47fae3aedd94acf0bb0135"
     assert sha(agent_b.SYSTEM_PROMPT) == "b871f5ff0999f6d844c14932fd1012cfa651bfba217bc31b97b5a8ca73054a51"
     assert sha(llm_fallback.PROMPT) == "3b889696b6587646aa6741bc4dea655b88cedffff34425521e063bb786b4c251"
     assert sha(writer.SYSTEM_PROMPT) == "a987ef9c9b0117a06fa7808a4a0709f78af5219af0401ef718bbaa6590edd5cd"
@@ -155,8 +157,15 @@ def test_shopnova_agents_use_those_prompts():
 
 
 def test_shopnova_tool_schemas_are_identical_to_main():
-    assert sha(json.dumps(registry.TOOL_SCHEMAS, sort_keys=True)) == (
+    # T26 (P20 merge): P20 added Agent C's tools; every tool that existed on main is still identical (same hash
+    # as main's full set before), and the full set has its own fingerprint.
+    p20 = {"get_stock", "propose_replacement", "propose_hold", "propose_assistance", "get_facts_from_a",
+           "check_availability_with_d"}
+    before = {k: v for k, v in registry.TOOL_SCHEMAS.items() if k not in p20}
+    assert sha(json.dumps(before, sort_keys=True)) == (
         "f75d3d13acd945b5007f0c49114aced474198cba486d2c8d8f82b6ee98a1373d")
+    assert sha(json.dumps(registry.TOOL_SCHEMAS, sort_keys=True)) == (
+        "e54d3885309e30cc1e3657a2ef92adcff462bfed1199bbf23dcf4126ccaf5914")
 
 
 def test_shopnova_reply_messages_are_identical_to_main():
@@ -328,7 +337,7 @@ def test_atlas_severity_base(reason, severity):
 
 @pytest.mark.parametrize("reason, agent", [
     ("booking_status", "A"), ("delay_disruption", "A"), ("other", "A"), ("refund_request", "B"),
-    ("compensation_request", "B"), ("cancellation", "B"), ("rebooking", "escalate"), ("special_assistance", "escalate"),
+    ("compensation_request", "B"), ("cancellation", "B"), ("rebooking", "C"), ("special_assistance", "C"),   # P20: Agent C
 ])
 def test_atlas_routes(reason, agent):
     assert route({"company": "atlas", "main_reason": reason, "priority_label": "low"})["agent"] == agent
@@ -338,12 +347,22 @@ def no_llm(role_key, messages, tools=None):
     raise AssertionError("no LLM call expected")
 
 
-def test_an_escalate_route_runs_no_agent():
+def c_wheelchair(role_key, messages, tools=None, **kw):
+    """P20: Agent C proposes a wheelchair; the client has not said yes yet (user_confirmed false)."""
+    assert role_key == "agent_c"
+    if messages[-1]["role"] == "user":
+        return tool_call("propose_assistance", {"booking_id": 7010, "kind": "wheelchair", "user_confirmed": False,
+                                                "user_quote": "I use a wheelchair"})
+    return text("A wheelchair request is being checked.")
+
+
+def test_special_assistance_goes_to_c_which_asks_first():
+    """P20 (spec): special assistance goes to Agent C (it was "escalate"); mobility needs need the client's yes."""
     ticket = intake.process("I use a wheelchair, I need help at the airport for my flight 7010.", use_llm=False,
                             company="atlas")
-    out = pipeline.handle_ticket(ticket, chat_fn=no_llm)
-    assert out["decision"]["outcome"] == "escalate" and out["proposal"] is None
-    assert "Your request has been passed on to a colleague who will help you with it." in out["final_reply"]
+    out = pipeline.handle_ticket(ticket, chat_fn=c_wheelchair)
+    assert out["handover"] == "C" and out["decision"]["outcome"] == "ask_user"
+    assert "Please confirm that you want a wheelchair for your flight booking 7010." in out["final_reply"]
 
 
 # ---------- agents and tools ----------
@@ -449,7 +468,7 @@ def test_shopnova_search_is_unchanged():
 def test_each_company_has_its_own_cache_file():
     assert companies.path("atlas", "policy_cache") != companies.path("shopnova", "policy_cache")
     assert companies.path("atlas", "reason_cache") != companies.path("shopnova", "reason_cache")
-    assert search.policy_vectors("atlas").shape[0] == 14
+    assert search.policy_vectors("atlas").shape[0] == 16   # P20: + AT-CAP-01, AT-DEAL-01 (Agent D)
 
 
 # ---------- the Coordinator: amounts by code ----------
@@ -1208,10 +1227,10 @@ def test_channel_a10_cancel_pays_nothing(queue):
     assert len(rows_for("refunds", 7012)) == expect["refund_rows"] and "non-refundable" in out["reply"]
 
 
-def test_channel_a11_goes_to_a_colleague(queue):
-    out, expect = run_flow("a11", no_llm)
-    assert out["outcome"] == expect["outcome"] and out["status"] == "Escalated"
-    assert store.get_ticket(out["ticket_id"])["lead_agent"] is None
+def test_channel_a11_goes_to_agent_c(queue):
+    out, expect = run_flow("a11", c_wheelchair)
+    assert out["outcome"] == expect["outcome"] == "ask_user" and out["status"] == "Waiting for user"
+    assert store.get_ticket(out["ticket_id"])["lead_agent"] == "C"
 
 
 def test_channel_a12_another_clients_booking(queue):

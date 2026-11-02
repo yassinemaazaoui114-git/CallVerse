@@ -159,6 +159,61 @@ CREATE TABLE admin_actions (           -- T18: every change made by the ShopNova
 );
 """
 
+# P20: the tables of Agents C (Urgent & Special Help) and D (Availability & Supply). Written ONLY by the
+# Coordinator's writes (writes.py) after its checks, or by the owner's promotion decision. "IF NOT EXISTS": an
+# older shopnova.db gets them the first time a C/D write or read runs (ensure_cd_tables), with no rebuild.
+REPLACEMENT_STATUSES = ("created",)
+HOLD_STATUSES = ("held", "released")
+ASSISTANCE_STATUSES = ("requested", "taken")
+PROMOTION_STATUSES = ("pending", "approved", "refused")
+CD_TABLES = f"""
+CREATE TABLE IF NOT EXISTS replacements (  -- C: a new unit sent for an order (rule R-RPL-01), at no cost
+    id           INTEGER PRIMARY KEY,
+    order_id     INTEGER NOT NULL REFERENCES orders(id),   -- the late / damaged order
+    new_order_id INTEGER NOT NULL REFERENCES orders(id),   -- the replacement order (total 0)
+    product_id   INTEGER NOT NULL REFERENCES products(id),
+    qty          INTEGER NOT NULL,
+    status       TEXT NOT NULL CHECK (status IN {_in(REPLACEMENT_STATUSES)}),
+    proposal_id  TEXT NOT NULL,
+    created_at   TEXT NOT NULL,{LABELS}
+);
+CREATE TABLE IF NOT EXISTS holds (         -- C: units kept for a client (rule R-HLD-01); the stock goes down
+    id           INTEGER PRIMARY KEY,
+    order_id     INTEGER NOT NULL REFERENCES orders(id),   -- the order the client wrote about
+    product_id   INTEGER NOT NULL REFERENCES products(id),
+    qty          INTEGER NOT NULL,
+    held_until   TEXT NOT NULL,                            -- ISO date
+    status       TEXT NOT NULL CHECK (status IN {_in(HOLD_STATUSES)}),
+    proposal_id  TEXT NOT NULL,
+    created_at   TEXT NOT NULL,{LABELS}
+);
+CREATE TABLE IF NOT EXISTS assistance_requests (  -- C: a hard / disputed case for a human colleague (R-AST-01)
+    id           INTEGER PRIMARY KEY,
+    order_id     INTEGER REFERENCES orders(id),            -- NULL = the client gave no order
+    reason       TEXT NOT NULL,
+    status       TEXT NOT NULL CHECK (status IN {_in(ASSISTANCE_STATUSES)}),
+    proposal_id  TEXT NOT NULL,
+    created_at   TEXT NOT NULL,{LABELS}
+);
+CREATE TABLE IF NOT EXISTS promotions (    -- D: a promotion for an overstocked product (R-PRM-01); the owner decides
+    id           INTEGER PRIMARY KEY,
+    product_id   INTEGER NOT NULL REFERENCES products(id),
+    discount_pct REAL NOT NULL,
+    status       TEXT NOT NULL CHECK (status IN {_in(PROMOTION_STATUSES)}),
+    note         TEXT,                                     -- D's note for the owner (worded by the model or a template)
+    proposal_id  TEXT NOT NULL,
+    decided_by   TEXT,
+    decided_at   TEXT,
+    reason       TEXT,                                     -- the owner's reason (refuse)
+    created_at   TEXT NOT NULL,{LABELS}
+);
+"""
+
+
+def ensure_cd_tables(con: sqlite3.Connection) -> None:
+    """Create the Agent C / D tables if this database file does not have them yet (older files)."""
+    con.executescript(CD_TABLES)
+
 # ---------------------------------------------------------------------------
 # SCRIPTED DATA: AI-written demo data (fictional people, products and orders), source = "scripted".
 # Do not change a value: the demo scenarios and the tests rely on it.
@@ -260,6 +315,7 @@ def seed(db_path: Path | None = None) -> Path:
     con = sqlite3.connect(db_path)
     try:
         con.executescript(SCHEMA)
+        con.executescript(CD_TABLES)   # P20: Agents C and D (empty at seed)
         # Scripted data: every row is AI-written (ai_generated = 1) and has source "scripted". The 11 orders and
         # the refund of order 4506 are demo cases (scripted = 1); users 1-5 and products 1-6 are not (as before).
         con.executemany("INSERT INTO users (id, name, email, phone, source, ai_generated, scripted)"

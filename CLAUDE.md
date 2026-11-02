@@ -19,12 +19,12 @@ CallVerse Console on 8502, Atlas on 8503. The teacher grades **architectural rea
 
 ## Locked decisions (do not change)
 - Flow: Intake (M3 + M4) → Router per company + priority queue → Agent A / Agent B → Coordinator (rules; ShopNova
-  `coordinator.py`, Atlas `atlas_coordinator.py`) → SLM → reply. Rebooking and special assistance are escalated
-  until agent C exists. (The Client Simulator is not part of this flow: it is Mahmoud's lane.)
+  `coordinator.py`, Atlas `atlas_coordinator.py`) → SLM → reply. Rebooking and special assistance go to agent C
+  (P20, merged in T26). (The Client Simulator is not part of this flow: it is Mahmoud's lane.)
 - Company data: **ShopNova** = real Olist sample + scripted orders 4505–4515. **Atlas** = real hotel bookings +
   real 2015 US flights + scripted bookings 7001–7012.
-- Scope: agent E is dropped. Agent F and RL are Semah's lane. Agents C and D are planned and are built only in their
-  own tasks. Fine-tuning and benchmarks only when a task asks for them. Training runs on Colab / Kaggle, not on the PC.
+- Scope: agent E is dropped. Agent F and RL are Semah's lane. Agents C (urgent & special help) and D (availability &
+  supply, rules) are in scope (P20 by Dali, merged in T26); D's proposals (promotions, hotel deals) wait for the owner. Fine-tuning and benchmarks only when a task asks for them. Training runs on Colab / Kaggle, not on the PC.
 - Models: `config.yaml` is the source of truth (switch models there only). Today:
   M2 Agents A and B = local `callverse-m2-v3` (Dali's fine-tuned Qwen3-4B, GGUF in git-ignored `models/m2/`, load with
   `ollama create callverse-m2-v3 -f models/m2/Modelfile_v3`); backups: A → `cv-qwen3.5-4b` → `cv-phi4-mini`;

@@ -21,9 +21,9 @@ from the ticket); the model can never choose it.
 """
 
 from callverse import trace
-from callverse.agents import ask
+from callverse.agents import ask, ask_c
 from callverse.kb import search
-from callverse.tools import atlas_tools, proposal_tools, shopnova_tools
+from callverse.tools import atlas_c_tools, atlas_tools, proposal_tools, shopnova_tools, stock_tools
 
 # All tools that exist in the prototype (name -> function / schema).
 TOOL_FUNCTIONS = {
@@ -33,6 +33,10 @@ TOOL_FUNCTIONS = {
     "propose_subscription": proposal_tools.propose_subscription,
     "propose_cancellation": proposal_tools.propose_cancellation,
     "ask_agent": ask.ask_agent,
+    # P20: Agent C's stock read and its three proposal tools (they only propose).
+    "get_stock": stock_tools.get_stock,
+    **proposal_tools.C_FUNCTIONS,
+    **ask_c.FUNCTIONS,   # C asks A ("get the facts") and D ("is it available?")
 }
 TOOL_SCHEMAS = {
     **shopnova_tools.SCHEMAS,
@@ -41,6 +45,9 @@ TOOL_SCHEMAS = {
     "propose_subscription": proposal_tools.SUBSCRIPTION_SCHEMA,
     "propose_cancellation": proposal_tools.CANCELLATION_SCHEMA,
     "ask_agent": ask.SCHEMA,
+    "get_stock": stock_tools.SCHEMA,
+    **proposal_tools.C_SCHEMAS,
+    **ask_c.SCHEMAS,
 }
 
 # T14b: fields the ShopNova read tools do not show to agents (anywhere inside the result, rows of lists included).
@@ -59,7 +66,7 @@ def hide_fields(value):
 
 
 # Tools that run another agent: they get the caller's LLM function (so tests can use a fake LLM).
-RUNS_AN_AGENT = {"ask_agent"}
+RUNS_AN_AGENT = {"ask_agent", *ask_c.FUNCTIONS}
 
 # Allow-lists: which tools each agent may use.
 # Status & Tracking: read-only tools + rules + company profile (carriers, delivery promise, cities).
@@ -69,9 +76,18 @@ AGENT_A = ["get_user", "get_order", "get_tracking", "get_company_profile", "sear
 # propose_refund and propose_cancellation (T14a) only create a proposal.
 AGENT_B = ["get_order", "get_refunds", "search_policy", "propose_refund", "propose_cancellation", "ask_agent"]
 
+# P20: Urgent & Special Help. Its facts come through the spec's links: it ASKS A for the delivery facts and D for the
+# stock (no get_tracking / get_stock of its own), reads the order (items) itself, and hands a refund to B
+# ([HANDOVER: B], not a tool; no refunds read: T06, B only). Its three action tools only create a proposal
+# (replacement, hold, assistance); the Coordinator writes after the client says yes.
+AGENT_C = ["get_order", "get_facts_from_a", "check_availability_with_d", "search_policy",
+           "propose_replacement", "propose_hold", "propose_assistance"]
+# Agent D (Availability & Supply) is NOT here: it is rules, not an LLM with tools (agents/agent_d.py).
+
 ALLOW_LISTS = {
     "A": AGENT_A,
     "B": AGENT_B,
+    "C": AGENT_C,
     # Intake is not an agent, but it reads facts through the same gate: order + tracking only, no user data.
     "INTAKE": ["get_order", "get_tracking"],
 }
@@ -84,13 +100,21 @@ ATLAS_AGENT_A = ["get_user", "get_hotel_booking", "get_flight_booking", "get_fli
 ATLAS_AGENT_B = ["get_hotel_booking", "get_flight_booking", "get_refunds", "search_policy", "propose_refund",
                  "propose_compensation", "propose_hotel_cancellation", "ask_agent"]
 
+# P20: Agent C at Atlas: reads the flight booking, finds later flights, proposes a new flight (AT-FLT-01) or a
+# wheelchair (AT-AST-01). Only proposals: the Atlas Coordinator writes after the client's yes.
+ATLAS_AGENT_C = ["get_flight_booking", "get_flight", "find_alternative_flights", "search_policy",
+                 "propose_rebooking", "propose_assistance"]
+
 ATLAS_ALLOW_LISTS = {
     "A": ATLAS_AGENT_A,
     "B": ATLAS_AGENT_B,
+    "C": ATLAS_AGENT_C,
     "INTAKE": ["get_hotel_booking", "get_flight_booking"],
 }
-ATLAS_TOOL_FUNCTIONS = {**atlas_tools.FUNCTIONS, **proposal_tools.ATLAS_FUNCTIONS, "ask_agent": ask.ask_agent}
-ATLAS_TOOL_SCHEMAS = {**atlas_tools.SCHEMAS, **proposal_tools.ATLAS_SCHEMAS, "ask_agent": ask.ATLAS_SCHEMA}
+ATLAS_TOOL_FUNCTIONS = {**atlas_tools.FUNCTIONS, **proposal_tools.ATLAS_FUNCTIONS, "ask_agent": ask.ask_agent,
+                        **atlas_c_tools.FUNCTIONS}
+ATLAS_TOOL_SCHEMAS = {**atlas_tools.SCHEMAS, **proposal_tools.ATLAS_SCHEMAS, "ask_agent": ask.ATLAS_SCHEMA,
+                      **atlas_c_tools.SCHEMAS}
 
 # Company -> (its allow-lists, its tool functions, its tool schemas).
 COMPANY_TOOLS = {
