@@ -353,6 +353,9 @@ How we work: `tasks/NEXT.md` says which task is next; each task has a file `task
   Baselines: `python -m scripts.train_style_policy --baselines`. Report [tasks/T30_report.md](tasks/T30_report.md).
 - **T31** Held-out C/D final check (D07 dropped, C12 tightened, run once): **6/10** (C 3/7, D 3/3), nothing wrong written.
   `--source ratings` training no longer writes `style_log` rows. Report [tasks/T31_report.md](tasks/T31_report.md).
+- **T32** Wrap-up: the agent bench's "Wrong proposals" line also counts forbidden-tool proposals (T31: 3, all caught by
+  the Coordinator); `--summarize` re-prints a saved run with no model call. Finding for the teacher:
+  [docs/findings_agent_c.md](docs/findings_agent_c.md). Report [tasks/T32_report.md](tasks/T32_report.md).
 
 The platform lane (Dali) has its own tasks `tasks/P01`–`P09b` (data and writes, Layer 3, server, clock, demo screen).
 - **P20** (branch `m2-finetuned`, waiting for review) Agents C and D to the spec: C = Urgent & Special Help (replacement,

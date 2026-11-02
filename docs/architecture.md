@@ -44,3 +44,5 @@ the next model in the list in `config.yaml` is tried.
 
 Also: **facts come from tools, never from model memory**, and the demo uses a fixed date
 (`sim_today: 2026-10-09`) so runs are reproducible.
+
+Why rule 1 matters, with numbers: [findings_agent_c.md](findings_agent_c.md) (held-out check, T31: Agent C proposed when the facts said no; the Coordinator caught every case, 0 wrong writes).

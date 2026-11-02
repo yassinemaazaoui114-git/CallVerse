@@ -5,6 +5,15 @@ run gives **6/10** with `callverse-m2-v3` (Agent C 3/7, Agent D 3/3). All 4 fail
 each one the Coordinator sent the action back, or held it until the client says yes, so nothing wrong was written.
 The replay fix is in: ratings training no longer writes `style_log` rows. Tests: **1877/1877** (T30 1876, +1).
 
+**Note (T32):**
+- **C12.** The official score stays **6/10**, because the case was fixed before the run. But a 3-day hold is legal under
+  R-HLD-01 (max 3 days). C capped the client's 10 days at 3, so C12's tightened expectation was too strict (the
+  Brain's mistake, approved by Yassine on 2 Nov). On a lenient reading the score is **7/10** (C 4/7).
+- **Wrong proposals.** The bench line "Wrong proposals: 0" counted only cases that expect no action. The corrected line
+  (T32 bench, re-summarised from the saved runs, no model call):
+  `Wrong proposals: 3 (acted when it should not: 0, called a forbidden tool: 3 ['C09', 'C12', 'C14'])`.
+  Nothing wrong was written: C09 and C14 were escalated by the Coordinator, and C12 waits for the client's yes.
+
 ## 1. In plain words
 We kept 10 test cases for agents C (urgent help) and D (stock) hidden until the end, and ran them once today.
 Agent D, which follows fixed rules, passed all 3. Agent C, the language model, passed 3 of 7. In 3 cases it proposed an
