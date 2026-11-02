@@ -310,6 +310,13 @@ def run_c(ticket: dict, message: str, chat_fn, by: str, urgent_b: bool = True) -
     text = companies.get(companies.of(ticket))["handover_texts"].get("urgent_help") if by in ("agent_A", "router") else None
     trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "C", "by": by, "text": text})
     result, proposals, final = run_agent_with_coordinator(AgentC, message, ticket, chat_fn)
+    if result.get("no_later_flight") and (final is None or final["outcome"] in ("send_back", "escalate")):
+        # T29 (F6): Atlas, no later flight on the route: C may not offer one. By code, a colleague takes the case,
+        # with one fixed sentence for the user (atlas_special.no_later_flight_decision). Nothing is written.
+        from callverse.coordinator import atlas_special
+        trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "colleague", "by": "agent_C",
+                                           "reason": "no later flight on this route"})
+        return result["answer"], "C", text, proposals, atlas_special.no_later_flight_decision(ticket.get("order_id"))
     if result.get("handover") == "B" and final is None and urgent_b:
         ticket["urgent"] = True
         trace.log("handover", "pipeline", {"ticket_id": ticket["ticket_id"], "to": "B", "by": "agent_C",

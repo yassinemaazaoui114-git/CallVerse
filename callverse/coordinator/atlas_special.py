@@ -36,6 +36,22 @@ def user_words(outcome: str, action: str, facts: dict, booking_id) -> tuple[list
     return [], ""
 
 
+def no_later_flight_sentence(booking_id) -> str:
+    """T29 (F6): the one fixed sentence the user gets when no later flight exists on the route."""
+    return (f"There is no later flight on this route for your booking {booking_id}, "
+            "so a colleague will contact you about your options.")
+
+
+def no_later_flight_decision(booking_id) -> dict:
+    """T29 (F6): Agent C found no later flight, so it offered nothing. By code (no LLM) the case goes to a human
+    colleague (escalate = the ticket becomes "Escalated"), and nothing is written."""
+    from callverse.tools.atlas_c_tools import NO_LATER_FLIGHT
+    decision = _decision("escalate", "rebook", booking_id, "flight", RULES["rebook"], {},
+                         [no_later_flight_sentence(booking_id)], "", NO_LATER_FLIGHT, None)
+    trace.log("coordinator_decision", "coordinator", decision)
+    return decision
+
+
 def review_deal(proposal: dict, case: dict) -> dict:
     """Agent D's hotel deal (AT-DEAL-01): facts re-read (derived capacity, coming occupancy), rule condition, then
     "owner_pending": the deal is stored as pending and only the owner approves it. Nothing else is written."""

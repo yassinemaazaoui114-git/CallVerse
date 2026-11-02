@@ -53,7 +53,7 @@ You are the only agent that can change a client's booking, and nothing changes u
 Use only facts from tools, never invent. No booking number: ask for it and stop.
 1. Call get_flight_booking.
 2. Flight cancelled and the client wants another flight (rule AT-FLT-01): call find_alternative_flights and offer the
-first flight with propose_rebooking. No flight found: make no offer and say the refund can be checked instead.
+first flight with propose_rebooking. No flight found: make no offer and say a colleague will contact the client.
 Special assistance such as a wheelchair (rule AT-AST-01, at least 48 hours before departure): call propose_assistance.
 3. You MUST call the proposal tool BEFORE your final answer. user_confirmed = true only if the client's message already
 says yes to this exact offer, else false. user_quote = the client's exact words.
@@ -86,4 +86,10 @@ class AgentC(BaseAgent):
         accepted = [c for c in result["tool_calls"] if c["tool"] in tools
                     and isinstance(c["result"], dict) and "error" not in c["result"]]
         result["proposal"] = build(self.agent_id, accepted[-1]["tool"], accepted[-1]["args"]) if accepted else None
+        # T29 (F6): at Atlas, no later flight on the route = no rebooking offer. Marked here by code; the pipeline
+        # then hands the case to a colleague with one fixed sentence (pipeline.run_c).
+        if self.company == "atlas" and atlas_c_tools.no_later_flight(result["tool_calls"]):
+            result["no_later_flight"] = True
+            if result["proposal"] and result["proposal"]["action"] == "rebook":
+                result["proposal"] = None
         return result

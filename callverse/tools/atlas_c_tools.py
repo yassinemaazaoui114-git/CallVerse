@@ -39,7 +39,9 @@ def find_alternative_flights(booking_id=None) -> dict:
     found = alternatives(booking)
     return {"booking_id": booking_id, "route": f"{booking['origin']}-{booking['destination']}",
             "original_departure": booking["scheduled_departure"], "flights": found,
-            "note": "" if found else "no later flight on this route in the schedule: offer the refund instead"}
+            # T29 (F6): with no flight, C makes no offer; the pipeline hands the case to a colleague by code.
+            "note": "" if found else "no later flight on this route in the schedule: make no offer, a colleague "
+                                     "takes the case"}
 
 
 def _problems(fields: dict) -> list[str]:
@@ -66,9 +68,27 @@ def _propose(action: str, fields: dict) -> dict:
 
 
 def propose_rebooking(booking_id=None, new_flight_id=None, user_confirmed=None, user_quote=None) -> dict:
-    """Propose moving a cancelled flight booking to a later flight (AT-FLT-01). Changes nothing."""
-    return _propose("rebook", {"booking_id": booking_id, "new_flight_id": new_flight_id,
-                               "user_confirmed": user_confirmed, "user_quote": user_quote})
+    """Propose moving a cancelled flight booking to a later flight (AT-FLT-01). Changes nothing.
+    T29 (F6): refused by code when the route has NO later flight, so C cannot offer a flight it invented."""
+    fields = {"booking_id": booking_id, "new_flight_id": new_flight_id, "user_confirmed": user_confirmed,
+              "user_quote": user_quote}
+    if isinstance(booking_id, int) and not isinstance(booking_id, bool):
+        booking = reads.get_flight_booking(booking_id)
+        if "error" not in booking and not alternatives(booking):
+            trace.log("proposal_refused", "atlas_c_tools", {"action": "rebook", "fields": fields,
+                                                            "problems": [NO_LATER_FLIGHT]})
+            return {"error": f"proposal refused: {NO_LATER_FLIGHT}; make no offer, a colleague takes the case"}
+    return _propose("rebook", fields)
+
+
+# T29 (F6): the reason C's case goes to a colleague when find_alternative_flights finds nothing.
+NO_LATER_FLIGHT = "no later flight on this route"
+
+
+def no_later_flight(tool_calls: list[dict]) -> bool:
+    """True when, in this agent turn, find_alternative_flights answered with an empty list (and no error)."""
+    return any(c["tool"] == "find_alternative_flights" and isinstance(c["result"], dict)
+               and "error" not in c["result"] and c["result"].get("flights") == [] for c in tool_calls)
 
 
 def propose_assistance(booking_id=None, kind="wheelchair", user_confirmed=None, user_quote=None) -> dict:
