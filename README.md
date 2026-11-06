@@ -22,7 +22,9 @@ Two fictional companies, real public datasets, local small models, text, voice a
 
 ## Demo
 
-<!-- DEMO VIDEO: in the GitHub web editor, delete this comment line and drag demo.mp4 here. GitHub replaces it with a playable video link. -->
+
+https://github.com/user-attachments/assets/b1ae6727-ce91-4805-a78f-0a809047d7e9
+
 
 *94 seconds, no sound.* A ShopNova customer asks about a late order and CallVerse answers. An Atlas Travel customer
 asks for compensation for a delayed flight. The amount is above the limit, so it waits in the admin's approval
