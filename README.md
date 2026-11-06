@@ -20,6 +20,15 @@ Two fictional companies, real public datasets, local small models, text, voice a
 
 ---
 
+## Demo
+
+<!-- DEMO VIDEO: in the GitHub web editor, delete this comment line and drag demo.mp4 here. GitHub replaces it with a playable video link. -->
+
+*94 seconds, no sound.* A ShopNova customer asks about a late order and CallVerse answers. An Atlas Travel customer
+asks for compensation for a delayed flight. The amount is above the limit, so it waits in the admin's approval
+queue. After approval, the customer gets the confirmation. Finally, the supervisor console shows every step the
+center took on that ticket: intake, routing, agent calls, rule search and the proposal.
+
 ## What it is
 
 CallVerse simulates the customer-service center of a company that has **no human agents in the first line**.
