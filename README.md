@@ -209,14 +209,6 @@ tests/              pytest tests
 
 Team project of six students: Ayoub Rebhi, Mahmoud Ben Khelil, Medali Mraihi, Molka Boukhris, Semah Ayachi and Yassine Maazaoui.
 
-| Who | Main contribution |
-|---|---|
-| **Yassine Maazaoui** | The core pipeline: Intake, queue router, agent loop and Agents A and B, the Coordinator, policy search, the reply writer, tickets, the Console, the embeddings benchmark, integration of the team's branches |
-| **Medali Mraihi (Dali)** | The platform and data layer, the web server, the React web UI, Agents C and D, the fine-tuned agent model |
-| **Molka Boukhris** | The voice and photo channel (speech and vision benchmarks, web channel) |
-| **Semah Ayachi** | The satisfaction predictor (Agent F) and the vision QLoRA adapter |
-| **Mahmoud Ben Khelil** | The Client Simulator |
-
 ## Data and licences
 
 - **Code:** MIT, see [LICENSE](LICENSE).
